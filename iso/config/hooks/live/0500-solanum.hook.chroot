@@ -22,4 +22,4 @@ mv /etc/skel /etc/skel.debian
 mv /home/hyprtrixie /etc/skel
 chown -R root:root /etc/skel
 userdel hyprtrixie
-systemctl enable hyprtrixie-install-console.service
+systemctl enable solanum-install-console.service

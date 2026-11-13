@@ -1,4 +1,4 @@
-Package: hyprtrixie-backup
+Package: solanum-backup
 Version: @VERSION@
 Architecture: amd64
 Maintainer: Ahmadlolbit <ahmadyassin714@gmail.com>

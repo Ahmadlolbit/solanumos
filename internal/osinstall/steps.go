@@ -23,8 +23,8 @@ var (
 	bound      = []string{"dev", "dev/pts", "proc", "sys", "sys/firmware/efi/efivars", "run"}
 	wanted     = []string{"sudo", "adm", "audio", "video", "plugdev", "netdev", "users", "lpadmin", "bluetooth"}
 	livePieces = []string{"live-boot", "live-boot-initramfs-tools", "live-config", "live-config-systemd", "live-tools"}
-	liveFiles  = []string{"etc/sddm.conf.d/zz-hyprtrixie-live.conf", "usr/share/applications/hyprtrixie-installer.desktop",
-		"etc/systemd/system/hyprtrixie-install-console.service", "etc/systemd/system/multi-user.target.wants/hyprtrixie-install-console.service"}
+	liveFiles  = []string{"etc/sddm.conf.d/zz-solanum-live.conf", "usr/share/applications/solanum-installer.desktop",
+		"etc/systemd/system/solanum-install-console.service", "etc/systemd/system/multi-user.target.wants/solanum-install-console.service"}
 	windowsMenu = "GRUB_DISABLE_OS_PROBER=false\nGRUB_TIMEOUT_STYLE=menu\nGRUB_TIMEOUT=5\n"
 )
 

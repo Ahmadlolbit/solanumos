@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	sddmTheme    = "hyprtrixie"
+	sddmTheme    = "solanum"
 	oldSddmTheme = "catppuccin-mocha-blue"
 	sddmUnit     = "sddm.service"
 	sddmProgram  = "/usr/bin/sddm"
@@ -133,7 +133,7 @@ func (context *Context) sddmThemeInstall(log *runlog.Log) error {
 	if err := apt.InstallLists(log, "sddm-theme"); err != nil {
 		return err
 	}
-	if err := context.Deploy.Tree("system/sddm/hyprtrixie", filepath.Join(sddmThemes(), sddmTheme)); err != nil {
+	if err := context.Deploy.Tree("system/sddm/solanum", filepath.Join(sddmThemes(), sddmTheme)); err != nil {
 		return err
 	}
 	if err := context.Deploy.RemoveTree(filepath.Join(sddmThemes(), oldSddmTheme)); err != nil {

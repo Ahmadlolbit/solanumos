@@ -375,7 +375,7 @@ func (context *Context) lazyvimSetup(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	scheme, err := os.ReadFile(filepath.Join(env.Root(), "config/nvim/hyprtrixie.lua"))
+	scheme, err := os.ReadFile(filepath.Join(env.Root(), "config/nvim/solanum.lua"))
 	if err != nil {
 		return err
 	}
@@ -389,14 +389,14 @@ func (context *Context) lazyvimSetup(log *runlog.Log) error {
 			return err
 		}
 	}
-	if err := context.Person.Write(log, filepath.Join(plugins, "hyprtrixie.lua"), string(scheme)); err != nil {
+	if err := context.Person.Write(log, filepath.Join(plugins, "solanum.lua"), string(scheme)); err != nil {
 		return err
 	}
 	return context.Person.RunWithin(run.Minute, log, "mv", "-T", part, config)
 }
 
 func (context *Context) lazyvimPlugins(log *runlog.Log) error {
-	if !fsutil.IsFile(context.Person.Path(".config/nvim/lua/plugins/hyprtrixie.lua")) {
+	if !fsutil.IsFile(context.Person.Path(".config/nvim/lua/plugins/solanum.lua")) {
 		log.Line("info", "your Neovim config isn't the LazyVim one the setup made, so its plugins stay as they are")
 		return nil
 	}

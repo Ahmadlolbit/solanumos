@@ -45,7 +45,7 @@ func zramConfig() string {
 }
 
 func swapSettings() string {
-	return filepath.Join(env.Or("SOLANUM_SYSCTL_DIR", "/etc/sysctl.d"), "90-hyprtrixie-swap.conf")
+	return filepath.Join(env.Or("SOLANUM_SYSCTL_DIR", "/etc/sysctl.d"), "90-solanum-swap.conf")
 }
 
 func (context *Context) number(key string) int {
@@ -177,7 +177,7 @@ func (zram *zramSetup) configure(log *runlog.Log) error {
 }
 
 func (context *Context) swappinessApply(log *runlog.Log) error {
-	if err := context.Deploy.File("system/sysctl/90-hyprtrixie-swap.conf", swapSettings(), "SWAPPINESS="+context.Config.Get("SWAPPINESS")); err != nil {
+	if err := context.Deploy.File("system/sysctl/90-solanum-swap.conf", swapSettings(), "SWAPPINESS="+context.Config.Get("SWAPPINESS")); err != nil {
 		return err
 	}
 	return run.Logged(log, "sysctl", "-q", "-p", swapSettings())

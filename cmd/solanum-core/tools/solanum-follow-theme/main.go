@@ -43,10 +43,10 @@ const (
 var (
 	settingsFile = env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")
 	templates    = env.Or("SOLANUM_FOLLOW_TEMPLATES", "/usr/share/hyprtrixie/follow")
-	plymouthDir  = env.Or("SOLANUM_PLYMOUTH_DIR", "/usr/share/plymouth/themes/hyprtrixie")
+	plymouthDir  = env.Or("SOLANUM_PLYMOUTH_DIR", "/usr/share/plymouth/themes/solanum")
 	grubDir      = env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
 	vtrgb        = env.Or("SOLANUM_VTRGB", "/etc/hyprtrixie/vtrgb")
-	sddmDir      = env.Or("SOLANUM_SDDM_THEME_DIR", "/usr/share/sddm/themes/hyprtrixie")
+	sddmDir      = env.Or("SOLANUM_SDDM_THEME_DIR", "/usr/share/sddm/themes/solanum")
 	owedImage    = filepath.Join(env.StateDir(), "owed", "boot-image")
 )
 
@@ -116,12 +116,12 @@ func splash(current theme, initramfs bool) bool {
 }
 
 func splashFiles(current theme) ([][2]string, error) {
-	data, err := os.ReadFile(filepath.Join(templates, "hyprtrixie.script"))
+	data, err := os.ReadFile(filepath.Join(templates, "solanum.script"))
 	if err != nil {
 		return nil, err
 	}
 	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent))
-	files := [][2]string{{filepath.Join(plymouthDir, "hyprtrixie.script"), script}}
+	files := [][2]string{{filepath.Join(plymouthDir, "solanum.script"), script}}
 	channels := follow.Channels(current.accent)
 	paint := color.NRGBA{R: uint8(channels[0]), G: uint8(channels[1]), B: uint8(channels[2]), A: 255}
 	for _, scale := range []int{4, 8} {

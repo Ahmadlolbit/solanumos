@@ -21,11 +21,11 @@ import (
 
 const (
 	powerProfiles  = "power-profiles-daemon.service"
-	batteryUnit    = "hyprtrixie-battery.service"
-	autoUpgrades   = "/etc/apt/apt.conf.d/52hyprtrixie-auto-upgrades"
+	batteryUnit    = "solanum-battery.service"
+	autoUpgrades   = "/etc/apt/apt.conf.d/52solanum-auto-upgrades"
 	networkManager = "NetworkManager"
 	loopbackOnly   = "source /etc/network/interfaces.d/*\n\nauto lo\niface lo inet loopback\n"
-	trustScript    = "90-hyprtrixie-trust"
+	trustScript    = "90-solanum-trust"
 	trustTarget    = "/etc/NetworkManager/dispatcher.d/" + trustScript
 	sshPort        = "22/tcp"
 	sshRule        = "hyprtrixie ssh"
@@ -163,7 +163,7 @@ func (context *Context) autoUpdatesSetup(*runlog.Log) error {
 	if context.Config.Get("AUTO_UPDATES") == "yes" {
 		enabled = "1"
 	}
-	return context.Deploy.File("system/apt/52hyprtrixie-auto-upgrades", autoUpgrades, "ENABLED="+enabled)
+	return context.Deploy.File("system/apt/52solanum-auto-upgrades", autoUpgrades, "ENABLED="+enabled)
 }
 
 func autoUpdatesReady(*runlog.Log) error {

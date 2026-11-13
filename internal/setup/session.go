@@ -27,10 +27,10 @@ const (
 	appsMenu     = "/etc/xdg/menus/hyprtrixie-applications.menu"
 	makoUser     = ".config/mako/config"
 	elephantLib  = "/usr/local/lib/elephant"
-	tipTimer     = "hyprtrixie-tip.timer"
-	tipService   = "hyprtrixie-tip.service"
-	careTimer    = "hyprtrixie-care.timer"
-	careService  = "hyprtrixie-care.service"
+	tipTimer     = "solanum-tip.timer"
+	tipService   = "solanum-tip.service"
+	careTimer    = "solanum-care.timer"
+	careService  = "solanum-care.service"
 	fwupdTimer   = "fwupd-refresh.timer"
 	userUnits    = "/etc/systemd/user/"
 	verdictLine  = "Config parsing result:"
@@ -105,7 +105,7 @@ func (context *Context) hyprlandUserConfig(log *runlog.Log) error {
 }
 
 func (context *Context) hyprlandUserReady(*runlog.Log) error {
-	return holds(mentions(context.Person.Path(hyprUser), filepath.Join(hyprShare(), "hyprtrixie.lua")))
+	return holds(mentions(context.Person.Path(hyprUser), filepath.Join(hyprShare(), "solanum.lua")))
 }
 
 func hyprlandAccepted(lines []string) bool {
@@ -347,7 +347,7 @@ func (context *Context) careInstall(log *runlog.Log) error {
 
 func (context *Context) brightnessAccess(log *runlog.Log) error {
 	rules := followUp{name: "brightness-rules"}
-	changed, err := context.Deploy.Changed("system/udev/90-hyprtrixie-brightness.rules", "/etc/udev/rules.d/90-hyprtrixie-brightness.rules")
+	changed, err := context.Deploy.Changed("system/udev/90-solanum-brightness.rules", "/etc/udev/rules.d/90-solanum-brightness.rules")
 	rules.need(changed)
 	if err != nil {
 		return err

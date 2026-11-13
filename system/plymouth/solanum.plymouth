@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=solanum
+Description=The Hyprtrixie logo in the colours of your theme
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/solanum
+ScriptFile=/usr/share/plymouth/themes/solanum/solanum.script

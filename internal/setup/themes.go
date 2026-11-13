@@ -40,10 +40,10 @@ const (
 	followService  = followTool + ".service"
 	gtkBase        = "adw-gtk3"
 	gtkThemes      = "/usr/share/themes"
-	consoleService = "hyprtrixie-console.service"
-	consoleBanner  = "/etc/issue.d/hyprtrixie.issue"
+	consoleService = "solanum-console.service"
+	consoleBanner  = "/etc/issue.d/solanum.issue"
 	unitFolder     = "/etc/systemd/system/"
-	splashScript   = "/usr/share/plymouth/themes/hyprtrixie/"
+	splashScript   = "/usr/share/plymouth/themes/solanum/"
 	grubFont       = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 	btopTheme      = `color_theme = "hyprtrixie"`
 	btopSetting    = "color_theme = "
@@ -468,7 +468,7 @@ func (theme *themeRun) followInstall(*runlog.Log) error {
 	if err := theme.Deploy.Tool(followTool); err != nil {
 		return err
 	}
-	if err := theme.Deploy.File("system/plymouth/hyprtrixie.script", followFile("hyprtrixie.script"), "BOOT_PROMPT="+theme.Config.Get("BOOT_PROMPT")); err != nil {
+	if err := theme.Deploy.File("system/plymouth/solanum.script", followFile("solanum.script"), "BOOT_PROMPT="+theme.Config.Get("BOOT_PROMPT")); err != nil {
 		return err
 	}
 	if err := theme.Deploy.File("system/grub/theme.txt", followFile("theme.txt")); err != nil {
@@ -492,7 +492,7 @@ func (theme *themeRun) bootSplashInstall(log *runlog.Log) error {
 	if err := apt.InstallLists(log, "boot-splash"); err != nil {
 		return err
 	}
-	if err := theme.splashFile("plymouth/hyprtrixie.plymouth", splashScript+"hyprtrixie.plymouth"); err != nil {
+	if err := theme.splashFile("plymouth/solanum.plymouth", splashScript+"solanum.plymouth"); err != nil {
 		return err
 	}
 	if err := theme.splashFile("plymouth/plymouthd.conf", "/etc/plymouth/plymouthd.conf"); err != nil {
@@ -669,7 +669,7 @@ func (theme *themeRun) consoleInstall(log *runlog.Log) error {
 	if err := service.Enable(log, consoleService); err != nil {
 		return err
 	}
-	return theme.Deploy.File("system/console/hyprtrixie.issue", consoleBanner)
+	return theme.Deploy.File("system/console/solanum.issue", consoleBanner)
 }
 
 func (theme *themeRun) followRun(log *runlog.Log) error {
@@ -750,7 +750,7 @@ func themeChecks(context *Context) {
 		return expect(gtkBaseInPlace(), gtkBase+" isn't in "+gtkThemes)
 	})
 	if context.Config.Get("BOOT_SPLASH") == "yes" {
-		context.Run.Check("The boot splash is in the theme's colours", func(*runlog.Log) error { return fileThere(splashScript + "hyprtrixie.script") })
+		context.Run.Check("The boot splash is in the theme's colours", func(*runlog.Log) error { return fileThere(splashScript + "solanum.script") })
 	}
 	context.Run.Check("A theme is applied", theme.ready)
 	context.Run.Check("All themes are installed", func(*runlog.Log) error {
