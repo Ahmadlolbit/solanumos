@@ -30,13 +30,13 @@ status  prints on or off
 
 The idle timer runs start --idle, which does nothing while it's off.
 
-The text comes from ~/.config/hyprtrixie/screensaver.txt when it exists,
-otherwise from /usr/share/hyprtrixie/screensaver.txt.
+The text comes from ~/.config/solanum/screensaver.txt when it exists,
+otherwise from /usr/share/solanum/screensaver.txt.
 `
 
 const (
 	class      = "hyprtrixie.screensaver"
-	sharedText = "/usr/share/hyprtrixie/screensaver.txt"
+	sharedText = "/usr/share/solanum/screensaver.txt"
 	kitty      = "hl.dsp.exec_cmd([[kitty --class " + class + " -o background=#000000 -o background_opacity=1 -o window_padding_width=0 -o confirm_os_window_close=0 -o font_size=16 -e solanum-screensaver run]])"
 	mouseOn    = "\x1b[?1003h\x1b[?1006h"
 	mouseOff   = "\x1b[?1006l\x1b[?1003l"
@@ -49,7 +49,7 @@ var effects = []string{"beams", "binarypath", "blackhole", "bouncyballs", "bubbl
 	"slide", "spotlights", "spray", "swarm", "sweep", "synthgrid", "unstable", "vhstape", "waves", "wipe"}
 
 func configDir() string {
-	return filepath.Join(env.ConfigHome(), "hyprtrixie")
+	return filepath.Join(env.ConfigHome(), "solanum")
 }
 
 func offFile() string {

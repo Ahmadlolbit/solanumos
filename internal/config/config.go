@@ -43,7 +43,7 @@ func RenamedThemes() map[string]string {
 }
 
 func Path() string {
-	return env.Or("SOLANUM_CONFIG", "/etc/hyprtrixie/hyprtrixie.conf")
+	return env.Or("SOLANUM_CONFIG", "/etc/solanum/solanum.conf")
 }
 
 func Defaults() *Config {

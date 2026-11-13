@@ -48,7 +48,7 @@ var codeEditors = []codeEditor{
 }
 
 func editorState(parts ...string) string {
-	return filepath.Join(append([]string{env.LocalState(), "hyprtrixie", "editors"}, parts...)...)
+	return filepath.Join(append([]string{env.LocalState(), "solanum", "editors"}, parts...)...)
 }
 
 func editorTemplate(name string) string {

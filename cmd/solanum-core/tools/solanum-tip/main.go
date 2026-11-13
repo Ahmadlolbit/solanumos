@@ -18,16 +18,16 @@ import (
 
 const usage = `Usage: solanum-tip [terminal|welcome|notify]
 
-Prints one tip at random. The tips come from /usr/share/hyprtrixie/tips.txt
-and ~/.config/hyprtrixie/tips.txt, one tip per line.
+Prints one tip at random. The tips come from /usr/share/solanum/tips.txt
+and ~/.config/solanum/tips.txt, one tip per line.
 terminal prints it dimmed, unless tips in new terminals are turned off;
 welcome prints it unless tips on the welcome screen are turned off;
 notify shows it as a notification, at most once a day, unless tip notifications are off.
 `
 
 var (
-	tipsFile = env.Or("SOLANUM_TIPS", "/usr/share/hyprtrixie/tips.txt")
-	switches = env.Or("SOLANUM_TIP_SWITCHES", "/etc/hyprtrixie/tips")
+	tipsFile = env.Or("SOLANUM_TIPS", "/usr/share/solanum/tips.txt")
+	switches = env.Or("SOLANUM_TIP_SWITCHES", "/etc/solanum/tips")
 )
 
 func read(file string) string {
@@ -44,7 +44,7 @@ func enabled(name string) bool {
 
 func tip() (string, bool) {
 	var tips []string
-	for _, file := range []string{tipsFile, filepath.Join(env.ConfigHome(), "hyprtrixie", "tips.txt")} {
+	for _, file := range []string{tipsFile, filepath.Join(env.ConfigHome(), "solanum", "tips.txt")} {
 		for _, line := range strings.Split(read(file), "\n") {
 			line = strings.TrimSuffix(line, "\r")
 			if strings.TrimSpace(line) != "" {
@@ -88,7 +88,7 @@ func notifyTip() int {
 	if !enabled("notify") {
 		return 0
 	}
-	stamp := filepath.Join(env.StateHome(), "hyprtrixie", "tip-shown")
+	stamp := filepath.Join(env.StateHome(), "solanum", "tip-shown")
 	today := time.Now().Format(time.DateOnly)
 	if data, err := os.ReadFile(stamp); err == nil && strings.TrimSpace(string(data)) == today {
 		return 0

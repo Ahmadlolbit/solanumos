@@ -64,7 +64,7 @@ Singleton {
   FileView {
     id: file
 
-    path: Quickshell.env("HOME") + "/.local/state/hyprtrixie/current/theme/colors.toml"
+    path: Quickshell.env("HOME") + "/.local/state/solanum/current/theme/colors.toml"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
@@ -83,7 +83,7 @@ Singleton {
   FileView {
     id: systemLook
 
-    path: "/etc/hyprtrixie/look.conf"
+    path: "/etc/solanum/look.conf"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
@@ -92,7 +92,7 @@ Singleton {
   FileView {
     id: userLook
 
-    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/hyprtrixie/look.conf"
+    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/look.conf"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
@@ -101,7 +101,7 @@ Singleton {
   FileView {
     id: lookFile
 
-    path: Quickshell.env("HOME") + "/.local/state/hyprtrixie/current/theme/look.toml"
+    path: Quickshell.env("HOME") + "/.local/state/solanum/current/theme/look.toml"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()

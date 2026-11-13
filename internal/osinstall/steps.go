@@ -79,7 +79,7 @@ func (work *install) commands(group []disks.Step) step.Work {
 
 func (work *install) clean(log *runlog.Log) error {
 	run.Quiet(run.Minute, "umount", "-R", target())
-	run.Quiet(run.Minute, "umount", "-R", "/run/hyprtrixie-top")
+	run.Quiet(run.Minute, "umount", "-R", "/run/solanum-top")
 	if fsutil.Exists("/dev/mapper/" + disks.Mapper) {
 		run.Quiet(run.Minute, "cryptsetup", "close", disks.Mapper)
 	}
@@ -107,7 +107,7 @@ func (work *install) giveBack(log *runlog.Log) {
 		return
 	}
 	run.Quiet(run.Minute, "umount", "-R", target())
-	run.Quiet(run.Minute, "umount", "-R", "/run/hyprtrixie-top")
+	run.Quiet(run.Minute, "umount", "-R", "/run/solanum-top")
 	if fsutil.Exists("/dev/mapper/" + disks.Mapper) {
 		run.Quiet(run.Minute, "cryptsetup", "close", disks.Mapper)
 	}

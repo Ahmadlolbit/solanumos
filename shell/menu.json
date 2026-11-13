@@ -16,7 +16,7 @@
   "learn.keys": {
     "glyph": "\uf11c",
     "label": "Keys",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call keys open",
+    "action": "qs -p /usr/share/solanum/shell ipc call keys open",
     "keywords": [
       "keys",
       "shortcuts",
@@ -26,7 +26,7 @@
   "learn.welcome": {
     "glyph": "\udb81\udd99",
     "label": "Welcome",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call welcome open",
+    "action": "qs -p /usr/share/solanum/shell ipc call welcome open",
     "keywords": [
       "welcome",
       "start",
@@ -358,7 +358,7 @@
   "style.theme": {
     "glyph": "\udb83\ude0c",
     "label": "Theme",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call picker themes",
+    "action": "qs -p /usr/share/solanum/shell ipc call picker themes",
     "keywords": [
       "theme",
       "colors",
@@ -368,7 +368,7 @@
   "style.background": {
     "glyph": "\uf03e",
     "label": "Background",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call picker backgrounds",
+    "action": "qs -p /usr/share/solanum/shell ipc call picker backgrounds",
     "keywords": [
       "background",
       "wallpaper"
@@ -624,7 +624,7 @@
   "setup.wifi": {
     "glyph": "\udb81\udda9",
     "label": "Wi-Fi",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle wifi",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle wifi",
     "keywords": [
       "wifi",
       "wireless",
@@ -635,7 +635,7 @@
   "setup.audio": {
     "glyph": "\udb81\udd7e",
     "label": "Audio",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle audio",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle audio",
     "keywords": [
       "audio",
       "sound",
@@ -647,7 +647,7 @@
   "setup.brightness": {
     "glyph": "\udb80\udcdf",
     "label": "Brightness",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle brightness",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle brightness",
     "needs": "brightness",
     "keywords": [
       "brightness",
@@ -659,7 +659,7 @@
   "setup.bluetooth": {
     "glyph": "\udb80\udcaf",
     "label": "Bluetooth",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle bluetooth",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle bluetooth",
     "keywords": [
       "bluetooth",
       "headphones",
@@ -714,7 +714,7 @@
   "setup.power": {
     "glyph": "\udb80\udc79",
     "label": "Power",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle battery",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle battery",
     "keywords": [
       "battery",
       "power",

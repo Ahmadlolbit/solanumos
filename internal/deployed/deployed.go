@@ -147,7 +147,7 @@ func hashes(limit time.Duration, messages *os.File, lines []string) (map[string]
 }
 
 func Waiting(limit time.Duration, home string) ([]string, error) {
-	output, err := run.CaptureQuiet(limit, "find", "-H", "/etc", "/usr/share/hyprtrixie", filepath.Join(home, ".config"), "-name", "*"+newSuffix)
+	output, err := run.CaptureQuiet(limit, "find", "-H", "/etc", "/usr/share/solanum", filepath.Join(home, ".config"), "-name", "*"+newSuffix)
 	found := run.Lines(output)
 	lines, _ := fsutil.Lines(filepath.Join(env.StateDir(), "files.db"))
 	for _, line := range lines {

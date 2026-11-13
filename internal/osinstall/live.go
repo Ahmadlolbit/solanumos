@@ -14,7 +14,7 @@ const (
 	liveUser   = "hyprtrixie"
 	liveHome   = "/home/" + liveUser + "/"
 	stateMode  = 0o600
-	targetData = "var/lib/hyprtrixie"
+	targetData = "var/lib/solanum"
 )
 
 func dropLines(path string, gone func(string) bool) error {

@@ -45,7 +45,7 @@ func awakeNow() awakeState {
 	if runtime == "" {
 		return state
 	}
-	data, err := os.ReadFile(filepath.Join(runtime, "hyprtrixie-awake"))
+	data, err := os.ReadFile(filepath.Join(runtime, "solanum-awake"))
 	if err != nil || json.Unmarshal(data, &state) != nil {
 		return awakeState{}
 	}

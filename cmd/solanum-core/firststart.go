@@ -24,11 +24,11 @@ What happened is in ~/runbook-report.md and %s.
 `
 
 func firstStartMarker() string {
-	return env.Or("SOLANUM_FIRST_BOOT", "/etc/hyprtrixie/first-boot")
+	return env.Or("SOLANUM_FIRST_BOOT", "/etc/solanum/first-boot")
 }
 
 func firstStartNotePath(person account.Account) string {
-	return filepath.Join(person.Home, ".local", "state", "hyprtrixie", "first-start.txt")
+	return filepath.Join(person.Home, ".local", "state", "solanum", "first-start.txt")
 }
 
 func leaveFirstStartNote(person account.Account) error {

@@ -56,7 +56,7 @@ func presetFile(source string) (string, func(), error) {
 	if err := curlReady(); err != nil {
 		return "", nil, err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie-preset-")
+	dir, err := os.MkdirTemp("", "solanum-preset-")
 	if err != nil {
 		return "", nil, err
 	}

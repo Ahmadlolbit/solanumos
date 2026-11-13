@@ -17,7 +17,7 @@ import (
 
 const usage = `Usage: solanum-theme-install <https URL of a theme repository>
 
-Clones a theme into ~/.config/hyprtrixie/themes and applies it. A theme
+Clones a theme into ~/.config/solanum/themes and applies it. A theme
 from a repository can change colours and backgrounds, but not run code.
 Installing it again takes its newest version; a folder of the same name
 that isn't a clone of that repository stays, and the install stops.

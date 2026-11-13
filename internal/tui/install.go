@@ -152,7 +152,7 @@ func (work *installer) environment() []string {
 }
 
 func settingsFile() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie", "wizard.conf")
+	return filepath.Join(env.StateHome(), "solanum", "wizard.conf")
 }
 
 func (work *installer) arguments() []string {

@@ -35,7 +35,7 @@ const (
 )
 
 var desktopPrograms = [][2]string{
-	{"bar", "qs -p /usr/share/hyprtrixie/shell"},
+	{"bar", "qs -p /usr/share/solanum/shell"},
 	{"hyprpaper", "^hyprpaper"},
 	{"mako", "^mako"},
 	{"elephant", "^elephant"},

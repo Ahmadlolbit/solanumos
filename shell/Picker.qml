@@ -100,7 +100,7 @@ Scope {
   FileView {
     id: themeName
 
-    path: Quickshell.env("HOME") + "/.local/state/hyprtrixie/current/theme.name"
+    path: Quickshell.env("HOME") + "/.local/state/solanum/current/theme.name"
     blockLoading: true
     printErrors: false
   }

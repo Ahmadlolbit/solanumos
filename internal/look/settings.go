@@ -35,7 +35,7 @@ type Store struct {
 }
 
 func Open() *Store {
-	return &Store{path: filepath.Join(env.ConfigHome(), "hyprtrixie", "look.conf")}
+	return &Store{path: filepath.Join(env.ConfigHome(), "solanum", "look.conf")}
 }
 
 func Default(key string) (string, bool) {
@@ -49,7 +49,7 @@ func (store *Store) load() {
 	}
 	store.loaded = true
 	store.user = text(store.path)
-	store.system = text(env.Or("SOLANUM_LOOK_SYSTEM", "/etc/hyprtrixie/look.conf"))
+	store.system = text(env.Or("SOLANUM_LOOK_SYSTEM", "/etc/solanum/look.conf"))
 }
 
 func text(path string) string {

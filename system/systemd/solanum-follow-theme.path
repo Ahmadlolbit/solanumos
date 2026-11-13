@@ -2,7 +2,7 @@
 Description=Follow theme switches on the boot and login screens
 
 [Path]
-PathModified={{ HOME }}/.local/state/hyprtrixie/current
+PathModified={{ HOME }}/.local/state/solanum/current
 
 [Install]
 WantedBy=multi-user.target

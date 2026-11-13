@@ -21,7 +21,7 @@ Description=Finish setting up Hyprtrixie
 Wants=network-online.target
 After=network-online.target
 Before=display-manager.service systemd-user-sessions.service plymouth-quit.service plymouth-quit-wait.service getty@tty1.service
-ConditionPathExists=/etc/hyprtrixie/first-boot
+ConditionPathExists=/etc/solanum/first-boot
 
 [Service]
 Type=oneshot
@@ -168,14 +168,14 @@ func Clone() string {
 }
 
 func (work *install) firstBoot(log *runlog.Log) error {
-	home := filepath.Join("/home", work.answers.User, "hyprtrixie")
+	home := filepath.Join("/home", work.answers.User, "solanum")
 	if err := run.Logged(log, "mv", inTarget(Clone()), inTarget(home)); err != nil {
 		return err
 	}
 	if err := chroot(log, "chown", "-R", work.answers.User+":"+work.answers.User, home); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(inTarget("etc/hyprtrixie"), 0o755); err != nil {
+	if err := os.MkdirAll(inTarget("etc/solanum"), 0o755); err != nil {
 		return err
 	}
 	config, err := os.ReadFile(work.answers.Config)
@@ -183,7 +183,7 @@ func (work *install) firstBoot(log *runlog.Log) error {
 		return err
 	}
 	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "solanum"))
-	for path, data := range map[string][]byte{"etc/hyprtrixie/hyprtrixie.conf": config, "etc/hyprtrixie/first-boot": nil, "etc/systemd/system/hyprtrixie-first-boot.service": []byte(unit)} {
+	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": config, "etc/solanum/first-boot": nil, "etc/systemd/system/hyprtrixie-first-boot.service": []byte(unit)} {
 		if err := atomic.Install(inTarget(path), data, 0o644); err != nil {
 			return err
 		}

@@ -59,7 +59,7 @@ Label {
   text: current ? glyph(current.weather_code, current.is_day) + " " + Math.round(current.temperature_2m) + "°" : ""
 
   FileView {
-    path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/hyprtrixie/weather.json"
+    path: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/solanum/weather.json"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()

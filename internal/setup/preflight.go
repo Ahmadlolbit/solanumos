@@ -240,7 +240,7 @@ func (context *Context) CloneFor() string {
 	if env.Root() == env.SystemClone() || strings.HasPrefix(env.Root()+"/", home+"/") {
 		return env.Root()
 	}
-	return filepath.Join(home, "hyprtrixie")
+	return filepath.Join(home, "solanum")
 }
 
 func (context *Context) own(log *runlog.Log, path string) error {

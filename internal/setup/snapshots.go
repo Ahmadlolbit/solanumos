@@ -336,7 +336,7 @@ func containerStorageOK(*runlog.Log) error {
 }
 
 func grubBuild(log *runlog.Log, source string) error {
-	folder, err := os.MkdirTemp("", "hyprtrixie")
+	folder, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}

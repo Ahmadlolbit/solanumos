@@ -142,7 +142,7 @@ func unpackedRelease(log *runlog.Log, name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie")
+	dir, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return "", err
 	}

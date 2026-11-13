@@ -35,7 +35,7 @@ const (
 	userUnits    = "/etc/systemd/user/"
 	verdictLine  = "Config parsing result:"
 	verdictShown = 20
-	screensCall  = "qs -p /usr/share/hyprtrixie/shell ipc call screens "
+	screensCall  = "qs -p /usr/share/solanum/shell ipc call screens "
 	dpmsOn       = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
 	dpmsOff      = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
 	secondsAMin  = 60
@@ -88,7 +88,7 @@ func nvidiaDrivesDisplay(hardware detect.Hardware, graphics string) bool {
 
 func (context *Context) hyprlandOptions(*runlog.Log) error {
 	settings := context.Config
-	return context.Deploy.File("system/hypr/options.lua", "/etc/hyprtrixie/hypr/options.lua",
+	return context.Deploy.File("system/hypr/options.lua", "/etc/solanum/hypr/options.lua",
 		"NATURAL_SCROLL="+luaBool(settings.Get("NATURAL_SCROLL")), "TAP_TO_CLICK="+luaBool(settings.Get("TAP_TO_CLICK")),
 		"ANIMATIONS="+luaBool(settings.Get("ANIMATIONS")), "SCALE="+luaScale(settings.Get("DISPLAY_SCALE")),
 		"NVIDIA="+strconv.FormatBool(nvidiaDrivesDisplay(context.hardware(), settings.Get("GRAPHICS"))))
@@ -129,7 +129,7 @@ func hyprlandComplaint(lines []string) string {
 }
 
 func (context *Context) hyprlandConfigOK(log *runlog.Log) error {
-	runtime, err := os.MkdirTemp("", "hyprtrixie")
+	runtime, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func (context *Context) tipsInstall(*runlog.Log) error {
 		return err
 	}
 	settings := context.Config
-	return context.Deploy.File("system/tips.conf", "/etc/hyprtrixie/tips", "TERMINAL="+settings.Get("TIPS_TERMINAL"),
+	return context.Deploy.File("system/tips.conf", "/etc/solanum/tips", "TERMINAL="+settings.Get("TIPS_TERMINAL"),
 		"WELCOME="+settings.Get("TIPS_WELCOME"), "NOTIFY="+settings.Get("TIPS_NOTIFY"))
 }
 

@@ -61,7 +61,7 @@ Singleton {
 
   FileView {
     id: systemFile
-    path: "/etc/hyprtrixie/shell.json"
+    path: "/etc/solanum/shell.json"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
@@ -69,7 +69,7 @@ Singleton {
 
   FileView {
     id: userFile
-    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/hyprtrixie/shell.json"
+    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/shell.json"
     watchChanges: true
     printErrors: false
     onFileChanged: reload()

@@ -28,7 +28,7 @@ func trustedSigners() (string, func(), error) {
 	if strings.TrimSpace(keys) == "" {
 		return "", func() {}, errNoReleaseKey
 	}
-	folder, err := os.MkdirTemp("", "hyprtrixie-signers-")
+	folder, err := os.MkdirTemp("", "solanum-signers-")
 	if err != nil {
 		return "", func() {}, err
 	}

@@ -49,7 +49,7 @@ type system struct {
 }
 
 func answersFile() string {
-	return env.Or("SOLANUM_ANSWERS", "/run/hyprtrixie-install.json")
+	return env.Or("SOLANUM_ANSWERS", "/run/solanum-install.json")
 }
 
 func zoneFolder() string {

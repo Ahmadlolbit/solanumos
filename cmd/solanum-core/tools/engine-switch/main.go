@@ -33,7 +33,7 @@ const (
 )
 
 var (
-	stateFile    = "/var/lib/hyprtrixie/container-engine"
+	stateFile    = "/var/lib/solanum/container-engine"
 	shim         = "/usr/local/bin/docker"
 	docker       = "/usr/bin/docker"
 	globalSocket = "/etc/systemd/user/sockets.target.wants/podman.socket"

@@ -13,7 +13,7 @@ import (
 )
 
 func changesDir() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie")
+	return filepath.Join(env.StateHome(), "solanum")
 }
 
 func notifyFirstStart(dir string) {

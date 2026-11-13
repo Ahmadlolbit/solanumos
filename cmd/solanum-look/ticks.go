@@ -36,15 +36,15 @@ const (
 )
 
 func lookState(name string) string {
-	return stateHome("hyprtrixie", "look", name)
+	return stateHome("solanum", "look", name)
 }
 
 func quietStamp() string {
-	return filepath.Join(env.Or("XDG_RUNTIME_DIR", stateHome("hyprtrixie", "look")), "hyprtrixie-quiet")
+	return filepath.Join(env.Or("XDG_RUNTIME_DIR", stateHome("solanum", "look")), "solanum-quiet")
 }
 
 func weatherCache() string {
-	return filepath.Join(env.CacheHome(), "hyprtrixie", "weather.json")
+	return filepath.Join(env.CacheHome(), "solanum", "weather.json")
 }
 
 func remove(path string) {
@@ -59,7 +59,7 @@ func stored(path string) string {
 }
 
 func save(path, value string) {
-	err := os.MkdirAll(stateHome("hyprtrixie", "look"), 0o777)
+	err := os.MkdirAll(stateHome("solanum", "look"), 0o777)
 	if err == nil {
 		err = atomic.Write(path, []byte(value+"\n"), 0o666)
 	}

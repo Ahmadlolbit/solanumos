@@ -41,11 +41,11 @@ const (
 )
 
 var (
-	settingsFile = env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")
-	templates    = env.Or("SOLANUM_FOLLOW_TEMPLATES", "/usr/share/hyprtrixie/follow")
+	settingsFile = env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/solanum/follow-theme")
+	templates    = env.Or("SOLANUM_FOLLOW_TEMPLATES", "/usr/share/solanum/follow")
 	plymouthDir  = env.Or("SOLANUM_PLYMOUTH_DIR", "/usr/share/plymouth/themes/solanum")
 	grubDir      = env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
-	vtrgb        = env.Or("SOLANUM_VTRGB", "/etc/hyprtrixie/vtrgb")
+	vtrgb        = env.Or("SOLANUM_VTRGB", "/etc/solanum/vtrgb")
 	sddmDir      = env.Or("SOLANUM_SDDM_THEME_DIR", "/usr/share/sddm/themes/solanum")
 	owedImage    = filepath.Join(env.StateDir(), "owed", "boot-image")
 )
@@ -232,7 +232,7 @@ func copyWallpaper(user, image, name string) bool {
 }
 
 func wallpaper(current theme) (string, bool) {
-	image, err := fsutil.RealPath(filepath.Join(current.home, ".local/state/hyprtrixie/current/background"))
+	image, err := fsutil.RealPath(filepath.Join(current.home, ".local/state/solanum/current/background"))
 	if err != nil {
 		return "", true
 	}
@@ -269,7 +269,7 @@ func load() (theme, bool) {
 	settings := string(data)
 	user := follow.Setting(settings, "user")
 	home := homeOf(user)
-	file := home + "/.local/state/hyprtrixie/current/theme/colors.toml"
+	file := home + "/.local/state/solanum/current/theme/colors.toml"
 	colors, err := fsutil.ReadPlain(file, colorsLimit)
 	if user == "" || err != nil {
 		if user != "" && !errors.Is(err, fs.ErrNotExist) {
@@ -283,7 +283,7 @@ func load() (theme, bool) {
 	current.foreground = cmp.Or(follow.Color(current.colors, "foreground"), "#cdd6f4")
 	current.accent = cmp.Or(follow.Color(current.colors, "accent"), "#89b4fa")
 	current.muted = follow.Blend(current.foreground, current.background)
-	link, _ := os.Readlink(filepath.Join(home, ".local/state/hyprtrixie/current/background"))
+	link, _ := os.Readlink(filepath.Join(home, ".local/state/solanum/current/background"))
 	current.seen = current.colors + "\x00" + link
 	return current, true
 }

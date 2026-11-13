@@ -11,6 +11,6 @@ Description: Debian 13 with Hyprland, set up properly
  Hyprtrixie sets up Hyprland on Debian 13 with a guided setup, sensible
  defaults and real options, and keeps a snapshot before every change.
  .
- The package puts a clone of the release in /opt/hyprtrixie, with its
+ The package puts a clone of the release in /opt/solanum, with its
  programs already built; solanum update moves it to newer signed
  releases.

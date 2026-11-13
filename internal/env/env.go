@@ -45,7 +45,7 @@ func ThemeRoot() string {
 }
 
 func AppConfig() string {
-	return filepath.Join(ConfigHome(), "hyprtrixie")
+	return filepath.Join(ConfigHome(), "solanum")
 }
 
 func LocalState() string {
@@ -53,7 +53,7 @@ func LocalState() string {
 }
 
 func ThemeState() string {
-	return filepath.Join(LocalState(), "hyprtrixie", "current")
+	return filepath.Join(LocalState(), "solanum", "current")
 }
 
 func CacheHome() string {
@@ -65,7 +65,7 @@ func DataHome() string {
 }
 
 func ShareDir() string {
-	return Or("SOLANUM_SHARE_DIR", "/usr/share/hyprtrixie")
+	return Or("SOLANUM_SHARE_DIR", "/usr/share/solanum")
 }
 
 func Root() string {
@@ -73,7 +73,7 @@ func Root() string {
 }
 
 func SystemClone() string {
-	return Or("SOLANUM_SYSTEM_CLONE", "/opt/hyprtrixie")
+	return Or("SOLANUM_SYSTEM_CLONE", "/opt/solanum")
 }
 
 func BinDir() string {
@@ -89,13 +89,13 @@ func Manifests() string {
 }
 
 func CacheDir() string {
-	return Or("SOLANUM_CACHE_DIR", "/var/cache/hyprtrixie")
+	return Or("SOLANUM_CACHE_DIR", "/var/cache/solanum")
 }
 
 func LogDir() string {
-	return Or("SOLANUM_LOG_DIR", "/var/log/hyprtrixie")
+	return Or("SOLANUM_LOG_DIR", "/var/log/solanum")
 }
 
 func StateDir() string {
-	return Or("SOLANUM_STATE_DIR", "/var/lib/hyprtrixie")
+	return Or("SOLANUM_STATE_DIR", "/var/lib/solanum")
 }

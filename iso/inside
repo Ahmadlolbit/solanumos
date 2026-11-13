@@ -6,7 +6,7 @@ apt-get -o Acquire::https::CAInfo=/run/host-ca.pem update
 apt-get -o Acquire::https::CAInfo=/run/host-ca.pem install -y --no-install-recommends live-build git ca-certificates openssh-client
 git config --global --add safe.directory /src
 work=/work
-downloads=var/cache/hyprtrixie/downloads
+downloads=var/cache/solanum/downloads
 kept=/cache/setup-downloads
 rm -rf "$work"
 mkdir -p "$work/config/bootloaders/grub-pc" "$work/config/includes.chroot_after_packages/opt" "$work/config/includes.chroot_after_packages/$downloads" "$kept"
@@ -18,7 +18,7 @@ cp /src/iso/burst.png "$theme/burst.png"
 sed -i -e 's|^desktop-image: .*|desktop-color: "#000000"|' -e 's|^title-text: .*|title-text: ""|' "$theme/theme.txt"
 cat /src/iso/burst.theme >>"$theme/theme.txt"
 cp -a "$kept/." "$work/config/includes.chroot_after_packages/$downloads/"
-bash /src/iso/clone /src "$work/config/includes.chroot_after_packages/opt/hyprtrixie" "$work/commit"
+bash /src/iso/clone /src "$work/config/includes.chroot_after_packages/opt/solanum" "$work/commit"
 ln -s /cache "$work/cache"
 cd "$work"
 lb config

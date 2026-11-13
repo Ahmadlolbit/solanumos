@@ -13,7 +13,7 @@ const (
 	bootSize   = 1 * GiB
 	Mapper     = "hyprtrixie_crypt"
 	Target     = "/target"
-	top        = "/run/hyprtrixie-top"
+	top        = "/run/solanum-top"
 	options    = "noatime,compress=zstd:1"
 	RootName   = "hyprtrixie"
 	Unfinished = RootName + "-unfinished"

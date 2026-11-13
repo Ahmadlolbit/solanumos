@@ -1,4 +1,4 @@
-local look = require("hyprtrixie.hypr.look")
+local look = require("solanum.hypr.look")
 
 hl.on("hyprland.start", function()
   hl.exec_cmd("dbus-update-activation-environment --systemd --all")

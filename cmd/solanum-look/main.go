@@ -60,15 +60,15 @@ const usage = `Usage: solanum-look
        solanum-look get SETTING
 
 Shows and changes how the desktop looks. Your settings are kept in
-~/.config/hyprtrixie/look.conf and win over the setup menu's in
-/etc/hyprtrixie/look.conf. With no value, a command prints the setting.
+~/.config/solanum/look.conf and win over the setup menu's in
+/etc/solanum/look.conf. With no value, a command prints the setting.
 An accent named after a colour uses that colour of each theme. font is
 the terminal's, the bar's and the lock screen's; ui-font is the apps'.
 text makes the text everywhere a quarter (large) or half (larger) bigger.
 reader turns Orca, the screen reader, on or off, now and at every login.
 It reads apps, but not the bar, the menu or the launcher, and Qt apps for
 sure only after you log in again. chime plays a short chime when you log
-in, or ~/.config/hyprtrixie/startup.ogg (.oga, .wav, .flac, .mp3) if it's
+in, or ~/.config/solanum/startup.ogg (.oga, .wav, .flac, .mp3) if it's
 there; play plays it now.
 Glass makes terminals and panels see-through, with blur behind them.
 corners rounds the screen's corners. apps sets what GTK and KDE apps do:
@@ -86,7 +86,7 @@ colours, NASA's picture of the day (with its credit; a day without a
 picture is drawn), or one from a folder or a list of pictures, one per
 line.
 workspaces gives each workspace its own wallpaper. bar and position set
-the bar's layout and edge in ~/.config/hyprtrixie/shell.json. style makes
+the bar's layout and edge in ~/.config/solanum/shell.json. style makes
 windows, popups and the lock screen sharp or soft. video plays a video file as
 the wallpaper, muted and looping; on battery it pauses, unless
 video-battery is play. weather shows the weather in the bar from

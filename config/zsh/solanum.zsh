@@ -1,4 +1,4 @@
-export ZSH=/usr/share/hyprtrixie/oh-my-zsh
+export ZSH=/usr/share/solanum/oh-my-zsh
 export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 ZSH_THEME=""
 DISABLE_AUTO_UPDATE=true
@@ -35,11 +35,11 @@ fi
 (( $+commands[fd] )) && export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 [[ $TERM == (xterm-kitty|tmux-256color) ]] && alias ssh='TERM=xterm-256color ssh'
 
-if [[ -r /var/lib/hyprtrixie/container-engine && "$(</var/lib/hyprtrixie/container-engine)" == podman ]]; then
+if [[ -r /var/lib/solanum/container-engine && "$(</var/lib/solanum/container-engine)" == podman ]]; then
   export DOCKER_HOST="unix://${XDG_RUNTIME_DIR:-/run/user/$UID}/podman/podman.sock"
 fi
 
-[[ -f /usr/share/hyprtrixie/zsh/prompt.zsh ]] && source /usr/share/hyprtrixie/zsh/prompt.zsh
+[[ -f /usr/share/solanum/zsh/prompt.zsh ]] && source /usr/share/solanum/zsh/prompt.zsh
 
 for script in /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
   [[ -f $script ]] && source "$script"

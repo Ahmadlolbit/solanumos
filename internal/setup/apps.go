@@ -23,7 +23,7 @@ const (
 	heliumEntry   = "helium.desktop"
 	snapLimit     = 20 * time.Minute
 	downloadLimit = 30 * time.Minute
-	yourDefaults  = ".local/state/hyprtrixie/defaults"
+	yourDefaults  = ".local/state/solanum/defaults"
 )
 
 var (

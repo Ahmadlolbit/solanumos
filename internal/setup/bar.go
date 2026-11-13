@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	barSettings = "/etc/hyprtrixie/shell.json"
+	barSettings = "/etc/solanum/shell.json"
 	barSensors  = "solanum-sensors"
 )
 

@@ -35,7 +35,7 @@ USAGE
                                    Take a preset's settings from a file or an https address (run it with sudo);
                                      your Debian mirror stays, and it lists what changed
   solanum collect [--verbose]      Pack the logs, the report and system details for a bug report;
-                                     --verbose also writes everything to ~/hyprtrixie-log-<time>.txt
+                                     --verbose also writes everything to ~/solanum-log-<time>.txt
   solanum verbose [on|off]         Log the desktop in detail from the next login (run it without sudo)
   solanum guide                    Read the guide in the terminal
   solanum keyboard [LAYOUT]        Show the keyboard layout, list them (list), or set one (run it with sudo)

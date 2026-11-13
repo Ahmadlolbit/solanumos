@@ -27,7 +27,7 @@ const usage = `Usage: solanum-background <file>
        solanum-background workspace MONITOR WORKSPACE
 
 Sets the wallpaper. Backgrounds come from the current theme and from
-~/.config/hyprtrixie/backgrounds/<theme>. With a wallpaper per workspace on
+~/.config/solanum/backgrounds/<theme>. With a wallpaper per workspace on
 (solanum-look workspaces on), each workspace shows the next one along,
 workspaces shows each monitor's, and workspace shows one monitor's for the
 workspace it just switched to.

@@ -227,7 +227,7 @@ func trialPackages(log *runlog.Log) error {
 }
 
 func trialImage(log *runlog.Log, root luksRoot, kernel string) error {
-	folder, err := os.MkdirTemp("", "hyprtrixie-tpm-")
+	folder, err := os.MkdirTemp("", "solanum-tpm-")
 	if err != nil {
 		return err
 	}

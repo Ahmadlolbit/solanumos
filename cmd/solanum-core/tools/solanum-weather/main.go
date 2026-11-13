@@ -14,14 +14,14 @@ import (
 
 const usage = `Usage: solanum-weather [update]
 
-Prints the weather saved in ~/.cache/hyprtrixie/weather.json; update
+Prints the weather saved in ~/.cache/solanum/weather.json; update
 fetches it again from Open-Meteo (no account) for the look settings'
 location: your time zone's main city, or solanum-look location.
 solanum-look weather on fetches it every 30 minutes for the bar.
 `
 
 func cache() string {
-	return filepath.Join(env.CacheHome(), "hyprtrixie", "weather.json")
+	return filepath.Join(env.CacheHome(), "solanum", "weather.json")
 }
 
 func update() int {

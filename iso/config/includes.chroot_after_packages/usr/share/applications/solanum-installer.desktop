@@ -2,7 +2,7 @@
 Type=Application
 Name=Install Hyprtrixie
 Comment=Install Hyprtrixie on this computer's disk
-Exec=kitty --class solanum-installer -e sudo --preserve-env=HYPRLAND_INSTANCE_SIGNATURE,XDG_RUNTIME_DIR /opt/hyprtrixie/build/bin/solanum-installer
+Exec=kitty --class solanum-installer -e sudo --preserve-env=HYPRLAND_INSTANCE_SIGNATURE,XDG_RUNTIME_DIR /opt/solanum/build/bin/solanum-installer
 Icon=system-software-install
 Terminal=false
 Categories=System;

@@ -2,7 +2,7 @@
 set -eu
 
 options="noatime,compress=zstd:1"
-top=/mnt/hyprtrixie-top
+top=/mnt/solanum-top
 fstab=/target/etc/fstab
 
 say() {

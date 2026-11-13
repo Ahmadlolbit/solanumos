@@ -34,7 +34,7 @@ func themeMode() string {
 
 func madeSound() (string, error) {
 	mode := themeMode()
-	path := filepath.Join(env.CacheHome(), "hyprtrixie", "chime-1-"+mode+".wav")
+	path := filepath.Join(env.CacheHome(), "solanum", "chime-1-"+mode+".wav")
 	if fsutil.IsFile(path) {
 		return path, nil
 	}

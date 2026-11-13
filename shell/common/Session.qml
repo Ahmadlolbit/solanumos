@@ -48,7 +48,7 @@ Singleton {
   FileView {
     id: kept
 
-    path: root.runtime ? root.runtime + "/hyprtrixie-awake" : ""
+    path: root.runtime ? root.runtime + "/solanum-awake" : ""
     printErrors: false
     onLoaded: root.restore(text())
   }

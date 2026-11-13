@@ -32,7 +32,7 @@ func testingLogs() {
 		return
 	}
 	ui.Busy("Pack the testing logs")
-	saved, err := gather(person, env.Root(), "hyprtrixie-logs-", true)
+	saved, err := gather(person, env.Root(), "solanum-logs-", true)
 	ui.Done()
 	if err != nil {
 		ui.Warn(err.Error())

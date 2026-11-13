@@ -33,8 +33,8 @@ const usage = `Usage: solanum-theme-set <theme>
 
 Applies a theme to Hyprland, the bar, kitty, the launcher, notifications, the
 lock screen, btop, Neovim, VS Code, VSCodium, Zed, Firefox, GTK and KDE
-apps, and the wallpaper. Themes come from /usr/share/hyprtrixie/themes and
-~/.config/hyprtrixie/themes. --editors gives the editors and Firefox's
+apps, and the wallpaper. Themes come from /usr/share/solanum/themes and
+~/.config/solanum/themes. --editors gives the editors and Firefox's
 profiles the current theme again, for one installed or made since.
 `
 

@@ -370,7 +370,7 @@ Scope {
   FileView {
     id: userFile
 
-    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/hyprtrixie/menu.json"
+    path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/menu.json"
     blockLoading: true
     watchChanges: true
     printErrors: false

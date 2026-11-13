@@ -49,7 +49,7 @@ func policyDirs(installed map[string]bool) ([]string, []string) {
 }
 
 func browserColor(current theme) string {
-	path := filepath.Join(current.home, ".local/state/hyprtrixie/current/theme/chromium.theme")
+	path := filepath.Join(current.home, ".local/state/solanum/current/theme/chromium.theme")
 	own, err := run.CaptureQuiet(run.Quick, "runuser", "-u", current.user, "--", "head", "-c", "64", path)
 	if color, ok := follow.FromRGB(strings.TrimPrefix(own, "\ufeff")); err == nil && ok {
 		return color

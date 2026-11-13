@@ -348,7 +348,7 @@ func ReleaseExtract(log *runlog.Log, name, member, target string, mode os.FileMo
 	if err != nil {
 		return err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie")
+	dir, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}

@@ -1,5 +1,5 @@
-local look = require("hyprtrixie.hypr.look")
-local screens = require("hyprtrixie.hypr.screens")
+local look = require("solanum.hypr.look")
+local screens = require("solanum.hypr.screens")
 
 if look.get("zen") == "yes" then
   hl.config({

@@ -1,4 +1,4 @@
-local look = require("hyprtrixie.hypr.look")
+local look = require("solanum.hypr.look")
 
 local function trackpoints()
   local names = {}

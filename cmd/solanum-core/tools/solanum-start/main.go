@@ -17,7 +17,7 @@ const usage = `Usage: solanum-start bar|hypridle|hyprpaper|mako|elephant|walker|
 
 Starts a program of the desktop session. With verbose logging on
 (solanum verbose on), it runs with its debug flags and logs to
-~/.local/state/hyprtrixie/logs/<name>.log.
+~/.local/state/solanum/logs/<name>.log.
 `
 
 type program struct {
@@ -26,7 +26,7 @@ type program struct {
 }
 
 var programs = map[string]program{
-	"bar":       {[]string{"qs", "-p", "/usr/share/hyprtrixie/shell", "-n"}, []string{"-vv", "--log-times"}},
+	"bar":       {[]string{"qs", "-p", "/usr/share/solanum/shell", "-n"}, []string{"-vv", "--log-times"}},
 	"hypridle":  {[]string{"hypridle"}, []string{"--verbose"}},
 	"hyprpaper": {[]string{"hyprpaper"}, []string{"--verbose"}},
 	"elephant":  {[]string{"elephant"}, []string{"--debug"}},
@@ -36,7 +36,7 @@ var programs = map[string]program{
 }
 
 func verbose() bool {
-	info, err := os.Stat(filepath.Join(env.ConfigHome(), "hyprtrixie", "verbose"))
+	info, err := os.Stat(filepath.Join(env.ConfigHome(), "solanum", "verbose"))
 	return err == nil && info.Mode().IsRegular()
 }
 
@@ -59,7 +59,7 @@ func logTo(path string, command []string) error {
 func start(name string, chosen program) int {
 	command := chosen.command
 	if verbose() {
-		logs := filepath.Join(env.StateHome(), "hyprtrixie", "logs")
+		logs := filepath.Join(env.StateHome(), "solanum", "logs")
 		if err := os.MkdirAll(logs, 0o777); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
@@ -87,7 +87,7 @@ func Main() {
 	}
 	if name == "bar" {
 		for _, dir := range []string{env.ConfigHome(), env.CacheHome()} {
-			if err := os.MkdirAll(filepath.Join(dir, "hyprtrixie"), 0o777); err != nil {
+			if err := os.MkdirAll(filepath.Join(dir, "solanum"), 0o777); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			}
 		}

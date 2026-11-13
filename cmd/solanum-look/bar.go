@@ -12,7 +12,7 @@ import (
 )
 
 func shellFile() string {
-	return filepath.Join(env.ConfigHome(), "hyprtrixie", "shell.json")
+	return filepath.Join(env.ConfigHome(), "solanum", "shell.json")
 }
 
 func barValue(path string, read func([]byte) string) string {
@@ -26,7 +26,7 @@ func barValue(path string, read func([]byte) string) string {
 func showBar(read func([]byte) string, fallback string) int {
 	value := barValue(shellFile(), read)
 	if value == "" {
-		value = barValue(env.Or("SOLANUM_SHELL_SYSTEM", "/etc/hyprtrixie/shell.json"), read)
+		value = barValue(env.Or("SOLANUM_SHELL_SYSTEM", "/etc/solanum/shell.json"), read)
 	}
 	if value == "" {
 		value = fallback

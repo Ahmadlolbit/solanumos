@@ -23,7 +23,7 @@ local function config_home()
 end
 
 function look.get(key)
-  return setting(config_home() .. "/hyprtrixie/look.conf", key) or setting("/etc/hyprtrixie/look.conf", key)
+  return setting(config_home() .. "/solanum/look.conf", key) or setting("/etc/solanum/look.conf", key)
 end
 
 local function bar_value(path, key)
@@ -37,8 +37,8 @@ local function bar_value(path, key)
 end
 
 function look.bar(key)
-  local system = os.getenv("SOLANUM_SHELL_SYSTEM") or "/etc/hyprtrixie/shell.json"
-  return bar_value(config_home() .. "/hyprtrixie/shell.json", key) or bar_value(system, key)
+  local system = os.getenv("SOLANUM_SHELL_SYSTEM") or "/etc/solanum/shell.json"
+  return bar_value(config_home() .. "/solanum/shell.json", key) or bar_value(system, key)
 end
 
 return look

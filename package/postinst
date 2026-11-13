@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-root=/opt/hyprtrixie
-lib=/usr/lib/hyprtrixie
+root=/opt/solanum
+lib=/usr/lib/solanum
 tag="$(cat "$lib/tag")"
 
 at_tag() {

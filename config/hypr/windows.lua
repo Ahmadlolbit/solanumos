@@ -1,4 +1,4 @@
-local look = require("hyprtrixie.hypr.look")
+local look = require("solanum.hypr.look")
 
 local scale = ({ large = 1.25, larger = 1.5 })[look.get("text")] or 1
 local bar_height = math.floor(30 * scale + 0.5)

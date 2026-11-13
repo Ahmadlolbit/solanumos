@@ -64,7 +64,7 @@ func (database Database) Container() string {
 }
 
 func folder() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie", "databases")
+	return filepath.Join(env.StateHome(), "solanum", "databases")
 }
 
 func (database Database) secret(suffix string) string {

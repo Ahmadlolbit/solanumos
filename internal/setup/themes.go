@@ -29,10 +29,10 @@ const (
 	oldName        = "omarchy"
 	oldState       = ".local/state/" + oldName + "/"
 	oldConfig      = ".config/" + oldName + "/"
-	themeState     = ".local/state/hyprtrixie/current"
-	userThemes     = ".config/hyprtrixie/themes/"
-	userBackdrops  = ".config/hyprtrixie/backgrounds/"
-	userLook       = ".config/hyprtrixie/look.conf"
+	themeState     = ".local/state/solanum/current"
+	userThemes     = ".config/solanum/themes/"
+	userBackdrops  = ".config/solanum/backgrounds/"
+	userLook       = ".config/solanum/look.conf"
 	themesSource   = "hyprtrixie-themes"
 	themeSetter    = "solanum-theme-set"
 	followTool     = "solanum-follow-theme"
@@ -77,7 +77,7 @@ func oldThemeRoot() string {
 }
 
 func lookConf() string {
-	return env.Or("SOLANUM_LOOK_CONF", "/etc/hyprtrixie/look.conf")
+	return env.Or("SOLANUM_LOOK_CONF", "/etc/solanum/look.conf")
 }
 
 func themeApplied() string {
@@ -207,8 +207,8 @@ func (theme *themeRun) wallpaperFollow(log *runlog.Log) error {
 		return nil
 	}
 	home := theme.Person.Home + "/"
-	target = replacedPrefix(target, home+oldConfig, home+".config/hyprtrixie/")
-	target = replacedPrefix(target, home+oldState, home+".local/state/hyprtrixie/")
+	target = replacedPrefix(target, home+oldConfig, home+".config/solanum/")
+	target = replacedPrefix(target, home+oldState, home+".local/state/solanum/")
 	backdrops := home + userBackdrops
 	for old, fresh := range config.RenamedThemes() {
 		target = replacedPrefix(target, backdrops+old+"/", backdrops+fresh+"/")
@@ -218,9 +218,9 @@ func (theme *themeRun) wallpaperFollow(log *runlog.Log) error {
 
 func oldFolders() [][2]string {
 	moves := [][2]string{
-		{oldConfig + "themes", ".config/hyprtrixie/themes"},
-		{oldConfig + "backgrounds", ".config/hyprtrixie/backgrounds"},
-		{oldConfig + "themed", ".config/hyprtrixie/themed"},
+		{oldConfig + "themes", ".config/solanum/themes"},
+		{oldConfig + "backgrounds", ".config/solanum/backgrounds"},
+		{oldConfig + "themed", ".config/solanum/themed"},
 		{oldState + "current", themeState},
 	}
 	renames := config.RenamedThemes()
@@ -249,7 +249,7 @@ func (theme *themeRun) oldIncludesUpdate(log *runlog.Log) error {
 		if !mentions(file, oldState) && !mentions(file, oldConfig) {
 			continue
 		}
-		if err := theme.Person.Run(log, "sed", "-i", "--follow-symlinks", "-E", `s#\.(local/state|config)/`+oldName+`/#.\1/hyprtrixie/#g`, file); err != nil {
+		if err := theme.Person.Run(log, "sed", "-i", "--follow-symlinks", "-E", `s#\.(local/state|config)/`+oldName+`/#.\1/solanum/#g`, file); err != nil {
 			return err
 		}
 	}
@@ -257,7 +257,7 @@ func (theme *themeRun) oldIncludesUpdate(log *runlog.Log) error {
 		if !mentions(file, oldState) {
 			continue
 		}
-		if err := run.Logged(log, "sed", "-i", `s|\.local/state/`+oldName+`/|.local/state/hyprtrixie/|g`, file); err != nil {
+		if err := run.Logged(log, "sed", "-i", `s|\.local/state/`+oldName+`/|.local/state/solanum/|g`, file); err != nil {
 			return err
 		}
 	}
@@ -406,7 +406,7 @@ func (theme *themeRun) lookInstall(log *runlog.Log) error {
 	if err != nil || !changed {
 		return err
 	}
-	return theme.removeYours(log, theme.Person.Path(".local/state/hyprtrixie/look/period"))
+	return theme.removeYours(log, theme.Person.Path(".local/state/solanum/look/period"))
 }
 
 func (theme *themeRun) readerInstall(log *runlog.Log) error {
@@ -475,7 +475,7 @@ func (theme *themeRun) followInstall(*runlog.Log) error {
 		return err
 	}
 	settings := theme.Config
-	return theme.Deploy.File("system/follow-theme.conf", "/etc/hyprtrixie/follow-theme", "USER="+theme.Person.Name, "SPLASH="+settings.Get("BOOT_SPLASH"),
+	return theme.Deploy.File("system/follow-theme.conf", "/etc/solanum/follow-theme", "USER="+theme.Person.Name, "SPLASH="+settings.Get("BOOT_SPLASH"),
 		"MENU="+settings.Get("BOOT_MENU_THEME"), "CONSOLE="+settings.Get("CONSOLE_THEME"), "CLOCK="+settings.Get("CLOCK_FORMAT"), "BROWSERS="+settings.Get("BROWSERS_THEME"))
 }
 

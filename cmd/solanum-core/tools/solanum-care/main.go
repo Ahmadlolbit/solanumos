@@ -38,11 +38,11 @@ func save(path, text string) {
 }
 
 func stateFolder() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie")
+	return filepath.Join(env.StateHome(), "solanum")
 }
 
 func stamp(name string) string {
-	return filepath.Join(env.Or("XDG_RUNTIME_DIR", stateFolder()), "hyprtrixie-"+name)
+	return filepath.Join(env.Or("XDG_RUNTIME_DIR", stateFolder()), "solanum-"+name)
 }
 
 func today() string {

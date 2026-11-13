@@ -33,7 +33,7 @@ recording or starts one of a region.
 )
 
 func stateFile() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie", "recording")
+	return filepath.Join(env.StateHome(), "solanum", "recording")
 }
 
 func recording() bool {

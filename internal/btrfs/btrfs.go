@@ -23,7 +23,7 @@ func table() string {
 }
 
 func top() string {
-	return env.Or("SOLANUM_BTRFS_TOP", "/run/hyprtrixie/btrfs")
+	return env.Or("SOLANUM_BTRFS_TOP", "/run/solanum/btrfs")
 }
 
 func rootField(name string) string {

@@ -8,7 +8,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const shellPath = "/usr/share/hyprtrixie/shell"
+const shellPath = "/usr/share/solanum/shell"
 
 func CallShell(target, function string, args ...string) {
 	run.Quiet(run.Quick, "qs", append([]string{"-p", shellPath, "ipc", "call", target, function}, args...)...)

@@ -137,7 +137,7 @@ func installerState(commit, last string) string {
 }
 
 func (out *report) themeState() string {
-	return filepath.Join(out.person.Home, ".local/state/hyprtrixie/current")
+	return filepath.Join(out.person.Home, ".local/state/solanum/current")
 }
 
 func (out *report) system() {
@@ -206,7 +206,7 @@ func (out *report) desktop() {
 	out.write("\n")
 	out.command("pgrep", "-a", "-u", out.person.Name, "-x", "Hyprland|hyprpaper|hypridle|mako|elephant|walker|qs|quickshell")
 	out.write("\n")
-	out.asUser("qs", "log", "-p", env.Or("SOLANUM_SHARE_DIR", "/usr/share/hyprtrixie")+"/shell", "-t", "300")
+	out.asUser("qs", "log", "-p", env.Or("SOLANUM_SHARE_DIR", "/usr/share/solanum")+"/shell", "-t", "300")
 }
 
 func (out *report) packages() {
@@ -222,7 +222,7 @@ func (out *report) packages() {
 
 func (out *report) summary() {
 	state := "off"
-	if fsutil.IsFile(filepath.Join(out.person.Home, ".config/hyprtrixie/verbose")) {
+	if fsutil.IsFile(filepath.Join(out.person.Home, ".config/solanum/verbose")) {
 		state = "on"
 	}
 	out.section("Summary")
@@ -280,7 +280,7 @@ func (out *report) barLog() {
 }
 
 func (out *report) programLogs() {
-	logs, _ := filepath.Glob(filepath.Join(out.person.Home, ".local/state/hyprtrixie/logs/*.log"))
+	logs, _ := filepath.Glob(filepath.Join(out.person.Home, ".local/state/solanum/logs/*.log"))
 	for _, file := range logs {
 		if fsutil.IsFile(file) {
 			out.section("Program log " + filepath.Base(file))
@@ -410,7 +410,7 @@ func pack(person account.Account, work, stamp, target string, verbose bool) (str
 		fmt.Fprintln(os.Stderr, err)
 		return folder, false
 	}
-	logName := "hyprtrixie-log-" + stamp + ".txt"
+	logName := "solanum-log-" + stamp + ".txt"
 	reports := []filedReport{{"system.txt", (*report).system}, {"desktop.txt", (*report).desktop}}
 	if verbose {
 		reports = append(reports, filedReport{logName, (*report).everything})
@@ -446,7 +446,7 @@ func pack(person account.Account, work, stamp, target string, verbose bool) (str
 }
 
 func gather(person account.Account, folder, prefix string, verbose bool) (string, error) {
-	work, err := os.MkdirTemp("", "hyprtrixie-collect-")
+	work, err := os.MkdirTemp("", "solanum-collect-")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return "", errors.New("cannot create a temporary folder")
@@ -466,7 +466,7 @@ func collectAll(verbose bool) int {
 	if !ok {
 		return fail("cannot tell whose desktop this is; run it with sudo from your own account")
 	}
-	saved, err := gather(person, person.Home, "hyprtrixie-collect-", verbose)
+	saved, err := gather(person, person.Home, "solanum-collect-", verbose)
 	if err != nil {
 		return fail("%v", err)
 	}

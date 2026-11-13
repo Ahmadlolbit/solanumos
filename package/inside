@@ -8,7 +8,7 @@ apt-get -o Acquire::https::CAInfo=/run/host-ca.pem install -y --no-install-recom
 git config --global --add safe.directory /src
 work=/work
 pkg="$work/hyprtrixie"
-lib="$pkg/usr/lib/hyprtrixie"
+lib="$pkg/usr/lib/solanum"
 version="${TAG#v}"
 version="${version//-/\~}"
 git clone --quiet --no-checkout /src "$work/src"
@@ -22,7 +22,7 @@ done
 git -C "$work/src" bundle create --quiet "$lib/hyprtrixie.bundle" "refs/tags/$TAG"
 printf '%s\n' "$TAG" >"$lib/tag"
 git -C "$work/src" rev-parse "refs/tags/$TAG^{commit}" >"$lib/commit"
-ln -s /opt/hyprtrixie/solanum "$pkg/usr/bin/solanum"
+ln -s /opt/solanum/solanum "$pkg/usr/bin/solanum"
 cat "$work/src/LICENSE" "$work/src/THIRD-PARTY-LICENSES" >"$pkg/usr/share/doc/hyprtrixie/copyright"
 cp "$work/src/package/postinst" "$work/src/package/postrm" "$pkg/DEBIAN/"
 if [[ -f $work/src/package/hyprtrixie.pgp ]]; then

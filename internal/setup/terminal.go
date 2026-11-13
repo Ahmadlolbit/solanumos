@@ -59,7 +59,7 @@ func nerdFontInstall(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie")
+	dir, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}
