@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	neovimScheme = "hyprtrixie"
-	neovimReload = `execute("if get(g:, 'colors_name', '') ==# 'hyprtrixie' | colorscheme hyprtrixie | endif")`
+	neovimScheme = "solanum"
+	neovimReload = `execute("if get(g:, 'colors_name', '') ==# 'solanum' | colorscheme solanum | endif")`
 )
 
 func linkNeovim(current string) {

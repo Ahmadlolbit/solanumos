@@ -44,7 +44,7 @@ var (
 	settingsFile = env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/solanum/follow-theme")
 	templates    = env.Or("SOLANUM_FOLLOW_TEMPLATES", "/usr/share/solanum/follow")
 	plymouthDir  = env.Or("SOLANUM_PLYMOUTH_DIR", "/usr/share/plymouth/themes/solanum")
-	grubDir      = env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
+	grubDir      = env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/solanum")
 	vtrgb        = env.Or("SOLANUM_VTRGB", "/etc/solanum/vtrgb")
 	sddmDir      = env.Or("SOLANUM_SDDM_THEME_DIR", "/usr/share/sddm/themes/solanum")
 	owedImage    = filepath.Join(env.StateDir(), "owed", "boot-image")

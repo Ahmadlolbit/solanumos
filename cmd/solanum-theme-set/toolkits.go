@@ -17,9 +17,9 @@ import (
 const (
 	appsFollow  = "follow"
 	appsOff     = "off"
-	gtkOne      = "hyprtrixie-one"
-	gtkTwo      = "hyprtrixie-two"
-	gtkOurs     = "hyprtrixie-"
+	gtkOne      = "solanum-one"
+	gtkTwo      = "solanum-two"
+	gtkOurs     = "solanum-"
 	gtkThemes   = "/usr/share/themes"
 	gtkUserFile = "gtk.css"
 	kdeBackup   = ".before-hyprtrixie"
@@ -148,12 +148,12 @@ func kdeColors(file string) {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
-	symlink(file, filepath.Join(env.DataHome(), "color-schemes", "Hyprtrixie.colors"))
+	symlink(file, filepath.Join(env.DataHome(), "color-schemes", "Solanum.colors"))
 	writeKDEGlobals(string(scheme))
 }
 
 func unlinkToolkits() {
-	for _, link := range []string{filepath.Join(env.ConfigHome(), "gtk-4.0", gtkUserFile), filepath.Join(env.DataHome(), "color-schemes", "Hyprtrixie.colors")} {
+	for _, link := range []string{filepath.Join(env.ConfigHome(), "gtk-4.0", gtkUserFile), filepath.Join(env.DataHome(), "color-schemes", "Solanum.colors")} {
 		if ourLink(link) {
 			os.Remove(link)
 		}

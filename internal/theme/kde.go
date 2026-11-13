@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	KDEScheme      = "ColorScheme=Hyprtrixie"
+	KDEScheme      = "ColorScheme=Solanum"
 	kdeFontKey     = "font="
-	kdeRecord      = "[Hyprtrixie]"
+	kdeRecord      = "[Solanum]"
 	kdeRecordKey   = "GeneralFont="
 	kdeFontSize    = 10
 	kdeFontRest    = ",-1,5,400,0,0,0,0,0,0,0,0,0,0,1"

@@ -12,7 +12,7 @@ import (
 var (
 	madeBy = [][2]string{
 		{"Hyprtrixie, made by Ahmad", "GPL-3.0"},
-		{"hyprtrixie themes", "GPL-3.0"},
+		{"solanum themes", "GPL-3.0"},
 	}
 	otherCredits = [][2]string{
 		{"Walker", "GPL-3.0"}, {"Elephant", "GPL-3.0"}, {"adw-gtk3", "LGPL-2.1"}, {"Bibata cursors", "GPL-3.0"},

@@ -12,14 +12,14 @@ import (
 )
 
 const (
-	Publisher = "hyprtrixie"
+	Publisher = "solanum"
 	Name      = "themes"
 	manifest  = `<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
   <Metadata>
-    <Identity Language="en-US" Id="themes" Version="VERSION" Publisher="hyprtrixie"/>
-    <DisplayName>hyprtrixie themes</DisplayName>
-    <Description xml:space="preserve">The colours of every hyprtrixie theme</Description>
+    <Identity Language="en-US" Id="themes" Version="VERSION" Publisher="solanum"/>
+    <DisplayName>solanum themes</DisplayName>
+    <Description xml:space="preserve">The colours of every solanum theme</Description>
     <Categories>Themes</Categories>
     <Properties>
       <Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.70.0"/>
@@ -75,7 +75,7 @@ func NewTheme(label, mode, file string, data []byte) Theme {
 
 func packageJSON(version string, themes []Theme) ([]byte, error) {
 	return json.MarshalIndent(extension{
-		Name: Name, DisplayName: "hyprtrixie themes", Description: "The colours of every hyprtrixie theme",
+		Name: Name, DisplayName: "solanum themes", Description: "The colours of every solanum theme",
 		Publisher: Publisher, Version: version,
 		Engines: map[string]string{"vscode": "^1.70.0"}, Categories: []string{"Themes"},
 		Contributes: contributes{themes},

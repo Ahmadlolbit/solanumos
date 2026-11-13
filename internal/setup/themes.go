@@ -45,7 +45,7 @@ const (
 	unitFolder     = "/etc/systemd/system/"
 	splashScript   = "/usr/share/plymouth/themes/solanum/"
 	grubFont       = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
-	btopTheme      = `color_theme = "hyprtrixie"`
+	btopTheme      = `color_theme = "solanum"`
 	btopSetting    = "color_theme = "
 )
 
@@ -85,7 +85,7 @@ func themeApplied() string {
 }
 
 func grubThemeDir() string {
-	return env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
+	return env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/solanum")
 }
 
 func grubSettings() string {

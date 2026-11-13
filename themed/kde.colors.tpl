@@ -111,8 +111,8 @@ ForegroundPositive={{ green_rgb }}
 ForegroundVisited={{ magenta_rgb }}
 
 [General]
-ColorScheme=Hyprtrixie
-Name=Hyprtrixie
+ColorScheme=Solanum
+Name=Solanum
 shadeSortColumn=true
 
 [Icons]

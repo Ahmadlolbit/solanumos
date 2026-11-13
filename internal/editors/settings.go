@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const Prefix = "Hyprtrixie "
+const Prefix = "Solanum "
 
 type member struct {
 	name       string

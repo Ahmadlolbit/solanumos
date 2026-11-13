@@ -362,10 +362,10 @@ func pickBackground(name, previous string, colors theme.Colors) {
 func linkApps() {
 	current := filepath.Join(state(), "theme")
 	if file := filepath.Join(current, "walker.css"); fsutil.IsFile(file) {
-		symlink(file, filepath.Join(env.ConfigHome(), "walker", "themes", "hyprtrixie", "style.css"))
+		symlink(file, filepath.Join(env.ConfigHome(), "walker", "themes", "solanum", "style.css"))
 	}
 	if file := filepath.Join(current, "btop.theme"); fsutil.IsFile(file) {
-		symlink(file, filepath.Join(env.ConfigHome(), "btop", "themes", "hyprtrixie.theme"))
+		symlink(file, filepath.Join(env.ConfigHome(), "btop", "themes", "solanum.theme"))
 	}
 	if file := filepath.Join(current, "fastfetch.jsonc"); fsutil.IsFile(file) {
 		linkUnlessYours(file, filepath.Join(env.ConfigHome(), "fastfetch", "config.jsonc"))

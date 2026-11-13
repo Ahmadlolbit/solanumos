@@ -47,7 +47,7 @@ func zedThemes(palettes []palette) ([]byte, bool) {
 	if template == "" {
 		return nil, false
 	}
-	family := zedFamily{Schema: zedSchema, Name: "hyprtrixie", Author: "hyprtrixie"}
+	family := zedFamily{Schema: zedSchema, Name: "solanum", Author: "solanum"}
 	for _, item := range renderEditors(template, palettes) {
 		family.Themes = append(family.Themes, zedTheme{item.label, item.mode, item.data})
 	}
@@ -82,7 +82,7 @@ func followZed(name string, palettes func() []palette) {
 	if !ok {
 		return
 	}
-	if !writeChanged(filepath.Join(env.ConfigHome(), "zed", "themes", "hyprtrixie.json"), data) {
+	if !writeChanged(filepath.Join(env.ConfigHome(), "zed", "themes", "solanum.json"), data) {
 		return
 	}
 	followSetting(filepath.Join(env.ConfigHome(), "zed", "settings.json"), "theme", editors.Prefix+theme.Pretty(name))

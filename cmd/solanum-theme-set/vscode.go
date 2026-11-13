@@ -112,7 +112,7 @@ func buildPack(palettes []palette) *editorPack {
 	if len(found) == 0 {
 		return nil
 	}
-	pack := &editorPack{file: editorState("hyprtrixie-themes.vsix"), sum: editors.Fingerprint(found)}
+	pack := &editorPack{file: editorState("solanum-themes.vsix"), sum: editors.Fingerprint(found)}
 	if have, _ := fsutil.Text(editorState("vsix.sum")); have == pack.sum && fsutil.IsFile(pack.file) {
 		return pack
 	}
@@ -144,7 +144,7 @@ func (editor codeEditor) refresh(pack *editorPack) {
 		return
 	}
 	if run.Quiet(run.Minute, editor.command, "--install-extension", pack.file, "--force") != 0 {
-		fmt.Fprintf(os.Stderr, "%s didn't take the hyprtrixie themes\n", editor.command)
+		fmt.Fprintf(os.Stderr, "%s didn't take the solanum themes\n", editor.command)
 		return
 	}
 	if err := atomic.Write(mark, []byte(pack.sum+"\n"), 0o666); err != nil {

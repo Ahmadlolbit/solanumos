@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	firefoxStyle  = "hyprtrixie.css"
-	firefoxImport = `@import url("hyprtrixie.css");`
+	firefoxStyle  = "solanum.css"
+	firefoxImport = `@import url("solanum.css");`
 	firefoxPref   = `user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);`
 )
 
