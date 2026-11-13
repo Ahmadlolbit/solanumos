@@ -26,8 +26,8 @@ import (
 var verified sync.Map
 
 const (
-	oldSuffix    = ".hyprtrixie-old"
-	newSuffix    = ".hyprtrixie-new"
+	oldSuffix    = ".solanum-old"
+	newSuffix    = ".solanum-new"
 	plainMode    = 0o644
 	programMode  = 0o755
 	databaseMode = 0o600

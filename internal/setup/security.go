@@ -28,7 +28,7 @@ const (
 	trustScript    = "90-solanum-trust"
 	trustTarget    = "/etc/NetworkManager/dispatcher.d/" + trustScript
 	sshPort        = "22/tcp"
-	sshRule        = "hyprtrixie ssh"
+	sshRule        = "solanum ssh"
 	securityModule = "15"
 )
 

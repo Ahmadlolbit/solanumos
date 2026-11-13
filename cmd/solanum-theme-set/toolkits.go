@@ -22,7 +22,7 @@ const (
 	gtkOurs     = "solanum-"
 	gtkThemes   = "/usr/share/themes"
 	gtkUserFile = "gtk.css"
-	kdeBackup   = ".before-hyprtrixie"
+	kdeBackup   = ".before-solanum"
 )
 
 var (

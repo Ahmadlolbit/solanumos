@@ -44,7 +44,7 @@ func moveDebianEntries(log *runlog.Log) error {
 	if replaced, err := replaceKept(log, path, []byte(kept.String())); err != nil || !replaced {
 		return err
 	}
-	log.Line("info", "moved the Debian entries out of "+path+" (backup in "+path+".hyprtrixie-old)")
+	log.Line("info", "moved the Debian entries out of "+path+" (backup in "+path+".solanum-old)")
 	return nil
 }
 

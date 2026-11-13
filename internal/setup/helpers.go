@@ -115,16 +115,16 @@ func filesCheck(path string) step.Work {
 }
 
 func keepOld(_ *runlog.Log, path string) error {
-	if fsutil.Exists(path + ".hyprtrixie-old") {
+	if fsutil.Exists(path + ".solanum-old") {
 		return nil
 	}
-	return files.KeepCopy(path, path+".hyprtrixie-old")
+	return files.KeepCopy(path, path+".solanum-old")
 }
 
 func replaceKept(log *runlog.Log, path string, data []byte) (bool, error) {
 	before, _ := files.Hash(path)
-	if saved, err := files.Hash(path + ".hyprtrixie-old"); err == nil && saved != before {
-		fresh := path + ".hyprtrixie-new"
+	if saved, err := files.Hash(path + ".solanum-old"); err == nil && saved != before {
+		fresh := path + ".solanum-new"
 		log.Line("warn", "kept local edits in "+path+", new version written to "+fresh)
 		if fsutil.Optional(fresh) == string(data) {
 			return false, nil

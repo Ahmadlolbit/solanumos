@@ -29,7 +29,7 @@ const (
 	toolboxDir   = "/opt/jetbrains-toolbox"
 	toolboxTool  = "jetbrains-toolbox"
 	zedDesktop   = "share/applications/dev.zed.Zed.desktop"
-	zedVersion   = ".hyprtrixie-version"
+	zedVersion   = ".solanum-version"
 	podmanSocket = "podman.socket"
 
 	globalPodmanSocket = "/etc/systemd/user/sockets.target.wants/" + podmanSocket

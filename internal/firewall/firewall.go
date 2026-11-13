@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	tag       = "hyprtrixie "
+	tag       = "solanum "
 	nameLimit = 15
 	ruleWords = 11
 )

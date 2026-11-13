@@ -29,7 +29,7 @@ func (context *Context) chezmoiPushing() (string, bool) {
 
 func (context *Context) chezmoiNoPush(log *runlog.Log, text string) error {
 	config := context.chezmoiConfig()
-	part := config + ".hyprtrixie-part"
+	part := config + ".solanum-part"
 	err := context.Person.Write(log, part, text)
 	for _, args := range [][]string{{"chmod", "600", part}, {"mv", "-fT", part, config}} {
 		if err == nil {

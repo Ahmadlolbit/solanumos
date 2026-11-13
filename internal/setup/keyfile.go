@@ -60,7 +60,7 @@ func ssidBytes(name string) string {
 }
 
 func connectionID(network wifiNetwork) string {
-	sum := sha1.Sum([]byte("hyprtrixie wifi\x00" + network.device + "\x00" + network.name))
+	sum := sha1.Sum([]byte("solanum wifi\x00" + network.device + "\x00" + network.name))
 	sum[6] = sum[6]&0x0f | 0x50
 	sum[8] = sum[8]&0x3f | 0x80
 	return fmt.Sprintf("%x-%x-%x-%x-%x", sum[0:4], sum[4:6], sum[6:8], sum[8:10], sum[10:16])

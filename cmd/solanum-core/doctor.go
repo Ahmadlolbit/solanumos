@@ -479,7 +479,7 @@ func (visit *checkup) files() {
 	}
 	if len(waiting) > 0 {
 		ui.Warn("Newer versions wait next to files you edited: " + firstFew(waiting))
-		ui.Note("Fix: compare each with its .hyprtrixie-new copy and keep what you want")
+		ui.Note("Fix: compare each with its .solanum-new copy and keep what you want")
 	}
 }
 

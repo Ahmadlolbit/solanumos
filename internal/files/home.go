@@ -14,7 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const partSuffix = ".hyprtrixie-part"
+const partSuffix = ".solanum-part"
 
 func (deployer *Deployer) inHome(path string) bool {
 	home := deployer.Person.Home

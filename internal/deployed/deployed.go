@@ -20,7 +20,7 @@ const (
 	starts     = "solanum "
 	folderMode = 0o755
 	stampMode  = 0o644
-	newSuffix  = ".hyprtrixie-new"
+	newSuffix  = ".solanum-new"
 )
 
 type Change struct {

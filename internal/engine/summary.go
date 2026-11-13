@@ -79,7 +79,7 @@ func (work *session) summaryLines() []string {
 	}
 	lines = append(lines, work.next(added)...)
 	if kept > 0 {
-		lines = append(lines, "Files you edited kept your edits; the new versions are next to them as *.hyprtrixie-new")
+		lines = append(lines, "Files you edited kept your edits; the new versions are next to them as *.solanum-new")
 	}
 	if len(runner.Failures) > 0 {
 		lines = append(lines, "Something failed: run sudo solanum collect --verbose and send the file it prints")

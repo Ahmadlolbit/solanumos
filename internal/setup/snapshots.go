@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	firstSnapshot     = "hyprtrixie: before setup"
+	firstSnapshot     = "solanum: before setup"
 	snapperTemplate   = "/usr/share/snapper/config-templates/default"
 	snapshotSubvolume = "@snapshots"
 	installerRoot     = "@rootfs"

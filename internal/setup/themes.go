@@ -578,7 +578,7 @@ func settingIn(path, key string) string {
 }
 
 func savedFont() map[string]string {
-	saved := consoleSetup() + ".hyprtrixie-old"
+	saved := consoleSetup() + ".solanum-old"
 	values := map[string]string{}
 	ours := true
 	for _, setting := range consoleFont {

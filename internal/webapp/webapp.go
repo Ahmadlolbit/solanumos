@@ -18,7 +18,7 @@ import (
 const (
 	prefix      = "webapp-"
 	suffix      = ".desktop"
-	addressKey  = "X-Hyprtrixie-Address="
+	addressKey  = "X-Solanum-Address="
 	nameKey     = "Name="
 	slugLength  = 12
 	GenericIcon = "applications-internet"
