@@ -154,7 +154,7 @@ func kernelAdvice(snapshotModules, boot, root string) string {
 func goBack(number string) int {
 	defer cleanup.IgnoreQuit()()
 	if lock.Busy() {
-		return fail("a Hyprtrixie run is still going, so nothing went back: run solanum restore %s once it ends", number)
+		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
 	if code := say("Comparing snapshot " + number + " with today, this can take a minute...\n"); code != 0 {
 		return code

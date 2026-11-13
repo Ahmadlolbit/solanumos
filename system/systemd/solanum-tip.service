@@ -1,5 +1,5 @@
 [Unit]
-Description=Show a Hyprtrixie tip
+Description=Show a Solanum tip
 ConditionUser=!@system
 
 [Service]

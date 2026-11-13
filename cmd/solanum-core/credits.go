@@ -11,7 +11,7 @@ import (
 
 var (
 	madeBy = [][2]string{
-		{"Hyprtrixie, made by Ahmad", "GPL-3.0"},
+		{"Solanum, made by Ahmad", "GPL-3.0"},
 		{"solanum themes", "GPL-3.0"},
 	}
 	otherCredits = [][2]string{

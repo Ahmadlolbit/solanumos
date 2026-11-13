@@ -129,13 +129,13 @@ func known(name string) bool {
 
 func Ready() error {
 	if !fsutil.IsFile(squashfs()) {
-		return errors.New("the installer only runs on the Hyprtrixie live system, started from its USB stick (" + squashfs() + " isn't here)")
+		return errors.New("the installer only runs on the Solanum live system, started from its USB stick (" + squashfs() + " isn't here)")
 	}
 	switch secureBoot() {
 	case "enabled":
-		return errors.New("this computer has Secure Boot on, and Hyprtrixie doesn't start with it: restart into the firmware setup (often F2, F10 or Del), turn Secure Boot off, then start the installer again")
+		return errors.New("this computer has Secure Boot on, and Solanum doesn't start with it: restart into the firmware setup (often F2, F10 or Del), turn Secure Boot off, then start the installer again")
 	case "legacy":
-		return errors.New("this computer started the stick in legacy BIOS mode, and Hyprtrixie needs UEFI: start it again and pick the stick's UEFI entry in the boot menu")
+		return errors.New("this computer started the stick in legacy BIOS mode, and Solanum needs UEFI: start it again and pick the stick's UEFI entry in the boot menu")
 	}
 	return nil
 }

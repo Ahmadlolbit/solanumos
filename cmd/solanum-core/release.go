@@ -233,16 +233,16 @@ func updateSolanum() int {
 	fmt.Printf("Updating %s\n", root())
 	tag, target, err := releaseTarget()
 	if lock.Busy() {
-		return fail("a Hyprtrixie run is going, so Hyprtrixie itself wasn't updated: run solanum update solanum once it ends")
+		return fail("a Solanum run is going, so Solanum itself wasn't updated: run solanum update solanum once it ends")
 	}
 	switch {
 	case errors.Is(err, errNoReleaseKey):
-		fmt.Print("Hyprtrixie itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
+		fmt.Print("Solanum itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
 		return finishSetup("")
 	case err != nil:
 		return fail("%v", err)
 	case run.Quiet(run.Quick, "git", "-C", root(), "merge-base", "--is-ancestor", target, "HEAD") == 0:
-		return finishSetup("Hyprtrixie is up to date (" + tag + ").\n")
+		return finishSetup("Solanum is up to date (" + tag + ").\n")
 	}
 	from := git("rev-parse", "HEAD")
 	if status := snapshotFirst(); status != 0 {

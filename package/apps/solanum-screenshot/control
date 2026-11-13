@@ -9,7 +9,7 @@ Suggests: hyprland
 Section: graphics
 Priority: optional
 Homepage: https://github.com/Ahmadlolbit/solanumos
-Description: Screenshots on Hyprland, from Hyprtrixie
+Description: Screenshots on Hyprland, from SolanumOS
  solanum-screenshot takes a region, a window or the whole screen on
  Hyprland, saves it to ~/Pictures/Screenshots, copies it to the clipboard
  and shows a notification. A click on the notification opens it in swappy

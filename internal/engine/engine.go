@@ -472,7 +472,7 @@ func (work *session) saveSettings() bool {
 
 func (work *session) install() int {
 	if !work.options.Events {
-		ui.Header("solanum "+env.Version, "Debian 13 with Hyprland, set up properly")
+		ui.Header("solanum "+env.Version, "Hyprland on Debian, set up properly")
 	}
 	work.showMachine()
 	if !work.confirmed() || !work.saveSettings() {

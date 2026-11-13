@@ -159,7 +159,7 @@ func update() int {
 		return fail("run it as yourself, without sudo: solanum update")
 	}
 	if lock.Busy() {
-		return fail("a Hyprtrixie run is still going, so nothing was updated: run solanum update once it ends")
+		return fail("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
 	}
 	wanted := func(name string) bool { return part == "all" || part == name }
 	if wanted("solanum") && run.Quiet(run.Quick, "git", "-C", root(), "rev-parse", "--git-dir") != 0 {

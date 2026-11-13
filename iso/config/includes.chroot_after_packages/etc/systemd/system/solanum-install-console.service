@@ -1,5 +1,5 @@
 [Unit]
-Description=The Hyprtrixie installer on the text console
+Description=The Solanum installer on the text console
 ConditionKernelCommandLine=solanum.install=console
 After=systemd-user-sessions.service
 Before=getty@tty1.service

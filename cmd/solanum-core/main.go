@@ -14,7 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const usage = `solanum %s - Debian 13 with Hyprland, set up properly
+const usage = `solanum %s - Hyprland on Debian, set up properly
 
 USAGE
   solanum                          Open the setup
@@ -43,7 +43,7 @@ USAGE
   solanum trust [on|off]           Show or set whether you trust the network you're on (run it without sudo);
                                      LocalSend can receive files only on networks you trust
   solanum update [PART]            Update everything (run it without sudo): a snapshot, Debian, the apps,
-                                     then Hyprtrixie and its installer; PART is system, apps or solanum
+                                     then Solanum and its installer; PART is system, apps or solanum
   solanum changes                  Show what the last solanum update changed
   solanum restore [NUMBER]         List the restore points, or show what changed since one and go back to it
                                      (run it without sudo)
@@ -68,7 +68,7 @@ USAGE
                                      takes away the boot entry kept from before
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
-  solanum credits                  Who made hyprtrixie, and the projects it builds on with their licences
+  solanum credits                  Who made Solanum, and the projects it builds on with their licences
   solanum version
   solanum help
 
@@ -118,7 +118,7 @@ func fail(format string, args ...any) int {
 
 func asRoot(mode string, command func() int) int {
 	if os.Geteuid() != 0 {
-		return fail("Hyprtrixie needs root for this. Run it again with sudo: sudo %s %s", os.Args[0], mode)
+		return fail("Solanum needs root for this. Run it again with sudo: sudo %s %s", os.Args[0], mode)
 	}
 	defer cleanup.IgnoreQuit()()
 	return command()

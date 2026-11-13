@@ -799,7 +799,7 @@
   },
   "update.solanum": {
     "glyph": "\udb81\udeb0",
-    "label": "Hyprtrixie",
+    "label": "Solanum",
     "action": "solanum-terminal --wait solanum update solanum",
     "keywords": [
       "update",

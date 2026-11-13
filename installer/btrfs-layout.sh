@@ -46,7 +46,7 @@ efi_dev=$(mounted_on /target/boot/efi)
 held=$(left_out "$target_dev")
 if [ -n "$held" ]; then
   dir=${held%% *}
-  fail "/$dir is on a partition of its own (${held#* }), and this layout would leave it out. Skip this step: Hyprtrixie works without it, and /$dir stays out of the snapshots as it is."
+  fail "/$dir is on a partition of its own (${held#* }), and this layout would leave it out. Skip this step: Solanum works without it, and /$dir stays out of the snapshots as it is."
 fi
 say "Filesystem $target_dev ($uuid)"
 

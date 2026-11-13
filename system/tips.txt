@@ -7,7 +7,7 @@ Super+S shows the scratchpad. Super+Alt+S sends a window there.
 Super+Escape opens the System menu: lock, suspend, restart, shut down.
 Menu › Toggle turns night light, do not disturb, Wi-Fi and Bluetooth on and off.
 Menu › Install offers more apps. solanum app list shows them all.
-solanum update pulls the newest hyprtrixie and runs the installer for you.
+solanum update pulls the newest Solanum and runs the installer for you.
 Click the clock in the bar for a calendar.
 Click the speaker in the bar for volume and outputs, the battery for power modes.
 The cup in the bar keeps the screen awake until you click it again.

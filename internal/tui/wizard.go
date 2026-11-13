@@ -308,7 +308,7 @@ func (flow *wizard) footer() (string, string) {
 }
 
 func (flow *wizard) header(width int) string {
-	title := headingStyle.Render("hyprtrixie") + " " + dimStyle.Render(env.Version)
+	title := headingStyle.Render("SolanumOS") + " " + dimStyle.Render(env.Version)
 	where := fmt.Sprintf(words.T("%s · %d of %d"), words.T(flow.stages[flow.at].name()), flow.at+1, len(flow.stages))
 	gap := max(width-lipgloss.Width(title)-lipgloss.Width(where), 1)
 	return title + strings.Repeat(" ", gap) + dimStyle.Render(where)

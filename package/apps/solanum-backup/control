@@ -8,7 +8,7 @@ Recommends: libnotify-bin
 Section: utils
 Priority: optional
 Homepage: https://github.com/Ahmadlolbit/solanumos
-Description: Back up your home folder with restic, from Hyprtrixie
+Description: Back up your home folder with restic, from SolanumOS
  restic-backup sets up where the backups go (a folder, a USB drive, s3:,
  b2: or rclone:), backs up your home folder, and lists, restores, mounts,
  checks and prunes the backups. It can also back up by itself whenever

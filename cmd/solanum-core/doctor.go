@@ -31,7 +31,7 @@ const (
 	noMatch     = 1
 	inactive    = 3
 	unknownUnit = 4
-	runGoing    = "\nA Hyprtrixie run is still going, so the doctor fixed nothing: run solanum doctor once it ends.\n"
+	runGoing    = "\nA Solanum run is still going, so the doctor fixed nothing: run solanum doctor once it ends.\n"
 )
 
 var desktopPrograms = [][2]string{
@@ -546,7 +546,7 @@ func examine() int {
 	checkBatteries()
 	visit.firmware()
 	visit.updates()
-	ui.Rule("Hyprtrixie")
+	ui.Rule("Solanum")
 	visit.files()
 	checkInstaller()
 	visit.offerFixes()

@@ -59,7 +59,7 @@ func preflightOS(log *runlog.Log) error {
 	if id == "debian" && codename == "trixie" {
 		return nil
 	}
-	fmt.Fprintf(log, "This system is %s %s; Hyprtrixie is made for Debian 13 (trixie).\n", orUnknown(id), orUnknown(codename))
+	fmt.Fprintf(log, "This system is %s %s; Solanum is made for Debian 13 (trixie).\n", orUnknown(id), orUnknown(codename))
 	return holds(false)
 }
 
@@ -69,7 +69,7 @@ func preflightArch(log *runlog.Log) error {
 	if arch == "amd64" {
 		return nil
 	}
-	fmt.Fprintf(log, "This system is %s; Hyprtrixie supports amd64 only.\n", arch)
+	fmt.Fprintf(log, "This system is %s; Solanum supports amd64 only.\n", arch)
 	return holds(false)
 }
 
@@ -274,7 +274,7 @@ func (context *Context) giveClone(log *runlog.Log) error {
 
 func AccountSteps(context *Context) {
 	context.Run.Interactive("Admin account", context.preflightUser)
-	context.Run.Step("Give the account its own copy of Hyprtrixie", context.giveClone)
+	context.Run.Step("Give the account its own copy of Solanum", context.giveClone)
 }
 
 func (context *Context) preflightDetect(log *runlog.Log) error {

@@ -17,7 +17,7 @@ import (
 )
 
 const firstBootUnit = `[Unit]
-Description=Finish setting up Hyprtrixie
+Description=Finish setting up Solanum
 Wants=network-online.target
 After=network-online.target
 Before=display-manager.service systemd-user-sessions.service plymouth-quit.service plymouth-quit-wait.service getty@tty1.service

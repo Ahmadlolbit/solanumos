@@ -41,7 +41,7 @@ func Take() (*os.File, error) {
 	}
 	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		file.Close()
-		return nil, errors.New("another Hyprtrixie run is still going")
+		return nil, errors.New("another Solanum run is still going")
 	}
 	return file, nil
 }

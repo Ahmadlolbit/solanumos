@@ -5,7 +5,7 @@ import "github.com/charmbracelet/lipgloss"
 const (
 	leaveTitle  = "Leave without installing?"
 	stopTitle   = "Stop the setup?"
-	testingHelp = "Logs every command, and packs the logs into a tar in the hyprtrixie folder"
+	testingHelp = "Logs every command, and packs the logs into a tar in the solanum folder"
 )
 
 var (
