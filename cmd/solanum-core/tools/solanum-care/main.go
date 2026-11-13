@@ -59,7 +59,7 @@ func firmware() bool {
 	seen := filepath.Join(stateFolder(), "firmware-seen")
 	fresh := care.Unseen(waiting, fsutil.Optional(seen))
 	if len(fresh) > 0 {
-		if !offer("hyprtrixie-firmware", "normal", "Firmware update", "Click to update.\n"+strings.Join(fresh, "\n")) {
+		if !offer("solanum-firmware", "normal", "Firmware update", "Click to update.\n"+strings.Join(fresh, "\n")) {
 			return false
 		}
 		save(seen, strings.Join(waiting, "\n")+"\n")
@@ -78,9 +78,9 @@ func warned(use int) bool {
 	title := fmt.Sprintf("The disk is %d%% full", use)
 	all, _ := snapshots.All()
 	if len(snapshots.Disposable(all)) == 0 {
-		return offer("hyprtrixie", "critical", title, "")
+		return offer("solanum", "critical", title, "")
 	}
-	return offer("hyprtrixie-disk", "critical", title, fmt.Sprintf("%d snapshots are on it. Click to delete the oldest automatic ones.", len(all)))
+	return offer("solanum-disk", "critical", title, fmt.Sprintf("%d snapshots are on it. Click to delete the oldest automatic ones.", len(all)))
 }
 
 func disk() {

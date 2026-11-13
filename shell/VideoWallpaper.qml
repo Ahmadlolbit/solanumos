@@ -16,7 +16,7 @@ Variants {
     exclusionMode: ExclusionMode.Ignore
     mask: Region {}
     WlrLayershell.layer: WlrLayer.Bottom
-    WlrLayershell.namespace: "hyprtrixie-video"
+    WlrLayershell.namespace: "solanum-video"
 
     anchors {
       top: true

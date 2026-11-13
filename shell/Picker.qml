@@ -186,7 +186,7 @@ Scope {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "hyprtrixie-picker"
+    WlrLayershell.namespace: "solanum-picker"
     onVisibleChanged: {
       if (!visible)
         root.items = [];

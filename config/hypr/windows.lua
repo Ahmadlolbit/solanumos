@@ -55,13 +55,13 @@ hl.window_rule({
 
 hl.window_rule({
   name = "screensaver",
-  match = { class = "^hyprtrixie\\.screensaver$" },
+  match = { class = "^solanum\\.screensaver$" },
   fullscreen = true,
 })
 
 hl.window_rule({
   name = "floating-terminal",
-  match = { class = "^hyprtrixie\\.floating$" },
+  match = { class = "^solanum\\.floating$" },
   float = true,
   center = true,
   size = { "(monitor_w*0.66)", "(monitor_h*0.66)" },
@@ -69,7 +69,7 @@ hl.window_rule({
 
 hl.window_rule({
   name = "dropdown-terminal",
-  match = { class = "^hyprtrixie-dropdown$" },
+  match = { class = "^solanum-dropdown$" },
   float = true,
   size = dropdown_size,
   move = dropdown_move,

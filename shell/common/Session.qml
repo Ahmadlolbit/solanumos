@@ -66,7 +66,7 @@ Singleton {
   Process {
     running: root.awake
     stdinEnabled: true
-    command: ["systemd-inhibit", "--what=idle", "--who=Hyprtrixie", "--why=Stay awake", "cat"]
+    command: ["systemd-inhibit", "--what=idle", "--who=Solanum", "--why=Stay awake", "cat"]
   }
 
   Process {

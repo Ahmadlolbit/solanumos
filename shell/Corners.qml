@@ -29,7 +29,7 @@ Variants {
       exclusionMode: ExclusionMode.Ignore
       mask: Region {}
       WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.namespace: "hyprtrixie-corners"
+      WlrLayershell.namespace: "solanum-corners"
 
       Canvas {
         anchors.fill: parent

@@ -35,7 +35,7 @@ otherwise from /usr/share/solanum/screensaver.txt.
 `
 
 const (
-	class      = "hyprtrixie.screensaver"
+	class      = "solanum.screensaver"
 	sharedText = "/usr/share/solanum/screensaver.txt"
 	kitty      = "hl.dsp.exec_cmd([[kitty --class " + class + " -o background=#000000 -o background_opacity=1 -o window_padding_width=0 -o confirm_os_window_close=0 -o font_size=16 -e solanum-screensaver run]])"
 	mouseOn    = "\x1b[?1003h\x1b[?1006h"

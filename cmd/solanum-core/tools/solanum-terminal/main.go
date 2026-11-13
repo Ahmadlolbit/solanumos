@@ -52,5 +52,5 @@ func Main() {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
-	os.Exit(run.Report(run.Exec("kitty", append([]string{"--class", "hyprtrixie.floating", "-e", run.Self(), "--inside", wait}, args...)...)))
+	os.Exit(run.Report(run.Exec("kitty", append([]string{"--class", "solanum.floating", "-e", run.Self(), "--inside", wait}, args...)...)))
 }

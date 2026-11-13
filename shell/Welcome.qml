@@ -104,7 +104,7 @@ Scope {
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "hyprtrixie-welcome"
+    WlrLayershell.namespace: "solanum-welcome"
     WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     anchors {
