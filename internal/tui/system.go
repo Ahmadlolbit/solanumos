@@ -63,7 +63,7 @@ func newSystem(found []disks.Disk) *system {
 	}
 	layout := keyboard.Current()
 	return &system{found: internalFirst(found), room: map[string]string{}, reuse: map[string]bool{}, shrink: map[string]bool{}, seen: layout,
-		answers: osinstall.Answers{Host: "hyprtrixie", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8"}}
+		answers: osinstall.Answers{Host: "solanum", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8"}}
 }
 
 func internalFirst(found []disks.Disk) []disks.Disk {

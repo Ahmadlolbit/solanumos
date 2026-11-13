@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	liveUser   = "hyprtrixie"
+	liveUser   = "solanum"
 	liveHome   = "/home/" + liveUser + "/"
 	stateMode  = 0o600
 	targetData = "var/lib/solanum"
