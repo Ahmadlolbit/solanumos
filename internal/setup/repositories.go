@@ -17,7 +17,7 @@ import (
 const securityMirror = "https://security.debian.org/debian-security"
 
 func sourcesList() string {
-	return env.Or("HYPRTRIXIE_SOURCES_LIST", "/etc/apt/sources.list")
+	return env.Or("SOLANUM_SOURCES_LIST", "/etc/apt/sources.list")
 }
 
 func debianEntry(line string) bool {

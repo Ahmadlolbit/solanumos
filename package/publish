@@ -5,9 +5,9 @@ here="$(cd "$(dirname "$0")" && pwd)"
 root="$(dirname "$here")"
 debs="${1:-}"
 apt_repo="${2:-}"
-key="${HYPRTRIXIE_APT_KEY:-}"
+key="${SOLANUM_APT_KEY:-}"
 [[ -d $debs && -d $apt_repo/.git && -n $key ]] || {
-  echo "usage: HYPRTRIXIE_APT_KEY=KEY package/publish FOLDER_WITH_DEBS HYPRTRIXIE_APT_CLONE" >&2
+  echo "usage: SOLANUM_APT_KEY=KEY package/publish FOLDER_WITH_DEBS SOLANUM_APT_CLONE" >&2
   echo "KEY is your OpenPGP key's fingerprint; the clone is your clone of hyprtrixie-apt" >&2
   exit 1
 }

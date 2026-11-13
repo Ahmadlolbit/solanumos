@@ -41,7 +41,7 @@ type wifiNetwork struct {
 }
 
 func interfacesFile() string {
-	return env.Or("HYPRTRIXIE_INTERFACES", "/etc/network/interfaces")
+	return env.Or("SOLANUM_INTERFACES", "/etc/network/interfaces")
 }
 
 func yourPowerTool() string {

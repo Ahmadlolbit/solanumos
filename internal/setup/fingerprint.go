@@ -19,15 +19,15 @@ const (
 )
 
 func sudoPAM() string {
-	return env.Or("HYPRTRIXIE_PAM_SUDO", "/etc/pam.d/sudo")
+	return env.Or("SOLANUM_PAM_SUDO", "/etc/pam.d/sudo")
 }
 
 func commonAuthPAM() string {
-	return env.Or("HYPRTRIXIE_PAM_COMMON_AUTH", "/etc/pam.d/common-auth")
+	return env.Or("SOLANUM_PAM_COMMON_AUTH", "/etc/pam.d/common-auth")
 }
 
 func fprintdProfile() string {
-	return env.Or("HYPRTRIXIE_PAM_FPRINTD", "/usr/share/pam-configs/fprintd")
+	return env.Or("SOLANUM_PAM_FPRINTD", "/usr/share/pam-configs/fprintd")
 }
 
 func fingerprintOnlyWhereAsked(log *runlog.Log) error {

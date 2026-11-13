@@ -49,7 +49,7 @@ func (store *Store) load() {
 	}
 	store.loaded = true
 	store.user = text(store.path)
-	store.system = text(env.Or("HYPRTRIXIE_LOOK_SYSTEM", "/etc/hyprtrixie/look.conf"))
+	store.system = text(env.Or("SOLANUM_LOOK_SYSTEM", "/etc/hyprtrixie/look.conf"))
 }
 
 func text(path string) string {
@@ -126,14 +126,14 @@ func (store *Store) Coordinates() (string, bool) {
 	if !ok {
 		return "", false
 	}
-	return ZoneLookup(env.Or("HYPRTRIXIE_ZONEINFO", "/usr/share/zoneinfo"), name)
+	return ZoneLookup(env.Or("SOLANUM_ZONEINFO", "/usr/share/zoneinfo"), name)
 }
 
 func zone() (string, bool) {
 	if name := os.Getenv("TZ"); name != "" {
 		return strings.TrimPrefix(name, ":"), true
 	}
-	path, err := fsutil.RealPath(env.Or("HYPRTRIXIE_LOCALTIME", "/etc/localtime"))
+	path, err := fsutil.RealPath(env.Or("SOLANUM_LOCALTIME", "/etc/localtime"))
 	if err != nil {
 		return "", false
 	}

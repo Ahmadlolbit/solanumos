@@ -45,7 +45,7 @@ var tools = map[string]func(){
 
 func runTool() {
 	name := filepath.Base(os.Args[0])
-	if name == "hyprtrixie" && os.Getenv("HYPRTRIXIE_ENGINE") != "" {
+	if name == "hyprtrixie" && os.Getenv("SOLANUM_ENGINE") != "" {
 		return
 	}
 	if tool, ok := tools[name]; ok {

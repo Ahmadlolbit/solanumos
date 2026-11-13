@@ -110,7 +110,7 @@ func (context *Context) podmanInstall(log *runlog.Log) error {
 }
 
 func subordinateFile(kind, path string) string {
-	return env.Or("HYPRTRIXIE_"+kind, path)
+	return env.Or("SOLANUM_"+kind, path)
 }
 
 func freeRange(path, name string) (string, bool) {
@@ -563,7 +563,7 @@ func (context *Context) editorColours(log *runlog.Log) error {
 		log.Line("info", "no theme is applied yet; module 14 gives the editors its colours")
 		return nil
 	}
-	return context.Person.Run(log, "env", "HYPRTRIXIE_THEME_ROOT="+env.ThemeRoot(), "HYPRTRIXIE_LOOK_SYSTEM="+lookConf(), setter, "--editors")
+	return context.Person.Run(log, "env", "SOLANUM_THEME_ROOT="+env.ThemeRoot(), "SOLANUM_LOOK_SYSTEM="+lookConf(), setter, "--editors")
 }
 
 func (context *Context) toolSteps() []toolStep {

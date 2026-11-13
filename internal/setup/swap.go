@@ -33,7 +33,7 @@ const (
 )
 
 func swapDir() string {
-	return env.Or("HYPRTRIXIE_SWAP_DIR", "/swap")
+	return env.Or("SOLANUM_SWAP_DIR", "/swap")
 }
 
 func swapFile() string {
@@ -41,11 +41,11 @@ func swapFile() string {
 }
 
 func zramConfig() string {
-	return env.Or("HYPRTRIXIE_ZRAM_CONFIG", "/etc/default/zramswap")
+	return env.Or("SOLANUM_ZRAM_CONFIG", "/etc/default/zramswap")
 }
 
 func swapSettings() string {
-	return filepath.Join(env.Or("HYPRTRIXIE_SYSCTL_DIR", "/etc/sysctl.d"), "90-hyprtrixie-swap.conf")
+	return filepath.Join(env.Or("SOLANUM_SYSCTL_DIR", "/etc/sysctl.d"), "90-hyprtrixie-swap.conf")
 }
 
 func (context *Context) number(key string) int {

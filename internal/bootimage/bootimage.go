@@ -21,7 +21,7 @@ func Dracut() bool {
 }
 
 func Folder() string {
-	return env.Or("HYPRTRIXIE_BOOT", "/boot")
+	return env.Or("SOLANUM_BOOT", "/boot")
 }
 
 func Newest() string {

@@ -22,7 +22,7 @@ var (
 )
 
 func connectionsFolder() string {
-	return env.Or("HYPRTRIXIE_NM_CONNECTIONS", "/etc/NetworkManager/system-connections")
+	return env.Or("SOLANUM_NM_CONNECTIONS", "/etc/NetworkManager/system-connections")
 }
 
 func connectionFile(device string) string {

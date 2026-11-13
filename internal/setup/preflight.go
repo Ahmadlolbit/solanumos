@@ -34,7 +34,7 @@ var (
 )
 
 func osRelease() string {
-	return env.Or("HYPRTRIXIE_OS_RELEASE", "/etc/os-release")
+	return env.Or("SOLANUM_OS_RELEASE", "/etc/os-release")
 }
 
 func osValue(text, key string) string {
@@ -85,7 +85,7 @@ func preflightSecureBoot(log *runlog.Log) error {
 
 func preflightNetwork(log *runlog.Log) error {
 	err := run.Logged(log, "curl", "-fsS", "--max-time", "20", "-o", "/dev/null", "https://deb.debian.org/debian/dists/trixie/InRelease")
-	if err != nil && env.Or("HYPRTRIXIE_FIRST_START", "") != "" {
+	if err != nil && env.Or("SOLANUM_FIRST_START", "") != "" {
 		fmt.Fprintln(log, "No internet yet: the first start carries on with what the install put on the disk")
 		return nil
 	}

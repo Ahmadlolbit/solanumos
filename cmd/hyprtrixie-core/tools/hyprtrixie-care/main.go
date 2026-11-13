@@ -84,7 +84,7 @@ func warned(use int) bool {
 }
 
 func disk() {
-	full, err := strconv.Atoi(os.Getenv("HYPRTRIXIE_DISK_LIMIT"))
+	full, err := strconv.Atoi(os.Getenv("SOLANUM_DISK_LIMIT"))
 	if err != nil {
 		full = diskLimit
 	}

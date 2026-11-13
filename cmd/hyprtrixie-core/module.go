@@ -34,7 +34,7 @@ func handBack(runner *step.Runner) error {
 	if runner.Skipped {
 		result.WriteString("module-skipped\n")
 	}
-	if err := atomic.Write(os.Getenv("HYPRTRIXIE_MODULE_RESULT"), []byte(result.String()), resultMode); err != nil {
+	if err := atomic.Write(os.Getenv("SOLANUM_MODULE_RESULT"), []byte(result.String()), resultMode); err != nil {
 		return fmt.Errorf("cannot hand the module's results back: %w", err)
 	}
 	return nil
@@ -42,9 +42,9 @@ func handBack(runner *step.Runner) error {
 
 func moduleContext(id, part string) (*setup.Context, error) {
 	log := runlog.Joined()
-	person, _ := account.Lookup(os.Getenv("HYPRTRIXIE_USER"))
-	settings := config.Read(config.Path(), os.Getenv("HYPRTRIXIE_RUN_CONFIG"))
-	context := &setup.Context{Run: step.New(log, id, os.Getenv("HYPRTRIXIE_FAILURE_MODE")), Person: person, Config: settings}
+	person, _ := account.Lookup(os.Getenv("SOLANUM_USER"))
+	settings := config.Read(config.Path(), os.Getenv("SOLANUM_RUN_CONFIG"))
+	context := &setup.Context{Run: step.New(log, id, os.Getenv("SOLANUM_FAILURE_MODE")), Person: person, Config: settings}
 	if part != "steps" {
 		return context, nil
 	}
@@ -101,7 +101,7 @@ func recorded(id string, steps bool, work func()) {
 }
 
 func module() int {
-	if os.Getenv("HYPRTRIXIE_MODULE_RESULT") == "" {
+	if os.Getenv("SOLANUM_MODULE_RESULT") == "" {
 		return fail("hyprtrixie-core module only runs as part of a setup")
 	}
 	return asRoot("install", runModule)

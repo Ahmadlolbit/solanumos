@@ -37,7 +37,7 @@ var (
 )
 
 func applicationsDir() string {
-	return env.Or("HYPRTRIXIE_APPLICATIONS_DIR", "/usr/share/applications")
+	return env.Or("SOLANUM_APPLICATIONS_DIR", "/usr/share/applications")
 }
 
 func (context *Context) wantedApps() []apps.App {

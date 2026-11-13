@@ -110,7 +110,7 @@ func (answers Answers) Check() error {
 }
 
 func liveEtc() string {
-	return env.Or("HYPRTRIXIE_LIVE_ETC", "/etc")
+	return env.Or("SOLANUM_LIVE_ETC", "/etc")
 }
 
 func known(name string) bool {

@@ -202,7 +202,7 @@ func autoTick() int {
 		wanted = settings.Get("light")
 	}
 	if currentTheme() != wanted {
-		if err := os.Setenv("HYPRTRIXIE_LOOK_AUTO", "1"); err != nil {
+		if err := os.Setenv("SOLANUM_LOOK_AUTO", "1"); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 		if code := switchTheme(wanted, "period-retry"); code != 0 {

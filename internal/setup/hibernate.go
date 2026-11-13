@@ -27,15 +27,15 @@ const (
 )
 
 func resumeGrub() string {
-	return env.Or("HYPRTRIXIE_RESUME_GRUB", "/etc/default/grub.d/hyprtrixie-resume.cfg")
+	return env.Or("SOLANUM_RESUME_GRUB", "/etc/default/grub.d/hyprtrixie-resume.cfg")
 }
 
 func resumeInitramfs() string {
-	return env.Or("HYPRTRIXIE_RESUME_INITRAMFS", "/etc/initramfs-tools/conf.d/hyprtrixie-resume")
+	return env.Or("SOLANUM_RESUME_INITRAMFS", "/etc/initramfs-tools/conf.d/hyprtrixie-resume")
 }
 
 func resumeDracut() string {
-	return env.Or("HYPRTRIXIE_RESUME_DRACUT", "/etc/dracut.conf.d/hyprtrixie-resume.conf")
+	return env.Or("SOLANUM_RESUME_DRACUT", "/etc/dracut.conf.d/hyprtrixie-resume.conf")
 }
 
 func (context *Context) cantHibernate() string {

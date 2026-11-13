@@ -148,7 +148,7 @@ func (work *installer) running() bool {
 }
 
 func (work *installer) environment() []string {
-	return []string{"HYPRTRIXIE_ENGINE=1", "HYPRTRIXIE_ROOT=" + env.Root()}
+	return []string{"SOLANUM_ENGINE=1", "SOLANUM_ROOT=" + env.Root()}
 }
 
 func settingsFile() string {

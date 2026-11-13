@@ -163,8 +163,8 @@ func goBack(number string) int {
 	if err != nil {
 		return fail("snapshot %s can't be read: see hyprtrixie restore", number)
 	}
-	modules := filepath.Join(env.Or("HYPRTRIXIE_SNAPSHOTS", "/.snapshots"), number, "snapshot/usr/lib/modules")
-	advice := kernelAdvice(modules, env.Or("HYPRTRIXIE_BOOT", "/boot"), "/")
+	modules := filepath.Join(env.Or("SOLANUM_SNAPSHOTS", "/.snapshots"), number, "snapshot/usr/lib/modules")
+	advice := kernelAdvice(modules, env.Or("SOLANUM_BOOT", "/boot"), "/")
 	kept := keptWords("/", fsutil.Optional("/proc/self/mountinfo"))
 	if code := say(snapshots.Changes(status) + "\n" + kept + advice + "\n"); code != 0 {
 		return code

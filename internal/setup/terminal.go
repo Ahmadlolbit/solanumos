@@ -28,7 +28,7 @@ const (
 )
 
 func fontDir() string {
-	return env.Or("HYPRTRIXIE_FONT_DIR", "/usr/local/share/fonts/jetbrains-mono-nerd")
+	return env.Or("SOLANUM_FONT_DIR", "/usr/local/share/fonts/jetbrains-mono-nerd")
 }
 
 func zshShare() string {

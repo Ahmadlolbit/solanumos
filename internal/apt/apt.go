@@ -48,15 +48,15 @@ const (
 )
 
 func extrepoConfig() string {
-	return env.Or("HYPRTRIXIE_EXTREPO_CONFIG", "/etc/extrepo/config.yaml")
+	return env.Or("SOLANUM_EXTREPO_CONFIG", "/etc/extrepo/config.yaml")
 }
 
 func SourcesDir() string {
-	return env.Or("HYPRTRIXIE_SOURCES_DIR", "/etc/apt/sources.list.d")
+	return env.Or("SOLANUM_SOURCES_DIR", "/etc/apt/sources.list.d")
 }
 
 func listsDir() string {
-	return env.Or("HYPRTRIXIE_LISTS_DIR", "/var/lib/apt/lists")
+	return env.Or("SOLANUM_LISTS_DIR", "/var/lib/apt/lists")
 }
 
 func stamp() string {

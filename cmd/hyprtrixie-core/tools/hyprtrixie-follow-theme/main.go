@@ -41,12 +41,12 @@ const (
 )
 
 var (
-	settingsFile = env.Or("HYPRTRIXIE_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")
-	templates    = env.Or("HYPRTRIXIE_FOLLOW_TEMPLATES", "/usr/share/hyprtrixie/follow")
-	plymouthDir  = env.Or("HYPRTRIXIE_PLYMOUTH_DIR", "/usr/share/plymouth/themes/hyprtrixie")
-	grubDir      = env.Or("HYPRTRIXIE_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
-	vtrgb        = env.Or("HYPRTRIXIE_VTRGB", "/etc/hyprtrixie/vtrgb")
-	sddmDir      = env.Or("HYPRTRIXIE_SDDM_THEME_DIR", "/usr/share/sddm/themes/hyprtrixie")
+	settingsFile = env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")
+	templates    = env.Or("SOLANUM_FOLLOW_TEMPLATES", "/usr/share/hyprtrixie/follow")
+	plymouthDir  = env.Or("SOLANUM_PLYMOUTH_DIR", "/usr/share/plymouth/themes/hyprtrixie")
+	grubDir      = env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
+	vtrgb        = env.Or("SOLANUM_VTRGB", "/etc/hyprtrixie/vtrgb")
+	sddmDir      = env.Or("SOLANUM_SDDM_THEME_DIR", "/usr/share/sddm/themes/hyprtrixie")
 	owedImage    = filepath.Join(env.StateDir(), "owed", "boot-image")
 )
 

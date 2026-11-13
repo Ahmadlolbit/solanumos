@@ -34,7 +34,7 @@ func (flow *wizard) allStages(machine []string, catalogue []apps.App) []stage {
 }
 
 func accountHelper() int {
-	os.Setenv("HYPRTRIXIE_ENGINE", "1")
+	os.Setenv("SOLANUM_ENGINE", "1")
 	return run.Report(run.Exec(filepath.Join(env.ToolsDir(), "hyprtrixie-core"), "account"))
 }
 

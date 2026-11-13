@@ -385,7 +385,7 @@ func batteryHealth(battery string) (uint64, bool) {
 
 func checkBatteries() {
 	found := false
-	batteries, _ := filepath.Glob(env.Or("HYPRTRIXIE_POWER_SUPPLY", "/sys/class/power_supply") + "/BAT*")
+	batteries, _ := filepath.Glob(env.Or("SOLANUM_POWER_SUPPLY", "/sys/class/power_supply") + "/BAT*")
 	for _, battery := range batteries {
 		health, ok := batteryHealth(battery)
 		if !ok {

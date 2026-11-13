@@ -1,6 +1,6 @@
 local screens = {}
 
-local root = os.getenv("HYPRTRIXIE_SYS_ROOT") or ""
+local root = os.getenv("SOLANUM_SYS_ROOT") or ""
 
 function screens.first_line(path)
   local file = io.open(root .. path, "r")

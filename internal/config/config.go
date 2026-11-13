@@ -18,7 +18,7 @@ import (
 
 const (
 	version        = 3
-	versionKey     = "HYPRTRIXIE_CONFIG_VERSION"
+	versionKey     = "SOLANUM_CONFIG_VERSION"
 	keyCharacters  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 	safeCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._:/@+,-~"
 	newApps        = "imv evince obsidian localsend calculator"
@@ -43,7 +43,7 @@ func RenamedThemes() map[string]string {
 }
 
 func Path() string {
-	return env.Or("HYPRTRIXIE_CONFIG", "/etc/hyprtrixie/hyprtrixie.conf")
+	return env.Or("SOLANUM_CONFIG", "/etc/hyprtrixie/hyprtrixie.conf")
 }
 
 func Defaults() *Config {

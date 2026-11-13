@@ -19,11 +19,11 @@ const (
 )
 
 func table() string {
-	return env.Or("HYPRTRIXIE_FSTAB", "/etc/fstab")
+	return env.Or("SOLANUM_FSTAB", "/etc/fstab")
 }
 
 func top() string {
-	return env.Or("HYPRTRIXIE_BTRFS_TOP", "/run/hyprtrixie/btrfs")
+	return env.Or("SOLANUM_BTRFS_TOP", "/run/hyprtrixie/btrfs")
 }
 
 func rootField(name string) string {

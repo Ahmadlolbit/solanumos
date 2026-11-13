@@ -50,15 +50,15 @@ type grubMenu struct {
 }
 
 func snapperDefaults() string {
-	return env.Or("HYPRTRIXIE_SNAPPER_DEFAULTS", "/etc/default/snapper")
+	return env.Or("SOLANUM_SNAPPER_DEFAULTS", "/etc/default/snapper")
 }
 
 func snapperConfig() string {
-	return env.Or("HYPRTRIXIE_SNAPPER_CONFIG", "/etc/snapper/configs/root")
+	return env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")
 }
 
 func snapshotDir() string {
-	return env.Or("HYPRTRIXIE_SNAPSHOT_DIR", "/.snapshots")
+	return env.Or("SOLANUM_SNAPSHOT_DIR", "/.snapshots")
 }
 
 func snapperArgs(args ...string) []string {

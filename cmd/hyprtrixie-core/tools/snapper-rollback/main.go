@@ -158,7 +158,7 @@ func bootsByNumber(table, commandLine string) bool {
 }
 
 func startsByNumber() bool {
-	return bootsByNumber(fsutil.Optional(env.Or("HYPRTRIXIE_FSTAB", "/etc/fstab")), fsutil.Optional(env.Or("HYPRTRIXIE_CMDLINE", "/proc/cmdline")))
+	return bootsByNumber(fsutil.Optional(env.Or("SOLANUM_FSTAB", "/etc/fstab")), fsutil.Optional(env.Or("SOLANUM_CMDLINE", "/proc/cmdline")))
 }
 
 func (top layout) check(paths rootPaths) error {

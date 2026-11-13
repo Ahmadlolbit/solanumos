@@ -37,7 +37,7 @@ local function bar_value(path, key)
 end
 
 function look.bar(key)
-  local system = os.getenv("HYPRTRIXIE_SHELL_SYSTEM") or "/etc/hyprtrixie/shell.json"
+  local system = os.getenv("SOLANUM_SHELL_SYSTEM") or "/etc/hyprtrixie/shell.json"
   return bar_value(config_home() .. "/hyprtrixie/shell.json", key) or bar_value(system, key)
 end
 

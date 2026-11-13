@@ -49,11 +49,11 @@ type system struct {
 }
 
 func answersFile() string {
-	return env.Or("HYPRTRIXIE_ANSWERS", "/run/hyprtrixie-install.json")
+	return env.Or("SOLANUM_ANSWERS", "/run/hyprtrixie-install.json")
 }
 
 func zoneFolder() string {
-	return env.Or("HYPRTRIXIE_ZONEINFO", "/usr/share/zoneinfo")
+	return env.Or("SOLANUM_ZONEINFO", "/usr/share/zoneinfo")
 }
 
 func newSystem(found []disks.Disk) *system {
@@ -380,7 +380,7 @@ func desktopReload() ([]string, bool) {
 	if uid == "" {
 		return nil, false
 	}
-	hyprctl, found := hypr.Session(filepath.Join(env.Or("HYPRTRIXIE_RUN_USER", "/run/user"), uid))
+	hyprctl, found := hypr.Session(filepath.Join(env.Or("SOLANUM_RUN_USER", "/run/user"), uid))
 	if !found {
 		return nil, false
 	}

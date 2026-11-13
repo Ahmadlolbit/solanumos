@@ -29,7 +29,7 @@ func show(report sensors.Report) {
 }
 
 func Main() {
-	root := os.Getenv("HYPRTRIXIE_SYSROOT")
+	root := os.Getenv("SOLANUM_SYSROOT")
 	switch env.Arg(1) {
 	case "":
 		show(sensors.Read(root))

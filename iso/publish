@@ -6,7 +6,7 @@ root="$(dirname "$here")"
 version="${1:-}"
 user="${SOURCEFORGE_USER:-}"
 project="${SOURCEFORGE_PROJECT:-hyprtrixie}"
-key="${HYPRTRIXIE_RELEASE_KEY:-$HOME/.ssh/hyprtrixie-release}"
+key="${SOLANUM_RELEASE_KEY:-$HOME/.ssh/hyprtrixie-release}"
 built="${2:-$root/build/iso/live-image-amd64.hybrid.iso}"
 [[ -n $version && -n $user && -f $built ]] || {
   echo "usage: SOURCEFORGE_USER=NAME iso/publish VERSION [IMAGE]" >&2
@@ -14,7 +14,7 @@ built="${2:-$root/build/iso/live-image-amd64.hybrid.iso}"
   exit 1
 }
 [[ -f $key ]] || {
-  echo "no release key at $key (set HYPRTRIXIE_RELEASE_KEY)" >&2
+  echo "no release key at $key (set SOLANUM_RELEASE_KEY)" >&2
   exit 1
 }
 record="$(dirname "$built")/commit"

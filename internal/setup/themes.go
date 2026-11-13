@@ -73,11 +73,11 @@ type themeRun struct {
 }
 
 func oldThemeRoot() string {
-	return env.Or("HYPRTRIXIE_OLD_THEME_ROOT", "/usr/share/"+oldName)
+	return env.Or("SOLANUM_OLD_THEME_ROOT", "/usr/share/"+oldName)
 }
 
 func lookConf() string {
-	return env.Or("HYPRTRIXIE_LOOK_CONF", "/etc/hyprtrixie/look.conf")
+	return env.Or("SOLANUM_LOOK_CONF", "/etc/hyprtrixie/look.conf")
 }
 
 func themeApplied() string {
@@ -85,11 +85,11 @@ func themeApplied() string {
 }
 
 func grubThemeDir() string {
-	return env.Or("HYPRTRIXIE_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
+	return env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
 }
 
 func grubSettings() string {
-	return env.Or("HYPRTRIXIE_GRUB_SETTINGS", "/etc/default/grub.d/hyprtrixie.cfg")
+	return env.Or("SOLANUM_GRUB_SETTINGS", "/etc/default/grub.d/hyprtrixie.cfg")
 }
 
 func followFile(name string) string {
@@ -427,7 +427,7 @@ func (theme *themeRun) themeInUse() bool {
 }
 
 func (theme *themeRun) themeSet(log *runlog.Log, name string) error {
-	command := []string{"env", "HYPRTRIXIE_THEME_ROOT=" + env.ThemeRoot(), "HYPRTRIXIE_LOOK_SYSTEM=" + lookConf(), "HYPRTRIXIE_LOOK_AUTO=1"}
+	command := []string{"env", "SOLANUM_THEME_ROOT=" + env.ThemeRoot(), "SOLANUM_LOOK_SYSTEM=" + lookConf(), "SOLANUM_LOOK_AUTO=1"}
 	command = append(command, hypr.Running(theme.Person.Runtime())...)
 	return theme.Person.Run(log, append(command, filepath.Join(env.BinDir(), themeSetter), name)...)
 }
@@ -564,7 +564,7 @@ func (theme *themeRun) grubSetup(log *runlog.Log) error {
 }
 
 func consoleSetup() string {
-	return env.Or("HYPRTRIXIE_CONSOLE_SETUP", "/etc/default/console-setup")
+	return env.Or("SOLANUM_CONSOLE_SETUP", "/etc/default/console-setup")
 }
 
 func settingIn(path, key string) string {

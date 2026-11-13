@@ -27,23 +27,23 @@ const (
 )
 
 func displayFile() string {
-	return env.Or("HYPRTRIXIE_DISPLAY_FILE", "/etc/X11/default-display-manager")
+	return env.Or("SOLANUM_DISPLAY_FILE", "/etc/X11/default-display-manager")
 }
 
 func displayAlias() string {
-	return env.Or("HYPRTRIXIE_DISPLAY_ALIAS", "/etc/systemd/system/display-manager.service")
+	return env.Or("SOLANUM_DISPLAY_ALIAS", "/etc/systemd/system/display-manager.service")
 }
 
 func sddmConf() string {
-	return env.Or("HYPRTRIXIE_SDDM_CONF", "/etc/sddm.conf.d/10-hyprtrixie.conf")
+	return env.Or("SOLANUM_SDDM_CONF", "/etc/sddm.conf.d/10-hyprtrixie.conf")
 }
 
 func sddmState() string {
-	return env.Or("HYPRTRIXIE_SDDM_STATE", "/var/lib/sddm/state.conf")
+	return env.Or("SOLANUM_SDDM_STATE", "/var/lib/sddm/state.conf")
 }
 
 func sddmThemes() string {
-	return env.Or("HYPRTRIXIE_SDDM_THEMES", "/usr/share/sddm/themes")
+	return env.Or("SOLANUM_SDDM_THEMES", "/usr/share/sddm/themes")
 }
 
 func (context *Context) sddmPackages(log *runlog.Log) error {

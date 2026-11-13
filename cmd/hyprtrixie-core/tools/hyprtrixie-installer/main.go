@@ -13,8 +13,8 @@ func Main() {
 		fmt.Println("hyprtrixie-installer opens the installer with no arguments, as root, on the Hyprtrixie live system")
 		return
 	}
-	if os.Getenv("HYPRTRIXIE_ROOT") == "" {
-		os.Setenv("HYPRTRIXIE_ROOT", osinstall.Clone())
+	if os.Getenv("SOLANUM_ROOT") == "" {
+		os.Setenv("SOLANUM_ROOT", osinstall.Clone())
 	}
 	os.Exit(tui.RunInstaller())
 }

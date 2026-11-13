@@ -169,7 +169,7 @@ func showHelp() int {
 }
 
 func root() string {
-	return os.Getenv("HYPRTRIXIE_ROOT")
+	return os.Getenv("SOLANUM_ROOT")
 }
 
 func script() string {

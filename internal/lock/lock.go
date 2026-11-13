@@ -18,7 +18,7 @@ const (
 var heldLocks = "/proc/locks"
 
 func Path() string {
-	return env.Or("HYPRTRIXIE_LOCK", "/run/hyprtrixie.lock")
+	return env.Or("SOLANUM_LOCK", "/run/hyprtrixie.lock")
 }
 
 func open(path string) (*os.File, error) {

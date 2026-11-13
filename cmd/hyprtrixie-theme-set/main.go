@@ -461,7 +461,7 @@ func desktopSettings(colors, apps theme.Colors) {
 }
 
 func rememberPick(name, mode string) {
-	if os.Getenv("HYPRTRIXIE_LOOK_AUTO") != "" || settings.Get("auto") == "off" {
+	if os.Getenv("SOLANUM_LOOK_AUTO") != "" || settings.Get("auto") == "off" {
 		return
 	}
 	key := "dark"

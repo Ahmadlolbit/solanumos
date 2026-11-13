@@ -53,7 +53,7 @@ func appChange(action string, change func(apps.App) int) int {
 	if !found {
 		return fail("no app named %s (see: hyprtrixie app list)", id)
 	}
-	if os.Getenv("HYPRTRIXIE_ENGINE") == "" {
+	if os.Getenv("SOLANUM_ENGINE") == "" {
 		return throughScript()
 	}
 	return asRoot("app "+action+" "+id, func() int { return change(app) })

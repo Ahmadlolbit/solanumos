@@ -47,7 +47,7 @@ func readExisting(path string) (string, bool) {
 }
 
 func browsersFollow() bool {
-	return follow.Setting(fsutil.Optional(env.Or("HYPRTRIXIE_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")), "browsers") == "yes"
+	return follow.Setting(fsutil.Optional(env.Or("SOLANUM_FOLLOW_SETTINGS", "/etc/hyprtrixie/follow-theme")), "browsers") == "yes"
 }
 
 func rewrite(path string, change func([]string) []string) {

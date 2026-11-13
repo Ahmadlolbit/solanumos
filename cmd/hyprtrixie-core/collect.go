@@ -206,7 +206,7 @@ func (out *report) desktop() {
 	out.write("\n")
 	out.command("pgrep", "-a", "-u", out.person.Name, "-x", "Hyprland|hyprpaper|hypridle|mako|elephant|walker|qs|quickshell")
 	out.write("\n")
-	out.asUser("qs", "log", "-p", env.Or("HYPRTRIXIE_SHARE_DIR", "/usr/share/hyprtrixie")+"/shell", "-t", "300")
+	out.asUser("qs", "log", "-p", env.Or("SOLANUM_SHARE_DIR", "/usr/share/hyprtrixie")+"/shell", "-t", "300")
 }
 
 func (out *report) packages() {
@@ -215,7 +215,7 @@ func (out *report) packages() {
 	if output != "" {
 		out.write("%s\n", output)
 	}
-	bin := env.Or("HYPRTRIXIE_BIN_DIR", "/usr/local/bin")
+	bin := env.Or("SOLANUM_BIN_DIR", "/usr/local/bin")
 	out.write("walker %s\n", out.answer("not found", bin+"/walker", "--version"))
 	out.write("elephant %s\n", out.answer("not found", bin+"/elephant", "version"))
 }

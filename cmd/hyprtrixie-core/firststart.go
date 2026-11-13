@@ -24,7 +24,7 @@ What happened is in ~/runbook-report.md and %s.
 `
 
 func firstStartMarker() string {
-	return env.Or("HYPRTRIXIE_FIRST_BOOT", "/etc/hyprtrixie/first-boot")
+	return env.Or("SOLANUM_FIRST_BOOT", "/etc/hyprtrixie/first-boot")
 }
 
 func firstStartNotePath(person account.Account) string {
@@ -65,7 +65,7 @@ func firstStartCommand() int {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
-	os.Setenv("HYPRTRIXIE_FIRST_START", "1")
+	os.Setenv("SOLANUM_FIRST_START", "1")
 	code := run.Status(script(), "install", "--config", config.Path(), "--on-failure", "continue", "--yes")
 	remove(firstStartMarker())
 	if code == 0 && found {

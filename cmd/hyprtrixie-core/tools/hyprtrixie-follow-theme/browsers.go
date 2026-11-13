@@ -23,7 +23,7 @@ type browser struct {
 }
 
 var (
-	policyRoot = env.Or("HYPRTRIXIE_POLICY_ROOT", "/")
+	policyRoot = env.Or("SOLANUM_POLICY_ROOT", "/")
 	browsers   = []browser{
 		{"chromium", []string{"etc/chromium/policies/managed"}},
 		{"helium-bin", []string{"etc/chromium/policies/managed", "etc/helium/policies/managed"}},

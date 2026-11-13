@@ -43,7 +43,7 @@ func creditLines() []string {
 		lines = append(lines, credit[0]+"\t"+credit[1])
 	}
 	installed, _ := apt.Installed()
-	docs := env.Or("HYPRTRIXIE_DOC_ROOT", "/usr/share/doc")
+	docs := env.Or("SOLANUM_DOC_ROOT", "/usr/share/doc")
 	for _, name := range debianCredits {
 		if license := copyrightLicense(fsutil.Optional(filepath.Join(docs, name, "copyright"))); installed[name] && license != "" {
 			lines = append(lines, name+"\t"+license)

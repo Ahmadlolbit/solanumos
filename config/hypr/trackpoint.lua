@@ -2,7 +2,7 @@ local look = require("hyprtrixie.hypr.look")
 
 local function trackpoints()
   local names = {}
-  local file = io.open(os.getenv("HYPRTRIXIE_INPUT_DEVICES") or "/proc/bus/input/devices", "r")
+  local file = io.open(os.getenv("SOLANUM_INPUT_DEVICES") or "/proc/bus/input/devices", "r")
   if not file then
     return names
   end

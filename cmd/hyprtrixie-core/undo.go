@@ -127,7 +127,7 @@ func snapshotBefore(description string) (bool, error) {
 	if snapshotsOff() {
 		return false, nil
 	}
-	if !installed("snapper") || !fsutil.IsFile(env.Or("HYPRTRIXIE_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
+	if !installed("snapper") || !fsutil.IsFile(env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
 		fmt.Println("Snapshots aren't set up, so there's no restore point.")
 		return false, nil
 	}

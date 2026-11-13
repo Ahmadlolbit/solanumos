@@ -94,7 +94,7 @@ func Lookup(name string) (Account, bool) {
 }
 
 func Target() (Account, bool) {
-	name := env.Or("HYPRTRIXIE_USER", os.Getenv("SUDO_USER"))
+	name := env.Or("SOLANUM_USER", os.Getenv("SUDO_USER"))
 	if name != "" && name != "root" {
 		return Lookup(name)
 	}
@@ -172,7 +172,7 @@ func (person Account) SessionRunning() bool {
 }
 
 func kept(name string) bool {
-	return strings.HasPrefix(name, "LC_") || strings.HasPrefix(name, "HYPRTRIXIE_") || slices.Contains(keptNames, name)
+	return strings.HasPrefix(name, "LC_") || strings.HasPrefix(name, "SOLANUM_") || slices.Contains(keptNames, name)
 }
 
 func unset(own []string) []string {

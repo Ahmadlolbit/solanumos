@@ -11,7 +11,7 @@ import (
 )
 
 func Now() (time.Time, bool) {
-	text := os.Getenv("HYPRTRIXIE_NOW")
+	text := os.Getenv("SOLANUM_NOW")
 	if text == "" || text == "now" {
 		return time.Now(), true
 	}

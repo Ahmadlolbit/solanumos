@@ -26,8 +26,8 @@ notify shows it as a notification, at most once a day, unless tip notifications 
 `
 
 var (
-	tipsFile = env.Or("HYPRTRIXIE_TIPS", "/usr/share/hyprtrixie/tips.txt")
-	switches = env.Or("HYPRTRIXIE_TIP_SWITCHES", "/etc/hyprtrixie/tips")
+	tipsFile = env.Or("SOLANUM_TIPS", "/usr/share/hyprtrixie/tips.txt")
+	switches = env.Or("SOLANUM_TIP_SWITCHES", "/etc/hyprtrixie/tips")
 )
 
 func read(file string) string {

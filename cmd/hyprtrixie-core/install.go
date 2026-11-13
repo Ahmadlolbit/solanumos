@@ -11,7 +11,7 @@ import (
 )
 
 func handedOver(mode string, body func([]string) int) int {
-	if os.Getenv("HYPRTRIXIE_ENGINE") == "" {
+	if os.Getenv("SOLANUM_ENGINE") == "" {
 		return throughScript()
 	}
 	args := os.Args[2:]

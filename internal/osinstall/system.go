@@ -25,7 +25,7 @@ ConditionPathExists=/etc/hyprtrixie/first-boot
 
 [Service]
 Type=oneshot
-Environment=HYPRTRIXIE_USER=%s
+Environment=SOLANUM_USER=%s
 ExecStartPre=-/usr/bin/plymouth display-message --text="Finishing the setup, which takes a few minutes"
 ExecStart=%s first-start
 TimeoutStartSec=2h
@@ -164,7 +164,7 @@ func (work *install) bootLoader(log *runlog.Log) error {
 }
 
 func Clone() string {
-	return env.Or("HYPRTRIXIE_ROOT", env.SystemClone())
+	return env.Or("SOLANUM_ROOT", env.SystemClone())
 }
 
 func (work *install) firstBoot(log *runlog.Log) error {

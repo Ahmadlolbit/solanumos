@@ -51,11 +51,11 @@ const (
 )
 
 func crypttab() string {
-	return env.Or("HYPRTRIXIE_CRYPTTAB", "/etc/crypttab")
+	return env.Or("SOLANUM_CRYPTTAB", "/etc/crypttab")
 }
 
 func dracutConfig() string {
-	return env.Or("HYPRTRIXIE_DRACUT_CONF", "/etc/dracut.conf.d/hyprtrixie-tpm2.conf")
+	return env.Or("SOLANUM_DRACUT_CONF", "/etc/dracut.conf.d/hyprtrixie-tpm2.conf")
 }
 
 func joinedLog() *runlog.Log {
@@ -83,7 +83,7 @@ func findLuksRoot() (luksRoot, error) {
 }
 
 func tpmPresent() bool {
-	return fsutil.Exists(env.Or("HYPRTRIXIE_TPM_DEVICE", "/dev/tpmrm0"))
+	return fsutil.Exists(env.Or("SOLANUM_TPM_DEVICE", "/dev/tpmrm0"))
 }
 
 func crypttabWith(mapper string, on bool) (string, bool, error) {

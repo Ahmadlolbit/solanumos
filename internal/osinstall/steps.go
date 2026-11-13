@@ -34,11 +34,11 @@ type install struct {
 }
 
 func squashfs() string {
-	return env.Or("HYPRTRIXIE_SQUASHFS", "/run/live/medium/live/filesystem.squashfs")
+	return env.Or("SOLANUM_SQUASHFS", "/run/live/medium/live/filesystem.squashfs")
 }
 
 func target() string {
-	return env.Or("HYPRTRIXIE_TARGET", disks.Target)
+	return env.Or("SOLANUM_TARGET", disks.Target)
 }
 
 func inTarget(path string) string {

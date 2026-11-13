@@ -71,7 +71,7 @@ type Log struct {
 }
 
 func Joined() *Log {
-	return &Log{file: os.Getenv("HYPRTRIXIE_LOG_FILE"), copy: os.Getenv("HYPRTRIXIE_USER_LOG")}
+	return &Log{file: os.Getenv("SOLANUM_LOG_FILE"), copy: os.Getenv("SOLANUM_USER_LOG")}
 }
 
 func Start(what string) (*Log, error) {

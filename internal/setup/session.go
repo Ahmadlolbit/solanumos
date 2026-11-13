@@ -323,7 +323,7 @@ func everyoneTimer(log *runlog.Log, timer string, on, changed bool) error {
 }
 
 func liveImage() bool {
-	return os.Getenv("HYPRTRIXIE_LIVE") == "1"
+	return os.Getenv("SOLANUM_LIVE") == "1"
 }
 
 func (context *Context) tipTimerInstall(log *runlog.Log) error {

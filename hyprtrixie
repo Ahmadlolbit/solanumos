@@ -3,9 +3,9 @@ set -euo pipefail
 
 root="$(readlink -f "${BASH_SOURCE[0]}")"
 root="${root%/*}"
-tools="${HYPRTRIXIE_TOOLS_DIR:-$root/build/bin}"
-core="${HYPRTRIXIE_CORE:-/usr/local/bin/hyprtrixie-core}"
-export HYPRTRIXIE_ROOT="$root"
+tools="${SOLANUM_TOOLS_DIR:-$root/build/bin}"
+core="${SOLANUM_CORE:-/usr/local/bin/hyprtrixie-core}"
+export SOLANUM_ROOT="$root"
 if [[ ! -O $root ]]; then
   count="${GIT_CONFIG_COUNT:-0}"
   export "GIT_CONFIG_KEY_$count=safe.directory" "GIT_CONFIG_VALUE_$count=$root" GIT_CONFIG_COUNT=$((count + 1))
@@ -49,12 +49,12 @@ stale() {
   for program in "$tools"/*; do
     [[ -s $program ]] || return 0
   done
-  [[ $root != "${HYPRTRIXIE_SYSTEM_CLONE:-/opt/hyprtrixie}" && -n $(find "$tools/hyprtrixie-core" -newermt now -print -quit) ]] && return 0
+  [[ $root != "${SOLANUM_SYSTEM_CLONE:-/opt/hyprtrixie}" && -n $(find "$tools/hyprtrixie-core" -newermt now -print -quit) ]] && return 0
   [[ -n $(find "$root/cmd" "$root/internal" "$root/vendor" "$root/go.mod" -newer "$tools/hyprtrixie-core" -print -quit) ]]
 }
 
 build() {
-  ((${HYPRTRIXIE_TOOLS_BUILT:-0})) && return 0
+  ((${SOLANUM_TOOLS_BUILT:-0})) && return 0
   stale || return 0
   if ! command -v go >/dev/null; then
     apt_get update
@@ -76,11 +76,11 @@ build() {
 }
 
 fresh() {
-  HYPRTRIXIE_ENGINE=1 exec -a "$0" "$tools/hyprtrixie-core" "$@"
+  SOLANUM_ENGINE=1 exec -a "$0" "$tools/hyprtrixie-core" "$@"
 }
 
-if [[ -n ${HYPRTRIXIE_FROM_CORE:-} ]]; then
-  unset HYPRTRIXIE_FROM_CORE
+if [[ -n ${SOLANUM_FROM_CORE:-} ]]; then
+  unset SOLANUM_FROM_CORE
   build
   fresh "$@"
 fi
@@ -92,7 +92,7 @@ case "${1:-} ${2:-}" in
       exit 1
     fi
     build
-    unset HYPRTRIXIE_ENGINE
+    unset SOLANUM_ENGINE
     exec "$tools/hyprtrixie"
     ;;
   install\ *)
@@ -115,7 +115,7 @@ case "${1:-} ${2:-}" in
 esac
 
 if [[ -f $core && -x $core && -s $core ]]; then
-  HYPRTRIXIE_ENGINE=1 exec -a "$0" "$core" "$@"
+  SOLANUM_ENGINE=1 exec -a "$0" "$core" "$@"
 fi
 build
 fresh "$@"
