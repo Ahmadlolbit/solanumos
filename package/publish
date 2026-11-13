@@ -8,7 +8,7 @@ apt_repo="${2:-}"
 key="${SOLANUM_APT_KEY:-}"
 [[ -d $debs && -d $apt_repo/.git && -n $key ]] || {
   echo "usage: SOLANUM_APT_KEY=KEY package/publish FOLDER_WITH_DEBS SOLANUM_APT_CLONE" >&2
-  echo "KEY is your OpenPGP key's fingerprint; the clone is your clone of hyprtrixie-apt" >&2
+  echo "KEY is your OpenPGP key's fingerprint; the clone is your clone of solanumos-apt" >&2
   exit 1
 }
 apt_repo="$(cd "$apt_repo" && pwd)"
@@ -43,9 +43,9 @@ docker run --rm --platform linux/amd64 -v "$apt_repo:/repo" -v "$root/package/ar
   -v "$root/package/index:/index:ro" debian:trixie bash /index
 gpg --local-user "$key" --clearsign -o "$apt_repo/dists/trixie/InRelease" "$apt_repo/dists/trixie/Release"
 gpg --local-user "$key" --armor --detach-sign -o "$apt_repo/dists/trixie/Release.gpg" "$apt_repo/dists/trixie/Release"
-gpg --export "$key" >"$apt_repo/hyprtrixie.pgp"
+gpg --export "$key" >"$apt_repo/solanum.pgp"
 : >"$apt_repo/.nojekyll"
-git -C "$apt_repo" add -A pool dists hyprtrixie.pgp .nojekyll
+git -C "$apt_repo" add -A pool dists solanum.pgp .nojekyll
 git -C "$apt_repo" commit -q -m "Publish $(printf '%s ' "${found[@]##*/}")"
 git -C "$apt_repo" push -q
 echo "published: ${found[*]##*/}"

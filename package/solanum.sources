@@ -1,5 +1,5 @@
 Types: deb
-URIs: https://ahmadlolbit.github.io/hyprtrixie-apt
+URIs: https://ahmadlolbit.github.io/solanumos-apt
 Suites: trixie
 Components: main
-Signed-By: /usr/share/keyrings/hyprtrixie.pgp
+Signed-By: /usr/share/keyrings/solanum.pgp
