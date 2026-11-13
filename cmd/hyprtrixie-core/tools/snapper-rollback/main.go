@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	runs "github.com/Ahmadlolbit/hyprtrixie/internal/lock"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/snapshots"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	runs "github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
 )
 
 const (

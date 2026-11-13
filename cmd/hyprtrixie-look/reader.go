@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/notify"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/notify"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const screenReader = "orca"

@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/databases"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/databases"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
 const dbUsage = "usage: hyprtrixie db [list | start NAME | stop NAME | remove NAME], where NAME is postgres, mysql or redis"

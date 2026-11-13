@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/look"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/weather"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/look"
+	"github.com/Ahmadlolbit/solanumos/internal/weather"
 )
 
 const usage = `Usage: hyprtrixie-weather [update]

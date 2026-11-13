@@ -3,8 +3,8 @@ package osinstall
 import (
 	"slices"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/disks"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 func Steps(runner *step.Runner, answers Answers, plan disks.Plan) {

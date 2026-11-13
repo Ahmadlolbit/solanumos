@@ -3,8 +3,8 @@ package setup
 import (
 	"cmp"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const oldestHyprland = "0.55"

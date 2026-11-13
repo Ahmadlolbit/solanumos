@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/tui"
+	"github.com/Ahmadlolbit/solanumos/internal/tui"
 )
 
 func Main() {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
 )
 
 const usage = `Usage: hyprtrixie-terminal [--wait] COMMAND [ARGUMENT...]

@@ -6,9 +6,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/battery"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/bus"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/battery"
+	"github.com/Ahmadlolbit/solanumos/internal/bus"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (

@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/theme"
+	"github.com/Ahmadlolbit/solanumos/internal/theme"
 )
 
 const (

@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 )
 
 const discardTyped = 0x540b

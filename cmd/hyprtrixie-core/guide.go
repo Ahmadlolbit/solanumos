@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (

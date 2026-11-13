@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apps"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/engine"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/apps"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/engine"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
 const appUsage = "usage: hyprtrixie app [list [installed|available] | install APP | remove APP]"

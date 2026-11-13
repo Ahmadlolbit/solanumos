@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/sensors"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/sensors"
 )
 
 const usage = `Usage: hyprtrixie-sensors [cpu|cpu-file|cameras]

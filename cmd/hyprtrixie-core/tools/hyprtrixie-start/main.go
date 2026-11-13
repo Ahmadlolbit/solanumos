@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const usage = `Usage: hyprtrixie-start bar|hypridle|hyprpaper|mako|elephant|walker|orca

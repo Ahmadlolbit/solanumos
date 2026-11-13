@@ -5,7 +5,7 @@ import (
 	"os"
 	"slices"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 var powerNames = []string{"performance", "balanced", "power-saver"}

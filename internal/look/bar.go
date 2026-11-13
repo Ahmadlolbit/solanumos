@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ordered"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ordered"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const shellPath = "/usr/share/hyprtrixie/shell"

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/follow"
+	"github.com/Ahmadlolbit/solanumos/internal/follow"
 )
 
 const DefaultFont = "JetBrainsMono Nerd Font"

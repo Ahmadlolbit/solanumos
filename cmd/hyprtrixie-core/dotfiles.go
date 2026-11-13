@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/dotfiles"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/dotfiles"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
 func dotfilesCommand() int {

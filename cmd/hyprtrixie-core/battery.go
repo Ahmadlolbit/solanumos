@@ -5,9 +5,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/battery"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/battery"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 func showLimit() int {

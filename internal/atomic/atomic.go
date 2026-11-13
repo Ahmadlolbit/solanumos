@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 )
 
 const (

@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 var fingerprintTools = map[string]string{"add": "fprintd-enroll", "list": "fprintd-list", "remove": "fprintd-delete"}

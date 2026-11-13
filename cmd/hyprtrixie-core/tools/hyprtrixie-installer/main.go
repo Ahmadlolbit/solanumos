@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/osinstall"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/tui"
+	"github.com/Ahmadlolbit/solanumos/internal/osinstall"
+	"github.com/Ahmadlolbit/solanumos/internal/tui"
 )
 
 func Main() {

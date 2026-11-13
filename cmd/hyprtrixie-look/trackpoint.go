@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 func rereadInput() int {

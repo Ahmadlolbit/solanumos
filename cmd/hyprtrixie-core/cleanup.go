@@ -5,11 +5,11 @@ import (
 	"slices"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/btrfs"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/snapshots"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/btrfs"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
