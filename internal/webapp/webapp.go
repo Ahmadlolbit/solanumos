@@ -89,7 +89,7 @@ func Favicon(address string) string {
 }
 
 func Entry(name, address, icon string) string {
-	return "[Desktop Entry]\nType=Application\n" + nameKey + name + "\nComment=" + address + " in its own window\nExec=hyprtrixie-webapp open " + Slug(name) +
+	return "[Desktop Entry]\nType=Application\n" + nameKey + name + "\nComment=" + address + " in its own window\nExec=solanum-webapp open " + Slug(name) +
 		"\nIcon=" + icon + "\nCategories=Network;\nStartupNotify=true\nTerminal=false\n" + addressKey + address + "\n"
 }
 

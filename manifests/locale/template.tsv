@@ -134,7 +134,7 @@ Flathub is set up
 Follow theme switches on the boot and login screens	
 For logging in and for sudo	
 For logging in: small letters, digits, - and _	
-For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and hyprtrixie webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found	
+For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and solanum webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found	
 Format the EFI partition	
 Format the boot partition	
 From Open-Meteo, no account; it sends your time zone's main city there	
@@ -318,8 +318,8 @@ Printing and finding printers are on
 Printing and scanning tools are installed	
 Profile	
 Prompt	
-Put the hyprtrixie command on the PATH	
 Put the laptop to sleep when you're away; 0 = never	
+Put the solanum command on the PATH	
 Quickshell runs	
 Quiet from	
 Quiet hours	
@@ -436,7 +436,6 @@ The firmware list is refreshed
 The first start finishes the setup before the login screen, which takes a few minutes.	
 The floating terminal is installed	
 The folder of pictures, or a file that lists them one per line, for the wallpaper of the day	
-The hyprtrixie command points at this folder	
 The install stopped at the step that failed, and nothing after it ran.	
 The kernel comes from backports	
 The keyboard stays as it is: %s	
@@ -459,6 +458,7 @@ The session starter is installed
 The setup didn't start: %s (exit %d)	
 The setup is running · Ctrl+C stops it	
 The setup stopped before it could show a summary.	
+The solanum command points at this folder	
 The song or video that's playing, under the password field	
 The swapfile is not copy-on-write	
 The swapfile is on	
@@ -500,7 +500,7 @@ Type, then Enter
 Type, then Enter · Esc cancels	
 USB	
 Unlock it	
-Unlock the lock screen and approve sudo with a finger; the login screen keeps your password. Add a finger with hyprtrixie fingerprint add	
+Unlock the lock screen and approve sudo with a finger; the login screen keeps your password. Add a finger with solanum fingerprint add	
 Use Debian over HTTPS with backports	
 Use your finger for sudo and the lock screen	
 User name	

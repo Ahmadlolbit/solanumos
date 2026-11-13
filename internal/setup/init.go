@@ -34,7 +34,7 @@ func (context *Context) admin() string {
 }
 
 func (context *Context) recordRun(log *runlog.Log) error {
-	log.Line("info", "hyprtrixie "+env.Version+" ("+commit()+") from "+env.Root())
+	log.Line("info", "solanum "+env.Version+" ("+commit()+") from "+env.Root())
 	log.Line("info", "admin user: "+context.admin())
 	for _, line := range strings.Split(strings.TrimSuffix(context.Config.Show(), "\n"), "\n") {
 		log.Line("info", "config "+line)

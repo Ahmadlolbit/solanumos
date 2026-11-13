@@ -13,7 +13,7 @@ Singleton {
     id: watcher
 
     running: true
-    command: ["hyprtrixie-sensors", "cameras"]
+    command: ["solanum-sensors", "cameras"]
     stdout: SplitParser {
       onRead: data => root.held = data === "" ? [] : data.split("\t")
     }

@@ -35,19 +35,19 @@ func (flow *wizard) allStages(machine []string, catalogue []apps.App) []stage {
 
 func accountHelper() int {
 	os.Setenv("SOLANUM_ENGINE", "1")
-	return run.Report(run.Exec(filepath.Join(env.ToolsDir(), "hyprtrixie-core"), "account"))
+	return run.Report(run.Exec(filepath.Join(env.ToolsDir(), "solanum-core"), "account"))
 }
 
 func Run() int {
 	if os.Geteuid() == 0 && os.Getenv("SUDO_USER") != "" {
-		fmt.Fprintln(os.Stderr, "run it as yourself, without sudo: ./hyprtrixie")
+		fmt.Fprintln(os.Stderr, "run it as yourself, without sudo: ./solanum")
 		return 1
 	}
 	if os.Geteuid() == 0 {
 		return accountHelper()
 	}
 	if !canShow() {
-		fmt.Fprintln(os.Stderr, "the setup needs a terminal; use: hyprtrixie install --yes")
+		fmt.Fprintln(os.Stderr, "the setup needs a terminal; use: solanum install --yes")
 		return 1
 	}
 	if lock.Busy() {

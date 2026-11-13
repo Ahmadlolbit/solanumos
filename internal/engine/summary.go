@@ -82,7 +82,7 @@ func (work *session) summaryLines() []string {
 		lines = append(lines, "Files you edited kept your edits; the new versions are next to them as *.hyprtrixie-new")
 	}
 	if len(runner.Failures) > 0 {
-		lines = append(lines, "Something failed: run sudo hyprtrixie collect --verbose and send the file it prints")
+		lines = append(lines, "Something failed: run sudo solanum collect --verbose and send the file it prints")
 	}
 	return lines
 }
@@ -100,7 +100,7 @@ func (work *session) changes() {
 		ui.Print("  " + line + "\n")
 	}
 	if len(lines) > changesShown {
-		ui.Print("  … the rest: hyprtrixie changes\n")
+		ui.Print("  … the rest: solanum changes\n")
 	}
 }
 

@@ -73,7 +73,7 @@ Scope {
   Process {
     id: tipper
 
-    command: ["hyprtrixie-tip", "welcome"]
+    command: ["solanum-tip", "welcome"]
     stdout: StdioCollector {
       onStreamFinished: root.tip = text.trim()
     }

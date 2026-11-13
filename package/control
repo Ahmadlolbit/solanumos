@@ -12,5 +12,5 @@ Description: Debian 13 with Hyprland, set up properly
  defaults and real options, and keeps a snapshot before every change.
  .
  The package puts a clone of the release in /opt/hyprtrixie, with its
- programs already built; hyprtrixie update moves it to newer signed
+ programs already built; solanum update moves it to newer signed
  releases.

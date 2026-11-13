@@ -6,8 +6,8 @@ Print takes a screenshot of a region, Shift+Print the window, Ctrl+Print the who
 Super+S shows the scratchpad. Super+Alt+S sends a window there.
 Super+Escape opens the System menu: lock, suspend, restart, shut down.
 Menu › Toggle turns night light, do not disturb, Wi-Fi and Bluetooth on and off.
-Menu › Install offers more apps. hyprtrixie app list shows them all.
-hyprtrixie update pulls the newest hyprtrixie and runs the installer for you.
+Menu › Install offers more apps. solanum app list shows them all.
+solanum update pulls the newest hyprtrixie and runs the installer for you.
 Click the clock in the bar for a calendar.
 Click the speaker in the bar for volume and outputs, the battery for power modes.
 The cup in the bar keeps the screen awake until you click it again.
@@ -18,4 +18,4 @@ Super+Q closes the window you're in.
 Snapshots are taken before system changes. Press Esc at boot to start an older one.
 Put your own tips in ~/.config/hyprtrixie/tips.txt, one per line.
 Menu › Learn › Guide opens the guide right in the terminal.
-sudo hyprtrixie doctor checks the system and says how to fix what it finds.
+sudo solanum doctor checks the system and says how to fix what it finds.

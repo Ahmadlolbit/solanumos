@@ -182,7 +182,7 @@ func (work *install) firstBoot(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "hyprtrixie"))
+	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "solanum"))
 	for path, data := range map[string][]byte{"etc/hyprtrixie/hyprtrixie.conf": config, "etc/hyprtrixie/first-boot": nil, "etc/systemd/system/hyprtrixie-first-boot.service": []byte(unit)} {
 		if err := atomic.Install(inTarget(path), data, 0o644); err != nil {
 			return err

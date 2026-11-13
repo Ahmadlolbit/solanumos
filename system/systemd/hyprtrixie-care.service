@@ -4,4 +4,4 @@ ConditionUser=!@system
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/hyprtrixie-care
+ExecStart=/usr/local/bin/solanum-care

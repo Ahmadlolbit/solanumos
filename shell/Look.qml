@@ -12,7 +12,7 @@ Scope {
   readonly property bool timed: (looks.auto || "off") !== "off" || looks.daily === "yes" || parseInt(looks.rotate || "0") > 0 || (looks.day_wallpaper || "off") !== "off" || looks.weather === "yes" || looks.quiet === "yes" || (looks.night || "off") !== "off"
 
   function followPower() {
-    Quickshell.execDetached(["hyprtrixie-look", "power-apply", UPower.onBattery ? "battery" : "ac"]);
+    Quickshell.execDetached(["solanum-look", "power-apply", UPower.onBattery ? "battery" : "ac"]);
   }
 
   Component.onCompleted: followPower()
@@ -28,7 +28,7 @@ Scope {
   Process {
     id: tick
 
-    command: ["hyprtrixie-look", "tick"]
+    command: ["solanum-look", "tick"]
   }
 
   Variants {
@@ -47,7 +47,7 @@ Scope {
         }
         if (!modelData.activeWorkspace)
           return;
-        setter.command = ["hyprtrixie-background", "workspace", modelData.name, String(modelData.activeWorkspace.id)];
+        setter.command = ["solanum-background", "workspace", modelData.name, String(modelData.activeWorkspace.id)];
         setter.running = true;
       }
 

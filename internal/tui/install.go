@@ -181,7 +181,7 @@ func (work *installer) begin() tea.Cmd {
 			return nil
 		}
 	}
-	core := filepath.Join(env.ToolsDir(), "hyprtrixie-core")
+	core := filepath.Join(env.ToolsDir(), "solanum-core")
 	child, err := privilege.Spawn(work.environment(), core, work.arguments()...)
 	if err != nil {
 		if work.flow.system != nil {

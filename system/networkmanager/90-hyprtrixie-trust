@@ -5,5 +5,5 @@ case "$2" in
 esac
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
-[ -x /usr/local/bin/hyprtrixie-core ] || exit 0
-exec /usr/local/bin/hyprtrixie-core trust apply "$1" "$2"
+[ -x /usr/local/bin/solanum-core ] || exit 0
+exec /usr/local/bin/solanum-core trust apply "$1" "$2"

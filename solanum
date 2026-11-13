@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(readlink -f "${BASH_SOURCE[0]}")"
+root="${root%/*}"
+tools="${SOLANUM_TOOLS_DIR:-$root/build/bin}"
+core="${SOLANUM_CORE:-/usr/local/bin/solanum-core}"
+export SOLANUM_ROOT="$root"
+if [[ ! -O $root ]]; then
+  count="${GIT_CONFIG_COUNT:-0}"
+  export "GIT_CONFIG_KEY_$count=safe.directory" "GIT_CONFIG_VALUE_$count=$root" GIT_CONFIG_COUNT=$((count + 1))
+fi
+
+as_root() {
+  if ((EUID == 0)); then
+    "$@"
+    return
+  fi
+  if ! command -v sudo >/dev/null || ! sudo -v; then
+    printf 'This needs root, and this account cannot use sudo yet. Log in as root and run: %s\n' "$0" >&2
+    exit 1
+  fi
+  sudo "$@"
+}
+
+apt_get() {
+  local start=$SECONDS said="" errors
+  until { errors="$(as_root env LC_ALL=C.UTF-8 apt-get -o DPkg::Lock::Timeout=600 "$@" 2>&1 >&3)"; } 3>&1; do
+    if [[ $errors != *"Could not get lock"* ]] || ((SECONDS - start >= 600)); then
+      printf '%s\n' "$errors" >&2
+      return 1
+    fi
+    [[ -n $said ]] || printf 'Another apt is updating its lists or downloading, perhaps the daily update; waiting for it, up to 10 minutes\n' >&2
+    said=1
+    sleep 5
+  done
+  [[ -z $errors ]] || printf '%s\n' "$errors" >&2
+}
+
+needs_root() {
+  ((EUID == 0)) && return 0
+  printf 'Hyprtrixie needs root for this. Run it again with sudo: sudo %s %s\n' "$0" "$1" >&2
+  exit 1
+}
+
+stale() {
+  local program
+  [[ ! -x $tools/solanum-core ]] && return 0
+  for program in "$tools"/*; do
+    [[ -s $program ]] || return 0
+  done
+  [[ $root != "${SOLANUM_SYSTEM_CLONE:-/opt/hyprtrixie}" && -n $(find "$tools/solanum-core" -newermt now -print -quit) ]] && return 0
+  [[ -n $(find "$root/cmd" "$root/internal" "$root/vendor" "$root/go.mod" -newer "$tools/solanum-core" -print -quit) ]]
+}
+
+build() {
+  ((${SOLANUM_TOOLS_BUILT:-0})) && return 0
+  stale || return 0
+  if ! command -v go >/dev/null; then
+    apt_get update
+    apt_get install -y golang-go
+  fi
+  local builder=()
+  if [[ -e $root/build && ! -w $root/build && -O $root ]]; then
+    as_root chown -R "$(id -u):$(id -g)" "$root/build"
+  elif [[ -e $root/build && ! -w $root/build ]]; then
+    builder=(as_root)
+  fi
+  printf 'Building the Hyprtrixie tools\n' >&2
+  (cd "$root" && "${builder[@]}" env CGO_ENABLED=0 go build -buildvcs=false -trimpath -ldflags='-s -w' -o "$tools/" ./cmd/...)
+  local tool
+  for tool in "$root"/cmd/solanum-core/tools/*/; do
+    tool="${tool%/}"
+    "${builder[@]}" ln -sfn solanum-core "$tools/${tool##*/}"
+  done
+}
+
+fresh() {
+  SOLANUM_ENGINE=1 exec -a "$0" "$tools/solanum-core" "$@"
+}
+
+if [[ -n ${SOLANUM_FROM_CORE:-} ]]; then
+  unset SOLANUM_FROM_CORE
+  build
+  fresh "$@"
+fi
+
+case "${1:-} ${2:-}" in
+  " ")
+    if ((EUID == 0)) && [[ -n ${SUDO_USER:-} ]]; then
+      printf 'run it as yourself, without sudo: %s\n' "$0" >&2
+      exit 1
+    fi
+    build
+    unset SOLANUM_ENGINE
+    exec "$tools/solanum"
+    ;;
+  install\ *)
+    needs_root "$*"
+    build
+    fresh "$@"
+    ;;
+  "app install" | "app remove")
+    needs_root "app $2${3:+ $3}"
+    build
+    fresh "$@"
+    ;;
+  verify\ *)
+    needs_root "$*"
+    if command -v go >/dev/null; then
+      build
+      fresh "$@"
+    fi
+    ;;
+esac
+
+if [[ -f $core && -x $core && -s $core ]]; then
+  SOLANUM_ENGINE=1 exec -a "$0" "$core" "$@"
+fi
+build
+fresh "$@"

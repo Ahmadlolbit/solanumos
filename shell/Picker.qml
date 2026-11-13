@@ -72,7 +72,7 @@ Scope {
     failed = "";
     trying = item.label;
     startedIn = opening;
-    applying.command = mode === "themes" ? ["hyprtrixie-theme-set", item.value] : ["hyprtrixie-background", item.value];
+    applying.command = mode === "themes" ? ["solanum-theme-set", item.value] : ["solanum-background", item.value];
     applying.running = true;
   }
 
@@ -108,7 +108,7 @@ Scope {
   Process {
     id: background
 
-    command: ["hyprtrixie-background", "--current"]
+    command: ["solanum-background", "--current"]
     stdout: StdioCollector {
       onStreamFinished: {
         if (root.mode !== "backgrounds")
@@ -122,7 +122,7 @@ Scope {
   Process {
     id: themeList
 
-    command: ["hyprtrixie-theme-set", "--previews"]
+    command: ["solanum-theme-set", "--previews"]
     stdout: StdioCollector {
       onStreamFinished: root.take("themes", text)
     }
@@ -131,7 +131,7 @@ Scope {
   Process {
     id: backgroundList
 
-    command: ["hyprtrixie-background", "--list"]
+    command: ["solanum-background", "--list"]
     stdout: StdioCollector {
       onStreamFinished: root.take("backgrounds", text)
     }

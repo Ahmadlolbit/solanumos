@@ -212,7 +212,7 @@ Label {
       Toggle {
         checked: root.trusted
         onToggled: {
-          trustChange.command = ["hyprtrixie", "trust", root.trusted ? "off" : "on"];
+          trustChange.command = ["solanum", "trust", root.trusted ? "off" : "on"];
           trustChange.running = true;
         }
       }
@@ -245,7 +245,7 @@ Label {
   Process {
     id: trustStatus
 
-    command: ["hyprtrixie", "trust"]
+    command: ["solanum", "trust"]
     stdout: StdioCollector {
       onStreamFinished: {
         const fields = text.trim().split("\t");

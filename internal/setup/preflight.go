@@ -211,7 +211,7 @@ func (context *Context) ensureAccount(log *runlog.Log) error {
 		return nil
 	}
 	if !context.CanAsk {
-		fmt.Fprintln(log, "No admin account found. Run hyprtrixie with sudo from your own account.")
+		fmt.Fprintln(log, "No admin account found. Run solanum with sudo from your own account.")
 		return holds(false)
 	}
 	return context.chooseAccount(log)

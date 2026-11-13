@@ -8,7 +8,7 @@ Conflicts=getty@tty1.service
 [Service]
 Type=simple
 ExecStartPre=-/usr/bin/dmesg --console-off
-ExecStart=/opt/hyprtrixie/build/bin/hyprtrixie-installer
+ExecStart=/opt/hyprtrixie/build/bin/solanum-installer
 ExecStopPost=-/usr/bin/systemctl --no-block start getty@tty1.service
 StandardInput=tty
 StandardOutput=tty

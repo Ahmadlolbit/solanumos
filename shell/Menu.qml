@@ -167,7 +167,7 @@ Scope {
   }
 
   function lookState(state) {
-    const match = (state || "").match(/^test "\$\(hyprtrixie-look ([a-z-]+)\)" (!?=) (?:'([^']*)'|(\S+))$/);
+    const match = (state || "").match(/^test "\$\(solanum-look ([a-z-]+)\)" (!?=) (?:'([^']*)'|(\S+))$/);
     if (!match)
       return null;
     return {
@@ -209,13 +209,13 @@ Scope {
       restore: "\u{f02da}",
       keyboard: "\u{f030c}"
     };
-    const command = kind === "restore" ? "hyprtrixie restore" : "sudo hyprtrixie app " + kind;
-    const words = (id) => kind === "keyboard" ? "sh -c 'sudo hyprtrixie keyboard " + id + " && hyprctl reload'" : command + " " + id;
+    const command = kind === "restore" ? "solanum restore" : "sudo solanum app " + kind;
+    const words = (id) => kind === "keyboard" ? "sh -c 'sudo solanum keyboard " + id + " && hyprctl reload'" : command + " " + id;
     const row = (id, label, words) => ({
           id: kind + ":" + id,
           glyph: glyphs[kind],
           label: label,
-          action: "hyprtrixie-terminal --wait " + words,
+          action: "solanum-terminal --wait " + words,
           shell: "",
           state: "",
           color: "",
@@ -245,9 +245,9 @@ Scope {
           id: kind + ":" + name,
           glyph: "\u{f06d6}",
           label: name,
-          action: "hyprtrixie-look " + setting + " " + quote(name),
+          action: "solanum-look " + setting + " " + quote(name),
           shell: "",
-          state: "test \"$(hyprtrixie-look " + setting + ")\" = " + quote(name),
+          state: "test \"$(solanum-look " + setting + ")\" = " + quote(name),
           color: "",
           font: name,
           page: false,
@@ -405,41 +405,41 @@ Scope {
     id: restorePoints
 
     kind: "restore"
-    command: ["hyprtrixie", "restore", "list"]
+    command: ["solanum", "restore", "list"]
   }
 
   Lister {
     id: layouts
 
     kind: "keyboard"
-    command: ["hyprtrixie", "keyboard", "list"]
+    command: ["solanum", "keyboard", "list"]
   }
 
   Lister {
     id: available
 
     kind: "install"
-    command: ["hyprtrixie", "app", "list", "available"]
+    command: ["solanum", "app", "list", "available"]
   }
 
   Lister {
     id: installed
 
     kind: "remove"
-    command: ["hyprtrixie", "app", "list", "installed"]
+    command: ["solanum", "app", "list", "installed"]
   }
 
   Lister {
     id: makers
 
     kind: "credits"
-    command: ["hyprtrixie", "credits"]
+    command: ["solanum", "credits"]
   }
 
   Process {
     id: settings
 
-    command: ["hyprtrixie-look"]
+    command: ["solanum-look"]
     stdout: StdioCollector {
       onStreamFinished: {
         const values = {};

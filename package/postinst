@@ -43,5 +43,5 @@ if at_tag; then
     cp -a "$program" "$root/build/bin/.$name.new"
     mv -f "$root/build/bin/.$name.new" "$root/build/bin/$name"
   done
-  touch "$root/build/bin/hyprtrixie-core"
+  touch "$root/build/bin/solanum-core"
 fi

@@ -11,7 +11,7 @@ import (
 
 const (
 	barSettings = "/etc/hyprtrixie/shell.json"
-	barSensors  = "hyprtrixie-sensors"
+	barSensors  = "solanum-sensors"
 )
 
 func barDir() string {

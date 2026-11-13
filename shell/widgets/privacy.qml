@@ -79,7 +79,7 @@ GridLayout {
     MouseArea {
       anchors.fill: parent
       cursorShape: Qt.PointingHandCursor
-      onClicked: Quickshell.execDetached(["hyprtrixie-record", "stop"])
+      onClicked: Quickshell.execDetached(["solanum-record", "stop"])
     }
   }
 

@@ -34,8 +34,8 @@ const (
 	userBackdrops  = ".config/hyprtrixie/backgrounds/"
 	userLook       = ".config/hyprtrixie/look.conf"
 	themesSource   = "hyprtrixie-themes"
-	themeSetter    = "hyprtrixie-theme-set"
-	followTool     = "hyprtrixie-follow-theme"
+	themeSetter    = "solanum-theme-set"
+	followTool     = "solanum-follow-theme"
 	followPath     = followTool + ".path"
 	followService  = followTool + ".service"
 	gtkBase        = "adw-gtk3"
@@ -53,7 +53,7 @@ var (
 	consoleFont = [][2]string{{"FONTFACE", `"Terminus"`}, {"FONTSIZE", `"16x32"`}}
 	debianFont  = map[string]string{"FONTFACE": `"Fixed"`, "FONTSIZE": `"8x16"`}
 	themeFiles  = []string{"colors.toml", "icons.theme", "preview.png", "chromium.theme", "btop.theme"}
-	themeTools  = []string{"hyprtrixie-look", "hyprtrixie-theme-install", "hyprtrixie-weather", "hyprtrixie-background", themeSetter}
+	themeTools  = []string{"solanum-look", "solanum-theme-install", "solanum-weather", "solanum-background", themeSetter}
 	lookOptions = [][2]string{
 		{"ACCENT", "ACCENT_COLOR"}, {"GLASS", "GLASS"}, {"CORNERS", "ROUNDED_CORNERS"}, {"STYLE", "WINDOW_STYLE"}, {"TEXT", "TEXT_SIZE"}, {"READER", "SCREEN_READER"}, {"CHIME", "STARTUP_SOUND"}, {"APPS", "APPS_THEME"}, {"EDITORS", "EDITORS_THEME"}, {"AUTO", "AUTO_THEME"}, {"LIGHT", "LIGHT_THEME"},
 		{"DARK", "DARK_THEME"}, {"LIGHT_AT", "LIGHT_AT"}, {"DARK_AT", "DARK_AT"}, {"DAILY", "DAILY_THEME"}, {"ROTATE", "WALLPAPER_MINUTES"}, {"DAY_WALLPAPER", "DAY_WALLPAPER"}, {"WALLPAPER_FOLDER", "WALLPAPER_FOLDER"}, {"WORKSPACES", "WALLPAPER_PER_WORKSPACE"},

@@ -156,7 +156,7 @@ Label {
         Layout.fillWidth: true
         label: modelData + "%"
         selected: root.chargeLimit === modelData
-        onClicked: Quickshell.execDetached(["hyprtrixie-terminal", "--wait", "sudo", "hyprtrixie", "battery-limit", modelData])
+        onClicked: Quickshell.execDetached(["solanum-terminal", "--wait", "sudo", "solanum", "battery-limit", modelData])
       }
     }
   }
@@ -164,7 +164,7 @@ Label {
   Process {
     id: limit
 
-    command: ["hyprtrixie", "battery-limit"]
+    command: ["solanum", "battery-limit"]
     stdout: StdioCollector {
       onStreamFinished: root.chargeLimit = text.trim()
     }

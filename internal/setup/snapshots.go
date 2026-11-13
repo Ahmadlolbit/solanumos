@@ -288,7 +288,7 @@ func snapshotsStop(log *runlog.Log) error {
 			return err
 		}
 	}
-	log.Line("info", "no new snapshots are taken from now on; the ones taken so far stay: sudo snapper delete removes those you no longer want, and sudo hyprtrixie cleanup removes old automatic ones when / is nearly full")
+	log.Line("info", "no new snapshots are taken from now on; the ones taken so far stay: sudo snapper delete removes those you no longer want, and sudo solanum cleanup removes old automatic ones when / is nearly full")
 	return nil
 }
 

@@ -107,7 +107,7 @@ func moduleNumbers(flag, value string) error {
 			return errors.New(flag + " takes module numbers, such as 04,05")
 		}
 		if !slices.ContainsFunc(modules.All, func(module modules.Module) bool { return module.ID == id }) {
-			return errors.New("no module " + id + ": " + flag + " takes module numbers, such as 04,05 (see: hyprtrixie modules)")
+			return errors.New("no module " + id + ": " + flag + " takes module numbers, such as 04,05 (see: solanum modules)")
 		}
 	}
 	return nil
@@ -161,7 +161,7 @@ func Parse(args []string) (Options, error) {
 		case args[index] == "-h" || args[index] == "--help":
 			return options, ErrHelp
 		default:
-			return options, errors.New("unknown option: " + args[index] + " (see: hyprtrixie help)")
+			return options, errors.New("unknown option: " + args[index] + " (see: solanum help)")
 		}
 	}
 	return options, nil
@@ -472,7 +472,7 @@ func (work *session) saveSettings() bool {
 
 func (work *session) install() int {
 	if !work.options.Events {
-		ui.Header("hyprtrixie "+env.Version, "Debian 13 with Hyprland, set up properly")
+		ui.Header("solanum "+env.Version, "Debian 13 with Hyprland, set up properly")
 	}
 	work.showMachine()
 	if !work.confirmed() || !work.saveSettings() {
@@ -503,7 +503,7 @@ func (work *session) setUpAccount() int {
 	setup.AccountSteps(context)
 	work.person = context.Person
 	if work.outcome() == 0 && work.person.Name != "" {
-		ui.Print("\nLog in as " + work.person.Name + " and run: " + context.CloneFor() + "/hyprtrixie\n")
+		ui.Print("\nLog in as " + work.person.Name + " and run: " + context.CloneFor() + "/solanum\n")
 	}
 	return work.outcome()
 }

@@ -21,7 +21,7 @@ const (
 ## Next
 
 - Reboot to start the desktop.
-- ` + "`sudo hyprtrixie verify`" + ` runs every check again.
+- ` + "`sudo solanum verify`" + ` runs every check again.
 `
 )
 

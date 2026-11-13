@@ -29,7 +29,7 @@ Singleton {
   Process {
     id: probe
 
-    command: ["hyprtrixie-sensors"]
+    command: ["solanum-sensors"]
     stdout: StdioCollector {
       onStreamFinished: {
         try {
@@ -44,7 +44,7 @@ Singleton {
   Process {
     id: finder
 
-    command: ["hyprtrixie-sensors", "cpu-file"]
+    command: ["solanum-sensors", "cpu-file"]
     running: true
     stdout: StdioCollector {
       onStreamFinished: root.cpuFile = text.trim()

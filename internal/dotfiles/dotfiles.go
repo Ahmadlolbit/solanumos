@@ -19,7 +19,7 @@ const (
 	ConfigName = "chezmoi.toml"
 )
 
-var ErrNoChezmoi = errors.New("chezmoi isn't installed: sudo hyprtrixie app install chezmoi")
+var ErrNoChezmoi = errors.New("chezmoi isn't installed: sudo solanum app install chezmoi")
 
 func folder() string {
 	return filepath.Join(env.ConfigHome(), "chezmoi")

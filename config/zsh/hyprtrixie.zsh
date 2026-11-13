@@ -46,4 +46,4 @@ for script in /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh /usr/share/
 done
 unset script
 
-[[ -o interactive ]] && (( $+commands[hyprtrixie-tip] )) && hyprtrixie-tip terminal
+[[ -o interactive ]] && (( $+commands[solanum-tip] )) && solanum-tip terminal

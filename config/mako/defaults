@@ -30,7 +30,7 @@ invisible=1
 invisible=1
 
 [app-name=hyprtrixie-firmware]
-on-button-left=exec makoctl dismiss -n "$id"; hyprtrixie-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'
+on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'
 
 [app-name=hyprtrixie-disk]
-on-button-left=exec makoctl dismiss -n "$id"; hyprtrixie-terminal --wait sudo hyprtrixie cleanup
+on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum cleanup

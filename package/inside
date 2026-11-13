@@ -15,14 +15,14 @@ git clone --quiet --no-checkout /src "$work/src"
 git -C "$work/src" checkout --quiet --detach "refs/tags/$TAG"
 mkdir -p "$pkg/DEBIAN" "$pkg/usr/bin" "$lib/bin" "$pkg/usr/share/doc/hyprtrixie"
 (cd "$work/src" && CGO_ENABLED=0 go build -buildvcs=false -trimpath -ldflags='-s -w' -o "$lib/bin/" ./cmd/...)
-for tool in "$work/src"/cmd/hyprtrixie-core/tools/*/; do
+for tool in "$work/src"/cmd/solanum-core/tools/*/; do
   tool="${tool%/}"
-  ln -s hyprtrixie-core "$lib/bin/${tool##*/}"
+  ln -s solanum-core "$lib/bin/${tool##*/}"
 done
 git -C "$work/src" bundle create --quiet "$lib/hyprtrixie.bundle" "refs/tags/$TAG"
 printf '%s\n' "$TAG" >"$lib/tag"
 git -C "$work/src" rev-parse "refs/tags/$TAG^{commit}" >"$lib/commit"
-ln -s /opt/hyprtrixie/hyprtrixie "$pkg/usr/bin/hyprtrixie"
+ln -s /opt/hyprtrixie/solanum "$pkg/usr/bin/solanum"
 cat "$work/src/LICENSE" "$work/src/THIRD-PARTY-LICENSES" >"$pkg/usr/share/doc/hyprtrixie/copyright"
 cp "$work/src/package/postinst" "$work/src/package/postrm" "$pkg/DEBIAN/"
 if [[ -f $work/src/package/hyprtrixie.pgp ]]; then

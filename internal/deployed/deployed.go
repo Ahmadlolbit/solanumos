@@ -17,7 +17,7 @@ import (
 
 const (
 	hexDigits  = "0123456789abcdef"
-	starts     = "hyprtrixie "
+	starts     = "solanum "
 	folderMode = 0o755
 	stampMode  = 0o644
 	newSuffix  = ".hyprtrixie-new"

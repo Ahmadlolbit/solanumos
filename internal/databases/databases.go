@@ -82,7 +82,7 @@ func (database Database) Password() (string, error) {
 		return password, nil
 	}
 	if exists("volume", database.Container()) {
-		return "", fmt.Errorf("%s has data but its password is gone: delete the data with hyprtrixie db remove %s", database.Title, database.Name)
+		return "", fmt.Errorf("%s has data but its password is gone: delete the data with solanum db remove %s", database.Title, database.Name)
 	}
 	if err := os.MkdirAll(folder(), folderMode); err != nil {
 		return "", err
