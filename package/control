@@ -6,7 +6,7 @@ Installed-Size: @SIZE@
 Depends: git, openssh-client, ca-certificates, sudo
 Section: admin
 Priority: optional
-Homepage: https://github.com/Ahmadlolbit/hyprtrixie
+Homepage: https://github.com/Ahmadlolbit/solanumos
 Description: Debian 13 with Hyprland, set up properly
  Hyprtrixie sets up Hyprland on Debian 13 with a guided setup, sensible
  defaults and real options, and keeps a snapshot before every change.

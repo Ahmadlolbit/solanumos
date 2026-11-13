@@ -8,7 +8,7 @@ Recommends: swappy
 Suggests: hyprland
 Section: graphics
 Priority: optional
-Homepage: https://github.com/Ahmadlolbit/hyprtrixie
+Homepage: https://github.com/Ahmadlolbit/solanumos
 Description: Screenshots on Hyprland, from Hyprtrixie
  solanum-screenshot takes a region, a window or the whole screen on
  Hyprland, saves it to ~/Pictures/Screenshots, copies it to the clipboard

@@ -33,7 +33,7 @@ const (
 	userThemes     = ".config/solanum/themes/"
 	userBackdrops  = ".config/solanum/backgrounds/"
 	userLook       = ".config/solanum/look.conf"
-	themesSource   = "hyprtrixie-themes"
+	themesSource   = "solanumos-themes"
 	themeSetter    = "solanum-theme-set"
 	followTool     = "solanum-follow-theme"
 	followPath     = followTool + ".path"

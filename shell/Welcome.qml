@@ -225,7 +225,7 @@ Scope {
 
             Action {
               label: "Project page"
-              command: "xdg-open https://github.com/Ahmadlolbit/hyprtrixie"
+              command: "xdg-open https://github.com/Ahmadlolbit/solanumos"
             }
 
             Action {

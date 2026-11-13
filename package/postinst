@@ -28,7 +28,7 @@ if [ ! -e "$root" ]; then
   rm -rf "$root.part"
   git -c init.defaultBranch=release clone --quiet --no-checkout "$lib/solanum.bundle" "$root.part"
   git -C "$root.part" checkout --quiet --detach "refs/tags/$tag"
-  git -C "$root.part" remote set-url origin https://github.com/Ahmadlolbit/hyprtrixie.git
+  git -C "$root.part" remote set-url origin https://github.com/Ahmadlolbit/solanumos.git
   mv "$root.part" "$root"
 elif [ -d "$root/.git" ]; then
   forward

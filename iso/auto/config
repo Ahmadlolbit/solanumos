@@ -20,6 +20,6 @@ lb config noauto \
   --firmware-chroot true \
   --iso-application SolanumOS \
   --iso-volume "SolanumOS Chert" \
-  --iso-publisher "SolanumOS; https://github.com/Ahmadlolbit/hyprtrixie" \
+  --iso-publisher "SolanumOS; https://github.com/Ahmadlolbit/solanumos" \
   --bootappend-live "boot=live components quiet splash username=solanum hostname=solanum locales=en_US.UTF-8 keyboard-layouts=us live-config.nocomponents=sddm" \
   "${@}"
