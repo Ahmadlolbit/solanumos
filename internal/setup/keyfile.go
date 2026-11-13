@@ -32,7 +32,7 @@ func connectionFile(device string) string {
 		}
 		return '_'
 	}, device)
-	return filepath.Join(connectionsFolder(), "hyprtrixie-"+safe+".nmconnection")
+	return filepath.Join(connectionsFolder(), "solanum-"+safe+".nmconnection")
 }
 
 func networkKey(line string) string {

@@ -22,7 +22,7 @@ const (
 	kernelPackage  = "linux-image-amd64"
 	kernelSpec     = kernelPackage + "/backports"
 	packageFiles   = "/var/lib/dpkg/info/linux-image-"
-	nvidiaSettings = "/etc/modprobe.d/hyprtrixie-nvidia.conf"
+	nvidiaSettings = "/etc/modprobe.d/solanum-nvidia.conf"
 	hybridPower    = " NVreg_DynamicPowerManagement=0x02"
 	kernelKept     = "The backports kernel stays installed, because the setup never removes a kernel."
 	nvidiaLegacy   = "This NVIDIA card is older than Maxwell, and Debian 13's NVIDIA driver no longer supports it, so it stays on nouveau, the open driver."

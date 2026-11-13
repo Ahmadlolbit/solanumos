@@ -89,7 +89,7 @@ func grubThemeDir() string {
 }
 
 func grubSettings() string {
-	return env.Or("SOLANUM_GRUB_SETTINGS", "/etc/default/grub.d/hyprtrixie.cfg")
+	return env.Or("SOLANUM_GRUB_SETTINGS", "/etc/default/grub.d/solanum.cfg")
 }
 
 func followFile(name string) string {
@@ -498,10 +498,10 @@ func (theme *themeRun) bootSplashInstall(log *runlog.Log) error {
 	if err := theme.splashFile("plymouth/plymouthd.conf", "/etc/plymouth/plymouthd.conf"); err != nil {
 		return err
 	}
-	if err := theme.splashFile("initramfs/splash.conf", "/etc/initramfs-tools/conf.d/hyprtrixie-splash"); err != nil {
+	if err := theme.splashFile("initramfs/splash.conf", "/etc/initramfs-tools/conf.d/solanum-splash"); err != nil {
 		return err
 	}
-	return theme.splashFile("initramfs/drm-modules", "/usr/share/initramfs-tools/modules.d/hyprtrixie-drm")
+	return theme.splashFile("initramfs/drm-modules", "/usr/share/initramfs-tools/modules.d/solanum-drm")
 }
 
 func (theme *themeRun) grubThemeInstall(log *runlog.Log) error {

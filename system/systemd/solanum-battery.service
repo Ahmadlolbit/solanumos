@@ -1,6 +1,6 @@
 [Unit]
 Description=Set the battery charge limit
-ConditionPathExists=/etc/udev/rules.d/90-hyprtrixie-battery.rules
+ConditionPathExists=/etc/udev/rules.d/90-solanum-battery.rules
 After=systemd-user-sessions.service
 
 [Service]

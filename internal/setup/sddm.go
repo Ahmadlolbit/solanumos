@@ -35,7 +35,7 @@ func displayAlias() string {
 }
 
 func sddmConf() string {
-	return env.Or("SOLANUM_SDDM_CONF", "/etc/sddm.conf.d/10-hyprtrixie.conf")
+	return env.Or("SOLANUM_SDDM_CONF", "/etc/sddm.conf.d/10-solanum.conf")
 }
 
 func sddmState() string {

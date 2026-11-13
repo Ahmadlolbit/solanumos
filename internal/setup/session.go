@@ -24,7 +24,7 @@ import (
 const (
 	hyprSystem   = "/etc/xdg/hypr/"
 	hyprUser     = ".config/hypr/hyprland.lua"
-	appsMenu     = "/etc/xdg/menus/hyprtrixie-applications.menu"
+	appsMenu     = "/etc/xdg/menus/solanum-applications.menu"
 	makoUser     = ".config/mako/config"
 	elephantLib  = "/usr/local/lib/elephant"
 	tipTimer     = "solanum-tip.timer"

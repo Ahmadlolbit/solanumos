@@ -29,11 +29,11 @@ func root() string {
 }
 
 func Keep() string {
-	return env.Or("SOLANUM_BATTERY_KEEP", "/etc/udev/rules.d/90-hyprtrixie-battery.rules")
+	return env.Or("SOLANUM_BATTERY_KEEP", "/etc/udev/rules.d/90-solanum-battery.rules")
 }
 
 func older() string {
-	return env.Or("SOLANUM_BATTERY_OLD", "/etc/tmpfiles.d/hyprtrixie-battery.conf")
+	return env.Or("SOLANUM_BATTERY_OLD", "/etc/tmpfiles.d/solanum-battery.conf")
 }
 
 func Batteries() []string {

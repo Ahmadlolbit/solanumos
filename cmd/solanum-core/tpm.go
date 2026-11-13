@@ -55,7 +55,7 @@ func crypttab() string {
 }
 
 func dracutConfig() string {
-	return env.Or("SOLANUM_DRACUT_CONF", "/etc/dracut.conf.d/hyprtrixie-tpm2.conf")
+	return env.Or("SOLANUM_DRACUT_CONF", "/etc/dracut.conf.d/solanum-tpm2.conf")
 }
 
 func joinedLog() *runlog.Log {

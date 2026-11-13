@@ -15,7 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const browserPolicy = "hyprtrixie-theme.json"
+const browserPolicy = "solanum-theme.json"
 
 type browser struct {
 	name string

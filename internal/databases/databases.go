@@ -60,7 +60,7 @@ func Find(name string) (Database, bool) {
 }
 
 func (database Database) Container() string {
-	return "hyprtrixie-" + database.Name
+	return "solanum-" + database.Name
 }
 
 func folder() string {

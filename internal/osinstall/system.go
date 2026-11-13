@@ -183,12 +183,12 @@ func (work *install) firstBoot(log *runlog.Log) error {
 		return err
 	}
 	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "solanum"))
-	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": config, "etc/solanum/first-boot": nil, "etc/systemd/system/hyprtrixie-first-boot.service": []byte(unit)} {
+	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": config, "etc/solanum/first-boot": nil, "etc/systemd/system/solanum-first-boot.service": []byte(unit)} {
 		if err := atomic.Install(inTarget(path), data, 0o644); err != nil {
 			return err
 		}
 	}
-	return chroot(log, "systemctl", "enable", "hyprtrixie-first-boot.service")
+	return chroot(log, "systemctl", "enable", "solanum-first-boot.service")
 }
 
 func (work *install) close(log *runlog.Log) error {
