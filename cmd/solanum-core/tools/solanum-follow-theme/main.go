@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
-	"image/color"
 	"io/fs"
 	"math/rand/v2"
 	"os"
@@ -123,10 +122,8 @@ func splashFiles(current theme) ([][2]string, error) {
 	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent),
 		"MUTED="+follow.Floats(current.muted))
 	files := [][2]string{{filepath.Join(plymouthDir, "solanum.script"), script}}
-	channels := follow.Channels(current.accent)
-	paint := color.NRGBA{R: uint8(channels[0]), G: uint8(channels[1]), B: uint8(channels[2]), A: 255}
 	for _, scale := range []int{4, 8} {
-		picture, err := burst.PNG(scale, paint)
+		picture, err := burst.PNG(scale, opaque(current.accent))
 		if err != nil {
 			return nil, err
 		}

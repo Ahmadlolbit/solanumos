@@ -20,7 +20,8 @@ terminal-font: "{{ FONT }} Regular 16"
   item_font = "{{ FONT }} Regular 20"
   item_color = "{{ FOREGROUND }}"
   selected_item_font = "{{ FONT }} Regular 20"
-  selected_item_color = "{{ ACCENT }}"
+  selected_item_color = "{{ SELECTED }}"
+  selected_item_pixmap_style = "select_*.png"
   item_height = 40
   item_padding = 12
   item_spacing = 6
