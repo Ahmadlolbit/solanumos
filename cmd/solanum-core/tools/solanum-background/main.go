@@ -29,6 +29,7 @@ const usage = `Usage: solanum-background <file>
        solanum-background add [--every] [FILE ...]
        solanum-background remove FILE
        solanum-background --list
+       solanum-background --yours
        solanum-background --current
        solanum-background --frames
        solanum-background workspaces
@@ -39,7 +40,8 @@ that theme in ~/.config/solanum/backgrounds/<theme>, and from yours for every
 theme, the pictures in ~/.config/solanum/backgrounds itself; solanum-look
 wallpapers picks the theme's, yours or both. add copies pictures into yours
 for the current theme, or for every theme with --every; without files it
-opens the file chooser. remove moves one of yours to the Trash. draw draws a
+opens the file chooser. remove moves one of yours to the Trash. --yours lists
+yours for the current theme and for every theme, shown or not. draw draws a
 new one in the theme's colours, in a style and with a seed picked at random,
 and keeps only the last one drawn; keep keeps the one drawn last in yours for
 the current theme. logo shows the burst logo, animated by the bar in the
@@ -278,10 +280,8 @@ func Main() {
 		os.Exit(2)
 	case "-h", "--help":
 		fmt.Print(usage)
-	case "--list":
-		for _, file := range backgrounds() {
-			fmt.Println(file)
-		}
+	case "--list", "--yours":
+		listed(command)
 	case "--current":
 		os.Exit(showCurrent())
 	case "workspaces":
@@ -298,6 +298,16 @@ func Main() {
 		fmt.Print(burst.Flipbook())
 	default:
 		os.Exit(other(command))
+	}
+}
+
+func listed(command string) {
+	found := backgrounds()
+	if command == "--yours" {
+		found = fsutil.Images(yourFolder(false), yourFolder(true))
+	}
+	for _, file := range found {
+		fmt.Println(file)
 	}
 }
 
