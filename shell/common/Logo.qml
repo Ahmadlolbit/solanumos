@@ -50,33 +50,23 @@ Singleton {
     return haloAt(glow, gx, gy, x % 4, y % 4) ? 2 : 0;
   }
 
-  function runsOf(rows) {
+  function gridOf(rows) {
     let glow = [];
     for (let at = 0; at < span * span; at++)
       glow.push(lit(rows, at % span - margin, Math.floor(at / span) - margin) ? 1 : 0);
     for (let pass = 0; pass < 2; pass++)
       glow = blurred(blurred(glow, true), false);
-    const found = [[], []];
-    for (let y = 0; y < cells; y++) {
-      let start = 0, kind = 0;
-      for (let x = 0; x <= cells; x++) {
-        const here = x < cells ? cellAt(rows, glow, x, y) : 0;
-        if (here === kind)
-          continue;
-        if (kind)
-          found[kind - 1].push(start, y, x - start);
-        start = x;
-        kind = here;
-      }
-    }
-    return found;
+    const grid = new Uint8Array(cells * cells);
+    for (let at = 0; at < grid.length; at++)
+      grid[at] = cellAt(rows, glow, at % cells, Math.floor(at / cells));
+    return grid;
   }
 
-  function paints(index) {
+  function grid(index) {
     const frame = frames[index];
-    if (!frame.runs)
-      frame.runs = runsOf(frame.rows);
-    return frame.runs;
+    if (!frame.grid)
+      frame.grid = gridOf(frame.rows);
+    return frame.grid;
   }
 
   function load(text) {
@@ -91,7 +81,7 @@ Singleton {
       loaded.push({
         ticks: ticks,
         rows: fields.slice(2).map(word => parseInt(word, 16)),
-        runs: null
+        grid: null
       });
     }
     frames = loaded;

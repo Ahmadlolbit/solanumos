@@ -34,11 +34,16 @@ Variants {
       right: true
     }
 
-    LogoCanvas {
-      x: (Math.trunc((window.wide - Logo.size * window.scale) / 2) - Logo.margin * window.scale) / window.ratio
-      y: (Math.trunc((window.high - Logo.size * window.scale) / 2) - Logo.margin * window.scale) / window.ratio
-      cell: window.scale / 4 / window.ratio
-      resting: window.covered || UPower.onBattery || Screens.dark
+    Rectangle {
+      anchors.fill: parent
+      color: Theme.base
+
+      LogoCanvas {
+        x: (Math.trunc((window.wide - Logo.size * window.scale) / 2) - Logo.margin * window.scale) / window.ratio
+        y: (Math.trunc((window.high - Logo.size * window.scale) / 2) - Logo.margin * window.scale) / window.ratio
+        cell: window.scale / 4 / window.ratio
+        resting: window.covered || UPower.onBattery || Screens.dark
+      }
     }
   }
 }

@@ -6,41 +6,49 @@ Canvas {
   property real cell: 4
   property bool resting: false
   property int shown: Logo.mark
+  property var pictures: []
+  readonly property var paints: [Theme.base, Theme.text, Theme.accent]
   readonly property bool holding: Logo.ready && Logo.frames[shown].ticks > 1
   readonly property bool playing: Logo.ready && visible && (!resting || !holding)
 
-  width: Logo.cells * cell
-  height: Logo.cells * cell
+  function picture(context) {
+    if (!pictures[shown]) {
+      const made = context.createImageData(Logo.cells, Logo.cells);
+      const grid = Logo.grid(shown), data = made.data;
+      const channels = paints.map(paint => [paint.r, paint.g, paint.b].map(part => Math.round(part * 255)));
+      for (let at = 0; at < grid.length; at++) {
+        const paint = channels[grid[at]];
+        data[at * 4] = paint[0];
+        data[at * 4 + 1] = paint[1];
+        data[at * 4 + 2] = paint[2];
+        data[at * 4 + 3] = 255;
+      }
+      pictures[shown] = made;
+    }
+    return pictures[shown];
+  }
+
+  width: Logo.cells
+  height: Logo.cells
+  scale: cell
+  transformOrigin: Item.TopLeft
+  smooth: false
   antialiasing: false
   onShownChanged: requestPaint()
-  onCellChanged: requestPaint()
+  onPaintsChanged: {
+    pictures = [];
+    requestPaint();
+  }
   onPaint: {
     const context = getContext("2d");
-    context.fillStyle = Theme.base;
-    context.fillRect(0, 0, width, height);
-    if (!Logo.ready)
-      return;
-    const found = Logo.paints(shown);
-    [Theme.text, Theme.accent].forEach((paint, kind) => {
-      context.fillStyle = paint;
-      const runs = found[kind];
-      for (let at = 0; at < runs.length; at += 3)
-        context.fillRect(runs[at] * cell, runs[at + 1] * cell, runs[at + 2] * cell, cell);
-    });
+    if (Logo.ready)
+      context.drawImage(picture(context), 0, 0);
   }
 
   Connections {
-    target: Theme
+    target: Logo
 
-    function onBaseChanged() {
-      canvas.requestPaint();
-    }
-
-    function onTextChanged() {
-      canvas.requestPaint();
-    }
-
-    function onAccentChanged() {
+    function onReadyChanged() {
       canvas.requestPaint();
     }
   }
