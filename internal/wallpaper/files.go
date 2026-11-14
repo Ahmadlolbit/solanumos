@@ -1,11 +1,16 @@
 package wallpaper
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"os"
 	"path/filepath"
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/burst"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/hypr"
@@ -48,6 +53,46 @@ func Another(colors theme.Colors) (string, error) {
 		return "", err
 	}
 	return keep(filepath.Join(Folder("drawings"), fmt.Sprintf("%s-%d.jpg", name, seed)), data)
+}
+
+func IsLogo(path string) bool {
+	folder, err := fsutil.RealPath(Folder("logo"))
+	if err != nil {
+		return false
+	}
+	dir, err := fsutil.RealPath(filepath.Dir(path))
+	return err == nil && dir == folder
+}
+
+func logoImage(colors theme.Colors, width, height int) *image.Paletted {
+	paints := [3]rgb{pick(colors, "background"), pick(colors, "foreground"), pick(colors, "accent", "blue")}
+	palette := make(color.Palette, len(paints))
+	for index, c := range paints {
+		palette[index] = color.RGBA{clamp(c.r), clamp(c.g), clamp(c.b), 255}
+	}
+	img := image.NewPaletted(image.Rect(0, 0, width, height), palette)
+	place, grid := logoAt(width, height), logoGrid(burst.Still())
+	size := place.scale / logoSub
+	for y := max(0, place.top); y < min(height, place.top+logoCells*size); y++ {
+		for x := max(0, place.left); x < min(width, place.left+logoCells*size); x++ {
+			img.Pix[y*img.Stride+x] = grid[(y-place.top)/size*logoCells+(x-place.left)/size]
+		}
+	}
+	return img
+}
+
+func LogoStill(colors theme.Colors) (string, error) {
+	width, height := Size()
+	name := fmt.Sprintf("%08x-%dx%d.png", Seed(colors["background"]+colors["foreground"]+colors["accent"]), width, height)
+	path := filepath.Join(Folder("logo"), name)
+	if fsutil.IsFile(path) {
+		return path, nil
+	}
+	var out bytes.Buffer
+	if err := png.Encode(&out, logoImage(colors, width, height)); err != nil {
+		return "", err
+	}
+	return keep(path, out.Bytes())
 }
 
 func Tidy(kept string) {

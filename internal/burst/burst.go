@@ -52,6 +52,10 @@ func read(text string) []shown {
 	return frames
 }
 
+func Flipbook() string {
+	return flipbook
+}
+
 func Length() time.Duration {
 	total := 0
 	for _, frame := range loop() {

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/burst"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/hypr"
@@ -23,15 +24,20 @@ import (
 const usage = `Usage: solanum-background <file>
        solanum-background next
        solanum-background draw
+       solanum-background logo
        solanum-background --list
        solanum-background --current
+       solanum-background --frames
        solanum-background workspaces
        solanum-background workspace MONITOR WORKSPACE
 
 Sets the wallpaper. Backgrounds come from the current theme and from
 ~/.config/solanum/backgrounds/<theme>. draw draws a new one in the theme's
 colours, in a style and with a seed picked at random, and keeps only the
-last one drawn. With a wallpaper per workspace on
+last one drawn. logo shows the burst logo, animated by the bar in the
+theme's colours, over the still logo; it rests while a window is on the
+screen or on battery, and stays across themes until another wallpaper is
+set. --frames prints its frames. With a wallpaper per workspace on
 (solanum-look workspaces on), each workspace shows the next one along,
 workspaces shows each monitor's, and workspace shows one monitor's for the
 workspace it just switched to.
@@ -158,6 +164,7 @@ func apply(file string) int {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
+	logoFollows(file)
 	if perWorkspace() {
 		if workspaces() {
 			return 0
@@ -196,6 +203,35 @@ func moveOn() int {
 		return 1
 	}
 	return apply(file)
+}
+
+func logoFollows(file string) {
+	settings := look.Open()
+	if wallpaper.IsLogo(file) || settings.Get("logo") == "off" {
+		return
+	}
+	if err := settings.Put("logo", "off"); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	look.ReloadShell()
+}
+
+func logoOn() int {
+	still, err := wallpaper.LogoStill(wallpaper.CurrentColors())
+	if err == nil {
+		err = look.Open().Put("logo", "animated")
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	code := apply(still)
+	if code == 0 {
+		wallpaper.Tidy(still)
+	}
+	look.ReloadShell()
+	return code
 }
 
 func drawAnother() int {
@@ -249,6 +285,10 @@ func Main() {
 		os.Exit(moveOn())
 	case "draw":
 		os.Exit(drawAnother())
+	case "logo":
+		os.Exit(logoOn())
+	case "--frames":
+		fmt.Print(burst.Flipbook())
 	default:
 		os.Exit(set(command))
 	}

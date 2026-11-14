@@ -31,6 +31,12 @@ Scope {
       label: "Draw another",
       image: "",
       glyph: "\uf1fc"
+    },
+    {
+      value: "logo",
+      label: "Animated logo",
+      image: "",
+      glyph: ""
     }
   ]
 
@@ -55,7 +61,7 @@ Scope {
     if (mode !== kind)
       return;
     items = text.split("\n").filter(line => line !== "").map(line => parse(kind, line)).concat(kind === "backgrounds" ? drawn : []);
-    index = Math.max(0, shown.findIndex(item => item.value === selected));
+    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "logo" && Theme.looks.logo === "animated"));
   }
 
   function address(path) {
@@ -295,7 +301,7 @@ Scope {
             Rectangle {
               anchors.fill: parent
               radius: Theme.radius
-              color: Theme.surface
+              color: slice.modelData.value === "logo" ? Theme.base : Theme.surface
               border.width: slice.current ? 2 : 0
               border.color: Theme.accent
               clip: true
@@ -316,6 +322,16 @@ Scope {
                 text: slice.modelData.glyph || ""
                 color: Theme.subtext
                 font.pixelSize: Theme.size(slice.current ? 64 : 24)
+              }
+
+              Loader {
+                anchors.centerIn: parent
+                active: slice.modelData.value === "logo"
+
+                sourceComponent: LogoCanvas {
+                  cell: Math.min(slice.width, slice.height) * 0.8 / Logo.cells
+                  resting: !slice.current
+                }
               }
 
               Rectangle {
