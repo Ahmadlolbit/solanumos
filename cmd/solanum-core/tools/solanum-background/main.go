@@ -26,6 +26,7 @@ const usage = `Usage: solanum-background <file>
        solanum-background draw
        solanum-background keep
        solanum-background logo
+       solanum-background off
        solanum-background add [--every] [FILE ...]
        solanum-background remove FILE
        solanum-background --list
@@ -47,7 +48,8 @@ and keeps only the last one drawn; keep keeps the one drawn last in yours for
 the current theme. logo shows the burst logo, animated by the bar in the
 theme's colours, over the still logo; it rests while a window is on the
 screen or on battery, and stays across themes until another wallpaper is
-set. --frames prints its frames. With a wallpaper per workspace on
+set; off ends it and shows the theme's first background, or a drawing when
+the theme has none. --frames prints its frames. With a wallpaper per workspace on
 (solanum-look workspaces on), each workspace shows the next one along,
 workspaces shows each monitor's, and workspace shows one monitor's for the
 workspace it just switched to.
@@ -243,6 +245,18 @@ func logoOn() int {
 	return code
 }
 
+func logoOff() int {
+	if err := look.Open().Put("logo", "off"); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer look.ReloadShell()
+	if found := backgrounds(); len(found) > 0 {
+		return apply(found[0])
+	}
+	return drawAnother()
+}
+
 func drawAnother() int {
 	drawn, err := wallpaper.Another(wallpaper.CurrentColors())
 	if err != nil {
@@ -294,6 +308,8 @@ func Main() {
 		os.Exit(drawAnother())
 	case "logo":
 		os.Exit(logoOn())
+	case "off":
+		os.Exit(logoOff())
 	case "--frames":
 		fmt.Print(burst.Flipbook())
 	default:
