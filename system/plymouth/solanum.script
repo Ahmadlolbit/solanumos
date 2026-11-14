@@ -2,15 +2,15 @@ Window.SetBackgroundTopColor({{ BACKGROUND }});
 Window.SetBackgroundBottomColor({{ BACKGROUND }});
 
 step = 1;
-prompt_font = "Sans 13";
-bullet_font = "Sans 18";
-message_font = "Sans 12";
+prompt_font = "DejaVu Sans Mono 13";
+bullet_font = "DejaVu Sans Mono 18";
+message_font = "DejaVu Sans Mono 12";
 logo = Image("burst-4.png");
 if (Window.GetWidth() >= 2560 || Window.GetHeight() >= 1440) {
   step = 2;
-  prompt_font = "Sans 26";
-  bullet_font = "Sans 36";
-  message_font = "Sans 24";
+  prompt_font = "DejaVu Sans Mono 26";
+  bullet_font = "DejaVu Sans Mono 36";
+  message_font = "DejaVu Sans Mono 24";
   logo = Image("burst-8.png");
 }
 logo_sprite = Sprite(logo);
@@ -20,6 +20,7 @@ below = Window.GetHeight() / 2;
 custom = "{{ BOOT_PROMPT }}";
 prompt_sprite = Sprite();
 bullet_sprite = Sprite();
+hint_sprite = Sprite();
 message_sprite = Sprite();
 
 fun centre(sprite, image, y) {
@@ -45,11 +46,13 @@ fun display_password(prompt, bullets) {
     prompt = "Password";
   centre(prompt_sprite, Image.Text(prompt, {{ FOREGROUND }}, 1, prompt_font), below + 60 * step);
   centre(bullet_sprite, Image.Text(dots + "_", {{ ACCENT }}, 1, bullet_font), below + 100 * step);
+  centre(hint_sprite, Image.Text("Type it, then press Enter", {{ MUTED }}, 1, message_font), below + 140 * step);
 }
 
 fun display_normal() {
   prompt_sprite.SetOpacity(0);
   bullet_sprite.SetOpacity(0);
+  hint_sprite.SetOpacity(0);
 }
 
 fun display_message(text) {

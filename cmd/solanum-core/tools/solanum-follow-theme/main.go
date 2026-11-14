@@ -120,7 +120,8 @@ func splashFiles(current theme) ([][2]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent))
+	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent),
+		"MUTED="+follow.Floats(current.muted))
 	files := [][2]string{{filepath.Join(plymouthDir, "solanum.script"), script}}
 	channels := follow.Channels(current.accent)
 	paint := color.NRGBA{R: uint8(channels[0]), G: uint8(channels[1]), B: uint8(channels[2]), A: 255}
