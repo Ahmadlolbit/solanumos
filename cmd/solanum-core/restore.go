@@ -186,13 +186,14 @@ func goBack(number string) int {
 }
 
 func rollBack(number string) int {
+	command := admin("snapper-rollback", number)
 	if !streamed {
-		return run.Status("sudo", "snapper-rollback", number)
+		return run.Status(command[0], command[1:]...)
 	}
 	if !ui.Confirm("Go back to snapshot " + number + "?") {
 		return fail("nothing changed")
 	}
-	return run.Typed(confirmWord, "sudo", "snapper-rollback", number)
+	return run.Typed(confirmWord, command[0], command[1:]...)
 }
 
 func showPoints(target string) int {
@@ -213,7 +214,7 @@ func restore() int {
 	if env.Arg(3) != "" || (target != "" && target != "list" && !snapshots.IsNumber(target)) {
 		return fail("usage: solanum restore [list | NUMBER]")
 	}
-	if os.Geteuid() == 0 {
+	if !forAPerson() {
 		return fail("run it as yourself, without sudo: solanum restore")
 	}
 	if !installed("snapper") {
