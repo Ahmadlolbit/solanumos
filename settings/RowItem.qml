@@ -8,12 +8,13 @@ Rectangle {
   required property var row
   property bool current: false
   property bool searching: false
+  property bool grouped: false
   property bool editing: false
   readonly property bool computer: row.whose === "computer"
   readonly property var choice: (row.choices || []).find(entry => entry.value === row.value)
   readonly property string shownValue: row.multiple ? (row.value || "none").split(" ").filter(word => word).join(", ") : choice ? choice.label : row.value
   readonly property bool busy: Store.busy === row.name
-  readonly property var marks: [computer ? "\uf023 For everyone on this computer" : "", row.after === "restart" ? "\uf021 Applies after a restart" : row.after === "login" ? "\uf021 Applies when you log in again" : "", searching ? "\uf0c9 " + ((Store.pages.find(page => page.id === row.page) || {}).label || "") : ""].filter(mark => mark)
+  readonly property var marks: [computer && !grouped ? "\uf023 For everyone on this computer" : "", row.after === "restart" ? "\uf021 Applies after a restart" : row.after === "login" ? "\uf021 Applies when you log in again" : "", searching ? "\uf0c9 " + ((Store.pages.find(page => page.id === row.page) || {}).label || "") : ""].filter(mark => mark)
 
   signal chosen
   signal pointed
@@ -102,7 +103,7 @@ Rectangle {
         Layout.fillWidth: true
         visible: item.marks.length > 0
         text: item.marks.join("   ")
-        color: item.computer ? Theme.warning : Theme.subtext
+        color: item.computer && !item.grouped ? Theme.warning : Theme.subtext
         font.pixelSize: Theme.size(11)
       }
     }

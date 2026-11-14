@@ -41,7 +41,14 @@ FocusScope {
         }
       ]
     })[Store.page] || []
-  readonly property var items: headers.concat(Store.shown)
+  readonly property var everyone: Store.search ? [] : Store.shown.filter(row => row.whose === "computer" && !!row.twin).sort((one, other) => Store.rows.findIndex(row => row.name === one.twin) - Store.rows.findIndex(row => row.name === other.twin))
+  readonly property var heading: everyone.length ? [
+      {
+        kind: "everyone",
+        name: "header.everyone"
+      }
+    ] : []
+  readonly property var items: headers.concat(Store.shown.filter(row => !everyone.includes(row)), heading, everyone)
   readonly property var focused: list.currentItem ? list.currentItem.item : null
 
   function move(step) {
@@ -49,7 +56,10 @@ FocusScope {
       Store.show(Store.pages[(pageIndex + step + Store.pages.length) % Store.pages.length].id);
       index = 0;
     } else if (items.length) {
-      index = Math.max(0, Math.min(items.length - 1, index + step));
+      let next = Math.max(0, Math.min(items.length - 1, index + step));
+      if (items[next].kind === "everyone")
+        next = items[next + step] ? next + step : index;
+      index = next;
     }
   }
 
@@ -214,6 +224,13 @@ FocusScope {
     ListView {
       id: list
 
+      function keepShown() {
+        const above = frame.items[currentIndex - 1];
+        if (above && above.kind === "everyone")
+          positionViewAtIndex(currentIndex - 1, ListView.Contain);
+        positionViewAtIndex(currentIndex, ListView.Contain);
+      }
+
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: title.bottom
@@ -226,8 +243,8 @@ FocusScope {
       currentIndex: frame.index
       highlightMoveDuration: 0
       boundsBehavior: Flickable.StopAtBounds
-      onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-      onContentHeightChanged: positionViewAtIndex(currentIndex, ListView.Contain)
+      onCurrentIndexChanged: keepShown()
+      onContentHeightChanged: keepShown()
 
       delegate: Loader {
         id: holder
@@ -240,7 +257,8 @@ FocusScope {
             about: aboutPart,
             grid: gridPart,
             maker: makerPart,
-            pictures: picturesPart
+            pictures: picturesPart,
+            everyone: everyonePart
           })[modelData.kind] || rowPart
 
         Component {
@@ -250,9 +268,48 @@ FocusScope {
             row: holder.modelData
             current: holder.index === frame.index && frame.zone === "rows"
             searching: !!Store.search
+            grouped: frame.everyone.some(row => row.name === holder.modelData.name)
             onChosen: frame.choose(row)
             onEditingChanged: frame.editing = editing
             onPointed: frame.index = holder.index
+          }
+        }
+
+        Component {
+          id: everyonePart
+
+          Item {
+            function activate() {
+              return false;
+            }
+
+            function step() {
+              return false;
+            }
+
+            implicitHeight: everyoneTitle.implicitHeight + 30
+
+            Rectangle {
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.top: parent.top
+              anchors.topMargin: 10
+              height: 1
+              color: Theme.overlay
+            }
+
+            Label {
+              id: everyoneTitle
+
+              anchors.left: parent.left
+              anchors.bottom: parent.bottom
+              anchors.leftMargin: 14
+              anchors.bottomMargin: 2
+              text: "\uf023  " + "For everyone on this computer".toUpperCase()
+              color: Theme.subtext
+              font.pixelSize: Theme.size(11)
+              font.bold: true
+            }
           }
         }
 
