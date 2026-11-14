@@ -16,6 +16,8 @@ Rectangle {
   readonly property var currentUser: users.count > 0 ? users.itemAt(Math.min(userIndex, users.count - 1)) : null
   readonly property string userName: currentUser ? currentUser.login : userModel.lastUser
   readonly property int sessionIndex: sessionModel.lastIndex >= 0 ? sessionModel.lastIndex : 0
+  readonly property var layout: keyboard.layouts && keyboard.currentLayout >= 0 && keyboard.currentLayout < keyboard.layouts.length ? keyboard.layouts[keyboard.currentLayout] : null
+  readonly property string layoutName: layout ? layout.longName || layout.shortName : ""
   property bool failed: false
   property date now: new Date()
 
@@ -188,6 +190,14 @@ Rectangle {
         font.family: root.fontFamily
         font.pixelSize: 20
       }
+    }
+
+    Text {
+      anchors.horizontalCenter: parent.horizontalCenter
+      text: root.layoutName ? "\u{f030c} " + root.layoutName : " "
+      color: root.muted
+      font.family: root.fontFamily
+      font.pixelSize: 16
     }
 
     Text {
