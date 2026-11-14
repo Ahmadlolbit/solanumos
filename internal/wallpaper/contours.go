@@ -123,16 +123,24 @@ func clamp(value float64) uint8 {
 	return uint8(math.Max(0, math.Min(255, math.Round(value))))
 }
 
-func paintRow(img *image.RGBA, shade func(x, y float64) rgb, grain noise, y int) {
-	width, height := img.Rect.Dx(), img.Rect.Dy()
-	for x := range width {
-		c := shade(float64(x)/float64(width), float64(y)/float64(height))
-		d := (grain.lattice(x, y) - 0.5) * 2.4
-		img.SetRGBA(x, y, color.RGBA{clamp(c.r + d), clamp(c.g + d), clamp(c.b + d), 255})
+func grained(grain noise) finisher {
+	return func(img *image.RGBA, row []rgb, y int) {
+		for x, c := range row {
+			d := (grain.lattice(x, y) - 0.5) * 2.4
+			img.SetRGBA(x, y, color.RGBA{clamp(c.r + d), clamp(c.g + d), clamp(c.b + d), 255})
+		}
 	}
 }
 
-func render(shade func(x, y float64) rgb, grain noise, width, height int) *image.RGBA {
+func shaded(shade func(x, y float64) rgb, at area) painter {
+	return func(y int, row []rgb) {
+		for x := range row {
+			row[x] = shade(float64(x)/at.width, float64(y)/at.height)
+		}
+	}
+}
+
+func render(paint painter, finish finisher, width, height int) *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	rows := make(chan int, height)
 	for y := range height {
@@ -144,8 +152,10 @@ func render(shade func(x, y float64) rgb, grain noise, width, height int) *image
 		group.Add(1)
 		go func() {
 			defer group.Done()
+			row := make([]rgb, width)
 			for y := range rows {
-				paintRow(img, shade, grain, y)
+				paint(y, row)
+				finish(img, row, y)
 			}
 		}()
 	}
@@ -154,8 +164,8 @@ func render(shade func(x, y float64) rgb, grain noise, width, height int) *image
 }
 
 func Contours(colors theme.Colors, seed uint32, width, height int) *image.RGBA {
-	n := noise{seed}
-	return render(contours(colors, n, float64(width)/float64(height)), noise{seed ^ 0x9e3779b9}, width, height)
+	n, at := noise{seed}, sized(width, height)
+	return render(shaded(contours(colors, n, at.width/at.height), at), grained(noise{seed ^ 0x9e3779b9}), width, height)
 }
 
 func JPEG(img image.Image) ([]byte, error) {
