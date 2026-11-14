@@ -18,8 +18,14 @@ const textLimit = 1 << 20
 var (
 	transient   = []string{"changes.txt", "changes-unseen", "wizard.conf"}
 	ownFolders  = []string{".config", ".local/state"}
-	personFiles = []string{".config/hypr/hyprland.lua", ".zshrc", ".config/mako/config", ".config/kitty/kitty.conf", ".config/hypr/hyprlock.conf", ".config/hypr/hyprpaper.conf", ".config/solanum/menu.json", ".config/solanum/look.conf"}
-	ownRenames  = [][2]string{{".config/kdeglobals" + oldname.KDEBackup, ".config/kdeglobals.before-solanum"}, {".local/zed.app/" + oldname.VersionStamp, ".local/zed.app/.solanum-version"}}
+	personFiles = []string{".config/hypr/hyprland.lua", ".zshrc", ".config/mako/config", ".config/kitty/kitty.conf", ".config/hypr/hyprlock.conf", ".config/hypr/hyprpaper.conf", ".config/solanum/menu.json", ".config/solanum/look.conf", ".config/btop/btop.conf"}
+	ownRenames  = [][2]string{
+		{".config/kdeglobals" + oldname.KDEBackup, ".config/kdeglobals.before-solanum"},
+		{".local/zed.app/" + oldname.VersionStamp, ".local/zed.app/.solanum-version"},
+		{".config/btop/themes/" + oldname.Name + ".theme", ".config/btop/themes/solanum.theme"},
+		{".config/walker/themes/" + oldname.Name, ".config/walker/themes/solanum"},
+		{".local/share/nvim/site/colors/" + oldname.Name + ".lua", ".local/share/nvim/site/colors/solanum.lua"},
+	}
 )
 
 func (work *mover) people() []account.Account {

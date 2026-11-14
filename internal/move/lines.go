@@ -28,6 +28,7 @@ func swaps() [][2]string {
 		{oldname.AddressKey, "X-Solanum-Address="},
 		{`"update.` + name + `"`, `"update.solanum"`},
 		{`colorscheme, "` + name + `"`, `colorscheme, "solanum"`},
+		{`color_theme = "` + name + `"`, `color_theme = "solanum"`},
 	}
 	for _, tool := range tools {
 		pairs = append(pairs, [2]string{oldname.Prefix + tool, "solanum-" + tool})
