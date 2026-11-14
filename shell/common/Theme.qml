@@ -32,6 +32,10 @@ Singleton {
   readonly property int barWidth: size(60)
   readonly property int spacing: 14
   readonly property int radius: (Config.style || looks.style) === "soft" ? 10 : 0
+  readonly property int quick: 120
+  readonly property int fadeIn: 200
+  readonly property int fadeOut: 150
+  readonly property int focusBorder: 2
 
   function size(pixels) {
     return Math.round(pixels * textScale);

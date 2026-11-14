@@ -22,7 +22,7 @@ Rectangle {
 
     Behavior on x {
       NumberAnimation {
-        duration: 120
+        duration: Theme.quick
       }
     }
   }
