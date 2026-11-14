@@ -17,5 +17,7 @@ Rectangle {
 
     anchors.centerIn: parent
     text: root.key
+    font.family: Theme.display
+    font.pixelSize: Theme.size(11)
   }
 }

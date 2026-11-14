@@ -18,8 +18,9 @@ Item {
     text: root.text
     color: Theme.subtext
     elide: Text.ElideRight
+    font.family: Theme.display
     font.pixelSize: Theme.size(11)
-    font.bold: true
+    font.bold: Theme.displayBold
     font.capitalization: Font.AllUppercase
     font.letterSpacing: Theme.size(11) * 0.08
   }
