@@ -37,6 +37,7 @@ var (
 	ErrEnded   = errors.New("ended as soon as it started")
 	stopped    atomic.Bool
 	traced     atomic.Pointer[io.Writer]
+	mirrored   atomic.Pointer[serial]
 	answers    atomic.Pointer[sync.Map]
 	english    = []string{"LC_ALL=C.UTF-8", "LANGUAGE="}
 )
@@ -345,7 +346,27 @@ func collect(command *exec.Cmd) (string, error) {
 	return strings.TrimRight(string(data), "\n"), done(err)
 }
 
+type mirror func([]byte)
+
+func (to mirror) Write(data []byte) (int, error) {
+	to(data)
+	return len(data), nil
+}
+
+func Mirror(to func([]byte)) {
+	if to == nil {
+		mirrored.Store(nil)
+		return
+	}
+	mirrored.Store(&serial{output: mirror(to)})
+}
+
 func inherit(command *exec.Cmd) {
+	if shared := mirrored.Load(); shared != nil {
+		command.Stdout = shared
+		command.Stderr = shared
+		return
+	}
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
