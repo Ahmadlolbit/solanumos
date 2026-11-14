@@ -15,34 +15,15 @@ Rectangle {
   border.width: current ? 2 : 1
   border.color: current ? Theme.accent : Theme.overlay
 
-  Item {
+  Heading {
     id: strip
 
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.top: parent.top
     anchors.margins: 16
-    height: Theme.size(20)
-
-    Label {
-      anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
-      text: tile.title.toUpperCase()
-      color: Theme.subtext
-      font.pixelSize: Theme.size(11)
-      font.bold: true
-    }
-
-    Label {
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      width: Math.min(implicitWidth, parent.width * 0.7)
-      text: tile.hint
-      color: Theme.subtext
-      font.pixelSize: Theme.size(11)
-      elide: Text.ElideLeft
-      horizontalAlignment: Text.AlignRight
-    }
+    text: tile.title
+    note: tile.hint
   }
 
   Item {
