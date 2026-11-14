@@ -521,6 +521,7 @@ func (work *session) finish(code int) int {
 	} else if work.runner.Halted {
 		work.log.Line("error", "run halted in module "+work.runner.Module)
 	}
+	work.settle()
 	work.save()
 	if work.person.Home != "" {
 		work.survey()
@@ -546,10 +547,15 @@ func entered(mode string, options Options, args []string, body func(*session) in
 		cleanup.OwnGroup()
 		ui.Attach(events.Open(os.Stdin, os.Stdout, cleanup.StopGroup))
 	}
+	moving, err := carryOver(mode, options)
+	if err != nil {
+		return run.Report(err)
+	}
 	work, err := start(mode, options, args)
 	if err != nil {
 		return run.Report(err)
 	}
+	work.carried(moving)
 	code := work.finish(body(work))
 	if options.Testing {
 		AfterTesting()
