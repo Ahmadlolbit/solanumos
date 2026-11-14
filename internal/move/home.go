@@ -29,8 +29,11 @@ var (
 )
 
 func (work *mover) people() []account.Account {
+	if work.unlisted {
+		return nil
+	}
 	people, err := account.People()
-	if err != nil && !work.unlisted {
+	if err != nil {
 		work.unlisted = true
 		work.note("Left every home as it is: %v", err)
 	}
