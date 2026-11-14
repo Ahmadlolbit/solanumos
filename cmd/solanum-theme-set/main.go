@@ -275,6 +275,12 @@ func logoShown(colors theme.Colors, link string) bool {
 	if settings.Get("logo") != "animated" {
 		return false
 	}
+	unlock, err := look.Hold(state())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return false
+	}
+	defer unlock()
 	still, err := wallpaper.LogoStill(colors)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)

@@ -187,6 +187,20 @@ func apply(file string) int {
 	return 0
 }
 
+func serially(run func() int) int {
+	err := os.MkdirAll(state(), 0o777)
+	unlock := func() {}
+	if err == nil {
+		unlock, err = look.Hold(state())
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer unlock()
+	return run()
+}
+
 func reason(err error) string {
 	var number syscall.Errno
 	if !errors.As(err, &number) {
@@ -303,13 +317,13 @@ func Main() {
 	case "workspace":
 		os.Exit(oneWorkspace(env.Arg(2), env.Arg(3)))
 	case "next":
-		os.Exit(moveOn())
+		os.Exit(serially(moveOn))
 	case "draw":
-		os.Exit(drawAnother())
+		os.Exit(serially(drawAnother))
 	case "logo":
-		os.Exit(logoOn())
+		os.Exit(serially(logoOn))
 	case "off":
-		os.Exit(logoOff())
+		os.Exit(serially(logoOff))
 	case "--frames":
 		fmt.Print(burst.Flipbook())
 	default:
@@ -331,5 +345,5 @@ func other(command string) int {
 	if yours, found := yourCommands[command]; found {
 		return yours(os.Args[2:])
 	}
-	return set(command)
+	return serially(func() int { return set(command) })
 }
