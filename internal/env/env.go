@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const Version = "0.9.0"
@@ -45,7 +47,11 @@ func ThemeRoot() string {
 }
 
 func AppConfig() string {
-	return filepath.Join(ConfigHome(), "solanum")
+	return oldname.Prefer(filepath.Join(ConfigHome(), "solanum"))
+}
+
+func OwnState() string {
+	return oldname.Prefer(filepath.Join(StateHome(), "solanum"))
 }
 
 func LocalState() string {
@@ -65,7 +71,7 @@ func DataHome() string {
 }
 
 func ShareDir() string {
-	return Or("SOLANUM_SHARE_DIR", "/usr/share/solanum")
+	return Or("SOLANUM_SHARE_DIR", oldname.Prefer("/usr/share/solanum"))
 }
 
 func Root() string {
@@ -89,13 +95,13 @@ func Manifests() string {
 }
 
 func CacheDir() string {
-	return Or("SOLANUM_CACHE_DIR", "/var/cache/solanum")
+	return Or("SOLANUM_CACHE_DIR", oldname.Prefer("/var/cache/solanum"))
 }
 
 func LogDir() string {
-	return Or("SOLANUM_LOG_DIR", "/var/log/solanum")
+	return Or("SOLANUM_LOG_DIR", oldname.Prefer("/var/log/solanum"))
 }
 
 func StateDir() string {
-	return Or("SOLANUM_STATE_DIR", "/var/lib/solanum")
+	return Or("SOLANUM_STATE_DIR", oldname.Prefer("/var/lib/solanum"))
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func changesDir() string {
-	return filepath.Join(env.StateHome(), "solanum")
+	return env.OwnState()
 }
 
 func notifyFirstStart(dir string) {

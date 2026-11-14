@@ -13,6 +13,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/options"
 )
 
@@ -43,7 +44,7 @@ func RenamedThemes() map[string]string {
 }
 
 func Path() string {
-	return env.Or("SOLANUM_CONFIG", "/etc/solanum/solanum.conf")
+	return env.Or("SOLANUM_CONFIG", oldname.Prefer("/etc/solanum/solanum.conf"))
 }
 
 func Defaults() *Config {
@@ -174,7 +175,7 @@ func (current *Config) applyLine(path, line string) string {
 		current.note("warn", "ignoring malformed line in "+path+": "+line)
 		return ""
 	}
-	if key == versionKey {
+	if key == versionKey || key == oldname.VersionKey {
 		return value
 	}
 	if _, known := current.values[key]; known {

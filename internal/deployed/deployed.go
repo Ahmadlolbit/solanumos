@@ -12,6 +12,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -57,6 +58,7 @@ func runOrder(path string) (string, int) {
 }
 
 func lastStart(text string) (string, bool) {
+	text = strings.ReplaceAll(text, oldname.LogStart, starts)
 	for at := strings.LastIndex(text, starts); at >= 0; at = strings.LastIndex(text[:at], starts) {
 		if commit, ok := startedFrom(text[at+len(starts):]); ok {
 			return commit, true
@@ -147,13 +149,15 @@ func hashes(limit time.Duration, messages *os.File, lines []string) (map[string]
 }
 
 func Waiting(limit time.Duration, home string) ([]string, error) {
-	output, err := run.CaptureQuiet(limit, "find", "-H", "/etc", "/usr/share/solanum", filepath.Join(home, ".config"), "-name", "*"+newSuffix)
+	output, err := run.CaptureQuiet(limit, "find", "-H", "/etc", "/usr/share/solanum", filepath.Join(home, ".config"), "(", "-name", "*"+newSuffix, "-o", "-name", "*"+oldname.NewSuffix, ")")
 	found := run.Lines(output)
 	lines, _ := fsutil.Lines(filepath.Join(env.StateDir(), "files.db"))
 	for _, line := range lines {
 		path, _, _ := strings.Cut(line, "\t")
-		if fresh := path + newSuffix; fsutil.Exists(fresh) && !slices.Contains(found, fresh) {
-			found = append(found, fresh)
+		for _, fresh := range []string{path + newSuffix, path + oldname.NewSuffix} {
+			if fsutil.Exists(fresh) && !slices.Contains(found, fresh) {
+				found = append(found, fresh)
+			}
 		}
 	}
 	return found, err
