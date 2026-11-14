@@ -16,6 +16,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-record"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-screensaver"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-sensors"
+	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-settings-helper"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-start"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-terminal"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-tip"
@@ -25,23 +26,24 @@ import (
 )
 
 var tools = map[string]func(){
-	"engine-switch":        engineswitch.Main,
-	"solanum":              wizard.Main,
-	"solanum-background":   background.Main,
-	"solanum-care":         care.Main,
-	"solanum-follow-theme": followtheme.Main,
-	"solanum-installer":    installer.Main,
-	"solanum-pick":         pick.Main,
-	"solanum-pkg":          pkg.Main,
-	"solanum-record":       record.Main,
-	"solanum-screensaver":  screensaver.Main,
-	"solanum-sensors":      sensors.Main,
-	"solanum-start":        start.Main,
-	"solanum-terminal":     terminal.Main,
-	"solanum-tip":          tip.Main,
-	"solanum-weather":      weather.Main,
-	"solanum-webapp":       webapp.Main,
-	"snapper-rollback":     snapperrollback.Main,
+	"engine-switch":           engineswitch.Main,
+	"solanum":                 wizard.Main,
+	"solanum-background":      background.Main,
+	"solanum-care":            care.Main,
+	"solanum-follow-theme":    followtheme.Main,
+	"solanum-installer":       installer.Main,
+	"solanum-pick":            pick.Main,
+	"solanum-pkg":             pkg.Main,
+	"solanum-record":          record.Main,
+	"solanum-screensaver":     screensaver.Main,
+	"solanum-sensors":         sensors.Main,
+	"solanum-settings-helper": helper.Main,
+	"solanum-start":           start.Main,
+	"solanum-terminal":        terminal.Main,
+	"solanum-tip":             tip.Main,
+	"solanum-weather":         weather.Main,
+	"solanum-webapp":          webapp.Main,
+	"snapper-rollback":        snapperrollback.Main,
 }
 
 func runTool() {
