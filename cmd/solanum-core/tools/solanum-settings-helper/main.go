@@ -44,6 +44,10 @@ func checked(args []string) (string, string, string, int) {
 }
 
 func change(args []string) int {
+	if len(args) == 1 && (args[0] == "-h" || args[0] == "--help") {
+		fmt.Println(usage)
+		return 0
+	}
 	name, value, label, code := checked(args)
 	if code != 0 {
 		return code
