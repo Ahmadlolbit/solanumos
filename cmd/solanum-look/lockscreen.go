@@ -1,13 +1,18 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"os"
+	"os/user"
+	"path/filepath"
 	"slices"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/battery"
 	"github.com/Ahmadlolbit/solanumos/internal/bus"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -93,8 +98,27 @@ func batteryLine() string {
 	return fmt.Sprintf("%s %d%%%s", glyph, reading.Percent, note)
 }
 
+func nameLine() string {
+	me, err := user.Current()
+	if err != nil {
+		return ""
+	}
+	return markup.Replace(cmp.Or(me.Name, me.Username))
+}
+
+func capsLine() string {
+	leds, _ := filepath.Glob(filepath.Join(env.Or("SOLANUM_LEDS", "/sys/class/leds"), "*::capslock", "brightness"))
+	for _, led := range leds {
+		text, _ := fsutil.Text(led)
+		if value := strings.TrimSpace(text); value != "" && value != "0" {
+			return "Caps Lock is on"
+		}
+	}
+	return ""
+}
+
 func lockShown(key string, line func() string) int {
-	if settings.Get(key) == "yes" {
+	if key == "" || settings.Get(key) == "yes" {
 		fmt.Print(line())
 	}
 	return 0
@@ -106,8 +130,12 @@ func lockLine(args []string) int {
 		return lockShown("lock_media", trackLine)
 	case "battery":
 		return lockShown("lock_battery", batteryLine)
+	case "name":
+		return lockShown("", nameLine)
+	case "caps":
+		return lockShown("", capsLine)
 	}
-	fmt.Fprintln(os.Stderr, "lock-line takes media or battery")
+	fmt.Fprintln(os.Stderr, "lock-line takes media, battery, name or caps")
 	return 2
 }
 

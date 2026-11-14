@@ -3,6 +3,7 @@ $text = rgb({{ foreground_strip }})
 $accent = rgb({{ accent_strip }})
 $check = rgb({{ green_strip }})
 $fail = rgb({{ red_strip }})
+$soft = rgba({{ foreground_strip }}cc)
 $muted = rgba({{ foreground_strip }}99)
 $field = rgba({{ background_strip }}cc)
 $rounding = {{ rounding }}
