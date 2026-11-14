@@ -12,15 +12,16 @@ Variants {
     id: window
 
     required property var modelData
-    readonly property real ratio: modelData.devicePixelRatio || 1
-    readonly property int wide: Math.round(modelData.width * ratio)
-    readonly property int high: Math.round(modelData.height * ratio)
+    readonly property real ratio: devicePixelRatio || 1
+    readonly property int wide: Math.round(width * ratio)
+    readonly property int high: Math.round(height * ratio)
     readonly property int scale: 4 * Math.max(1, Math.round(4 * high / 1600))
     readonly property HyprlandMonitor monitor: Hyprland.monitorFor(modelData)
     readonly property var workspace: monitor ? monitor.activeWorkspace : null
     readonly property bool covered: !!workspace && (workspace.hasFullscreen || workspace.toplevels.values.length > 0)
 
     screen: modelData
+    visible: Logo.ready
     color: Theme.base
     exclusionMode: ExclusionMode.Ignore
     mask: Region {}
