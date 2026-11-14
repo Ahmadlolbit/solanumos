@@ -23,6 +23,7 @@ const (
 	lightAt   = "05:00 06:00 07:00 08:00 09:00"
 	extras    = "flatpak@offered gaming@offered printing@offered distrobox@offered"
 	miseTools = "mise-node@minimal mise-python@offered mise-java@offered mise-go@offered"
+	safeText  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._:/@+,-~"
 )
 
 type Facts struct {
@@ -244,7 +245,25 @@ func (option Option) Items() []string {
 	return words
 }
 
+func SafeText(character rune) bool {
+	return strings.ContainsRune(safeText, character)
+}
+
+func Keepable(value string) bool {
+	return strings.Trim(value, safeText) == ""
+}
+
+func (option Option) Refusal(value string) string {
+	if !Keepable(value) {
+		return option.Key + " takes only English letters, digits, spaces, slashes and . , _ : @ + - ~"
+	}
+	return value + " isn't a value for " + option.Key
+}
+
 func (option Option) Valid(value string) bool {
+	if !Keepable(value) {
+		return false
+	}
 	switch option.Kind {
 	case Choice:
 		return slices.Contains(option.Items(), value)

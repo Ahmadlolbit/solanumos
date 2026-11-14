@@ -33,8 +33,8 @@ func checked(args []string) (string, string, string, int) {
 	case !found:
 		fmt.Fprintf(os.Stderr, "Solanum has no setting for the whole computer named %s\n", args[0])
 		return "", "", "", 2
-	case !option.Valid(args[1]) || strings.ContainsAny(args[1], "\n\r"):
-		fmt.Fprintf(os.Stderr, "%s isn't a value for %s\n", args[1], args[0])
+	case !option.Valid(args[1]):
+		fmt.Fprintln(os.Stderr, option.Refusal(args[1]))
 		return "", "", "", 2
 	case os.Geteuid() != 0:
 		fmt.Fprintln(os.Stderr, "This changes the computer for everyone, so it runs as root: Settings asks for your password through pkexec")

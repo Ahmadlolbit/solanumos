@@ -2,6 +2,7 @@ package settings
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -70,7 +71,7 @@ func Valid(row Row, value string) error {
 		return fmt.Errorf("%s takes one line", row.Name)
 	}
 	if option, found := Option(row.Name); found && row.Whose == Computer && !option.Valid(value) {
-		return fmt.Errorf("%s isn't a value for %s", value, row.Name)
+		return errors.New(option.Refusal(value))
 	}
 	return nil
 }
