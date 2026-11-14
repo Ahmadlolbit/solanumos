@@ -18,6 +18,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/ledger"
 	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/service"
@@ -170,7 +171,7 @@ func firstTakenBefore() bool {
 
 func firstIn(listing string) (string, string, bool) {
 	for _, line := range run.Lines(listing) {
-		if fields := strings.SplitN(line, "\t", 3); len(fields) == 3 && fields[2] == firstSnapshot {
+		if fields := strings.SplitN(line, "\t", 3); len(fields) == 3 && (fields[2] == firstSnapshot || fields[2] == oldname.FirstSnapshot) {
 			return fields[0], fields[1], true
 		}
 	}

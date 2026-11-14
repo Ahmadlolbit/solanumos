@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const (
@@ -106,7 +108,8 @@ func Address(slug string) string {
 	if !goodSlug().MatchString(slug) {
 		return ""
 	}
-	return field(fsutil.Optional(entryFile(slug)), addressKey)
+	text := fsutil.Optional(entryFile(slug))
+	return cmp.Or(field(text, addressKey), field(text, oldname.AddressKey))
 }
 
 func Class(slug string) string {
