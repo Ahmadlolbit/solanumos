@@ -25,7 +25,10 @@ offers to clean up old snapshots. Without an argument it does both, the
 firmware once a day. A user timer runs it every hour.
 `
 
-const diskLimit = 90
+const (
+	diskLimit   = 90
+	nothingToDo = 2
+)
 
 func save(path, text string) {
 	err := os.MkdirAll(filepath.Dir(path), 0o777)
@@ -64,7 +67,7 @@ func firmware() bool {
 		}
 		save(seen, strings.Join(waiting, "\n")+"\n")
 	}
-	return err == nil
+	return err == nil || run.Code(err) == nothingToDo
 }
 
 func dailyFirmware() {
