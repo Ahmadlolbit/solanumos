@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/detect"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/step"
@@ -239,6 +240,9 @@ func (context *Context) CloneFor() string {
 	home := context.Person.Home
 	if env.Root() == env.SystemClone() || strings.HasPrefix(env.Root()+"/", home+"/") {
 		return env.Root()
+	}
+	if old := filepath.Join(home, oldname.Clone); fsutil.IsDir(filepath.Join(old, ".git")) {
+		return old
 	}
 	return filepath.Join(home, "solanum")
 }
