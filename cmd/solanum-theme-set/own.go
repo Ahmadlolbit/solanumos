@@ -35,6 +35,7 @@ type swatch struct {
 	Value    string  `json:"value"`
 	Contrast float64 `json:"contrast"`
 	Against  string  `json:"against"`
+	Target   float64 `json:"target,omitempty"`
 }
 
 type paletteShown struct {
@@ -282,7 +283,7 @@ func swatches(colors theme.Colors) []swatch {
 		if key == "background" || slices.Contains(surfaces, key) {
 			against, other = "foreground", colors["foreground"]
 		}
-		found = append(found, swatch{key, colors[key], math.Round(theme.Contrast(colors[key], other)*10) / 10, against})
+		found = append(found, swatch{key, colors[key], math.Round(theme.Contrast(colors[key], other)*10) / 10, against, theme.Target(key)})
 	}
 	return found
 }

@@ -64,7 +64,7 @@ func (colors Colors) workShades() {
 	colors.fallback("dark_background", "", blend(background, black, darker))
 	colors.fallback("darker_background", "", blend(background, black, darkest))
 	colors.fallback("lighter_background", "", blend(background, foreground, 0.10))
-	colors.fallback("dark_foreground", "", firstMix(background, foreground, 4.5))
+	colors.fallback("dark_foreground", "", firstMix(background, foreground, TextRatio))
 	colors.fallback("light_foreground", "", blend(background, foreground, 0.85))
 	colors.fallback("bright_foreground", "", foreground)
 }
@@ -72,7 +72,7 @@ func (colors Colors) workShades() {
 func Make(background, foreground, accent string) Colors {
 	colors := Colors{"mode": modeOf(background), "background": background, "foreground": foreground, "accent": accent}
 	colors["selection"] = blend(background, foreground, 0.15)
-	colors["muted"] = firstMix(background, foreground, 3)
+	colors["muted"] = firstMix(background, foreground, MutedRatio)
 	if nearest := NearestHue(accent); nearest != "" {
 		colors[nearest] = accent
 	}
