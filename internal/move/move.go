@@ -36,6 +36,7 @@ type mover struct {
 	notes    []string
 	snapshot string
 	unlisted bool
+	kept     []string
 }
 
 func at(path string) string {

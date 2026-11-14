@@ -86,6 +86,7 @@ func (work *mover) movePath(path, hash string) string {
 	switch {
 	case !fsutil.Exists(at(fresh)) && !fsutil.IsLink(at(fresh)):
 		if !work.rename(now, fresh) {
+			work.kept = append(work.kept, path)
 			return path
 		}
 	case sameFile(at(now), at(fresh)):
@@ -151,10 +152,10 @@ func (work *mover) moveDatabase() {
 	}
 }
 
-func recordLine(line string) string {
+func (work *mover) recordLine(line string) string {
 	kind, value, found := strings.Cut(line, " ")
 	switch {
-	case !found:
+	case !found || slices.Contains(work.kept, value):
 		return line
 	case kind == "file" || kind == "made" || kind == "replaced":
 		return kind + " " + swapPath(value)
@@ -174,7 +175,7 @@ func (work *mover) moveRecords() {
 		}
 		var text strings.Builder
 		for _, line := range lines {
-			text.WriteString(recordLine(line) + "\n")
+			text.WriteString(work.recordLine(line) + "\n")
 		}
 		if err := atomic.Write(record, []byte(text.String()), stampMode); err != nil {
 			work.note("%s keeps the old names: %v", record, err)
