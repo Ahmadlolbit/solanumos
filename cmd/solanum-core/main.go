@@ -70,6 +70,11 @@ USAGE
                                      takes away the boot entry kept from before
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
+  solanum settings [PAGE]          Open Settings, at a page such as themes or display
+  solanum settings list            Every setting as JSON: its page, kind, value, choices, and whether it's
+                                     yours or the whole computer's
+  solanum settings get|set NAME [VALUE]
+                                   Show or change one; the computer's settings ask for your password
   solanum credits                  Who made Solanum, and the projects it builds on with their licences
   solanum version
   solanum help
@@ -106,6 +111,7 @@ var commands = map[string]func() int{
 	"module":        module,
 	"undo":          undoCommand,
 	"credits":       creditsCommand,
+	"settings":      settingsCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
 	"install-os":    installOSCommand,
