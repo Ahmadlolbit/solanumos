@@ -34,6 +34,7 @@ var (
 		"application/zip", "application/x-tar", "application/gzip", "application/x-compressed-tar", "application/x-7z-compressed",
 		"application/vnd.rar", "application/x-rar", "application/x-xz", "application/x-xz-compressed-tar", "application/zstd", "application/x-bzip2",
 	}
+	appConfigs = map[string]string{"foot": "foot/foot.ini"}
 )
 
 func applicationsDir() string {
@@ -210,8 +211,19 @@ func (context *Context) appRemove(log *runlog.Log, app apps.App) error {
 	return apt.ExtrepoDisable(log, repository)
 }
 
+func (context *Context) appConfig(app apps.App) {
+	rel, found := appConfigs[app.ID]
+	if !found {
+		return
+	}
+	context.Run.Step("Set up "+app.Name, func(*runlog.Log) error {
+		return context.Deploy.UserFile(filepath.Join("config", rel), filepath.Join(".config", rel))
+	})
+}
+
 func AddApp(context *Context, app apps.App) {
 	context.Run.Step("Install "+app.Name, func(log *runlog.Log) error { return context.appInstall(log, app) })
+	context.appConfig(app)
 	context.Run.Step("Choose the apps that open images, PDFs, videos and archives", context.defaultApps)
 }
 
@@ -335,6 +347,7 @@ func appSteps(context *Context) {
 			ahead = nil
 			return context.appInstall(log, app)
 		})
+		context.appConfig(app)
 	}
 	if context.Config.Enabled("APPS", "helium") {
 		context.heliumDefault()

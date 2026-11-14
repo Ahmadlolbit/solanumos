@@ -16,9 +16,9 @@ import (
 )
 
 var appNames = map[string]string{
-	"btop.theme": "btop", "fastfetch.jsonc": "fastfetch", "firefox.css": "Firefox", "glass.lua": "Hyprland", "gtk3.css": "GTK apps",
-	"gtk4.css": "GTK apps", "hyprland.lua": "Hyprland", "hyprlock.conf": "the lock screen", "kde.colors": "KDE apps", "kitty.conf": "kitty",
-	"look.toml": "the bar", "mako.ini": "notifications", "nvim.lua": "Neovim", "walker.css": "the launcher",
+	"btop.theme": "btop", "fastfetch.jsonc": "fastfetch", "firefox.css": "Firefox", "foot.ini": "foot", "glass.lua": "Hyprland",
+	"gtk3.css": "GTK apps", "gtk4.css": "GTK apps", "hyprland.lua": "Hyprland", "hyprlock.conf": "the lock screen", "kde.colors": "KDE apps",
+	"kitty.conf": "kitty", "look.toml": "the bar", "mako.ini": "notifications", "nvim.lua": "Neovim", "walker.css": "the launcher",
 }
 
 type leftOut struct {
