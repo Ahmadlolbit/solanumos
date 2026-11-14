@@ -1,0 +1,12 @@
+[general]
+import = ["~/.local/state/solanum/current/alacritty.toml"]
+
+[window]
+padding = { x = 12, y = 12 }
+decorations = "None"
+
+[scrolling]
+history = 20000
+
+[cursor]
+style = { shape = "Beam" }

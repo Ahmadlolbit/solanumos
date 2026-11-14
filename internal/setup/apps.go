@@ -34,7 +34,7 @@ var (
 		"application/zip", "application/x-tar", "application/gzip", "application/x-compressed-tar", "application/x-7z-compressed",
 		"application/vnd.rar", "application/x-rar", "application/x-xz", "application/x-xz-compressed-tar", "application/zstd", "application/x-bzip2",
 	}
-	appConfigs = map[string]string{"foot": "foot/foot.ini"}
+	appConfigs = map[string]string{"foot": "foot/foot.ini", "alacritty": "alacritty/alacritty.toml"}
 )
 
 func applicationsDir() string {
