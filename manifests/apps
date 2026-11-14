@@ -45,6 +45,7 @@ keepassxc security offered debian keepassxc KeePassXC
 mullvad security offered extrepo:mullvad mullvad-vpn Mullvad VPN
 protonvpn security offered extrepo:protonvpn proton-vpn-gnome-desktop Proton VPN
 forticlient security offered release:forticlient forticlient FortiClient VPN
+1password security offered extrepo:1password 1password 1Password
 gimp creative offered debian gimp GIMP
 inkscape creative offered debian inkscape Inkscape
 krita creative offered debian krita Krita
