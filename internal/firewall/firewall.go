@@ -9,6 +9,7 @@ import (
 	"unicode"
 
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -46,9 +47,13 @@ func (rule Rule) args() []string {
 }
 
 func parsed(line string) (Rule, bool) {
+	return parsedWith(line, tag)
+}
+
+func parsedWith(line, prefix string) (Rule, bool) {
 	body, comment, found := strings.Cut(line, " comment '")
 	named, closed := strings.CutSuffix(comment, "'")
-	service, ours := strings.CutPrefix(named, tag)
+	service, ours := strings.CutPrefix(named, prefix)
 	words := strings.Fields(body)
 	if !found || !closed || !ours || len(words) != ruleWords || !plain(service) {
 		return Rule{}, false
@@ -58,9 +63,13 @@ func parsed(line string) (Rule, bool) {
 }
 
 func Ours(listing string) []Rule {
+	return tagged(listing, tag)
+}
+
+func tagged(listing, prefix string) []Rule {
 	var rules []Rule
 	for _, line := range run.Lines(listing) {
-		if rule, ok := parsed(line); ok {
+		if rule, ok := parsedWith(line, prefix); ok {
 			rules = append(rules, rule)
 		}
 	}
@@ -104,12 +113,22 @@ func usable(device string) bool {
 	return device != "lo" && len(device) <= nameLimit && plain(device)
 }
 
-func added() ([]Rule, error) {
+func added() (string, error) {
 	listing, err := run.CaptureQuiet(run.Quick, "ufw", "show", "added")
 	if err != nil {
-		return nil, fmt.Errorf("ufw can't list its rules: %w", err)
+		return "", fmt.Errorf("ufw can't list its rules: %w", err)
 	}
-	return Ours(listing), nil
+	return listing, nil
+}
+
+func dropOld(out io.Writer, device, listing string) []error {
+	var problems []error
+	for _, rule := range tagged(listing, oldname.FirewallTag) {
+		if rule.Device == device {
+			problems = append(problems, change(out, append(append([]string{"delete"}, rule.spec()...), "comment", oldname.FirewallTag+rule.Service)...))
+		}
+	}
+	return problems
 }
 
 func change(out io.Writer, args ...string) error {
@@ -117,11 +136,12 @@ func change(out io.Writer, args ...string) error {
 }
 
 func Sync(out io.Writer, device string, wanted []Rule) error {
-	current, err := added()
+	listing, err := added()
 	if err != nil {
 		return err
 	}
-	var problems []error
+	problems := dropOld(out, device, listing)
+	current := Ours(listing)
 	for _, rule := range current {
 		if rule.Device == device && !slices.Contains(wanted, rule) {
 			problems = append(problems, change(out, append([]string{"delete"}, rule.args()...)...))
@@ -147,9 +167,9 @@ func Apply(out io.Writer, device, uuid, event string) error {
 }
 
 func stale(active []Connection) []string {
-	current, _ := added()
+	listing, _ := added()
 	var devices []string
-	for _, rule := range current {
+	for _, rule := range append(Ours(listing), tagged(listing, oldname.FirewallTag)...) {
 		inUse := slices.ContainsFunc(active, func(connection Connection) bool { return connection.Device == rule.Device })
 		if !inUse && !slices.Contains(devices, rule.Device) {
 			devices = append(devices, rule.Device)
