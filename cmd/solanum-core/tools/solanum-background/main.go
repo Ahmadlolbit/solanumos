@@ -17,17 +17,21 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/hypr"
 	"github.com/Ahmadlolbit/solanumos/internal/look"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/wallpaper"
 )
 
 const usage = `Usage: solanum-background <file>
        solanum-background next
+       solanum-background draw
        solanum-background --list
        solanum-background --current
        solanum-background workspaces
        solanum-background workspace MONITOR WORKSPACE
 
 Sets the wallpaper. Backgrounds come from the current theme and from
-~/.config/solanum/backgrounds/<theme>. With a wallpaper per workspace on
+~/.config/solanum/backgrounds/<theme>. draw draws a new one in the theme's
+colours, in a style and with a seed picked at random, and keeps only the
+last one drawn. With a wallpaper per workspace on
 (solanum-look workspaces on), each workspace shows the next one along,
 workspaces shows each monitor's, and workspace shows one monitor's for the
 workspace it just switched to.
@@ -194,6 +198,19 @@ func moveOn() int {
 	return apply(file)
 }
 
+func drawAnother() int {
+	drawn, err := wallpaper.Another(wallpaper.CurrentColors())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	code := apply(drawn)
+	if code == 0 {
+		wallpaper.Tidy(drawn)
+	}
+	return code
+}
+
 func showCurrent() int {
 	target, err := os.Readlink(link())
 	if err != nil {
@@ -230,6 +247,8 @@ func Main() {
 		os.Exit(oneWorkspace(env.Arg(2), env.Arg(3)))
 	case "next":
 		os.Exit(moveOn())
+	case "draw":
+		os.Exit(drawAnother())
 	default:
 		os.Exit(set(command))
 	}
