@@ -10,7 +10,10 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
-var errNotMoved = errors.New("this computer still has Hyprtrixie's folders: run sudo solanum install first, which moves it over to Solanum")
+var (
+	errNotMoved = errors.New("this computer still has Hyprtrixie's folders: run sudo solanum install first, which moves it over to Solanum")
+	errStayed   = errors.New("nothing changed: this computer still has Hyprtrixie's names")
+)
 
 type carried struct {
 	output bytes.Buffer
@@ -26,6 +29,9 @@ func carryOver(mode string, options Options) (*carried, error) {
 	if mode != installMode && !strings.HasPrefix(mode, appMode) {
 		return nil, errNotMoved
 	}
+	if ui.CanAsk() && !options.Yes && !options.Events && !ui.Proceed("This computer moves from Hyprtrixie to Solanum first, then the setup runs. Start now?") {
+		return nil, errStayed
+	}
 	if !options.Events {
 		ui.Busy("Move this computer from Hyprtrixie to Solanum")
 	}
@@ -40,6 +46,7 @@ func (work *session) carried(moving *carried) {
 	if moving.output.Len() == 0 {
 		return
 	}
+	work.movedNow = true
 	work.log.Write(moving.output.Bytes())
 	for _, note := range moving.notes {
 		work.log.Line("info", note)

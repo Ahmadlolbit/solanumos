@@ -83,6 +83,7 @@ type session struct {
 	installed map[string]bool
 	machine   string
 	hardware  detect.Hardware
+	movedNow  bool
 }
 
 func setConfig(options *Options, value string) error {
@@ -433,7 +434,7 @@ func (work *session) showMachine() {
 }
 
 func (work *session) confirmed() bool {
-	if !work.canAsk || work.options.Events {
+	if !work.canAsk || work.options.Events || work.movedNow {
 		return true
 	}
 	_, ok := work.runner.Answer(func() (string, bool) { return "", ui.Proceed("Start the setup now?") })
