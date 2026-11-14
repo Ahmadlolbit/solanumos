@@ -44,10 +44,11 @@ const (
 )
 
 var (
-	ownFiles   = []string{"btop.theme", "chromium.theme", "colors.toml", "gtk3.css", "gtk4.css", "icons.theme", "light.mode", "look.toml", "walker.css"}
-	systemRoot = env.ThemeRoot()
-	iconName   = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
-	settings   = look.Open()
+	ownFiles     = []string{"btop.theme", "chromium.theme", "colors.toml", "gtk3.css", "gtk4.css", "icons.theme", "light.mode", "look.toml", "walker.css"}
+	previewKinds = []string{"jpg", "jpeg", "png", "webp"}
+	systemRoot   = env.ThemeRoot()
+	iconName     = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+	settings     = look.Open()
 )
 
 func state() string {
@@ -76,106 +77,20 @@ func themeNames() []string {
 func previewOf(name string) string {
 	own, shipped := filepath.Join(userThemes(), name), filepath.Join(systemRoot, "themes", name)
 	for _, dir := range []string{own, shipped} {
-		for _, kind := range []string{"jpg", "jpeg", "png", "webp"} {
-			if file := filepath.Join(dir, "preview."+kind); fsutil.IsFile(file) {
+		for _, kind := range previewKinds {
+			if file := filepath.Join(dir, "preview."+kind); wallpaper.IsPicture(file) {
 				return file
 			}
 		}
 	}
 	for _, dir := range []string{own, shipped} {
-		if found := fsutil.Images(fsutil.Followed(filepath.Join(dir, "backgrounds"))); len(found) > 0 {
-			return found[0]
+		for _, file := range fsutil.Images(fsutil.Followed(filepath.Join(dir, "backgrounds"))) {
+			if wallpaper.IsPicture(file) {
+				return file
+			}
 		}
 	}
 	return ""
-}
-
-func stageOwn(own, next string) error {
-	entries, err := os.ReadDir(own)
-	if err != nil {
-		return err
-	}
-	for _, entry := range entries {
-		if err := stageEntry(own, next, entry); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func stageEntry(own, next string, entry fs.DirEntry) error {
-	base := entry.Name()
-	source, target := filepath.Join(own, base), filepath.Join(next, base)
-	switch {
-	case strings.HasPrefix(base, "."):
-		return nil
-	case strings.HasSuffix(base, ".lua") || strings.Contains(denied, " "+base+" "):
-		fmt.Fprintf(os.Stderr, "ignored %s from %s: your themes can't bring code or settings that run commands\n", base, own)
-		return nil
-	case base == "backgrounds" && fsutil.IsDir(source):
-		return stageImages(fsutil.Followed(source), target)
-	case !slices.Contains(ownFiles, base):
-		return nil
-	case entry.Type()&os.ModeSymlink != 0:
-		return stageLink(source, target)
-	case entry.Type().IsRegular():
-		return stageFile(source, target)
-	}
-	return nil
-}
-
-func stageLink(source, target string) error {
-	if !fsutil.IsFile(source) {
-		fmt.Fprintf(os.Stderr, "ignored %s: it links to something other than a file\n", source)
-		return nil
-	}
-	return stageFile(source, target)
-}
-
-func stageFile(source, target string) error {
-	data, err := os.ReadFile(source)
-	if err != nil {
-		return err
-	}
-	if err := os.Remove(target); err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return err
-	}
-	return atomic.Stage(target, data, 0o644)
-}
-
-func stageImages(source, target string) error {
-	images := fsutil.Images(source)
-	if len(images) == 0 {
-		return nil
-	}
-	if err := os.MkdirAll(target, 0o777); err != nil {
-		return err
-	}
-	for _, image := range images {
-		if err := stageFile(image, filepath.Join(target, filepath.Base(image))); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func stage(name, next string) error {
-	if err := os.RemoveAll(next); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-	if err := os.MkdirAll(next, 0o777); err != nil {
-		return err
-	}
-	if shipped := filepath.Join(systemRoot, "themes", name); fsutil.IsDir(shipped) {
-		if err := fsutil.StageTree(shipped, next); err != nil {
-			return err
-		}
-	}
-	own := filepath.Join(userThemes(), name)
-	if !fsutil.IsDir(own) {
-		return nil
-	}
-	return stageOwn(own, next)
 }
 
 func overrideAccent(colors theme.Colors) {
@@ -206,32 +121,28 @@ func chooseFont(colors theme.Colors) {
 	}
 }
 
-func themeColors(dir string) (theme.Colors, error) {
+func themeColors(dir string) (theme.Colors, []string, error) {
 	data, err := os.ReadFile(filepath.Join(dir, "colors.toml"))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	colors := theme.Parse(string(data))
-	if colors["mode"]+colors["theme_type"] == "" && fsutil.IsFile(filepath.Join(dir, "light.mode")) {
-		colors["mode"] = "light"
-	}
-	colors.Resolve()
-	return colors, nil
+	return theme.Checked(string(data), fsutil.IsFile(filepath.Join(dir, "light.mode")))
 }
 
-func readColors(next string) (theme.Colors, error) {
-	colors, err := themeColors(next)
+func readColors(next string) (theme.Colors, []string, error) {
+	colors, fixes, err := themeColors(next)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	overrideAccent(colors)
+	fixes = append(fixes, colors.ReadableAccent()...)
 	if err := atomic.Install(filepath.Join(next, "colors.toml"), []byte(colors.Canonical()), 0o644); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	chooseFont(colors)
 	glassSettings(colors)
 	styleSettings(colors)
-	return colors, nil
+	return colors, fixes, nil
 }
 
 func templates(dir string) []string {
@@ -252,10 +163,13 @@ func templates(dir string) []string {
 func renderOne(template, target string, replacer *strings.Replacer, scale float64) error {
 	data, err := os.ReadFile(template)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		missed(appOf(filepath.Base(target)), err)
 		return nil
 	}
-	return atomic.Stage(target, []byte(theme.Sized(replacer.Replace(string(data)), scale)), 0o666)
+	if err := atomic.Stage(target, []byte(theme.Sized(replacer.Replace(string(data)), scale)), 0o666); err != nil {
+		return fmt.Errorf("the theme file for %s can't be written (%s)", appOf(filepath.Base(target)), reason(err))
+	}
+	return nil
 }
 
 func render(dir string, colors, apps theme.Colors) error {
@@ -288,7 +202,7 @@ func swap(next, target string) error {
 	return os.RemoveAll(old)
 }
 
-func symlink(target, link string) {
+func symlink(app, target, link string) {
 	if linked, err := os.Readlink(link); err == nil && linked == target {
 		return
 	}
@@ -296,9 +210,7 @@ func symlink(target, link string) {
 	if err == nil {
 		err = atomic.Symlink(target, link)
 	}
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	missed(app, err)
 }
 
 func drawnBackground() string {
@@ -314,7 +226,7 @@ func drawBackground(name string, colors theme.Colors, link string) {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
-	symlink(drawnBackground(), link)
+	symlink("the wallpaper", drawnBackground(), link)
 }
 
 type paper int
@@ -353,7 +265,7 @@ func logoShown(colors theme.Colors, link string) bool {
 		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
-	symlink(still, link)
+	symlink("the wallpaper", still, link)
 	wallpaper.Tidy(still)
 	return true
 }
@@ -367,7 +279,7 @@ func pickBackground(name, previous string, colors theme.Colors) {
 	target, _ := os.Readlink(link)
 	switch {
 	case len(found) > 0:
-		symlink(found[0], link)
+		symlink("the wallpaper", found[0], link)
 	case !fsutil.Exists(link) || target == drawnBackground():
 		drawBackground(name, colors, link)
 	}
@@ -376,13 +288,13 @@ func pickBackground(name, previous string, colors theme.Colors) {
 func linkApps() {
 	current := filepath.Join(state(), "theme")
 	if file := filepath.Join(current, "walker.css"); fsutil.IsFile(file) {
-		symlink(file, filepath.Join(env.ConfigHome(), "walker", "themes", "solanum", "style.css"))
+		symlink("the launcher", file, filepath.Join(env.ConfigHome(), "walker", "themes", "solanum", "style.css"))
 	}
 	if file := filepath.Join(current, "btop.theme"); fsutil.IsFile(file) {
-		symlink(file, filepath.Join(env.ConfigHome(), "btop", "themes", "solanum.theme"))
+		symlink("btop", file, filepath.Join(env.ConfigHome(), "btop", "themes", "solanum.theme"))
 	}
 	if file := filepath.Join(current, "fastfetch.jsonc"); fsutil.IsFile(file) {
-		linkUnlessYours(file, filepath.Join(env.ConfigHome(), "fastfetch", "config.jsonc"))
+		linkUnlessYours("fastfetch", file, filepath.Join(env.ConfigHome(), "fastfetch", "config.jsonc"))
 	}
 	linkNeovim(current)
 	followFirefox(current)
@@ -487,30 +399,46 @@ func rememberPick(name, mode string) {
 	}
 }
 
-func prepare(name, next string) (theme.Colors, theme.Colors, bool) {
-	if err := stage(name, next); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return nil, nil, false
+func prepare(name, next string) (theme.Colors, theme.Colors, []string, error) {
+	notes, err := stage(name, next)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 	if !fsutil.IsFile(filepath.Join(next, "colors.toml")) {
-		fmt.Fprintf(os.Stderr, "theme %s has no colors.toml\n", name)
 		os.RemoveAll(next)
-		return nil, nil, false
+		return nil, nil, nil, cantUse(notes)
 	}
-	colors, err := readColors(next)
+	colors, fixes, err := readColors(next)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return nil, nil, false
+		os.RemoveAll(next)
+		return nil, nil, nil, err
 	}
+	fixes = append(checkFiles(name, next, colors["mode"], notes), fixes...)
 	apps := appColors(colors)
 	if err := render(next, colors, apps); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return nil, nil, false
+		os.RemoveAll(next)
+		return nil, nil, nil, err
 	}
 	if colors["glass"] != "yes" {
 		os.Remove(filepath.Join(next, "glass.lua"))
 	}
-	return colors, apps, true
+	return colors, apps, fixes, nil
+}
+
+func reason(err error) string {
+	var path *fs.PathError
+	if errors.As(err, &path) {
+		return path.Err.Error()
+	}
+	return err.Error()
+}
+
+func refused(name string, err error) {
+	stays := "Nothing changed."
+	if previous, _ := fsutil.Text(filepath.Join(state(), "theme.name")); previous != "" {
+		stays = theme.Pretty(previous) + " stays."
+	}
+	fmt.Fprintf(os.Stderr, "Couldn't apply %s: %s. %s\n", theme.Pretty(name), reason(err), stays)
 }
 
 func apply(name string) (paper, bool) {
@@ -525,19 +453,19 @@ func apply(name string) (paper, bool) {
 	})()
 	previous, _ := fsutil.Text(filepath.Join(state(), "theme.name"))
 	before := shownBackground()
-	colors, apps, ok := prepare(name, next)
-	if !ok {
-		return paperKept, false
+	colors, apps, fixes, err := prepare(name, next)
+	if err == nil {
+		err = atomic.SyncFolders(next)
 	}
-	if err := atomic.SyncFolders(next); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if err != nil {
+		refused(name, err)
 		return paperKept, false
 	}
 	moving.Lock()
 	swapping = true
 	moving.Unlock()
 	if err := swap(next, filepath.Join(state(), "theme")); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		refused(name, err)
 		return paperKept, false
 	}
 	writeChanged(filepath.Join(state(), "theme.name"), []byte(name+"\n"))
@@ -546,6 +474,9 @@ func apply(name string) (paper, bool) {
 	desktopSettings(colors, apps)
 	forgetOldNames()
 	rememberPick(name, colors["mode"])
+	if len(fixes) > 0 {
+		fmt.Println(strings.Join(fixes, "\n"))
+	}
 	return paperChange(previous != name, before), true
 }
 
@@ -605,10 +536,21 @@ func lock() (*os.File, error) {
 	}
 }
 
+func known(argument, name string) bool {
+	if theme.ValidName(name) && (fsutil.IsDir(filepath.Join(systemRoot, "themes", name)) || fsutil.IsDir(filepath.Join(userThemes(), name))) {
+		return true
+	}
+	if own := filepath.Join(userThemes(), name); theme.ValidName(name) && fsutil.IsLink(own) {
+		refused(name, errors.New(nowhere(own)))
+		return false
+	}
+	fmt.Fprintf(os.Stderr, "no theme named %s; see solanum-theme-set --list\n", argument)
+	return false
+}
+
 func set(argument string) int {
 	name := theme.Slug(argument)
-	if !theme.ValidName(name) || (!fsutil.IsDir(filepath.Join(systemRoot, "themes", name)) && !fsutil.IsDir(filepath.Join(userThemes(), name))) {
-		fmt.Fprintf(os.Stderr, "no theme named %s; see solanum-theme-set --list\n", argument)
+	if !known(argument, name) {
 		return 1
 	}
 	held, err := lock()

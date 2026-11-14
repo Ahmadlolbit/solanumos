@@ -70,7 +70,7 @@ func themeDir(name string) string {
 func editorPalettes() []palette {
 	var found []palette
 	for _, name := range themeNames() {
-		colors, err := themeColors(themeDir(name))
+		colors, _, err := themeColors(themeDir(name))
 		if err != nil {
 			continue
 		}

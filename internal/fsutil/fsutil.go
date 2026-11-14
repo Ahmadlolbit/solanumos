@@ -226,6 +226,10 @@ func imagesIn(dir string) []string {
 	return found
 }
 
+func ImageName(name string) bool {
+	return image(name)
+}
+
 func image(name string) bool {
 	if strings.HasPrefix(name, ".") {
 		return false

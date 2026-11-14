@@ -107,7 +107,7 @@ func followFirefox(current string) {
 			rewrite(filepath.Join(chrome, "userChrome.css"), withoutLine(firefoxImport))
 			continue
 		}
-		symlink(style, filepath.Join(chrome, firefoxStyle))
+		symlink("Firefox", style, filepath.Join(chrome, firefoxStyle))
 		rewrite(filepath.Join(chrome, "userChrome.css"), withLine(firefoxImport, true))
 		rewrite(filepath.Join(profile, "user.js"), withLine(firefoxPref, false))
 	}
