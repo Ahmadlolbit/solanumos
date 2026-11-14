@@ -119,15 +119,16 @@ func splashFiles(current theme) ([][2]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	steps := burst.Steps()
 	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent),
-		"MUTED="+follow.Floats(current.muted))
+		"MUTED="+follow.Floats(current.muted), "FRAMES="+strconv.Itoa(len(steps)), "MARK="+strconv.Itoa(burst.Mark()), "HOLDS="+holds(steps))
 	files := [][2]string{{filepath.Join(plymouthDir, "solanum.script"), script}}
 	for _, scale := range []int{4, 8} {
-		picture, err := burst.PNG(scale, opaque(current.accent))
+		pictures, err := logoFiles(scale, steps, opaque(current.accent))
 		if err != nil {
 			return nil, err
 		}
-		files = append(files, [2]string{filepath.Join(plymouthDir, fmt.Sprintf("burst-%d.png", scale)), string(picture)})
+		files = append(files, pictures...)
 	}
 	return files, nil
 }

@@ -2,20 +2,42 @@ Window.SetBackgroundTopColor({{ BACKGROUND }});
 Window.SetBackgroundBottomColor({{ BACKGROUND }});
 
 step = 1;
+size = 4;
 prompt_font = "DejaVu Sans Mono 13";
 bullet_font = "DejaVu Sans Mono 18";
 message_font = "DejaVu Sans Mono 12";
-logo = Image("burst-4.png");
 if (Window.GetWidth() >= 2560 || Window.GetHeight() >= 1440) {
   step = 2;
+  size = 8;
   prompt_font = "DejaVu Sans Mono 26";
   bullet_font = "DejaVu Sans Mono 36";
   message_font = "DejaVu Sans Mono 24";
-  logo = Image("burst-8.png");
 }
+logo = Image("burst-" + size + ".png");
 logo_sprite = Sprite(logo);
 logo_sprite.SetPosition(Window.GetWidth() / 2 - logo.GetWidth() / 2, Window.GetHeight() / 2 - logo.GetHeight(), 1);
 below = Window.GetHeight() / 2;
+
+frames = {{ FRAMES }};
+{{ HOLDS }}
+for (i = 0; i < frames; i++)
+  shot[i] = Image("burst-" + size + "-" + i + ".png");
+frame = {{ MARK }};
+left = hold[frame];
+asking = 0;
+
+fun refresh() {
+  if (!global.asking) {
+    global.left = global.left - 1;
+    if (global.left <= 0) {
+      global.frame = global.frame + 1;
+      if (global.frame >= frames)
+        global.frame = 0;
+      global.left = hold[global.frame];
+      logo_sprite.SetImage(shot[global.frame]);
+    }
+  }
+}
 
 custom = "{{ BOOT_PROMPT }}";
 prompt_sprite = Sprite();
@@ -37,6 +59,10 @@ fun asks_pin(text) {
 }
 
 fun display_password(prompt, bullets) {
+  global.asking = 1;
+  global.frame = {{ MARK }};
+  global.left = hold[global.frame];
+  logo_sprite.SetImage(logo);
   dots = "";
   for (i = 0; i < bullets; i++)
     dots = dots + "• ";
@@ -50,6 +76,7 @@ fun display_password(prompt, bullets) {
 }
 
 fun display_normal() {
+  global.asking = 0;
   prompt_sprite.SetOpacity(0);
   bullet_sprite.SetOpacity(0);
   hint_sprite.SetOpacity(0);
@@ -59,6 +86,7 @@ fun display_message(text) {
   centre(message_sprite, Image.Text(text, {{ FOREGROUND }}, 1, message_font), Window.GetHeight() - 80 * step);
 }
 
+Plymouth.SetRefreshFunction(refresh);
 Plymouth.SetDisplayPasswordFunction(display_password);
 Plymouth.SetDisplayNormalFunction(display_normal);
 Plymouth.SetMessageFunction(display_message);
