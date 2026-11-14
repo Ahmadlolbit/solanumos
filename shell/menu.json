@@ -351,11 +351,21 @@
       "timer"
     ]
   },
-  "style": {
-    "glyph": "\uebcf",
-    "label": "Style"
+  "settings": {
+    "glyph": "\uf013",
+    "label": "Settings",
+    "action": "solanum settings",
+    "keywords": [
+      "settings",
+      "preferences",
+      "configuration",
+      "style",
+      "setup",
+      "about",
+      "control panel"
+    ]
   },
-  "style.theme": {
+  "settings.theme": {
     "glyph": "\udb83\ude0c",
     "label": "Theme",
     "action": "qs -p /usr/share/solanum/shell ipc call picker themes",
@@ -365,7 +375,7 @@
       "look"
     ]
   },
-  "style.background": {
+  "settings.background": {
     "glyph": "\uf03e",
     "label": "Background",
     "action": "qs -p /usr/share/solanum/shell ipc call picker backgrounds",
@@ -374,7 +384,7 @@
       "wallpaper"
     ]
   },
-  "style.next": {
+  "settings.next": {
     "glyph": "\udb81\udc50",
     "label": "Next background",
     "action": "solanum-background next",
@@ -383,7 +393,7 @@
       "wallpaper"
     ]
   },
-  "style.auto": {
+  "settings.auto": {
     "glyph": "\udb81\udd0e",
     "label": "Automatic light and dark",
     "action": "solanum-look auto toggle",
@@ -397,7 +407,7 @@
       "automatic"
     ]
   },
-  "style.rotate": {
+  "settings.rotate": {
     "glyph": "\udb81\udc53",
     "label": "Rotate wallpapers",
     "action": "solanum-look rotate toggle",
@@ -409,7 +419,7 @@
       "slideshow"
     ]
   },
-  "style.workspaces": {
+  "settings.workspaces": {
     "glyph": "\udb81\udd70",
     "label": "Wallpaper per workspace",
     "action": "solanum-look workspaces toggle",
@@ -420,7 +430,7 @@
       "workspace"
     ]
   },
-  "style.bar": {
+  "settings.bar": {
     "glyph": "\udb82\udea5",
     "label": "Bar layout",
     "keywords": [
@@ -431,31 +441,31 @@
       "floating"
     ]
   },
-  "style.bar.full": {
+  "settings.bar.full": {
     "glyph": "\udb82\udfa5",
     "label": "Full width",
     "action": "solanum-look bar full",
     "state": "test \"$(solanum-look bar)\" = full"
   },
-  "style.bar.floating": {
+  "settings.bar.floating": {
     "glyph": "\udb84\udf65",
     "label": "Floating",
     "action": "solanum-look bar floating",
     "state": "test \"$(solanum-look bar)\" = floating"
   },
-  "style.bar.minimal": {
+  "settings.bar.minimal": {
     "glyph": "\udb83\ude6e",
     "label": "Minimal",
     "action": "solanum-look bar minimal",
     "state": "test \"$(solanum-look bar)\" = minimal"
   },
-  "style.bar.vertical": {
+  "settings.bar.vertical": {
     "glyph": "\udb82\udfa3",
     "label": "Down the left side",
     "action": "solanum-look bar vertical",
     "state": "test \"$(solanum-look bar)\" = vertical"
   },
-  "style.position": {
+  "settings.position": {
     "glyph": "\uf0e2",
     "label": "Bar position",
     "keywords": [
@@ -465,19 +475,19 @@
       "bottom"
     ]
   },
-  "style.position.top": {
+  "settings.position.top": {
     "glyph": "\uf062",
     "label": "Top",
     "action": "solanum-look position top",
     "state": "test \"$(solanum-look position)\" = top"
   },
-  "style.position.bottom": {
+  "settings.position.bottom": {
     "glyph": "\uf063",
     "label": "Bottom",
     "action": "solanum-look position bottom",
     "state": "test \"$(solanum-look position)\" = bottom"
   },
-  "style.window": {
+  "settings.window": {
     "glyph": "\uf2d0",
     "label": "Window style",
     "keywords": [
@@ -488,19 +498,19 @@
       "gaps"
     ]
   },
-  "style.window.sharp": {
+  "settings.window.sharp": {
     "glyph": "\uf0c8",
     "label": "Sharp",
     "action": "solanum-look style sharp",
     "state": "test \"$(solanum-look style)\" = sharp"
   },
-  "style.window.soft": {
+  "settings.window.soft": {
     "glyph": "\uf111",
     "label": "Soft",
     "action": "solanum-look style soft",
     "state": "test \"$(solanum-look style)\" = soft"
   },
-  "style.apps": {
+  "settings.apps": {
     "glyph": "\uf2d0",
     "label": "GTK and KDE apps",
     "keywords": [
@@ -511,25 +521,25 @@
       "dolphin"
     ]
   },
-  "style.apps.follow": {
+  "settings.apps.follow": {
     "glyph": "\uf1fc",
     "label": "Follow the theme",
     "action": "solanum-look apps follow",
     "state": "test \"$(solanum-look apps)\" = follow"
   },
-  "style.apps.catppuccin": {
+  "settings.apps.catppuccin": {
     "glyph": "\uf1fb",
     "label": "Always Catppuccin",
     "action": "solanum-look apps catppuccin",
     "state": "test \"$(solanum-look apps)\" = catppuccin"
   },
-  "style.apps.off": {
+  "settings.apps.off": {
     "glyph": "\uf05e",
     "label": "Keep their own look",
     "action": "solanum-look apps off",
     "state": "test \"$(solanum-look apps)\" = off"
   },
-  "style.accent": {
+  "settings.accent": {
     "glyph": "\udb80\udfd8",
     "label": "Accent",
     "keywords": [
@@ -539,63 +549,63 @@
       "highlight"
     ]
   },
-  "style.accent.theme": {
+  "settings.accent.theme": {
     "glyph": "\udb81\udf65",
     "label": "The theme's own",
     "color": "theme_accent",
     "action": "solanum-look accent theme",
     "state": "test \"$(solanum-look accent)\" = theme"
   },
-  "style.accent.red": {
+  "settings.accent.red": {
     "glyph": "\udb81\udf65",
     "label": "Red",
     "color": "red",
     "action": "solanum-look accent red",
     "state": "test \"$(solanum-look accent)\" = red"
   },
-  "style.accent.orange": {
+  "settings.accent.orange": {
     "glyph": "\udb81\udf65",
     "label": "Orange",
     "color": "orange",
     "action": "solanum-look accent orange",
     "state": "test \"$(solanum-look accent)\" = orange"
   },
-  "style.accent.yellow": {
+  "settings.accent.yellow": {
     "glyph": "\udb81\udf65",
     "label": "Yellow",
     "color": "yellow",
     "action": "solanum-look accent yellow",
     "state": "test \"$(solanum-look accent)\" = yellow"
   },
-  "style.accent.green": {
+  "settings.accent.green": {
     "glyph": "\udb81\udf65",
     "label": "Green",
     "color": "green",
     "action": "solanum-look accent green",
     "state": "test \"$(solanum-look accent)\" = green"
   },
-  "style.accent.cyan": {
+  "settings.accent.cyan": {
     "glyph": "\udb81\udf65",
     "label": "Cyan",
     "color": "cyan",
     "action": "solanum-look accent cyan",
     "state": "test \"$(solanum-look accent)\" = cyan"
   },
-  "style.accent.blue": {
+  "settings.accent.blue": {
     "glyph": "\udb81\udf65",
     "label": "Blue",
     "color": "blue",
     "action": "solanum-look accent blue",
     "state": "test \"$(solanum-look accent)\" = blue"
   },
-  "style.accent.magenta": {
+  "settings.accent.magenta": {
     "glyph": "\udb81\udf65",
     "label": "Magenta",
     "color": "magenta",
     "action": "solanum-look accent magenta",
     "state": "test \"$(solanum-look accent)\" = magenta"
   },
-  "style.font": {
+  "settings.font": {
     "glyph": "\udb81\uded6",
     "label": "Font",
     "list": "fonts",
@@ -606,7 +616,7 @@
       "typeface"
     ]
   },
-  "style.uifont": {
+  "settings.uifont": {
     "glyph": "\udb80\ude84",
     "label": "Interface font",
     "list": "ui-fonts",
@@ -617,11 +627,7 @@
       "typeface"
     ]
   },
-  "setup": {
-    "glyph": "\ue615",
-    "label": "Setup"
-  },
-  "setup.wifi": {
+  "settings.wifi": {
     "glyph": "\udb81\udda9",
     "label": "Wi-Fi",
     "action": "qs -p /usr/share/solanum/shell ipc call popup toggle wifi",
@@ -632,7 +638,7 @@
       "internet"
     ]
   },
-  "setup.audio": {
+  "settings.audio": {
     "glyph": "\udb81\udd7e",
     "label": "Audio",
     "action": "qs -p /usr/share/solanum/shell ipc call popup toggle audio",
@@ -644,7 +650,7 @@
       "microphone"
     ]
   },
-  "setup.brightness": {
+  "settings.brightness": {
     "glyph": "\udb80\udcdf",
     "label": "Brightness",
     "action": "qs -p /usr/share/solanum/shell ipc call popup toggle brightness",
@@ -656,7 +662,7 @@
       "keyboard"
     ]
   },
-  "setup.bluetooth": {
+  "settings.bluetooth": {
     "glyph": "\udb80\udcaf",
     "label": "Bluetooth",
     "action": "qs -p /usr/share/solanum/shell ipc call popup toggle bluetooth",
@@ -666,7 +672,7 @@
       "pair"
     ]
   },
-  "setup.keyboard": {
+  "settings.keyboard": {
     "glyph": "\udb80\udf0c",
     "label": "Keyboard layout",
     "list": "keyboard",
@@ -677,7 +683,7 @@
       "typing"
     ]
   },
-  "setup.trackpoint": {
+  "settings.trackpoint": {
     "glyph": "\uf245",
     "label": "TrackPoint",
     "keywords": [
@@ -687,31 +693,31 @@
       "speed"
     ]
   },
-  "setup.trackpoint.slow": {
+  "settings.trackpoint.slow": {
     "glyph": "\uf245",
     "label": "Slow",
     "action": "solanum-look trackpoint-speed -0.5",
     "state": "test \"$(solanum-look trackpoint-speed)\" = -0.5"
   },
-  "setup.trackpoint.medium": {
+  "settings.trackpoint.medium": {
     "glyph": "\uf245",
     "label": "Medium",
     "action": "solanum-look trackpoint-speed 0",
     "state": "test \"$(solanum-look trackpoint-speed)\" = 0"
   },
-  "setup.trackpoint.fast": {
+  "settings.trackpoint.fast": {
     "glyph": "\uf245",
     "label": "Fast",
     "action": "solanum-look trackpoint-speed 0.5",
     "state": "test \"$(solanum-look trackpoint-speed)\" = 0.5"
   },
-  "setup.trackpoint.scroll": {
+  "settings.trackpoint.scroll": {
     "glyph": "\uf8cc",
     "label": "Scroll with the middle button",
     "action": "solanum-look trackpoint-scroll toggle",
     "state": "test \"$(solanum-look trackpoint-scroll)\" = yes"
   },
-  "setup.power": {
+  "settings.power": {
     "glyph": "\udb80\udc79",
     "label": "Power",
     "action": "qs -p /usr/share/solanum/shell ipc call popup toggle battery",
@@ -720,6 +726,16 @@
       "power",
       "profile",
       "performance"
+    ]
+  },
+  "settings.about": {
+    "glyph": "\uea74",
+    "label": "About",
+    "action": "solanum settings about",
+    "keywords": [
+      "about",
+      "system",
+      "version"
     ]
   },
   "install": {
@@ -837,16 +853,6 @@
       "news",
       "update",
       "what changed"
-    ]
-  },
-  "about": {
-    "glyph": "\uea74",
-    "label": "About",
-    "action": "solanum-terminal --wait sh -c 'fastfetch; solanum version'",
-    "keywords": [
-      "about",
-      "system",
-      "version"
     ]
   },
   "system": {
