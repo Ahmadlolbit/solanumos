@@ -19,6 +19,7 @@ Rectangle {
   readonly property var layout: keyboard.layouts && keyboard.currentLayout >= 0 && keyboard.currentLayout < keyboard.layouts.length ? keyboard.layouts[keyboard.currentLayout] : null
   readonly property string layoutName: layout ? layout.longName || layout.shortName : ""
   property bool failed: false
+  property int tries: 0
   property date now: new Date()
 
   width: 1920
@@ -35,6 +36,7 @@ Rectangle {
       return;
     userIndex = (Math.min(userIndex, users.count - 1) + 1) % users.count;
     failed = false;
+    tries = 0;
     password.text = "";
     password.forceActiveFocus();
   }
@@ -50,6 +52,7 @@ Rectangle {
 
     function onLoginFailed() {
       root.failed = true;
+      root.tries += 1;
       password.text = "";
       password.forceActiveFocus();
     }
@@ -202,7 +205,7 @@ Rectangle {
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      text: root.failed ? "Wrong password" : keyboard.capsLock ? "Caps Lock is on" : " "
+      text: [root.failed ? "Wrong password · try " + root.tries : "", keyboard.capsLock ? "Caps Lock is on" : ""].filter(Boolean).join(" · ") || " "
       color: root.failed ? root.fail : root.foreground
       font.family: root.fontFamily
       font.pixelSize: 16
