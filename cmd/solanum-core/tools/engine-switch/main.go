@@ -30,6 +30,7 @@ so the next install or update keeps it.
 const (
 	shimScript    = "#!/bin/sh\nexec /usr/bin/podman \"$@\"\n"
 	engineSetting = "CONTAINER_ENGINE"
+	unstarted     = "%s didn't start, so the docker command stays as it was\n"
 )
 
 var (
@@ -122,15 +123,16 @@ func useDocker() int {
 		fmt.Fprintln(os.Stderr, "Docker is not installed")
 		return 1
 	}
-	userSocket("disable")
-	run.Quiet(run.Slow, "systemctl", units("disable", "podman.socket")...)
+	if run.Within(run.Slow, "systemctl", units("enable", "docker.socket", "docker.service")...) != 0 {
+		fmt.Fprintf(os.Stderr, unstarted, "Docker")
+		return 1
+	}
 	if err := atomic.Symlink(docker, shim); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	if run.Within(run.Slow, "systemctl", units("enable", "docker.socket", "docker.service")...) != 0 {
-		return 1
-	}
+	userSocket("disable")
+	run.Quiet(run.Slow, "systemctl", units("disable", "podman.socket")...)
 	remember("docker")
 	fmt.Println("docker now talks to Docker CE")
 	return 0
@@ -141,14 +143,15 @@ func usePodman() int {
 		fmt.Fprintln(os.Stderr, "Podman is not installed")
 		return 1
 	}
-	run.Quiet(run.Slow, "systemctl", units("disable", "docker.service", "docker.socket")...)
+	if run.Within(run.Slow, "systemctl", units("enable", "podman.socket")...) != 0 {
+		fmt.Fprintf(os.Stderr, unstarted, "Podman's socket")
+		return 1
+	}
 	if err := atomic.Install(shim, []byte(shimScript), 0o755); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	if run.Within(run.Slow, "systemctl", units("enable", "podman.socket")...) != 0 {
-		return 1
-	}
+	run.Quiet(run.Slow, "systemctl", units("disable", "docker.service", "docker.socket")...)
 	userSocket("enable")
 	remember("podman")
 	fmt.Println("docker now talks to Podman")
