@@ -9,8 +9,24 @@ Item {
 
   signal moved(real level)
 
+  function nudge(steps) {
+    moved(steps > 0 ? Math.max(value, Math.min(1, value + step * steps)) : Math.max(0, value + step * steps));
+  }
+
+  function key(event) {
+    if (event.key === Qt.Key_Home || event.key === Qt.Key_End)
+      moved(event.key === Qt.Key_Home ? 0 : 1);
+    else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+      nudge(event.key === Qt.Key_Left ? -1 : 1);
+    else
+      return false;
+    return true;
+  }
+
   implicitWidth: 200
   implicitHeight: 20
+  activeFocusOnTab: true
+  Keys.onPressed: event => event.accepted = root.key(event)
 
   Rectangle {
     id: track
@@ -20,7 +36,7 @@ Item {
     anchors.verticalCenter: parent.verticalCenter
     height: 6
     radius: Theme.radius ? height / 2 : 0
-    color: Theme.surface
+    color: Theme.overlay
 
     Rectangle {
       width: track.width * root.shown
@@ -31,12 +47,24 @@ Item {
   }
 
   Rectangle {
+    id: knob
+
     x: (root.width - width) * root.shown
     anchors.verticalCenter: parent.verticalCenter
     width: 14
     height: 14
     radius: Theme.radius ? width / 2 : 0
     color: Theme.text
+  }
+
+  Rectangle {
+    anchors.fill: knob
+    anchors.margins: -2 * Theme.focusBorder
+    visible: root.activeFocus
+    radius: Theme.radius ? width / 2 : 0
+    color: "transparent"
+    border.width: Theme.focusBorder
+    border.color: Theme.accent
   }
 
   MouseArea {
@@ -51,7 +79,7 @@ Item {
     onWheel: wheel => {
       const steps = notches.steps(wheel);
       if (steps !== 0)
-        root.moved(steps > 0 ? Math.max(root.value, Math.min(1, root.value + root.step * steps)) : Math.max(0, root.value + root.step * steps));
+        root.nudge(steps);
     }
 
     Notches {
