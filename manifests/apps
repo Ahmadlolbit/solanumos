@@ -20,6 +20,7 @@ onlyoffice office offered release:onlyoffice onlyoffice-desktopeditors OnlyOffic
 xournalpp office offered debian xournalpp Xournal++
 calibre office offered debian calibre Calibre
 foliate office offered debian foliate Foliate
+pdfarranger office offered debian pdfarranger PDF Arranger
 texteditor editors everyday debian gnome-text-editor Text Editor
 imv viewers minimal debian imv imv (images)
 evince viewers minimal debian evince Evince (PDFs)
