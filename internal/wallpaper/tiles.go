@@ -8,17 +8,25 @@ import (
 
 var spokes = []point{{math.Cos(math.Pi / 6), -0.5}, {-math.Cos(math.Pi / 6), -0.5}, {0, 1}}
 
-type tilePaints struct{ base, deep, accent, second, light rgb }
+type tilePaints struct {
+	bright                    [3]rgb
+	second, light, deep, dusk rgb
+}
 
 func (paints tilePaints) face(ground rgb, kind, chance float64, which int) rgb {
-	from, to, amount := [3]rgb{ground, ground, ground}, [3]rgb{paints.light, paints.light, paints.deep}, [3]float64{0.07, 0.025, 0.32}
 	switch {
 	case kind > 0.66 || chance < 0.012:
-		from, to, amount = [3]rgb{paints.base, paints.base, paints.deep}, [3]rgb{paints.accent, paints.accent, paints.accent}, [3]float64{0.62, 0.40, 0.22}
+		return paints.bright[which]
 	case kind < 0.33:
-		from, to, amount = [3]rgb{ground, ground, paints.deep}, [3]rgb{paints.second, paints.second, paints.second}, [3]float64{0.24, 0.13, 0.10}
+		if which == 2 {
+			return paints.dusk
+		}
+		return mix(ground, paints.second, [2]float64{0.24, 0.13}[which])
 	}
-	return mix(from[which], to[which], amount[which])
+	if which == 2 {
+		return mix(ground, paints.deep, 0.32)
+	}
+	return mix(ground, paints.light, [2]float64{0.07, 0.025}[which])
 }
 
 func faceOf(dx, dy float64) int {
@@ -43,7 +51,8 @@ func spokeEdge(edge, dx, dy float64) float64 {
 
 func tiles(colors theme.Colors, n noise, at area) painter {
 	base, deep := depths(colors)
-	paints := tilePaints{base, deep, pick(colors, "accent", "blue"), analogous(colors), pick(colors, "foreground")}
+	accent, second := pick(colors, "accent", "blue"), analogous(colors)
+	paints := tilePaints{[3]rgb{mix(base, accent, 0.62), mix(base, accent, 0.40), mix(deep, accent, 0.22)}, second, pick(colors, "foreground"), deep, mix(deep, second, 0.10)}
 	field := wash(colors)
 	size, line := 84*at.unit, 0.8*at.unit
 	inner := size * math.Sqrt(3) / 2

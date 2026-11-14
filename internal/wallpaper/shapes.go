@@ -25,16 +25,20 @@ func (n noise) toss(i, j, salt int) float64 {
 }
 
 func supersampled(shade func(x, y float64) rgb, at area) painter {
-	const k = 3
+	k := 3
+	if at.unit > 1 {
+		k = 2
+	}
+	side, count := float64(k), float64(k*k)
 	return shaded(func(x, y float64) rgb {
 		var sum rgb
 		for sy := range k {
 			for sx := range k {
-				c := shade(x*at.width+(float64(sx)+0.5)/k, y*at.height+(float64(sy)+0.5)/k)
+				c := shade(x*at.width+(float64(sx)+0.5)/side, y*at.height+(float64(sy)+0.5)/side)
 				sum = rgb{sum.r + c.r, sum.g + c.g, sum.b + c.b}
 			}
 		}
-		return rgb{sum.r / (k * k), sum.g / (k * k), sum.b / (k * k)}
+		return rgb{sum.r / count, sum.g / count, sum.b / count}
 	}, at)
 }
 
