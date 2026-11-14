@@ -115,10 +115,14 @@ func (work *mover) moveFolders() {
 }
 
 func (work *mover) moveFolder(old, fresh string, link bool) {
+	if fsutil.IsLink(old) || !fsutil.IsDir(old) {
+		return
+	}
+	if fsutil.IsLink(fresh) && samePlace(fresh, old) {
+		work.remove(fresh)
+	}
 	var err error
 	switch {
-	case fsutil.IsLink(old) || !fsutil.IsDir(old):
-		return
 	case !fsutil.Exists(fresh) && !fsutil.IsLink(fresh):
 		if err = os.MkdirAll(filepath.Dir(fresh), folderMode); err == nil {
 			err = atomic.Move(old, fresh)
@@ -143,9 +147,21 @@ func (work *mover) link(old, fresh string) {
 	}
 }
 
+func samePlace(one, other string) bool {
+	first, err := os.Stat(one)
+	if err != nil {
+		return false
+	}
+	second, err := os.Stat(other)
+	return err == nil && os.SameFile(first, second)
+}
+
 func spare(from, to string) bool {
 	if fsutil.IsLink(from) {
 		return true
+	}
+	if samePlace(from, to) {
+		return false
 	}
 	one, err := files.Hash(from)
 	other, otherErr := files.Hash(to)
