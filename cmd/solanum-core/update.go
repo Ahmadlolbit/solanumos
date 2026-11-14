@@ -2,7 +2,6 @@ package main
 
 import (
 	"cmp"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +16,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 func installed(name string) bool {
@@ -39,7 +39,7 @@ func snapshotsOff() bool {
 	if config.Read(config.Path()).Get("SNAPSHOTS") == "yes" {
 		return false
 	}
-	fmt.Println("Snapshots are off, so there's no restore point before this")
+	ui.Print("Snapshots are off, so there's no restore point before this\n")
 	return true
 }
 
@@ -52,11 +52,11 @@ func snapshotFirst() int {
 		return 0
 	}
 	if !installed("snapper") || !fsutil.IsFile(env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
-		fmt.Println("Snapshots aren't set up, so there's no restore point.")
+		ui.Print("Snapshots aren't set up, so there's no restore point.\n")
 		snapshotTaken = true
 		return 0
 	}
-	fmt.Println("Taking a snapshot first")
+	ui.Print("Taking a snapshot first\n")
 	if run.Status("sudo", "snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number") != 0 {
 		return fail("the snapshot failed, so nothing was updated")
 	}
@@ -69,34 +69,46 @@ func updateSystem() int {
 		return status
 	}
 	if apt.Interrupted() {
-		fmt.Println("dpkg was interrupted, finishing what it left")
+		ui.Print("dpkg was interrupted, finishing what it left\n")
 		if run.Status("sudo", "dpkg", "--force-confdef", "--force-confold", "--configure", "-a") != 0 {
 			return fail("finishing what dpkg left failed, so nothing was updated")
 		}
 	}
-	fmt.Println("Updating Debian")
+	ui.Print("Updating Debian\n")
 	if run.Status("sudo", "apt", "update") != 0 {
-		fmt.Println("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.")
+		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
 	}
-	if run.Status("sudo", "apt", "full-upgrade") != 0 {
+	if upgrade := fullUpgrade(); run.Status(upgrade[0], upgrade[1:]...) != 0 {
 		return fail("updating Debian failed")
 	}
 	return 0
 }
 
+func fullUpgrade() []string {
+	if !streamed {
+		return []string{"sudo", "apt", "full-upgrade"}
+	}
+	return []string{"sudo", "env", "DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none",
+		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade"}
+}
+
 func updateApps() int {
 	for _, tool := range []struct {
-		name, what, action string
+		name, what, action, unasked string
 	}{
-		{"flatpak", "Flatpak apps", "update"},
-		{"mise", "mise's tools", "upgrade"},
-		{"rustup", "Rust", "update"},
+		{"flatpak", "Flatpak apps", "update", "--noninteractive"},
+		{"mise", "mise's tools", "upgrade", "--yes"},
+		{"rustup", "Rust", "update", ""},
 	} {
 		if !installed(tool.name) {
 			continue
 		}
-		fmt.Printf("Updating %s\n", tool.what)
-		if run.Status(tool.name, tool.action) != 0 {
+		ui.Print("Updating " + tool.what + "\n")
+		args := []string{tool.action}
+		if streamed && tool.unasked != "" {
+			args = append(args, tool.unasked)
+		}
+		if run.Status(tool.name, args...) != 0 {
 			return fail("updating %s failed", tool.what)
 		}
 	}

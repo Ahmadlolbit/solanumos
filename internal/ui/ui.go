@@ -49,7 +49,9 @@ func ask(kind, text string, items ...string) (string, bool) {
 }
 
 func Mirror(data []byte) {
-	send(events.Log, string(data))
+	if !send(events.Log, string(data)) {
+		Print(string(data))
+	}
 }
 
 func Print(text string) {

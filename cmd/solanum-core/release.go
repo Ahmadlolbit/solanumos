@@ -14,6 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/deployed"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
@@ -87,7 +88,7 @@ func releaseTarget() (string, string, error) {
 	}
 	tag, skipped := newestSigned(signers)
 	for _, line := range skipped {
-		fmt.Println(line)
+		ui.Print(line + "\n")
 	}
 	if tag == "" {
 		return "", "", errors.New("no release tag is signed with the release key yet")
@@ -97,13 +98,16 @@ func releaseTarget() (string, string, error) {
 
 func afterUpdate(from, to string) int {
 	args := []string{script(), "install"}
+	if streamed {
+		args = append(args, "--events")
+	}
 	if text := changesBetween(from, to); text != "" {
 		dir := changesDir()
 		err := writeChanges(dir, text)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "cannot save the update notes:", err)
 		}
-		fmt.Printf("\nWhat changed:\n%s\n", text)
+		ui.Print("\nWhat changed:\n" + text + "\n")
 		if err == nil {
 			args = append(args, "--changes", filepath.Join(dir, "changes.txt"))
 		}
@@ -134,7 +138,7 @@ func finishSetup(upToDate string) int {
 	if !behind {
 		return say(upToDate)
 	}
-	fmt.Println("The setup hasn't finished at this version yet, so it runs now.")
+	ui.Print("The setup hasn't finished at this version yet, so it runs now.\n")
 	if status := snapshotFirst(); status != 0 {
 		return status
 	}
@@ -219,7 +223,7 @@ func undoHalfMove(target string) {
 	}
 	tracked, untracked := movedAlready(target, inMove(changed, moving)), addedAlready(target, inMove(others, moving))
 	if len(tracked)+len(untracked) > 0 {
-		fmt.Println("An earlier update stopped halfway, so the files it moved go back first.")
+		ui.Print("An earlier update stopped halfway, so the files it moved go back first.\n")
 	}
 	if len(tracked) > 0 {
 		gitWrite(append([]string{"checkout", "-q", "HEAD", "--"}, tracked...)...)
@@ -230,14 +234,14 @@ func undoHalfMove(target string) {
 }
 
 func updateSolanum() int {
-	fmt.Printf("Updating %s\n", root())
+	ui.Print("Updating " + root() + "\n")
 	tag, target, err := releaseTarget()
 	if lock.Busy() {
 		return fail("a Solanum run is going, so Solanum itself wasn't updated: run solanum update solanum once it ends")
 	}
 	switch {
 	case errors.Is(err, errNoReleaseKey):
-		fmt.Print("Solanum itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
+		ui.Print("Solanum itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
 		return finishSetup("")
 	case err != nil:
 		return fail("%v", err)

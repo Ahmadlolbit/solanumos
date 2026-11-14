@@ -54,9 +54,20 @@ func Exec(name string, args ...string) error {
 }
 
 func Status(name string, args ...string) int {
+	return status(nil, name, args)
+}
+
+func Typed(input, name string, args ...string) int {
+	return status(strings.NewReader(input), name, args)
+}
+
+func status(input io.Reader, name string, args []string) int {
 	trace(name, args)
 	command := exec.Command(name, args...)
 	inherit(command)
+	if input != nil {
+		command.Stdin = input
+	}
 	defer cleanup.IgnoreQuit()()
 	interrupted := make(chan os.Signal, 1)
 	cleanup.NotifyInterrupt(interrupted)

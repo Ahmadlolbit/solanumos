@@ -15,12 +15,14 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
-	kernelFile = "vmlinuz-"
-	initrdFile = "initrd.img-"
-	mountField = 4
+	kernelFile  = "vmlinuz-"
+	initrdFile  = "initrd.img-"
+	mountField  = 4
+	confirmWord = "CONFIRM\n"
 )
 
 func restoreRows(points []snapshots.Snapshot, format string) string {
@@ -164,10 +166,9 @@ func goBack(number string) int {
 	if lock.Busy() {
 		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
-	if code := say("Comparing snapshot " + number + " with today, this can take a minute...\n"); code != 0 {
-		return code
-	}
+	ui.Busy("Comparing snapshot " + number + " with today, this can take a minute")
 	status, err := run.Capture(run.Slow, "snapper", "-c", "root", "status", number+"..0")
+	ui.Done()
 	if err != nil {
 		return fail("snapshot %s can't be read: see solanum restore", number)
 	}
@@ -177,11 +178,21 @@ func goBack(number string) int {
 	if code := say(snapshots.Changes(status) + "\n" + kept + advice + "\n"); code != 0 {
 		return code
 	}
-	code := run.Status("sudo", "snapper-rollback", number)
+	code := rollBack(number)
 	if code == 0 && advice != "" {
 		return say("\n" + advice)
 	}
 	return code
+}
+
+func rollBack(number string) int {
+	if !streamed {
+		return run.Status("sudo", "snapper-rollback", number)
+	}
+	if !ui.Confirm("Go back to snapshot " + number + "?") {
+		return fail("nothing changed")
+	}
+	return run.Typed(confirmWord, "sudo", "snapper-rollback", number)
 }
 
 func showPoints(target string) int {
