@@ -14,7 +14,10 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
-const securityMirror = "https://security.debian.org/debian-security"
+const (
+	securityMirror = "https://security.debian.org/debian-security"
+	quietBackups   = "/etc/apt/apt.conf.d/10solanum-backups"
+)
 
 func sourcesList() string {
 	return env.Or("SOLANUM_SOURCES_LIST", "/etc/apt/sources.list")
@@ -58,6 +61,9 @@ func (sources *sourcesSetup) write(log *runlog.Log) error {
 		return err
 	}
 	if err := moveDebianEntries(log); err != nil {
+		return err
+	}
+	if err := sources.Deploy.File("system/apt/10solanum-backups", quietBackups); err != nil {
 		return err
 	}
 	mirror := "MIRROR=" + sources.Config.Get("DEBIAN_MIRROR")
