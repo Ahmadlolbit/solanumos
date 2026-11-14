@@ -26,6 +26,7 @@ const (
 	fastfetchFile = "/etc/xdg/fastfetch/config.jsonc"
 	issueFile     = "/etc/issue"
 	issueNetFile  = "/etc/issue.net"
+	debianLink    = "../usr/lib/os-release"
 )
 
 var grubName = "case ${0##*/} in\ngrub-mkconfig) GRUB_DISTRIBUTOR=" + brandName + " ;;\n*) GRUB_DISTRIBUTOR=Debian ;;\nesac\n"
@@ -56,7 +57,12 @@ func diverted(path string) bool {
 func releaseRename(log *runlog.Log) error {
 	release := namedPath(releaseFile)
 	if !diverted(release) {
-		if err := run.Logged(log, "dpkg-divert", "--local", "--rename", "--divert", release+".debian", "--add", release); err != nil {
+		if err := run.Logged(log, "dpkg-divert", "--local", "--no-rename", "--divert", release+".debian", "--add", release); err != nil {
+			return err
+		}
+	}
+	if !fsutil.Exists(release+".debian") && !fsutil.IsLink(release+".debian") {
+		if err := atomic.Symlink(debianLink, release+".debian"); err != nil {
 			return err
 		}
 	}
@@ -71,15 +77,28 @@ func releaseRename(log *runlog.Log) error {
 	return atomic.Install(release, []byte(text), plainMode)
 }
 
+func debianBack(release string) error {
+	if target, err := os.Readlink(release + ".debian"); err == nil {
+		return atomic.Symlink(target, release)
+	}
+	if data, err := os.ReadFile(release + ".debian"); err == nil {
+		return atomic.Install(release, data, plainMode)
+	}
+	return atomic.Symlink(debianLink, release)
+}
+
 func releaseBack(log *runlog.Log) error {
 	release := namedPath(releaseFile)
 	if !diverted(release) {
 		return nil
 	}
-	if err := removeFiles(release); err != nil {
+	if err := debianBack(release); err != nil {
 		return err
 	}
-	return run.Logged(log, "dpkg-divert", "--local", "--rename", "--remove", release)
+	if err := run.Logged(log, "dpkg-divert", "--local", "--no-rename", "--remove", release); err != nil {
+		return err
+	}
+	return removeFiles(release + ".debian")
 }
 
 func (context *Context) grubNamed(log *runlog.Log, menu *followUp) error {
