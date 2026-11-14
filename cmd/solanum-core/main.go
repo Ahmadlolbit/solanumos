@@ -6,11 +6,13 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -180,6 +182,18 @@ func throughScript() int {
 	return run.Report(run.Exec("bash", append([]string{script()}, os.Args[1:]...)...))
 }
 
+var beforeTheMove = []string{"install", "update", "app", "changes", "collect", "restore", "guide", "credits", "help", "-h", "--help", "version", "--version", "first-start", "install-os"}
+
+func command(name string) (func() int, bool) {
+	found, ok := commands[name]
+	if ok && !slices.Contains(beforeTheMove, name) && move.Pending() {
+		return func() int {
+			return fail("This computer still has Hyprtrixie's folders. Move it over to Solanum first: sudo solanum install")
+		}, true
+	}
+	return found, ok
+}
+
 func main() {
 	runTool()
 	if env.Arg(1) == "trust" && env.Arg(2) == "apply" {
@@ -188,7 +202,7 @@ func main() {
 	if root() == "" {
 		os.Exit(run.Report(run.Exec("solanum", os.Args[1:]...)))
 	}
-	if command, ok := commands[env.Arg(1)]; ok {
+	if command, ok := command(env.Arg(1)); ok {
 		os.Exit(command())
 	}
 	os.Exit(fail("unknown command: %s (see: solanum help)", env.Arg(1)))
