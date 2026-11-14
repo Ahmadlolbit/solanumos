@@ -183,7 +183,7 @@ func linkPictures(from, name string) error {
 		if err := os.MkdirAll(dir, 0o777); err != nil {
 			return err
 		}
-		if err := atomic.Symlink(picture, filepath.Join(dir, filepath.Base(picture))); err != nil {
+		if err := atomic.Symlink(fsutil.Followed(picture), filepath.Join(dir, filepath.Base(picture))); err != nil {
 			return err
 		}
 	}

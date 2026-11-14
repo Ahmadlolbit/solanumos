@@ -219,8 +219,9 @@ func Images(dirs ...string) []string {
 func imagesIn(dir string) []string {
 	var found []string
 	for _, entry := range Entries(dir) {
-		if entry.Type().IsRegular() && image(entry.Name()) {
-			found = append(found, filepath.Join(dir, entry.Name()))
+		path := filepath.Join(dir, entry.Name())
+		if image(entry.Name()) && (entry.Type().IsRegular() || (entry.Type()&fs.ModeSymlink != 0 && IsFile(path))) {
+			found = append(found, path)
 		}
 	}
 	return found
