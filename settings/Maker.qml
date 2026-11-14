@@ -281,7 +281,7 @@ Tile {
             anchors.leftMargin: 8
             anchors.rightMargin: 6
             text: maker.swatchText(swatch.modelData)
-            color: swatch.modelData.contrast < (swatch.modelData.key === "accent" ? 3 : 4.5) && swatch.modelData.against === "background" && !swatch.modelData.key.includes("background") ? Theme.critical : Theme.text
+            color: swatch.modelData.contrast < (swatch.modelData.target || 0) ? Theme.critical : Theme.text
             font.pixelSize: Theme.size(12)
             wrapMode: Text.Wrap
           }
