@@ -99,6 +99,7 @@ func followFirefox(current string) {
 	on := browsersFollow() && fsutil.IsFile(style)
 	for _, profile := range firefoxProfiles() {
 		chrome := filepath.Join(profile, "chrome")
+		dropOldFirefox(chrome)
 		if !on {
 			if err := os.Remove(filepath.Join(chrome, firefoxStyle)); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				fmt.Fprintln(os.Stderr, err)

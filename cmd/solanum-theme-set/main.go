@@ -530,6 +530,7 @@ func apply(name string) (paper, bool) {
 	pickBackground(name, previous, colors)
 	linkApps()
 	desktopSettings(colors, apps)
+	forgetOldNames()
 	rememberPick(name, colors["mode"])
 	return paperChange(previous != name, before), true
 }

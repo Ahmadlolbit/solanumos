@@ -12,6 +12,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/follow"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -57,8 +58,8 @@ func browserColor(current theme) string {
 	return current.background
 }
 
-func dropPolicy(dir string) bool {
-	err := os.Remove(filepath.Join(dir, browserPolicy))
+func dropPolicy(dir, name string) bool {
+	err := os.Remove(filepath.Join(dir, name))
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		fmt.Fprintln(os.Stderr, err)
 		return false
@@ -79,8 +80,9 @@ func paintBrowsers(current theme) bool {
 	text := fmt.Sprintf("{\n  \"BrowserThemeColor\": %q\n}\n", browserColor(current))
 	ok := true
 	for _, dir := range all {
+		ok = dropPolicy(dir, oldname.Policy) && ok
 		if !slices.Contains(wanted, dir) {
-			ok = dropPolicy(dir) && ok
+			ok = dropPolicy(dir, browserPolicy) && ok
 			continue
 		}
 		if _, err := refresh(filepath.Join(dir, browserPolicy), text); err != nil {

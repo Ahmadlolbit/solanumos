@@ -10,6 +10,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/theme"
 )
@@ -96,7 +97,8 @@ func gtkTheme(mode string) string {
 
 func ourLink(link string) bool {
 	target, err := os.Readlink(link)
-	return err == nil && strings.HasPrefix(target, filepath.Join(state(), "theme")+string(filepath.Separator))
+	old := filepath.Join(env.LocalState(), oldname.Name, "current", "theme") + string(filepath.Separator)
+	return err == nil && (strings.HasPrefix(target, filepath.Join(state(), "theme")+string(filepath.Separator)) || strings.HasPrefix(target, old))
 }
 
 func linkUnlessYours(file, link string) {
@@ -107,9 +109,16 @@ func linkUnlessYours(file, link string) {
 	symlink(file, link)
 }
 
+func kdeBackupOf(globals string) string {
+	if old := globals + oldname.KDEBackup; !fsutil.Exists(globals+kdeBackup) && fsutil.Exists(old) {
+		return old
+	}
+	return globals + kdeBackup
+}
+
 func keepKDEGlobals(globals, text string) {
 	backup := globals + kdeBackup
-	if text == "" || strings.Contains(text, theme.KDEScheme) || fsutil.Exists(backup) {
+	if text == "" || theme.OursKDE(text) || fsutil.Exists(kdeBackupOf(globals)) {
 		return
 	}
 	if err := atomic.Write(backup, []byte(text), 0o666); err != nil {
@@ -128,8 +137,8 @@ func writeKDEGlobals(scheme string) {
 	globals := filepath.Join(env.ConfigHome(), "kdeglobals")
 	current := fsutil.Optional(globals)
 	merged := theme.KDEGlobals(current, scheme, appsFont(), theme.TextScale(settings.Get("text")))
-	if scheme == "" && strings.Contains(current, theme.KDEScheme) {
-		merged = theme.KDEGivenBack(merged, fsutil.Optional(globals+kdeBackup))
+	if scheme == "" && theme.OursKDE(current) {
+		merged = theme.KDEGivenBack(merged, fsutil.Optional(kdeBackupOf(globals)))
 	}
 	if strings.TrimSpace(merged) == strings.TrimSpace(current) {
 		return
@@ -172,7 +181,7 @@ func rememberGTK(current map[string]string) {
 	var text strings.Builder
 	for _, key := range gtkKept {
 		value := current[key]
-		if value == "" || strings.Contains(value, gtkOurs) {
+		if value == "" || strings.Contains(value, gtkOurs) || strings.Contains(value, oldname.Prefix) {
 			return
 		}
 		fmt.Fprintf(&text, "%s\t%s\n", key, value)

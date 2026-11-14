@@ -182,6 +182,7 @@ func followCode(name string, palettes func() []palette) {
 			}
 		}
 		editor.refresh(pack)
+		editor.dropOldExtension()
 		followSetting(filepath.Join(env.Home(), editor.settings), "workbench.colorTheme", editors.Prefix+theme.Pretty(name))
 	}
 }
