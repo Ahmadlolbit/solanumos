@@ -112,7 +112,7 @@ FocusScope {
     if (chooser.visible)
       return chooser.key(event);
     if (editing)
-      return event.key === Qt.Key_Escape ? stopEditing() : false;
+      return event.key === Qt.Key_Escape ? stopEditing() : event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab;
     const keys = {
       [Qt.Key_Escape]: () => leave(),
       [Qt.Key_Tab]: () => flip(),
