@@ -76,7 +76,7 @@ func themeNames() []string {
 func previewOf(name string) string {
 	own, shipped := filepath.Join(userThemes(), name), filepath.Join(systemRoot, "themes", name)
 	for _, dir := range []string{own, shipped} {
-		for _, kind := range []string{"png", "jpg", "jpeg", "webp"} {
+		for _, kind := range []string{"jpg", "jpeg", "png", "webp"} {
 			if file := filepath.Join(dir, "preview."+kind); fsutil.IsFile(file) {
 				return file
 			}
