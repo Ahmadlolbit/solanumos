@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"slices"
 
+	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
@@ -132,6 +133,21 @@ func asRoot(mode string, command func() int) int {
 	}
 	defer cleanup.IgnoreQuit()()
 	return command()
+}
+
+func onBehalf() (account.Account, bool) {
+	caller := os.Getenv("PKEXEC_UID")
+	if os.Geteuid() != 0 || caller == "" {
+		return account.Account{}, false
+	}
+	person, found := account.Target()
+	human := slices.ContainsFunc(account.Humans(), func(each account.Account) bool { return each.UID == caller })
+	return person, found && human && person.UID == caller
+}
+
+func forAPerson() bool {
+	_, helped := onBehalf()
+	return os.Geteuid() != 0 || helped
 }
 
 func nothingAfter(name string, command func() int) func() int {
