@@ -596,8 +596,10 @@ func (deployer *Deployer) Undeploy(path string) (string, error) {
 	if err := deployer.remove(path + newSuffix); err != nil {
 		return "", err
 	}
-	if err := deployer.remove(path + oldname.NewSuffix); err != nil {
-		return "", err
+	if old := path + oldname.NewSuffix; fsutil.Exists(old) {
+		if err := deployer.remove(old); err != nil {
+			return "", err
+		}
 	}
 	if !deployer.ours(path) {
 		return "kept", deployer.forgetOne(path)
