@@ -35,6 +35,7 @@ type mover struct {
 	out      io.Writer
 	notes    []string
 	snapshot string
+	unlisted bool
 }
 
 func at(path string) string {
@@ -165,6 +166,10 @@ func Run(out io.Writer) []string {
 	work.moveCommands()
 	work.moveHomes()
 	work.moveRest()
+	if work.unlisted {
+		work.note("The move to Solanum isn't finished: run sudo solanum install again to finish it.")
+		return work.notes
+	}
 	work.stamp()
 	work.note("This computer has moved from Hyprtrixie to Solanum. Log out and back in once to finish.")
 	return work.notes
