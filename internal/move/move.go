@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -44,9 +45,16 @@ func stateDir() string {
 	return at("/var/lib/solanum")
 }
 
+func markers() []string {
+	return []string{filepath.Join(at("/var/lib/"+oldname.Name), markFile), filepath.Join(stateDir(), markFile)}
+}
+
 func Pending() bool {
 	if fsutil.Exists(filepath.Join(stateDir(), stampFile)) {
 		return false
+	}
+	if slices.ContainsFunc(markers(), fsutil.Exists) {
+		return true
 	}
 	for _, each := range folders {
 		if fsutil.IsDir(at(each.old)) && !fsutil.IsLink(at(each.old)) {
@@ -72,8 +80,8 @@ func (work *mover) note(format string, args ...any) {
 }
 
 func (work *mover) marked() string {
-	for _, dir := range []string{at("/var/lib/" + oldname.Name), stateDir()} {
-		if text, err := fsutil.Text(filepath.Join(dir, markFile)); err == nil {
+	for _, path := range markers() {
+		if text, err := fsutil.Text(path); err == nil {
 			return strings.TrimSpace(text)
 		}
 	}
