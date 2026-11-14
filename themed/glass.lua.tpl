@@ -12,7 +12,7 @@ hl.config({
 
 hl.layer_rule({
   name = "glass-panels",
-  match = { namespace = "^(quickshell|hyprtrixie-(menu|keys|welcome|osd)|walker|notifications)$" },
+  match = { namespace = "^(quickshell|solanum-(menu|keys|welcome|osd)|walker|notifications)$" },
   blur = true,
   ignore_alpha = 0.3,
 })

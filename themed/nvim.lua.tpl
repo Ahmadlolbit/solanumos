@@ -4,7 +4,7 @@ if vim.g.syntax_on then
 end
 vim.o.termguicolors = true
 vim.o.background = "{{ mode }}"
-vim.g.colors_name = "hyprtrixie"
+vim.g.colors_name = "solanum"
 
 local function hex(value)
   if value:match("^#%x%x%x$") then

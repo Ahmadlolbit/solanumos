@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ordered"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ordered"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const api = "https://api.open-meteo.com/v1/forecast"

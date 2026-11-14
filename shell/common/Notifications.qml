@@ -165,7 +165,7 @@ Singleton {
   FileView {
     id: kept
 
-    path: root.runtime ? root.runtime + "/hyprtrixie-notifications" : ""
+    path: root.runtime ? root.runtime + "/solanum-notifications" : ""
     printErrors: false
     onLoaded: root.restore(text())
   }

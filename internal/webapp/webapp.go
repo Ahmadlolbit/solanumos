@@ -1,6 +1,7 @@
 package webapp
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -11,14 +12,15 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const (
 	prefix      = "webapp-"
 	suffix      = ".desktop"
-	addressKey  = "X-Hyprtrixie-Address="
+	addressKey  = "X-Solanum-Address="
 	nameKey     = "Name="
 	slugLength  = 12
 	GenericIcon = "applications-internet"
@@ -89,7 +91,7 @@ func Favicon(address string) string {
 }
 
 func Entry(name, address, icon string) string {
-	return "[Desktop Entry]\nType=Application\n" + nameKey + name + "\nComment=" + address + " in its own window\nExec=hyprtrixie-webapp open " + Slug(name) +
+	return "[Desktop Entry]\nType=Application\n" + nameKey + name + "\nComment=" + address + " in its own window\nExec=solanum-webapp open " + Slug(name) +
 		"\nIcon=" + icon + "\nCategories=Network;\nStartupNotify=true\nTerminal=false\n" + addressKey + address + "\n"
 }
 
@@ -106,7 +108,8 @@ func Address(slug string) string {
 	if !goodSlug().MatchString(slug) {
 		return ""
 	}
-	return field(fsutil.Optional(entryFile(slug)), addressKey)
+	text := fsutil.Optional(entryFile(slug))
+	return cmp.Or(field(text, addressKey), field(text, oldname.AddressKey))
 }
 
 func Class(slug string) string {

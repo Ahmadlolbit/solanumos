@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/burst"
+	"github.com/Ahmadlolbit/solanumos/internal/burst"
 )
 
 const (

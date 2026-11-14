@@ -1,12 +1,12 @@
 package setup
 
 import (
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 type Context struct {

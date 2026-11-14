@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
 
 const (
@@ -49,7 +49,8 @@ var table = []Option{
 	{"FAILURE_MODE", "When a step fails", Choice, "ask", "ask halt continue", "run", "Ask what to do, stop the run, or note the failure and carry on", nil},
 	{"DEBIAN_MIRROR", "Debian mirror", Text, "https://deb.debian.org/debian", "", "system", "Where Debian packages download from; the default picks a nearby server", nil},
 	{"KERNEL", "Kernel", Choice, "backports", "backports stable", "system", "Backports has a newer kernel for recent laptops; stable is Debian's own", nil},
-	{"WEBCAM", "IPU6 webcam", Choice, "auto", "auto off", "system", "For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and hyprtrixie webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found", nil},
+	{"SYSTEM_NAME", "The system's name", Choice, "solanumos", "solanumos debian", "system", "What the boot menu, the text consoles, fastfetch and About call the system; programs that check which system this is still find Debian 13", nil},
+	{"WEBCAM", "IPU6 webcam", Choice, "auto", "auto off", "system", "For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and solanum webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found", nil},
 	{"GRAPHICS", "NVIDIA driver", Choice, "proprietary", "proprietary nouveau", "system", "NVIDIA's own driver is faster; nouveau is open source and slower", nvidiaPresent},
 	{"SWAPFILE_GB", "Swapfile size (GiB)", Number, "8", "0-65536", "storage", "Disk space used as extra memory when RAM runs out; 0 turns it off, and Hibernate with it", nil},
 	{"ZRAM_PERCENT", "zram size (% of memory)", Number, "50", "0-200", "storage", "Compressed memory that works as fast swap; 0 turns it off", nil},
@@ -75,7 +76,7 @@ var table = []Option{
 	{"WINDOW_STYLE", "Window style", Choice, "sharp", "sharp soft", "look", "Sharp corners with thin gaps, or soft rounded corners", nil},
 	{"TEXT_SIZE", "Text size", Choice, "normal", "normal large larger", "look", "Larger text in the bar, terminals, notifications, the lock screen and apps: large is a quarter bigger, larger half", nil},
 	{"SCREEN_READER", "Screen reader", YesNo, "no", "", "look", "Orca reads apps aloud; Super+Alt+R starts or stops it. On Hyprland it can't read the bar, the menu or the launcher, and its own key commands don't work", nil},
-	{"STARTUP_SOUND", "Startup sound", YesNo, "no", "", "look", "A short chime when you log in, lower for dark themes and higher for light ones; a sound of your own in ~/.config/hyprtrixie/startup.ogg plays instead", nil},
+	{"STARTUP_SOUND", "Startup sound", YesNo, "no", "", "look", "A short chime when you log in, lower for dark themes and higher for light ones; a sound of your own in ~/.config/solanum/startup.ogg plays instead", nil},
 	{"SCREENSAVER_MINUTES", "Screensaver after (minutes)", Number, "3", "0-1440", "system", "An animated logo on every screen; a key or mouse move ends it; 0 = never", nil},
 	{"TIPS_TERMINAL", "Tips in new terminals", YesNo, "yes", "", "look", "A short tip under the prompt in every new terminal", nil},
 	{"TIPS_WELCOME", "Tips on the welcome screen", YesNo, "yes", "", "look", "A tip at the bottom of the welcome screen", nil},
@@ -122,7 +123,7 @@ var table = []Option{
 	{"AUTO_UPDATES", "Automatic security updates", YesNo, "yes", "", "security", "Debian's security fixes install on their own in the background", nil},
 	{"SSH_POLICY", "SSH", Choice, "client", "client leave", "security", "Client: the SSH server doesn't start at boot. Leave: keep it as it is", nil},
 	{"NM_HANDOVER", "NetworkManager for everything", YesNo, "yes", "", "security", "Wi-Fi and wired connections move to NetworkManager, so the bar manages them", nil},
-	{"FINGERPRINT", "Fingerprint", YesNo, "no", "", "security", "Unlock the lock screen and approve sudo with a finger; the login screen keeps your password. Add a finger with hyprtrixie fingerprint add", nil},
+	{"FINGERPRINT", "Fingerprint", YesNo, "no", "", "security", "Unlock the lock screen and approve sudo with a finger; the login screen keeps your password. Add a finger with solanum fingerprint add", nil},
 }
 
 func ticked(facts Facts, key, item string) bool {

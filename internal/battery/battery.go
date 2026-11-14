@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
 
 const (
@@ -25,15 +25,15 @@ const (
 )
 
 func root() string {
-	return env.Or("HYPRTRIXIE_POWER_SUPPLY", "/sys/class/power_supply")
+	return env.Or("SOLANUM_POWER_SUPPLY", "/sys/class/power_supply")
 }
 
 func Keep() string {
-	return env.Or("HYPRTRIXIE_BATTERY_KEEP", "/etc/udev/rules.d/90-hyprtrixie-battery.rules")
+	return env.Or("SOLANUM_BATTERY_KEEP", "/etc/udev/rules.d/90-solanum-battery.rules")
 }
 
 func older() string {
-	return env.Or("HYPRTRIXIE_BATTERY_OLD", "/etc/tmpfiles.d/hyprtrixie-battery.conf")
+	return env.Or("SOLANUM_BATTERY_OLD", "/etc/tmpfiles.d/solanum-battery.conf")
 }
 
 func Batteries() []string {

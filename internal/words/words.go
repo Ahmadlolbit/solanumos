@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
 
 type pattern struct {
@@ -34,7 +34,7 @@ func bare(value string) string {
 }
 
 func Language() string {
-	if own := bare(os.Getenv("HYPRTRIXIE_LANGUAGE")); own != "" {
+	if own := bare(os.Getenv("SOLANUM_LANGUAGE")); own != "" {
 		return own
 	}
 	locale := bare(cmp.Or(os.Getenv("LC_ALL"), os.Getenv("LC_MESSAGES"), os.Getenv("LANG")))

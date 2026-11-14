@@ -10,15 +10,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
@@ -34,7 +35,7 @@ var (
 )
 
 func osRelease() string {
-	return env.Or("HYPRTRIXIE_OS_RELEASE", "/etc/os-release")
+	return env.Or("SOLANUM_OS_RELEASE", "/etc/os-release")
 }
 
 func osValue(text, key string) string {
@@ -59,7 +60,7 @@ func preflightOS(log *runlog.Log) error {
 	if id == "debian" && codename == "trixie" {
 		return nil
 	}
-	fmt.Fprintf(log, "This system is %s %s; Hyprtrixie is made for Debian 13 (trixie).\n", orUnknown(id), orUnknown(codename))
+	fmt.Fprintf(log, "This system is %s %s; Solanum is made for Debian 13 (trixie).\n", orUnknown(id), orUnknown(codename))
 	return holds(false)
 }
 
@@ -69,7 +70,7 @@ func preflightArch(log *runlog.Log) error {
 	if arch == "amd64" {
 		return nil
 	}
-	fmt.Fprintf(log, "This system is %s; Hyprtrixie supports amd64 only.\n", arch)
+	fmt.Fprintf(log, "This system is %s; Solanum supports amd64 only.\n", arch)
 	return holds(false)
 }
 
@@ -85,7 +86,7 @@ func preflightSecureBoot(log *runlog.Log) error {
 
 func preflightNetwork(log *runlog.Log) error {
 	err := run.Logged(log, "curl", "-fsS", "--max-time", "20", "-o", "/dev/null", "https://deb.debian.org/debian/dists/trixie/InRelease")
-	if err != nil && env.Or("HYPRTRIXIE_FIRST_START", "") != "" {
+	if err != nil && env.Or("SOLANUM_FIRST_START", "") != "" {
 		fmt.Fprintln(log, "No internet yet: the first start carries on with what the install put on the disk")
 		return nil
 	}
@@ -211,7 +212,7 @@ func (context *Context) ensureAccount(log *runlog.Log) error {
 		return nil
 	}
 	if !context.CanAsk {
-		fmt.Fprintln(log, "No admin account found. Run hyprtrixie with sudo from your own account.")
+		fmt.Fprintln(log, "No admin account found. Run solanum with sudo from your own account.")
 		return holds(false)
 	}
 	return context.chooseAccount(log)
@@ -240,7 +241,10 @@ func (context *Context) CloneFor() string {
 	if env.Root() == env.SystemClone() || strings.HasPrefix(env.Root()+"/", home+"/") {
 		return env.Root()
 	}
-	return filepath.Join(home, "hyprtrixie")
+	if old := filepath.Join(home, oldname.Clone); fsutil.IsDir(filepath.Join(old, ".git")) {
+		return old
+	}
+	return filepath.Join(home, "solanum")
 }
 
 func (context *Context) own(log *runlog.Log, path string) error {
@@ -274,7 +278,7 @@ func (context *Context) giveClone(log *runlog.Log) error {
 
 func AccountSteps(context *Context) {
 	context.Run.Interactive("Admin account", context.preflightUser)
-	context.Run.Step("Give the account its own copy of Hyprtrixie", context.giveClone)
+	context.Run.Step("Give the account its own copy of Solanum", context.giveClone)
 }
 
 func (context *Context) preflightDetect(log *runlog.Log) error {

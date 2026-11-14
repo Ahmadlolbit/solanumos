@@ -1,4 +1,4 @@
-local look = require("hyprtrixie.hypr.look")
+local look = require("solanum.hypr.look")
 
 hl.env("XCURSOR_THEME", "Bibata-Modern-Ice")
 hl.env("XCURSOR_SIZE", "24")
@@ -14,7 +14,7 @@ hl.env("OZONE_PLATFORM", "wayland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
-hl.env("XDG_MENU_PREFIX", "hyprtrixie-")
+hl.env("XDG_MENU_PREFIX", "solanum-")
 if look.get("reader") == "yes" then
   hl.env("QT_ACCESSIBILITY", "1")
   hl.env("QT_LINUX_ACCESSIBILITY_ALWAYS_ON", "1")

@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 var orphans = []string{"autoremove", "-o", "APT::AutoRemove::SuggestsImportant=false"}

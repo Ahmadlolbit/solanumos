@@ -5,11 +5,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const (
@@ -19,11 +19,11 @@ const (
 )
 
 func table() string {
-	return env.Or("HYPRTRIXIE_FSTAB", "/etc/fstab")
+	return env.Or("SOLANUM_FSTAB", "/etc/fstab")
 }
 
 func top() string {
-	return env.Or("HYPRTRIXIE_BTRFS_TOP", "/run/hyprtrixie/btrfs")
+	return env.Or("SOLANUM_BTRFS_TOP", "/run/solanum/btrfs")
 }
 
 func rootField(name string) string {

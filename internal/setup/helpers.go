@@ -8,16 +8,17 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fetch"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fetch"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 const (
@@ -114,17 +115,24 @@ func filesCheck(path string) step.Work {
 	return func(*runlog.Log) error { return fileThere(path) }
 }
 
+func originalOf(path string) string {
+	if !fsutil.Exists(path+".solanum-old") && fsutil.Exists(path+oldname.OldSuffix) {
+		return path + oldname.OldSuffix
+	}
+	return path + ".solanum-old"
+}
+
 func keepOld(_ *runlog.Log, path string) error {
-	if fsutil.Exists(path + ".hyprtrixie-old") {
+	if fsutil.Exists(originalOf(path)) {
 		return nil
 	}
-	return files.KeepCopy(path, path+".hyprtrixie-old")
+	return files.KeepCopy(path, path+".solanum-old")
 }
 
 func replaceKept(log *runlog.Log, path string, data []byte) (bool, error) {
 	before, _ := files.Hash(path)
-	if saved, err := files.Hash(path + ".hyprtrixie-old"); err == nil && saved != before {
-		fresh := path + ".hyprtrixie-new"
+	if saved, err := files.Hash(originalOf(path)); err == nil && saved != before {
+		fresh := path + ".solanum-new"
 		log.Line("warn", "kept local edits in "+path+", new version written to "+fresh)
 		if fsutil.Optional(fresh) == string(data) {
 			return false, nil
@@ -142,7 +150,7 @@ func unpackedRelease(log *runlog.Log, name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie")
+	dir, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return "", err
 	}

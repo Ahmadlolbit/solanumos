@@ -2,7 +2,7 @@
 set -eu
 
 options="noatime,compress=zstd:1"
-top=/mnt/hyprtrixie-top
+top=/mnt/solanum-top
 fstab=/target/etc/fstab
 
 say() {
@@ -46,7 +46,7 @@ efi_dev=$(mounted_on /target/boot/efi)
 held=$(left_out "$target_dev")
 if [ -n "$held" ]; then
   dir=${held%% *}
-  fail "/$dir is on a partition of its own (${held#* }), and this layout would leave it out. Skip this step: Hyprtrixie works without it, and /$dir stays out of the snapshots as it is."
+  fail "/$dir is on a partition of its own (${held#* }), and this layout would leave it out. Skip this step: Solanum works without it, and /$dir stays out of the snapshots as it is."
 fi
 say "Filesystem $target_dev ($uuid)"
 
@@ -96,12 +96,12 @@ if [ -n "$efi_dev" ]; then
   mount "$efi_dev" /target/boot/efi
 fi
 
-[ -f "$fstab.hyprtrixie-old" ] || cp "$fstab" "$fstab.hyprtrixie-old"
+[ -f "$fstab.solanum-old" ] || cp "$fstab" "$fstab.solanum-old"
 awk -v uuid="$uuid" -v opts="$options" '
   $1 !~ /^#/ && $2 == "/" { print "UUID=" uuid " / btrfs subvol=@," opts " 0 0"; next }
   $1 !~ /^#/ && ($2 == "/home" || $2 == "/.snapshots" || $2 == "/var/log" || $2 == "/swap") { next }
   { print }
-' "$fstab.hyprtrixie-old" >"$fstab"
+' "$fstab.solanum-old" >"$fstab"
 {
   printf 'UUID=%s /home btrfs subvol=@home,%s 0 0\n' "$uuid" "$options"
   printf 'UUID=%s /.snapshots btrfs subvol=@snapshots,%s 0 0\n' "$uuid" "$options"

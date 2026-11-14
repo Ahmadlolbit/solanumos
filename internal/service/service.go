@@ -3,9 +3,9 @@ package service
 import (
 	"io"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 var inChroot = detect.Chroot

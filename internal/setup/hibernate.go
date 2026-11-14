@@ -7,14 +7,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/bootimage"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/btrfs"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/bootimage"
+	"github.com/Ahmadlolbit/solanumos/internal/btrfs"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const (
@@ -27,15 +27,15 @@ const (
 )
 
 func resumeGrub() string {
-	return env.Or("HYPRTRIXIE_RESUME_GRUB", "/etc/default/grub.d/hyprtrixie-resume.cfg")
+	return env.Or("SOLANUM_RESUME_GRUB", "/etc/default/grub.d/solanum-resume.cfg")
 }
 
 func resumeInitramfs() string {
-	return env.Or("HYPRTRIXIE_RESUME_INITRAMFS", "/etc/initramfs-tools/conf.d/hyprtrixie-resume")
+	return env.Or("SOLANUM_RESUME_INITRAMFS", "/etc/initramfs-tools/conf.d/solanum-resume")
 }
 
 func resumeDracut() string {
-	return env.Or("HYPRTRIXIE_RESUME_DRACUT", "/etc/dracut.conf.d/hyprtrixie-resume.conf")
+	return env.Or("SOLANUM_RESUME_DRACUT", "/etc/dracut.conf.d/solanum-resume.conf")
 }
 
 func (context *Context) cantHibernate() string {

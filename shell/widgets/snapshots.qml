@@ -56,7 +56,7 @@ Label {
         cursorShape: Qt.PointingHandCursor
         onClicked: {
           Popups.close(popup);
-          Quickshell.execDetached(["hyprtrixie-terminal", "--wait", "sudo", "hyprtrixie", "doctor"]);
+          Quickshell.execDetached(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
         }
       }
     }

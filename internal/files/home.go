@@ -9,12 +9,13 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const partSuffix = ".hyprtrixie-part"
+const partSuffix = ".solanum-part"
 
 func (deployer *Deployer) inHome(path string) bool {
 	home := deployer.Person.Home
@@ -71,8 +72,16 @@ func (deployer *Deployer) remove(path string) error {
 	return nil
 }
 
+func savedOriginal(path string) string {
+	if !fsutil.Exists(path+oldSuffix) && fsutil.Exists(path+oldname.OldSuffix) {
+		return path + oldname.OldSuffix
+	}
+	return path + oldSuffix
+}
+
 func (deployer *Deployer) restoreOld(path string) (bool, error) {
-	if !fsutil.Exists(path + oldSuffix) {
+	saved := savedOriginal(path)
+	if !fsutil.Exists(saved) {
 		return false, nil
 	}
 	person, ok, err := deployer.homeOwner(path)
@@ -80,7 +89,7 @@ func (deployer *Deployer) restoreOld(path string) (bool, error) {
 		return false, err
 	}
 	if ok {
-		return true, person.Run(deployer.Log, "mv", "-fT", path+oldSuffix, path)
+		return true, person.Run(deployer.Log, "mv", "-fT", saved, path)
 	}
-	return true, os.Rename(path+oldSuffix, path)
+	return true, os.Rename(saved, path)
 }

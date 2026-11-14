@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/restic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/restic"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
 )
 
 func keysFile() string {

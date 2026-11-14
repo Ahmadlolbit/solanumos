@@ -17,7 +17,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 )
 
 const (
@@ -68,6 +68,9 @@ func Status(name string, args ...string) int {
 }
 
 func Within(limit time.Duration, name string, args ...string) int {
+	if kept(os.Stderr, name) {
+		return 0
+	}
 	command, finish := bounded(limit, os.Stderr, name, args)
 	inherit(command)
 	return Report(finish(command.Run()))
@@ -127,6 +130,9 @@ func Logged(output io.Writer, name string, args ...string) error {
 		return ErrStopped
 	}
 	trace(name, args)
+	if kept(output, name) {
+		return nil
+	}
 	command := exec.Command(name, args...)
 	command.Stdout = output
 	command.Stderr = output
@@ -154,6 +160,9 @@ func LoggedWithin(limit time.Duration, output io.Writer, name string, args ...st
 		return ErrStopped
 	}
 	trace(name, args)
+	if kept(output, name) {
+		return nil
+	}
 	return loggedWithin(limit, output, nil, name, args)
 }
 

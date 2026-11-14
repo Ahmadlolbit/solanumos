@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/events"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/modules"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/setup"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/words"
+	"github.com/Ahmadlolbit/solanumos/internal/events"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/setup"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -79,10 +79,10 @@ func (work *session) summaryLines() []string {
 	}
 	lines = append(lines, work.next(added)...)
 	if kept > 0 {
-		lines = append(lines, "Files you edited kept your edits; the new versions are next to them as *.hyprtrixie-new")
+		lines = append(lines, "Files you edited kept your edits; the new versions are next to them as *.solanum-new")
 	}
 	if len(runner.Failures) > 0 {
-		lines = append(lines, "Something failed: run sudo hyprtrixie collect --verbose and send the file it prints")
+		lines = append(lines, "Something failed: run sudo solanum collect --verbose and send the file it prints")
 	}
 	return lines
 }
@@ -100,7 +100,7 @@ func (work *session) changes() {
 		ui.Print("  " + line + "\n")
 	}
 	if len(lines) > changesShown {
-		ui.Print("  … the rest: hyprtrixie changes\n")
+		ui.Print("  … the rest: solanum changes\n")
 	}
 }
 

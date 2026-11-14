@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (

@@ -3,11 +3,11 @@ package setup
 import (
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 func install(name string) step.Work {
@@ -34,7 +34,7 @@ func (context *Context) admin() string {
 }
 
 func (context *Context) recordRun(log *runlog.Log) error {
-	log.Line("info", "hyprtrixie "+env.Version+" ("+commit()+") from "+env.Root())
+	log.Line("info", "solanum "+env.Version+" ("+commit()+") from "+env.Root())
 	log.Line("info", "admin user: "+context.admin())
 	for _, line := range strings.Split(strings.TrimSuffix(context.Config.Show(), "\n"), "\n") {
 		log.Line("info", "config "+line)

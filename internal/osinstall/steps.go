@@ -8,13 +8,13 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/disks"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 const hosts = "127.0.0.1\tlocalhost\n127.0.1.1\t%s\n::1\t\tlocalhost ip6-localhost ip6-loopback\nff02::1\t\tip6-allnodes\nff02::2\t\tip6-allrouters\n"
@@ -23,8 +23,8 @@ var (
 	bound      = []string{"dev", "dev/pts", "proc", "sys", "sys/firmware/efi/efivars", "run"}
 	wanted     = []string{"sudo", "adm", "audio", "video", "plugdev", "netdev", "users", "lpadmin", "bluetooth"}
 	livePieces = []string{"live-boot", "live-boot-initramfs-tools", "live-config", "live-config-systemd", "live-tools"}
-	liveFiles  = []string{"etc/sddm.conf.d/zz-hyprtrixie-live.conf", "usr/share/applications/hyprtrixie-installer.desktop",
-		"etc/systemd/system/hyprtrixie-install-console.service", "etc/systemd/system/multi-user.target.wants/hyprtrixie-install-console.service"}
+	liveFiles  = []string{"etc/sddm.conf.d/zz-solanum-live.conf", "usr/share/applications/solanum-installer.desktop",
+		"etc/systemd/system/solanum-install-console.service", "etc/systemd/system/multi-user.target.wants/solanum-install-console.service"}
 	windowsMenu = "GRUB_DISABLE_OS_PROBER=false\nGRUB_TIMEOUT_STYLE=menu\nGRUB_TIMEOUT=5\n"
 )
 
@@ -34,11 +34,11 @@ type install struct {
 }
 
 func squashfs() string {
-	return env.Or("HYPRTRIXIE_SQUASHFS", "/run/live/medium/live/filesystem.squashfs")
+	return env.Or("SOLANUM_SQUASHFS", "/run/live/medium/live/filesystem.squashfs")
 }
 
 func target() string {
-	return env.Or("HYPRTRIXIE_TARGET", disks.Target)
+	return env.Or("SOLANUM_TARGET", disks.Target)
 }
 
 func inTarget(path string) string {
@@ -79,7 +79,7 @@ func (work *install) commands(group []disks.Step) step.Work {
 
 func (work *install) clean(log *runlog.Log) error {
 	run.Quiet(run.Minute, "umount", "-R", target())
-	run.Quiet(run.Minute, "umount", "-R", "/run/hyprtrixie-top")
+	run.Quiet(run.Minute, "umount", "-R", "/run/solanum-top")
 	if fsutil.Exists("/dev/mapper/" + disks.Mapper) {
 		run.Quiet(run.Minute, "cryptsetup", "close", disks.Mapper)
 	}
@@ -107,7 +107,7 @@ func (work *install) giveBack(log *runlog.Log) {
 		return
 	}
 	run.Quiet(run.Minute, "umount", "-R", target())
-	run.Quiet(run.Minute, "umount", "-R", "/run/hyprtrixie-top")
+	run.Quiet(run.Minute, "umount", "-R", "/run/solanum-top")
 	if fsutil.Exists("/dev/mapper/" + disks.Mapper) {
 		run.Quiet(run.Minute, "cryptsetup", "close", disks.Mapper)
 	}

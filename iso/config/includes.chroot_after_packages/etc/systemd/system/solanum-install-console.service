@@ -1,0 +1,21 @@
+[Unit]
+Description=The Solanum installer on the text console
+ConditionKernelCommandLine=solanum.install=console
+After=systemd-user-sessions.service
+Before=getty@tty1.service
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/dmesg --console-off
+ExecStart=/opt/solanum/build/bin/solanum-installer
+ExecStopPost=-/usr/bin/systemctl --no-block start getty@tty1.service
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+Environment=TERM=linux
+
+[Install]
+WantedBy=multi-user.target

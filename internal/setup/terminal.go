@@ -8,15 +8,15 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fetch"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fetch"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const (
@@ -28,7 +28,7 @@ const (
 )
 
 func fontDir() string {
-	return env.Or("HYPRTRIXIE_FONT_DIR", "/usr/local/share/fonts/jetbrains-mono-nerd")
+	return env.Or("SOLANUM_FONT_DIR", "/usr/local/share/fonts/jetbrains-mono-nerd")
 }
 
 func zshShare() string {
@@ -59,7 +59,7 @@ func nerdFontInstall(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	dir, err := os.MkdirTemp("", "hyprtrixie")
+	dir, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}
@@ -88,13 +88,13 @@ func loginShell(name string) string {
 func (context *Context) zshrcSetup(log *runlog.Log) error {
 	zshrc := context.Person.Path(".zshrc")
 	if fsutil.Exists(zshrc) {
-		return files.EnsureUserLine(log, context.Person, zshrc, "source "+filepath.Join(zshShare(), "hyprtrixie.zsh"))
+		return files.EnsureUserLine(log, context.Person, zshrc, "source "+filepath.Join(zshShare(), "solanum.zsh"))
 	}
 	return context.Deploy.UserOnce("config/zsh/zshrc", ".zshrc")
 }
 
 func (context *Context) zshLoaded() bool {
-	return mentions(context.Person.Path(".zshrc"), filepath.Join(zshShare(), "hyprtrixie.zsh"))
+	return mentions(context.Person.Path(".zshrc"), filepath.Join(zshShare(), "solanum.zsh"))
 }
 
 func (context *Context) shellChosen() string {
@@ -105,7 +105,7 @@ func (context *Context) zshSetup(log *runlog.Log) error {
 	if err := fetch.Git(log, "oh-my-zsh", filepath.Join(env.ShareDir(), "oh-my-zsh")); err != nil {
 		return err
 	}
-	if err := context.Deploy.File("config/zsh/hyprtrixie.zsh", filepath.Join(zshShare(), "hyprtrixie.zsh")); err != nil {
+	if err := context.Deploy.File("config/zsh/solanum.zsh", filepath.Join(zshShare(), "solanum.zsh")); err != nil {
 		return err
 	}
 	setBefore := context.zshLoaded()
@@ -136,7 +136,7 @@ func (context *Context) zshReady(*runlog.Log) error {
 	if shell := loginShell(context.Person.Name); shell != loginZsh && !fsutil.IsFile(context.shellChosen()) {
 		return errors.New("your login shell is " + shell)
 	}
-	return expect(context.zshLoaded(), ".zshrc doesn't load hyprtrixie.zsh")
+	return expect(context.zshLoaded(), ".zshrc doesn't load solanum.zsh")
 }
 
 func (context *Context) promptSetup(log *runlog.Log) error {

@@ -12,10 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -71,7 +71,7 @@ type Log struct {
 }
 
 func Joined() *Log {
-	return &Log{file: os.Getenv("HYPRTRIXIE_LOG_FILE"), copy: os.Getenv("HYPRTRIXIE_USER_LOG")}
+	return &Log{file: os.Getenv("SOLANUM_LOG_FILE"), copy: os.Getenv("SOLANUM_USER_LOG")}
 }
 
 func Start(what string) (*Log, error) {
@@ -95,7 +95,7 @@ func Start(what string) (*Log, error) {
 	if err := atomic.Symlink(filepath.Base(path), filepath.Join(dir, "latest.log")); err != nil {
 		log.Line("warn", "cannot point latest.log at this run: "+err.Error())
 	}
-	log.Line("info", "hyprtrixie "+env.Version+" started ("+what+")")
+	log.Line("info", "solanum "+env.Version+" started ("+what+")")
 	return log, nil
 }
 

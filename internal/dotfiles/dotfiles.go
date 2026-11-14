@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 	ConfigName = "chezmoi.toml"
 )
 
-var ErrNoChezmoi = errors.New("chezmoi isn't installed: sudo hyprtrixie app install chezmoi")
+var ErrNoChezmoi = errors.New("chezmoi isn't installed: sudo solanum app install chezmoi")
 
 func folder() string {
 	return filepath.Join(env.ConfigHome(), "chezmoi")

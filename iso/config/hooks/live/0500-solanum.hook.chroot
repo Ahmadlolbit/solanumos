@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+useradd -m -s /bin/bash solanum
+cd /opt/solanum
+status=0
+SOLANUM_LIVE=1 SOLANUM_USER=solanum ./solanum install --config /opt/solanum/iso/live.conf --skip 01,04,05,17 --on-failure continue --yes || status=$?
+cached=/var/cache/solanum/sources/grub-btrfs
+grep '^grub-btrfs[[:space:]]' manifests/sources >/tmp/grub-btrfs.source || true
+read -r _ url commit </tmp/grub-btrfs.source || true
+rm -f /tmp/grub-btrfs.source
+if [ -n "${url:-}" ] && { [ -d "$cached/.git" ] || git clone --quiet "$url" "$cached"; } && git -C "$cached" checkout --quiet "$commit"; then
+  :
+else
+  echo "grub-btrfs isn't in the image's cache, so the first start needs the internet for it" >&2
+fi
+mkdir -p /var/log/solanum-live
+mv /home/solanum/runbook-logs /home/solanum/runbook-report.md /var/log/solanum-live/ 2>/dev/null || true
+[ "$status" = 0 ] || echo "The setup in the image stopped short (exit $status); the image keeps what passed, and its log is in /var/log/solanum-live" >&2
+rm -rf /home/solanum/.cache /root/.cache
+mv /etc/skel /etc/skel.debian
+mv /home/solanum /etc/skel
+chown -R root:root /etc/skel
+userdel solanum
+systemctl enable solanum-install-console.service

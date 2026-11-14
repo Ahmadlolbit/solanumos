@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/restic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/restic"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const usage = `Usage: restic-backup init <location>       set up where backups go (a folder, a USB drive path, s3:, b2: or rclone:)

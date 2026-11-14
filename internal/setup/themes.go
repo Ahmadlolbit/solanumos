@@ -9,43 +9,43 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/bootimage"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fetch"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/hypr"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/options"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/bootimage"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fetch"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
+	"github.com/Ahmadlolbit/solanumos/internal/options"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
 	oldName        = "omarchy"
 	oldState       = ".local/state/" + oldName + "/"
 	oldConfig      = ".config/" + oldName + "/"
-	themeState     = ".local/state/hyprtrixie/current"
-	userThemes     = ".config/hyprtrixie/themes/"
-	userBackdrops  = ".config/hyprtrixie/backgrounds/"
-	userLook       = ".config/hyprtrixie/look.conf"
-	themesSource   = "hyprtrixie-themes"
-	themeSetter    = "hyprtrixie-theme-set"
-	followTool     = "hyprtrixie-follow-theme"
+	themeState     = ".local/state/solanum/current"
+	userThemes     = ".config/solanum/themes/"
+	userBackdrops  = ".config/solanum/backgrounds/"
+	userLook       = ".config/solanum/look.conf"
+	themesSource   = "solanumos-themes"
+	themeSetter    = "solanum-theme-set"
+	followTool     = "solanum-follow-theme"
 	followPath     = followTool + ".path"
 	followService  = followTool + ".service"
 	gtkBase        = "adw-gtk3"
 	gtkThemes      = "/usr/share/themes"
-	consoleService = "hyprtrixie-console.service"
-	consoleBanner  = "/etc/issue.d/hyprtrixie.issue"
+	consoleService = "solanum-console.service"
+	consoleBanner  = "/etc/issue.d/solanum.issue"
 	unitFolder     = "/etc/systemd/system/"
-	splashScript   = "/usr/share/plymouth/themes/hyprtrixie/"
+	splashScript   = "/usr/share/plymouth/themes/solanum/"
 	grubFont       = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
-	btopTheme      = `color_theme = "hyprtrixie"`
+	btopTheme      = `color_theme = "solanum"`
 	btopSetting    = "color_theme = "
 )
 
@@ -53,7 +53,7 @@ var (
 	consoleFont = [][2]string{{"FONTFACE", `"Terminus"`}, {"FONTSIZE", `"16x32"`}}
 	debianFont  = map[string]string{"FONTFACE": `"Fixed"`, "FONTSIZE": `"8x16"`}
 	themeFiles  = []string{"colors.toml", "icons.theme", "preview.png", "chromium.theme", "btop.theme"}
-	themeTools  = []string{"hyprtrixie-look", "hyprtrixie-theme-install", "hyprtrixie-weather", "hyprtrixie-background", themeSetter}
+	themeTools  = []string{"solanum-look", "solanum-theme-install", "solanum-weather", "solanum-background", themeSetter}
 	lookOptions = [][2]string{
 		{"ACCENT", "ACCENT_COLOR"}, {"GLASS", "GLASS"}, {"CORNERS", "ROUNDED_CORNERS"}, {"STYLE", "WINDOW_STYLE"}, {"TEXT", "TEXT_SIZE"}, {"READER", "SCREEN_READER"}, {"CHIME", "STARTUP_SOUND"}, {"APPS", "APPS_THEME"}, {"EDITORS", "EDITORS_THEME"}, {"AUTO", "AUTO_THEME"}, {"LIGHT", "LIGHT_THEME"},
 		{"DARK", "DARK_THEME"}, {"LIGHT_AT", "LIGHT_AT"}, {"DARK_AT", "DARK_AT"}, {"DAILY", "DAILY_THEME"}, {"ROTATE", "WALLPAPER_MINUTES"}, {"DAY_WALLPAPER", "DAY_WALLPAPER"}, {"WALLPAPER_FOLDER", "WALLPAPER_FOLDER"}, {"WORKSPACES", "WALLPAPER_PER_WORKSPACE"},
@@ -73,11 +73,11 @@ type themeRun struct {
 }
 
 func oldThemeRoot() string {
-	return env.Or("HYPRTRIXIE_OLD_THEME_ROOT", "/usr/share/"+oldName)
+	return env.Or("SOLANUM_OLD_THEME_ROOT", "/usr/share/"+oldName)
 }
 
 func lookConf() string {
-	return env.Or("HYPRTRIXIE_LOOK_CONF", "/etc/hyprtrixie/look.conf")
+	return env.Or("SOLANUM_LOOK_CONF", "/etc/solanum/look.conf")
 }
 
 func themeApplied() string {
@@ -85,11 +85,11 @@ func themeApplied() string {
 }
 
 func grubThemeDir() string {
-	return env.Or("HYPRTRIXIE_GRUB_THEME_DIR", "/boot/grub/themes/hyprtrixie")
+	return env.Or("SOLANUM_GRUB_THEME_DIR", "/boot/grub/themes/solanum")
 }
 
 func grubSettings() string {
-	return env.Or("HYPRTRIXIE_GRUB_SETTINGS", "/etc/default/grub.d/hyprtrixie.cfg")
+	return env.Or("SOLANUM_GRUB_SETTINGS", "/etc/default/grub.d/solanum.cfg")
 }
 
 func followFile(name string) string {
@@ -207,8 +207,8 @@ func (theme *themeRun) wallpaperFollow(log *runlog.Log) error {
 		return nil
 	}
 	home := theme.Person.Home + "/"
-	target = replacedPrefix(target, home+oldConfig, home+".config/hyprtrixie/")
-	target = replacedPrefix(target, home+oldState, home+".local/state/hyprtrixie/")
+	target = replacedPrefix(target, home+oldConfig, home+".config/solanum/")
+	target = replacedPrefix(target, home+oldState, home+".local/state/solanum/")
 	backdrops := home + userBackdrops
 	for old, fresh := range config.RenamedThemes() {
 		target = replacedPrefix(target, backdrops+old+"/", backdrops+fresh+"/")
@@ -218,9 +218,9 @@ func (theme *themeRun) wallpaperFollow(log *runlog.Log) error {
 
 func oldFolders() [][2]string {
 	moves := [][2]string{
-		{oldConfig + "themes", ".config/hyprtrixie/themes"},
-		{oldConfig + "backgrounds", ".config/hyprtrixie/backgrounds"},
-		{oldConfig + "themed", ".config/hyprtrixie/themed"},
+		{oldConfig + "themes", ".config/solanum/themes"},
+		{oldConfig + "backgrounds", ".config/solanum/backgrounds"},
+		{oldConfig + "themed", ".config/solanum/themed"},
 		{oldState + "current", themeState},
 	}
 	renames := config.RenamedThemes()
@@ -249,7 +249,7 @@ func (theme *themeRun) oldIncludesUpdate(log *runlog.Log) error {
 		if !mentions(file, oldState) && !mentions(file, oldConfig) {
 			continue
 		}
-		if err := theme.Person.Run(log, "sed", "-i", "--follow-symlinks", "-E", `s#\.(local/state|config)/`+oldName+`/#.\1/hyprtrixie/#g`, file); err != nil {
+		if err := theme.Person.Run(log, "sed", "-i", "--follow-symlinks", "-E", `s#\.(local/state|config)/`+oldName+`/#.\1/solanum/#g`, file); err != nil {
 			return err
 		}
 	}
@@ -257,7 +257,7 @@ func (theme *themeRun) oldIncludesUpdate(log *runlog.Log) error {
 		if !mentions(file, oldState) {
 			continue
 		}
-		if err := run.Logged(log, "sed", "-i", `s|\.local/state/`+oldName+`/|.local/state/hyprtrixie/|g`, file); err != nil {
+		if err := run.Logged(log, "sed", "-i", `s|\.local/state/`+oldName+`/|.local/state/solanum/|g`, file); err != nil {
 			return err
 		}
 	}
@@ -406,7 +406,7 @@ func (theme *themeRun) lookInstall(log *runlog.Log) error {
 	if err != nil || !changed {
 		return err
 	}
-	return theme.removeYours(log, theme.Person.Path(".local/state/hyprtrixie/look/period"))
+	return theme.removeYours(log, theme.Person.Path(".local/state/solanum/look/period"))
 }
 
 func (theme *themeRun) readerInstall(log *runlog.Log) error {
@@ -427,7 +427,7 @@ func (theme *themeRun) themeInUse() bool {
 }
 
 func (theme *themeRun) themeSet(log *runlog.Log, name string) error {
-	command := []string{"env", "HYPRTRIXIE_THEME_ROOT=" + env.ThemeRoot(), "HYPRTRIXIE_LOOK_SYSTEM=" + lookConf(), "HYPRTRIXIE_LOOK_AUTO=1"}
+	command := []string{"env", "SOLANUM_THEME_ROOT=" + env.ThemeRoot(), "SOLANUM_LOOK_SYSTEM=" + lookConf(), "SOLANUM_LOOK_AUTO=1"}
 	command = append(command, hypr.Running(theme.Person.Runtime())...)
 	return theme.Person.Run(log, append(command, filepath.Join(env.BinDir(), themeSetter), name)...)
 }
@@ -468,14 +468,14 @@ func (theme *themeRun) followInstall(*runlog.Log) error {
 	if err := theme.Deploy.Tool(followTool); err != nil {
 		return err
 	}
-	if err := theme.Deploy.File("system/plymouth/hyprtrixie.script", followFile("hyprtrixie.script"), "BOOT_PROMPT="+theme.Config.Get("BOOT_PROMPT")); err != nil {
+	if err := theme.Deploy.File("system/plymouth/solanum.script", followFile("solanum.script"), "BOOT_PROMPT="+theme.Config.Get("BOOT_PROMPT")); err != nil {
 		return err
 	}
 	if err := theme.Deploy.File("system/grub/theme.txt", followFile("theme.txt")); err != nil {
 		return err
 	}
 	settings := theme.Config
-	return theme.Deploy.File("system/follow-theme.conf", "/etc/hyprtrixie/follow-theme", "USER="+theme.Person.Name, "SPLASH="+settings.Get("BOOT_SPLASH"),
+	return theme.Deploy.File("system/follow-theme.conf", "/etc/solanum/follow-theme", "USER="+theme.Person.Name, "SPLASH="+settings.Get("BOOT_SPLASH"),
 		"MENU="+settings.Get("BOOT_MENU_THEME"), "CONSOLE="+settings.Get("CONSOLE_THEME"), "CLOCK="+settings.Get("CLOCK_FORMAT"), "BROWSERS="+settings.Get("BROWSERS_THEME"))
 }
 
@@ -492,16 +492,16 @@ func (theme *themeRun) bootSplashInstall(log *runlog.Log) error {
 	if err := apt.InstallLists(log, "boot-splash"); err != nil {
 		return err
 	}
-	if err := theme.splashFile("plymouth/hyprtrixie.plymouth", splashScript+"hyprtrixie.plymouth"); err != nil {
+	if err := theme.splashFile("plymouth/solanum.plymouth", splashScript+"solanum.plymouth"); err != nil {
 		return err
 	}
 	if err := theme.splashFile("plymouth/plymouthd.conf", "/etc/plymouth/plymouthd.conf"); err != nil {
 		return err
 	}
-	if err := theme.splashFile("initramfs/splash.conf", "/etc/initramfs-tools/conf.d/hyprtrixie-splash"); err != nil {
+	if err := theme.splashFile("initramfs/splash.conf", "/etc/initramfs-tools/conf.d/solanum-splash"); err != nil {
 		return err
 	}
-	return theme.splashFile("initramfs/drm-modules", "/usr/share/initramfs-tools/modules.d/hyprtrixie-drm")
+	return theme.splashFile("initramfs/drm-modules", "/usr/share/initramfs-tools/modules.d/solanum-drm")
 }
 
 func (theme *themeRun) grubThemeInstall(log *runlog.Log) error {
@@ -564,7 +564,7 @@ func (theme *themeRun) grubSetup(log *runlog.Log) error {
 }
 
 func consoleSetup() string {
-	return env.Or("HYPRTRIXIE_CONSOLE_SETUP", "/etc/default/console-setup")
+	return env.Or("SOLANUM_CONSOLE_SETUP", "/etc/default/console-setup")
 }
 
 func settingIn(path, key string) string {
@@ -578,7 +578,7 @@ func settingIn(path, key string) string {
 }
 
 func savedFont() map[string]string {
-	saved := consoleSetup() + ".hyprtrixie-old"
+	saved := consoleSetup() + ".solanum-old"
 	values := map[string]string{}
 	ours := true
 	for _, setting := range consoleFont {
@@ -669,7 +669,7 @@ func (theme *themeRun) consoleInstall(log *runlog.Log) error {
 	if err := service.Enable(log, consoleService); err != nil {
 		return err
 	}
-	return theme.Deploy.File("system/console/hyprtrixie.issue", consoleBanner)
+	return theme.Deploy.File("system/console/solanum.issue", consoleBanner)
 }
 
 func (theme *themeRun) followRun(log *runlog.Log) error {
@@ -750,7 +750,7 @@ func themeChecks(context *Context) {
 		return expect(gtkBaseInPlace(), gtkBase+" isn't in "+gtkThemes)
 	})
 	if context.Config.Get("BOOT_SPLASH") == "yes" {
-		context.Run.Check("The boot splash is in the theme's colours", func(*runlog.Log) error { return fileThere(splashScript + "hyprtrixie.script") })
+		context.Run.Check("The boot splash is in the theme's colours", func(*runlog.Log) error { return fileThere(splashScript + "solanum.script") })
 	}
 	context.Run.Check("A theme is applied", theme.ready)
 	context.Run.Check("All themes are installed", func(*runlog.Log) error {

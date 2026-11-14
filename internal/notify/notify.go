@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const limit = 30 * time.Second

@@ -5,12 +5,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const (
@@ -19,15 +19,15 @@ const (
 )
 
 func sudoPAM() string {
-	return env.Or("HYPRTRIXIE_PAM_SUDO", "/etc/pam.d/sudo")
+	return env.Or("SOLANUM_PAM_SUDO", "/etc/pam.d/sudo")
 }
 
 func commonAuthPAM() string {
-	return env.Or("HYPRTRIXIE_PAM_COMMON_AUTH", "/etc/pam.d/common-auth")
+	return env.Or("SOLANUM_PAM_COMMON_AUTH", "/etc/pam.d/common-auth")
 }
 
 func fprintdProfile() string {
-	return env.Or("HYPRTRIXIE_PAM_FPRINTD", "/usr/share/pam-configs/fprintd")
+	return env.Or("SOLANUM_PAM_FPRINTD", "/usr/share/pam-configs/fprintd")
 }
 
 func fingerprintOnlyWhereAsked(log *runlog.Log) error {

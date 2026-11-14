@@ -10,13 +10,13 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/btrfs"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/btrfs"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 )
 
 func swapDir() string {
-	return env.Or("HYPRTRIXIE_SWAP_DIR", "/swap")
+	return env.Or("SOLANUM_SWAP_DIR", "/swap")
 }
 
 func swapFile() string {
@@ -41,11 +41,11 @@ func swapFile() string {
 }
 
 func zramConfig() string {
-	return env.Or("HYPRTRIXIE_ZRAM_CONFIG", "/etc/default/zramswap")
+	return env.Or("SOLANUM_ZRAM_CONFIG", "/etc/default/zramswap")
 }
 
 func swapSettings() string {
-	return filepath.Join(env.Or("HYPRTRIXIE_SYSCTL_DIR", "/etc/sysctl.d"), "90-hyprtrixie-swap.conf")
+	return filepath.Join(env.Or("SOLANUM_SYSCTL_DIR", "/etc/sysctl.d"), "90-solanum-swap.conf")
 }
 
 func (context *Context) number(key string) int {
@@ -177,7 +177,7 @@ func (zram *zramSetup) configure(log *runlog.Log) error {
 }
 
 func (context *Context) swappinessApply(log *runlog.Log) error {
-	if err := context.Deploy.File("system/sysctl/90-hyprtrixie-swap.conf", swapSettings(), "SWAPPINESS="+context.Config.Get("SWAPPINESS")); err != nil {
+	if err := context.Deploy.File("system/sysctl/90-solanum-swap.conf", swapSettings(), "SWAPPINESS="+context.Config.Get("SWAPPINESS")); err != nil {
 		return err
 	}
 	return run.Logged(log, "sysctl", "-q", "-p", swapSettings())

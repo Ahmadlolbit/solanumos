@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 )
 
 var (
-	sysroot   = os.Getenv("HYPRTRIXIE_SYSROOT")
+	sysroot   = os.Getenv("SOLANUM_SYSROOT")
 	laptopish = []string{"8", "9", "10", "11", "12", "14", "18", "21", "30", "31", "32"}
 )
 

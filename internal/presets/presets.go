@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const sizeLimit = 64 * 1024

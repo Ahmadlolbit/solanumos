@@ -16,7 +16,7 @@
   "learn.keys": {
     "glyph": "\uf11c",
     "label": "Keys",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call keys open",
+    "action": "qs -p /usr/share/solanum/shell ipc call keys open",
     "keywords": [
       "keys",
       "shortcuts",
@@ -26,7 +26,7 @@
   "learn.welcome": {
     "glyph": "\udb81\udd99",
     "label": "Welcome",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call welcome open",
+    "action": "qs -p /usr/share/solanum/shell ipc call welcome open",
     "keywords": [
       "welcome",
       "start",
@@ -40,7 +40,7 @@
   "capture.region": {
     "glyph": "\udb80\udd9e",
     "label": "Screenshot of a region",
-    "action": "sleep 0.3; hyprtrixie-screenshot region",
+    "action": "sleep 0.3; solanum-screenshot region",
     "keywords": [
       "screenshot",
       "capture"
@@ -49,7 +49,7 @@
   "capture.window": {
     "glyph": "\udb81\uddaf",
     "label": "Screenshot of a window",
-    "action": "sleep 0.3; hyprtrixie-screenshot window",
+    "action": "sleep 0.3; solanum-screenshot window",
     "keywords": [
       "screenshot",
       "capture"
@@ -58,7 +58,7 @@
   "capture.screen": {
     "glyph": "\udb80\udf79",
     "label": "Screenshot of the screen",
-    "action": "sleep 0.3; hyprtrixie-screenshot screen",
+    "action": "sleep 0.3; solanum-screenshot screen",
     "keywords": [
       "screenshot",
       "capture"
@@ -67,7 +67,7 @@
   "capture.record": {
     "glyph": "\uf03d",
     "label": "Record a region",
-    "action": "sleep 0.3; hyprtrixie-record region",
+    "action": "sleep 0.3; solanum-record region",
     "keywords": [
       "record",
       "video",
@@ -77,7 +77,7 @@
   "capture.recordscreen": {
     "glyph": "\uf108",
     "label": "Record the screen",
-    "action": "sleep 0.3; hyprtrixie-record screen",
+    "action": "sleep 0.3; solanum-record screen",
     "keywords": [
       "record",
       "video",
@@ -87,7 +87,7 @@
   "capture.recordstop": {
     "glyph": "\uf04d",
     "label": "Stop recording",
-    "action": "hyprtrixie-record stop",
+    "action": "solanum-record stop",
     "keywords": [
       "record",
       "stop"
@@ -96,7 +96,7 @@
   "capture.colour": {
     "glyph": "\uf1fb",
     "label": "Colour from the screen",
-    "action": "sleep 0.3; hyprtrixie-pick colour",
+    "action": "sleep 0.3; solanum-pick colour",
     "keywords": [
       "colour",
       "color",
@@ -107,7 +107,7 @@
   "capture.qr": {
     "glyph": "\uf029",
     "label": "QR code from the screen",
-    "action": "sleep 0.3; hyprtrixie-pick qr",
+    "action": "sleep 0.3; solanum-pick qr",
     "keywords": [
       "qr",
       "code",
@@ -121,8 +121,8 @@
   "toggle.screensaver": {
     "glyph": "\udb84\udd04",
     "label": "Screensaver",
-    "action": "hyprtrixie-screensaver toggle",
-    "state": "test \"$(hyprtrixie-screensaver status)\" = on",
+    "action": "solanum-screensaver toggle",
+    "state": "test \"$(solanum-screensaver status)\" = on",
     "keywords": [
       "screensaver",
       "idle"
@@ -168,8 +168,8 @@
   "toggle.nightlight": {
     "glyph": "\udb81\udd94",
     "label": "Night light",
-    "action": "hyprtrixie-look night toggle",
-    "state": "test \"$(hyprtrixie-look night)\" != off",
+    "action": "solanum-look night toggle",
+    "state": "test \"$(solanum-look night)\" != off",
     "keywords": [
       "night",
       "light",
@@ -180,8 +180,8 @@
   "toggle.nighthours": {
     "glyph": "\udb81\udd94",
     "label": "Night light at night",
-    "action": "test \"$(hyprtrixie-look night)\" = times && hyprtrixie-look night off || hyprtrixie-look night times",
-    "state": "test \"$(hyprtrixie-look night)\" = times",
+    "action": "test \"$(solanum-look night)\" = times && solanum-look night off || solanum-look night times",
+    "state": "test \"$(solanum-look night)\" = times",
     "keywords": [
       "night",
       "light",
@@ -192,8 +192,8 @@
   "toggle.powerfollow": {
     "glyph": "\udb80\udf29",
     "label": "Power saver on battery",
-    "action": "hyprtrixie-look power toggle",
-    "state": "test \"$(hyprtrixie-look power)\" = yes",
+    "action": "solanum-look power toggle",
+    "state": "test \"$(solanum-look power)\" = yes",
     "needs": "power-profiles",
     "keywords": [
       "power",
@@ -205,8 +205,8 @@
   "toggle.zen": {
     "glyph": "\uf06e",
     "label": "Zen mode",
-    "action": "hyprtrixie-look zen toggle",
-    "state": "test \"$(hyprtrixie-look zen)\" = yes",
+    "action": "solanum-look zen toggle",
+    "state": "test \"$(solanum-look zen)\" = yes",
     "keywords": [
       "zen",
       "focus",
@@ -217,8 +217,8 @@
   "toggle.presentation": {
     "glyph": "\uf26c",
     "label": "Presentation mode",
-    "action": "hyprtrixie-look presentation toggle",
-    "state": "test \"$(hyprtrixie-look presentation)\" = yes",
+    "action": "solanum-look presentation toggle",
+    "state": "test \"$(solanum-look presentation)\" = yes",
     "keywords": [
       "presentation",
       "mirror",
@@ -229,8 +229,8 @@
   "toggle.glass": {
     "glyph": "\udb80\udcb5",
     "label": "Glass",
-    "action": "hyprtrixie-look glass toggle",
-    "state": "test \"$(hyprtrixie-look glass)\" = yes",
+    "action": "solanum-look glass toggle",
+    "state": "test \"$(solanum-look glass)\" = yes",
     "keywords": [
       "glass",
       "transparent",
@@ -241,8 +241,8 @@
   "toggle.corners": {
     "glyph": "\udb81\ude07",
     "label": "Rounded corners",
-    "action": "hyprtrixie-look corners toggle",
-    "state": "test \"$(hyprtrixie-look corners)\" = yes",
+    "action": "solanum-look corners toggle",
+    "state": "test \"$(solanum-look corners)\" = yes",
     "keywords": [
       "corners",
       "rounded",
@@ -252,7 +252,7 @@
   "toggle.reader": {
     "glyph": "\uf29a",
     "label": "Screen reader",
-    "action": "hyprtrixie-look reader toggle",
+    "action": "solanum-look reader toggle",
     "state": "pgrep -x orca >/dev/null",
     "keywords": [
       "screen reader",
@@ -264,8 +264,8 @@
   "toggle.weather": {
     "glyph": "\udb81\udd95",
     "label": "Weather",
-    "action": "hyprtrixie-look weather toggle",
-    "state": "test \"$(hyprtrixie-look weather)\" = yes",
+    "action": "solanum-look weather toggle",
+    "state": "test \"$(solanum-look weather)\" = yes",
     "keywords": [
       "weather",
       "forecast",
@@ -286,8 +286,8 @@
   "toggle.quiet": {
     "glyph": "\udb83\ude0f",
     "label": "Quiet hours",
-    "action": "hyprtrixie-look quiet toggle",
-    "state": "test \"$(hyprtrixie-look quiet)\" = yes",
+    "action": "solanum-look quiet toggle",
+    "state": "test \"$(solanum-look quiet)\" = yes",
     "keywords": [
       "quiet",
       "night",
@@ -358,7 +358,7 @@
   "style.theme": {
     "glyph": "\udb83\ude0c",
     "label": "Theme",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call picker themes",
+    "action": "qs -p /usr/share/solanum/shell ipc call picker themes",
     "keywords": [
       "theme",
       "colors",
@@ -368,7 +368,7 @@
   "style.background": {
     "glyph": "\uf03e",
     "label": "Background",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call picker backgrounds",
+    "action": "qs -p /usr/share/solanum/shell ipc call picker backgrounds",
     "keywords": [
       "background",
       "wallpaper"
@@ -377,7 +377,7 @@
   "style.next": {
     "glyph": "\udb81\udc50",
     "label": "Next background",
-    "action": "hyprtrixie-background next",
+    "action": "solanum-background next",
     "keywords": [
       "background",
       "wallpaper"
@@ -386,8 +386,8 @@
   "style.auto": {
     "glyph": "\udb81\udd0e",
     "label": "Automatic light and dark",
-    "action": "hyprtrixie-look auto toggle",
-    "state": "test \"$(hyprtrixie-look auto)\" != off",
+    "action": "solanum-look auto toggle",
+    "state": "test \"$(solanum-look auto)\" != off",
     "keywords": [
       "light",
       "dark",
@@ -400,8 +400,8 @@
   "style.rotate": {
     "glyph": "\udb81\udc53",
     "label": "Rotate wallpapers",
-    "action": "hyprtrixie-look rotate toggle",
-    "state": "test \"$(hyprtrixie-look rotate)\" != 0",
+    "action": "solanum-look rotate toggle",
+    "state": "test \"$(solanum-look rotate)\" != 0",
     "keywords": [
       "wallpaper",
       "background",
@@ -412,8 +412,8 @@
   "style.workspaces": {
     "glyph": "\udb81\udd70",
     "label": "Wallpaper per workspace",
-    "action": "hyprtrixie-look workspaces toggle",
-    "state": "test \"$(hyprtrixie-look workspaces)\" = yes",
+    "action": "solanum-look workspaces toggle",
+    "state": "test \"$(solanum-look workspaces)\" = yes",
     "keywords": [
       "wallpaper",
       "background",
@@ -434,26 +434,26 @@
   "style.bar.full": {
     "glyph": "\udb82\udfa5",
     "label": "Full width",
-    "action": "hyprtrixie-look bar full",
-    "state": "test \"$(hyprtrixie-look bar)\" = full"
+    "action": "solanum-look bar full",
+    "state": "test \"$(solanum-look bar)\" = full"
   },
   "style.bar.floating": {
     "glyph": "\udb84\udf65",
     "label": "Floating",
-    "action": "hyprtrixie-look bar floating",
-    "state": "test \"$(hyprtrixie-look bar)\" = floating"
+    "action": "solanum-look bar floating",
+    "state": "test \"$(solanum-look bar)\" = floating"
   },
   "style.bar.minimal": {
     "glyph": "\udb83\ude6e",
     "label": "Minimal",
-    "action": "hyprtrixie-look bar minimal",
-    "state": "test \"$(hyprtrixie-look bar)\" = minimal"
+    "action": "solanum-look bar minimal",
+    "state": "test \"$(solanum-look bar)\" = minimal"
   },
   "style.bar.vertical": {
     "glyph": "\udb82\udfa3",
     "label": "Down the left side",
-    "action": "hyprtrixie-look bar vertical",
-    "state": "test \"$(hyprtrixie-look bar)\" = vertical"
+    "action": "solanum-look bar vertical",
+    "state": "test \"$(solanum-look bar)\" = vertical"
   },
   "style.position": {
     "glyph": "\uf0e2",
@@ -468,14 +468,14 @@
   "style.position.top": {
     "glyph": "\uf062",
     "label": "Top",
-    "action": "hyprtrixie-look position top",
-    "state": "test \"$(hyprtrixie-look position)\" = top"
+    "action": "solanum-look position top",
+    "state": "test \"$(solanum-look position)\" = top"
   },
   "style.position.bottom": {
     "glyph": "\uf063",
     "label": "Bottom",
-    "action": "hyprtrixie-look position bottom",
-    "state": "test \"$(hyprtrixie-look position)\" = bottom"
+    "action": "solanum-look position bottom",
+    "state": "test \"$(solanum-look position)\" = bottom"
   },
   "style.window": {
     "glyph": "\uf2d0",
@@ -491,14 +491,14 @@
   "style.window.sharp": {
     "glyph": "\uf0c8",
     "label": "Sharp",
-    "action": "hyprtrixie-look style sharp",
-    "state": "test \"$(hyprtrixie-look style)\" = sharp"
+    "action": "solanum-look style sharp",
+    "state": "test \"$(solanum-look style)\" = sharp"
   },
   "style.window.soft": {
     "glyph": "\uf111",
     "label": "Soft",
-    "action": "hyprtrixie-look style soft",
-    "state": "test \"$(hyprtrixie-look style)\" = soft"
+    "action": "solanum-look style soft",
+    "state": "test \"$(solanum-look style)\" = soft"
   },
   "style.apps": {
     "glyph": "\uf2d0",
@@ -514,20 +514,20 @@
   "style.apps.follow": {
     "glyph": "\uf1fc",
     "label": "Follow the theme",
-    "action": "hyprtrixie-look apps follow",
-    "state": "test \"$(hyprtrixie-look apps)\" = follow"
+    "action": "solanum-look apps follow",
+    "state": "test \"$(solanum-look apps)\" = follow"
   },
   "style.apps.catppuccin": {
     "glyph": "\uf1fb",
     "label": "Always Catppuccin",
-    "action": "hyprtrixie-look apps catppuccin",
-    "state": "test \"$(hyprtrixie-look apps)\" = catppuccin"
+    "action": "solanum-look apps catppuccin",
+    "state": "test \"$(solanum-look apps)\" = catppuccin"
   },
   "style.apps.off": {
     "glyph": "\uf05e",
     "label": "Keep their own look",
-    "action": "hyprtrixie-look apps off",
-    "state": "test \"$(hyprtrixie-look apps)\" = off"
+    "action": "solanum-look apps off",
+    "state": "test \"$(solanum-look apps)\" = off"
   },
   "style.accent": {
     "glyph": "\udb80\udfd8",
@@ -543,57 +543,57 @@
     "glyph": "\udb81\udf65",
     "label": "The theme's own",
     "color": "theme_accent",
-    "action": "hyprtrixie-look accent theme",
-    "state": "test \"$(hyprtrixie-look accent)\" = theme"
+    "action": "solanum-look accent theme",
+    "state": "test \"$(solanum-look accent)\" = theme"
   },
   "style.accent.red": {
     "glyph": "\udb81\udf65",
     "label": "Red",
     "color": "red",
-    "action": "hyprtrixie-look accent red",
-    "state": "test \"$(hyprtrixie-look accent)\" = red"
+    "action": "solanum-look accent red",
+    "state": "test \"$(solanum-look accent)\" = red"
   },
   "style.accent.orange": {
     "glyph": "\udb81\udf65",
     "label": "Orange",
     "color": "orange",
-    "action": "hyprtrixie-look accent orange",
-    "state": "test \"$(hyprtrixie-look accent)\" = orange"
+    "action": "solanum-look accent orange",
+    "state": "test \"$(solanum-look accent)\" = orange"
   },
   "style.accent.yellow": {
     "glyph": "\udb81\udf65",
     "label": "Yellow",
     "color": "yellow",
-    "action": "hyprtrixie-look accent yellow",
-    "state": "test \"$(hyprtrixie-look accent)\" = yellow"
+    "action": "solanum-look accent yellow",
+    "state": "test \"$(solanum-look accent)\" = yellow"
   },
   "style.accent.green": {
     "glyph": "\udb81\udf65",
     "label": "Green",
     "color": "green",
-    "action": "hyprtrixie-look accent green",
-    "state": "test \"$(hyprtrixie-look accent)\" = green"
+    "action": "solanum-look accent green",
+    "state": "test \"$(solanum-look accent)\" = green"
   },
   "style.accent.cyan": {
     "glyph": "\udb81\udf65",
     "label": "Cyan",
     "color": "cyan",
-    "action": "hyprtrixie-look accent cyan",
-    "state": "test \"$(hyprtrixie-look accent)\" = cyan"
+    "action": "solanum-look accent cyan",
+    "state": "test \"$(solanum-look accent)\" = cyan"
   },
   "style.accent.blue": {
     "glyph": "\udb81\udf65",
     "label": "Blue",
     "color": "blue",
-    "action": "hyprtrixie-look accent blue",
-    "state": "test \"$(hyprtrixie-look accent)\" = blue"
+    "action": "solanum-look accent blue",
+    "state": "test \"$(solanum-look accent)\" = blue"
   },
   "style.accent.magenta": {
     "glyph": "\udb81\udf65",
     "label": "Magenta",
     "color": "magenta",
-    "action": "hyprtrixie-look accent magenta",
-    "state": "test \"$(hyprtrixie-look accent)\" = magenta"
+    "action": "solanum-look accent magenta",
+    "state": "test \"$(solanum-look accent)\" = magenta"
   },
   "style.font": {
     "glyph": "\udb81\uded6",
@@ -624,7 +624,7 @@
   "setup.wifi": {
     "glyph": "\udb81\udda9",
     "label": "Wi-Fi",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle wifi",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle wifi",
     "keywords": [
       "wifi",
       "wireless",
@@ -635,7 +635,7 @@
   "setup.audio": {
     "glyph": "\udb81\udd7e",
     "label": "Audio",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle audio",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle audio",
     "keywords": [
       "audio",
       "sound",
@@ -647,7 +647,7 @@
   "setup.brightness": {
     "glyph": "\udb80\udcdf",
     "label": "Brightness",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle brightness",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle brightness",
     "needs": "brightness",
     "keywords": [
       "brightness",
@@ -659,7 +659,7 @@
   "setup.bluetooth": {
     "glyph": "\udb80\udcaf",
     "label": "Bluetooth",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle bluetooth",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle bluetooth",
     "keywords": [
       "bluetooth",
       "headphones",
@@ -690,31 +690,31 @@
   "setup.trackpoint.slow": {
     "glyph": "\uf245",
     "label": "Slow",
-    "action": "hyprtrixie-look trackpoint-speed -0.5",
-    "state": "test \"$(hyprtrixie-look trackpoint-speed)\" = -0.5"
+    "action": "solanum-look trackpoint-speed -0.5",
+    "state": "test \"$(solanum-look trackpoint-speed)\" = -0.5"
   },
   "setup.trackpoint.medium": {
     "glyph": "\uf245",
     "label": "Medium",
-    "action": "hyprtrixie-look trackpoint-speed 0",
-    "state": "test \"$(hyprtrixie-look trackpoint-speed)\" = 0"
+    "action": "solanum-look trackpoint-speed 0",
+    "state": "test \"$(solanum-look trackpoint-speed)\" = 0"
   },
   "setup.trackpoint.fast": {
     "glyph": "\uf245",
     "label": "Fast",
-    "action": "hyprtrixie-look trackpoint-speed 0.5",
-    "state": "test \"$(hyprtrixie-look trackpoint-speed)\" = 0.5"
+    "action": "solanum-look trackpoint-speed 0.5",
+    "state": "test \"$(solanum-look trackpoint-speed)\" = 0.5"
   },
   "setup.trackpoint.scroll": {
     "glyph": "\uf8cc",
     "label": "Scroll with the middle button",
-    "action": "hyprtrixie-look trackpoint-scroll toggle",
-    "state": "test \"$(hyprtrixie-look trackpoint-scroll)\" = yes"
+    "action": "solanum-look trackpoint-scroll toggle",
+    "state": "test \"$(solanum-look trackpoint-scroll)\" = yes"
   },
   "setup.power": {
     "glyph": "\udb80\udc79",
     "label": "Power",
-    "action": "qs -p /usr/share/hyprtrixie/shell ipc call popup toggle battery",
+    "action": "qs -p /usr/share/solanum/shell ipc call popup toggle battery",
     "keywords": [
       "battery",
       "power",
@@ -734,7 +734,7 @@
   "install.package": {
     "glyph": "\udb80\udfd7",
     "label": "Any Debian package",
-    "action": "hyprtrixie-terminal --wait hyprtrixie-pkg install",
+    "action": "solanum-terminal --wait solanum-pkg install",
     "keywords": [
       "install",
       "package",
@@ -744,7 +744,7 @@
   "install.webapp": {
     "glyph": "\uf0ac",
     "label": "A website as an app",
-    "action": "hyprtrixie-terminal --wait hyprtrixie-webapp add",
+    "action": "solanum-terminal --wait solanum-webapp add",
     "keywords": [
       "web",
       "app",
@@ -764,7 +764,7 @@
   "remove.package": {
     "glyph": "\udb80\udfd7",
     "label": "Any package",
-    "action": "hyprtrixie-terminal --wait hyprtrixie-pkg remove",
+    "action": "solanum-terminal --wait solanum-pkg remove",
     "keywords": [
       "remove",
       "uninstall",
@@ -775,7 +775,7 @@
   "remove.webapp": {
     "glyph": "\uf0ac",
     "label": "A web app",
-    "action": "hyprtrixie-terminal --wait hyprtrixie-webapp remove",
+    "action": "solanum-terminal --wait solanum-webapp remove",
     "keywords": [
       "web",
       "app"
@@ -788,7 +788,7 @@
   "update.everything": {
     "glyph": "\udb81\udeb0",
     "label": "Everything",
-    "action": "hyprtrixie-terminal --wait hyprtrixie update",
+    "action": "solanum-terminal --wait solanum update",
     "keywords": [
       "update",
       "upgrade",
@@ -797,20 +797,20 @@
       "snapshot"
     ]
   },
-  "update.hyprtrixie": {
+  "update.solanum": {
     "glyph": "\udb81\udeb0",
-    "label": "Hyprtrixie",
-    "action": "hyprtrixie-terminal --wait hyprtrixie update hyprtrixie",
+    "label": "Solanum",
+    "action": "solanum-terminal --wait solanum update solanum",
     "keywords": [
       "update",
       "upgrade",
-      "hyprtrixie"
+      "solanum"
     ]
   },
   "update.debian": {
     "glyph": "\uf306",
     "label": "Debian packages",
-    "action": "hyprtrixie-terminal --wait sh -c 'sudo apt update && sudo apt full-upgrade'",
+    "action": "solanum-terminal --wait sh -c 'sudo apt update && sudo apt full-upgrade'",
     "keywords": [
       "update",
       "upgrade",
@@ -821,7 +821,7 @@
   "update.firmware": {
     "glyph": "\udb81\ude1a",
     "label": "Firmware",
-    "action": "hyprtrixie-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'",
+    "action": "solanum-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'",
     "keywords": [
       "update",
       "firmware",
@@ -831,7 +831,7 @@
   "update.changes": {
     "glyph": "\udb82\udf0a",
     "label": "What changed",
-    "action": "hyprtrixie-terminal --wait hyprtrixie changes",
+    "action": "solanum-terminal --wait solanum changes",
     "keywords": [
       "changes",
       "news",
@@ -842,7 +842,7 @@
   "about": {
     "glyph": "\uea74",
     "label": "About",
-    "action": "hyprtrixie-terminal --wait sh -c 'fastfetch; hyprtrixie version'",
+    "action": "solanum-terminal --wait sh -c 'fastfetch; solanum version'",
     "keywords": [
       "about",
       "system",
@@ -856,7 +856,7 @@
   "system.doctor": {
     "glyph": "\uf0f1",
     "label": "Check the system",
-    "action": "hyprtrixie-terminal --wait sudo hyprtrixie doctor",
+    "action": "solanum-terminal --wait sudo solanum doctor",
     "keywords": [
       "doctor",
       "check",
@@ -887,7 +887,7 @@
   "system.screensaver": {
     "glyph": "\udb84\udd04",
     "label": "Screensaver",
-    "action": "sleep 0.3; hyprtrixie-screensaver start",
+    "action": "sleep 0.3; solanum-screensaver start",
     "keywords": [
       "screensaver"
     ]

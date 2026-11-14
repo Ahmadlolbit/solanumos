@@ -74,7 +74,7 @@ Scope {
     color: "transparent"
     mask: Region {}
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "hyprtrixie-osd"
+    WlrLayershell.namespace: "solanum-osd"
 
     Rectangle {
       anchors.fill: parent

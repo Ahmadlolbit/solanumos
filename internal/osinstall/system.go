@@ -7,25 +7,25 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/disks"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/keyboard"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/keyboard"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const firstBootUnit = `[Unit]
-Description=Finish setting up Hyprtrixie
+Description=Finish setting up Solanum
 Wants=network-online.target
 After=network-online.target
 Before=display-manager.service systemd-user-sessions.service plymouth-quit.service plymouth-quit-wait.service getty@tty1.service
-ConditionPathExists=/etc/hyprtrixie/first-boot
+ConditionPathExists=/etc/solanum/first-boot
 
 [Service]
 Type=oneshot
-Environment=HYPRTRIXIE_USER=%s
+Environment=SOLANUM_USER=%s
 ExecStartPre=-/usr/bin/plymouth display-message --text="Finishing the setup, which takes a few minutes"
 ExecStart=%s first-start
 TimeoutStartSec=2h
@@ -164,31 +164,31 @@ func (work *install) bootLoader(log *runlog.Log) error {
 }
 
 func Clone() string {
-	return env.Or("HYPRTRIXIE_ROOT", env.SystemClone())
+	return env.Or("SOLANUM_ROOT", env.SystemClone())
 }
 
 func (work *install) firstBoot(log *runlog.Log) error {
-	home := filepath.Join("/home", work.answers.User, "hyprtrixie")
+	home := filepath.Join("/home", work.answers.User, "solanum")
 	if err := run.Logged(log, "mv", inTarget(Clone()), inTarget(home)); err != nil {
 		return err
 	}
 	if err := chroot(log, "chown", "-R", work.answers.User+":"+work.answers.User, home); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(inTarget("etc/hyprtrixie"), 0o755); err != nil {
+	if err := os.MkdirAll(inTarget("etc/solanum"), 0o755); err != nil {
 		return err
 	}
 	config, err := os.ReadFile(work.answers.Config)
 	if err != nil {
 		return err
 	}
-	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "hyprtrixie"))
-	for path, data := range map[string][]byte{"etc/hyprtrixie/hyprtrixie.conf": config, "etc/hyprtrixie/first-boot": nil, "etc/systemd/system/hyprtrixie-first-boot.service": []byte(unit)} {
+	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "solanum"))
+	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": config, "etc/solanum/first-boot": nil, "etc/systemd/system/solanum-first-boot.service": []byte(unit)} {
 		if err := atomic.Install(inTarget(path), data, 0o644); err != nil {
 			return err
 		}
 	}
-	return chroot(log, "systemctl", "enable", "hyprtrixie-first-boot.service")
+	return chroot(log, "systemctl", "enable", "solanum-first-boot.service")
 }
 
 func (work *install) close(log *runlog.Log) error {

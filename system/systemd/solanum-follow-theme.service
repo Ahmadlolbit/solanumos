@@ -1,0 +1,7 @@
+[Unit]
+Description=Paint the boot and login screens in the theme's colours
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 2
+ExecStart=/usr/local/bin/solanum-follow-theme

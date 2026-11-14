@@ -14,7 +14,7 @@ Singleton {
   }
 
   function upgrade() {
-    Quickshell.execDetached(["sh", "-c", "hyprtrixie-terminal --wait hyprtrixie update; qs -p /usr/share/hyprtrixie/shell ipc call updates refresh"]);
+    Quickshell.execDetached(["sh", "-c", "solanum-terminal --wait solanum update; qs -p /usr/share/solanum/shell ipc call updates refresh"]);
   }
 
   Process {

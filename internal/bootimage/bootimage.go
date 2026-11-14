@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const kernelPrefix = "vmlinuz-"
@@ -21,7 +21,7 @@ func Dracut() bool {
 }
 
 func Folder() string {
-	return env.Or("HYPRTRIXIE_BOOT", "/boot")
+	return env.Or("SOLANUM_BOOT", "/boot")
 }
 
 func Newest() string {

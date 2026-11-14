@@ -3,9 +3,11 @@ package editors
 import (
 	"encoding/json"
 	"strings"
+
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
-const Prefix = "Hyprtrixie "
+const Prefix = "Solanum "
 
 type member struct {
 	name       string
@@ -26,7 +28,7 @@ func quoted(text string) string {
 }
 
 func Ours(name string) bool {
-	return strings.HasPrefix(name, Prefix)
+	return strings.HasPrefix(name, Prefix) || strings.HasPrefix(name, oldname.EditorPrefix)
 }
 
 func (scan *scanner) rest() string {

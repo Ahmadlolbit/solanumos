@@ -5,10 +5,10 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/privilege"
+	"github.com/Ahmadlolbit/solanumos/internal/privilege"
 )
 
-const noSudoNotice = "This account can't use sudo. Log in as root and run ./hyprtrixie once: it sets the account up."
+const noSudoNotice = "This account can't use sudo. Log in as root and run ./solanum once: it sets the account up."
 
 type unlocked struct {
 	err  error

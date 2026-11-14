@@ -11,28 +11,28 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apps"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/deployed"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/events"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/firewall"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/lock"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/modules"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/setup"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/words"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/apps"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/deployed"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/events"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/firewall"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/setup"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -83,6 +83,7 @@ type session struct {
 	installed map[string]bool
 	machine   string
 	hardware  detect.Hardware
+	movedNow  bool
 }
 
 func setConfig(options *Options, value string) error {
@@ -107,7 +108,7 @@ func moduleNumbers(flag, value string) error {
 			return errors.New(flag + " takes module numbers, such as 04,05")
 		}
 		if !slices.ContainsFunc(modules.All, func(module modules.Module) bool { return module.ID == id }) {
-			return errors.New("no module " + id + ": " + flag + " takes module numbers, such as 04,05 (see: hyprtrixie modules)")
+			return errors.New("no module " + id + ": " + flag + " takes module numbers, such as 04,05 (see: solanum modules)")
 		}
 	}
 	return nil
@@ -161,7 +162,7 @@ func Parse(args []string) (Options, error) {
 		case args[index] == "-h" || args[index] == "--help":
 			return options, ErrHelp
 		default:
-			return options, errors.New("unknown option: " + args[index] + " (see: hyprtrixie help)")
+			return options, errors.New("unknown option: " + args[index] + " (see: solanum help)")
 		}
 	}
 	return options, nil
@@ -433,7 +434,7 @@ func (work *session) showMachine() {
 }
 
 func (work *session) confirmed() bool {
-	if !work.canAsk || work.options.Events {
+	if !work.canAsk || work.options.Events || work.movedNow {
 		return true
 	}
 	_, ok := work.runner.Answer(func() (string, bool) { return "", ui.Proceed("Start the setup now?") })
@@ -472,7 +473,7 @@ func (work *session) saveSettings() bool {
 
 func (work *session) install() int {
 	if !work.options.Events {
-		ui.Header("hyprtrixie "+env.Version, "Debian 13 with Hyprland, set up properly")
+		ui.Header("solanum "+env.Version, "Hyprland on Debian, set up properly")
 	}
 	work.showMachine()
 	if !work.confirmed() || !work.saveSettings() {
@@ -503,7 +504,7 @@ func (work *session) setUpAccount() int {
 	setup.AccountSteps(context)
 	work.person = context.Person
 	if work.outcome() == 0 && work.person.Name != "" {
-		ui.Print("\nLog in as " + work.person.Name + " and run: " + context.CloneFor() + "/hyprtrixie\n")
+		ui.Print("\nLog in as " + work.person.Name + " and run: " + context.CloneFor() + "/solanum\n")
 	}
 	return work.outcome()
 }
@@ -521,6 +522,7 @@ func (work *session) finish(code int) int {
 	} else if work.runner.Halted {
 		work.log.Line("error", "run halted in module "+work.runner.Module)
 	}
+	work.settle()
 	work.save()
 	if work.person.Home != "" {
 		work.survey()
@@ -546,10 +548,15 @@ func entered(mode string, options Options, args []string, body func(*session) in
 		cleanup.OwnGroup()
 		ui.Attach(events.Open(os.Stdin, os.Stdout, cleanup.StopGroup))
 	}
+	moving, err := carryOver(mode, options)
+	if err != nil {
+		return run.Report(err)
+	}
 	work, err := start(mode, options, args)
 	if err != nil {
 		return run.Report(err)
 	}
+	work.carried(moving)
 	code := work.finish(body(work))
 	if options.Testing {
 		AfterTesting()

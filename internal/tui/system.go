@@ -14,19 +14,19 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apps"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/disks"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/hypr"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/keyboard"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/lock"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/osinstall"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/words"
+	"github.com/Ahmadlolbit/solanumos/internal/apps"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
+	"github.com/Ahmadlolbit/solanumos/internal/keyboard"
+	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/osinstall"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -49,11 +49,11 @@ type system struct {
 }
 
 func answersFile() string {
-	return env.Or("HYPRTRIXIE_ANSWERS", "/run/hyprtrixie-install.json")
+	return env.Or("SOLANUM_ANSWERS", "/run/solanum-install.json")
 }
 
 func zoneFolder() string {
-	return env.Or("HYPRTRIXIE_ZONEINFO", "/usr/share/zoneinfo")
+	return env.Or("SOLANUM_ZONEINFO", "/usr/share/zoneinfo")
 }
 
 func newSystem(found []disks.Disk) *system {
@@ -63,7 +63,7 @@ func newSystem(found []disks.Disk) *system {
 	}
 	layout := keyboard.Current()
 	return &system{found: internalFirst(found), room: map[string]string{}, reuse: map[string]bool{}, shrink: map[string]bool{}, seen: layout,
-		answers: osinstall.Answers{Host: "hyprtrixie", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8"}}
+		answers: osinstall.Answers{Host: "solanum", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8"}}
 }
 
 func internalFirst(found []disks.Disk) []disks.Disk {
@@ -150,7 +150,7 @@ func (state *system) besideRow(disk disks.Disk) row {
 	if state.answers.Beside {
 		value = "yes"
 	}
-	return row{label: "Keep Windows", value: value, help: "Yes puts Hyprtrixie in the free space next to Windows; no erases the whole disk", space: func() tea.Cmd {
+	return row{label: "Keep Windows", value: value, help: "Yes puts Solanum in the free space next to Windows; no erases the whole disk", space: func() tea.Cmd {
 		if state.answers.Beside || state.roomBeside(disk) == "" {
 			state.answers.Beside = !state.answers.Beside
 		}
@@ -165,9 +165,9 @@ func (state *system) consequences() []row {
 	}
 	if state.answers.Beside {
 		rows := []row{state.besideRow(disk), {info: true},
-			{label: "Windows stays. Hyprtrixie goes in the free space, and the boot menu offers both for five seconds.", info: true}}
+			{label: "Windows stays. Solanum goes in the free space, and the boot menu offers both for five seconds.", info: true}}
 		if state.reuse[disk.Path] {
-			rows = append(rows, row{label: "An install that stopped halfway left two partitions here: they go, and Hyprtrixie uses their space.", info: true})
+			rows = append(rows, row{label: "An install that stopped halfway left two partitions here: they go, and Solanum uses their space.", info: true})
 		}
 		return append(rows, row{label: "Before you go on: save your BitLocker recovery key somewhere off this computer, and turn off Fast Startup in Windows.", info: true})
 	}
@@ -190,7 +190,7 @@ func keepWindows(why string, shrink bool) string {
 }
 
 func (state *system) diskRows(flow *wizard) []row {
-	rows := []row{{label: "Where Hyprtrixie goes", heading: true}, {info: true}}
+	rows := []row{{label: "Where Solanum goes", heading: true}, {info: true}}
 	if len(state.found) == 0 {
 		return append(rows, row{label: fmt.Sprintf("No disk here can take it: each is under %s, read-only, or in use.", disks.Size(disks.SmallestUse)), info: true})
 	}
@@ -336,7 +336,7 @@ func (flow *wizard) systemRows() []row {
 }
 
 func (state *system) installRow(flow *wizard) row {
-	return row{label: "Install", help: "Install Hyprtrixie with these choices", enter: func() tea.Cmd {
+	return row{label: "Install", help: "Install Solanum with these choices", enter: func() tea.Cmd {
 		for index, ready := range []func() string{state.welcomeReady, state.diskReady, state.lockReady, state.youReady} {
 			if why := ready(); why != "" {
 				flow.notice = why
@@ -345,9 +345,9 @@ func (state *system) installRow(flow *wizard) row {
 			}
 		}
 		disk, _ := state.chosen()
-		question := "Erase " + disk.Name() + " and install Hyprtrixie?"
+		question := "Erase " + disk.Name() + " and install Solanum?"
 		if state.answers.Beside {
-			question = "Install Hyprtrixie next to Windows on " + disk.Name() + "?"
+			question = "Install Solanum next to Windows on " + disk.Name() + "?"
 		}
 		box := confirmation(question, flow.install.begin)
 		box.cursor = 1
@@ -380,7 +380,7 @@ func desktopReload() ([]string, bool) {
 	if uid == "" {
 		return nil, false
 	}
-	hyprctl, found := hypr.Session(filepath.Join(env.Or("HYPRTRIXIE_RUN_USER", "/run/user"), uid))
+	hyprctl, found := hypr.Session(filepath.Join(env.Or("SOLANUM_RUN_USER", "/run/user"), uid))
 	if !found {
 		return nil, false
 	}
@@ -390,7 +390,7 @@ func desktopReload() ([]string, bool) {
 func applyLayout(layout string) string {
 	reload, reachable := desktopReload()
 	if !reachable {
-		return "The keyboard stays as it is: this terminal can't reach the desktop. Open Install Hyprtrixie from the launcher to change it"
+		return "The keyboard stays as it is: this terminal can't reach the desktop. Open Install SolanumOS from the launcher to change it"
 	}
 	text := keyboard.With(fsutil.Optional(keyboard.File()), layout)
 	if err := atomic.Write(keyboard.File(), []byte(text), 0o644); err != nil {
@@ -450,8 +450,8 @@ func (state *system) welcomeReady() string {
 
 func (state *system) welcomeRows(machine []string) []row {
 	state.followLayout()
-	rows := []row{{label: "Install Hyprtrixie", heading: true}, {info: true},
-		{label: "Debian 13 with Hyprland, set up properly.", info: true},
+	rows := []row{{label: "Install SolanumOS", heading: true}, {info: true},
+		{label: "Hyprland on Debian, set up properly.", info: true},
 		{label: "It takes about ten minutes and needs no internet.", info: true},
 		{label: "Nothing changes until you choose Install at the end.", info: true},
 		{info: true}}
@@ -481,7 +481,7 @@ func (flow *wizard) systemStages(machine []string, catalogue []apps.App) []stage
 
 func installerBlocked() string {
 	if lock.Busy() {
-		return "Another Hyprtrixie run is still going: start the installer again once it ends"
+		return "Another Solanum run is still going: start the installer again once it ends"
 	}
 	if err := osinstall.Ready(); err != nil {
 		return sentence(err.Error())
@@ -491,7 +491,7 @@ func installerBlocked() string {
 
 func RunInstaller() int {
 	if os.Geteuid() != 0 {
-		fmt.Fprintln(os.Stderr, "the installer runs as root: open Install Hyprtrixie from the app launcher, or start it with sudo in a terminal on the desktop")
+		fmt.Fprintln(os.Stderr, "the installer runs as root: open Install SolanumOS from the app launcher, or start it with sudo in a terminal on the desktop")
 		return 1
 	}
 	if !canShow() {

@@ -1,0 +1,11 @@
+[Unit]
+Description=Set the battery charge limit
+ConditionPathExists=/etc/udev/rules.d/90-solanum-battery.rules
+After=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/udevadm trigger --action=change --subsystem-match=power_supply --sysname-match=BAT*
+
+[Install]
+WantedBy=multi-user.target

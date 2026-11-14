@@ -38,7 +38,7 @@ PanelWindow {
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
   WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.namespace: "hyprtrixie-popup"
+  WlrLayershell.namespace: "solanum-popup"
   WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
   onVisibleChanged: {
     if (!visible)

@@ -48,7 +48,7 @@ Singleton {
   FileView {
     id: kept
 
-    path: root.runtime ? root.runtime + "/hyprtrixie-awake" : ""
+    path: root.runtime ? root.runtime + "/solanum-awake" : ""
     printErrors: false
     onLoaded: root.restore(text())
   }
@@ -66,7 +66,7 @@ Singleton {
   Process {
     running: root.awake
     stdinEnabled: true
-    command: ["systemd-inhibit", "--what=idle", "--who=Hyprtrixie", "--why=Stay awake", "cat"]
+    command: ["systemd-inhibit", "--what=idle", "--who=Solanum", "--why=Stay awake", "cat"]
   }
 
   Process {

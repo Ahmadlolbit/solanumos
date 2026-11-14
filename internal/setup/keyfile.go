@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
 const (
@@ -22,7 +22,7 @@ var (
 )
 
 func connectionsFolder() string {
-	return env.Or("HYPRTRIXIE_NM_CONNECTIONS", "/etc/NetworkManager/system-connections")
+	return env.Or("SOLANUM_NM_CONNECTIONS", "/etc/NetworkManager/system-connections")
 }
 
 func connectionFile(device string) string {
@@ -32,7 +32,7 @@ func connectionFile(device string) string {
 		}
 		return '_'
 	}, device)
-	return filepath.Join(connectionsFolder(), "hyprtrixie-"+safe+".nmconnection")
+	return filepath.Join(connectionsFolder(), "solanum-"+safe+".nmconnection")
 }
 
 func networkKey(line string) string {
@@ -60,7 +60,7 @@ func ssidBytes(name string) string {
 }
 
 func connectionID(network wifiNetwork) string {
-	sum := sha1.Sum([]byte("hyprtrixie wifi\x00" + network.device + "\x00" + network.name))
+	sum := sha1.Sum([]byte("solanum wifi\x00" + network.device + "\x00" + network.name))
 	sum[6] = sum[6]&0x0f | 0x50
 	sum[8] = sum[8]&0x3f | 0x80
 	return fmt.Sprintf("%x-%x-%x-%x-%x", sum[0:4], sum[4:6], sum[6:8], sum[8:10], sum[10:16])

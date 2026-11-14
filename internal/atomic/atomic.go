@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 )
 
 const (
@@ -104,6 +104,16 @@ func Symlink(target, link string) error {
 	}
 	sweep(link)
 	return syncDir(filepath.Dir(link))
+}
+
+func Move(from, to string) error {
+	if _, err := os.Lstat(to); err == nil {
+		return fmt.Errorf("%s is there already", to)
+	}
+	if err := os.Rename(from, to); err != nil {
+		return err
+	}
+	return errors.Join(syncDir(filepath.Dir(from)), syncDir(filepath.Dir(to)))
 }
 
 func Fresh(dir, name, extension string, perm os.FileMode) (string, error) {

@@ -8,27 +8,27 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/battery"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/battery"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
 	powerProfiles  = "power-profiles-daemon.service"
-	batteryUnit    = "hyprtrixie-battery.service"
-	autoUpgrades   = "/etc/apt/apt.conf.d/52hyprtrixie-auto-upgrades"
+	batteryUnit    = "solanum-battery.service"
+	autoUpgrades   = "/etc/apt/apt.conf.d/52solanum-auto-upgrades"
 	networkManager = "NetworkManager"
 	loopbackOnly   = "source /etc/network/interfaces.d/*\n\nauto lo\niface lo inet loopback\n"
-	trustScript    = "90-hyprtrixie-trust"
+	trustScript    = "90-solanum-trust"
 	trustTarget    = "/etc/NetworkManager/dispatcher.d/" + trustScript
 	sshPort        = "22/tcp"
-	sshRule        = "hyprtrixie ssh"
+	sshRule        = "solanum ssh"
 	securityModule = "15"
 )
 
@@ -41,7 +41,7 @@ type wifiNetwork struct {
 }
 
 func interfacesFile() string {
-	return env.Or("HYPRTRIXIE_INTERFACES", "/etc/network/interfaces")
+	return env.Or("SOLANUM_INTERFACES", "/etc/network/interfaces")
 }
 
 func yourPowerTool() string {
@@ -163,7 +163,7 @@ func (context *Context) autoUpdatesSetup(*runlog.Log) error {
 	if context.Config.Get("AUTO_UPDATES") == "yes" {
 		enabled = "1"
 	}
-	return context.Deploy.File("system/apt/52hyprtrixie-auto-upgrades", autoUpgrades, "ENABLED="+enabled)
+	return context.Deploy.File("system/apt/52solanum-auto-upgrades", autoUpgrades, "ENABLED="+enabled)
 }
 
 func autoUpdatesReady(*runlog.Log) error {

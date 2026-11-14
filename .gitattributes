@@ -1,7 +1,7 @@
 * text=auto eol=lf
 
 *.sh diff=bash
-hyprtrixie diff=bash
+solanum diff=bash
 
 *.png binary
 *.jpg binary

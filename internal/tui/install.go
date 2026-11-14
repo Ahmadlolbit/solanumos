@@ -14,10 +14,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/events"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/privilege"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/events"
+	"github.com/Ahmadlolbit/solanumos/internal/privilege"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -148,11 +148,11 @@ func (work *installer) running() bool {
 }
 
 func (work *installer) environment() []string {
-	return []string{"HYPRTRIXIE_ENGINE=1", "HYPRTRIXIE_ROOT=" + env.Root()}
+	return []string{"SOLANUM_ENGINE=1", "SOLANUM_ROOT=" + env.Root()}
 }
 
 func settingsFile() string {
-	return filepath.Join(env.StateHome(), "hyprtrixie", "wizard.conf")
+	return filepath.Join(env.OwnState(), "wizard.conf")
 }
 
 func (work *installer) arguments() []string {
@@ -181,7 +181,7 @@ func (work *installer) begin() tea.Cmd {
 			return nil
 		}
 	}
-	core := filepath.Join(env.ToolsDir(), "hyprtrixie-core")
+	core := filepath.Join(env.ToolsDir(), "solanum-core")
 	child, err := privilege.Spawn(work.environment(), core, work.arguments()...)
 	if err != nil {
 		if work.flow.system != nil {

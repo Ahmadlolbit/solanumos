@@ -1,3 +1,4 @@
 /.dev/
 /build/
+/solanum-logs-*.tar.gz
 /hyprtrixie-logs-*.tar.gz

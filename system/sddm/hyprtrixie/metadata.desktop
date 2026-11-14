@@ -1,9 +1,0 @@
-[SddmGreeterTheme]
-Name=hyprtrixie
-Description=Looks like the Hyprtrixie lock screen, in the colours of your theme
-Type=sddm-theme
-Version=1
-Website=https://github.com/Ahmadlolbit/hyprtrixie
-MainScript=Main.qml
-ConfigFile=theme.conf
-QtVersion=6

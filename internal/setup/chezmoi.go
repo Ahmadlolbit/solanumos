@@ -3,10 +3,10 @@ package setup
 import (
 	"path/filepath"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/dotfiles"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/dotfiles"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const chezmoiLimit = 4 << 10
@@ -29,7 +29,7 @@ func (context *Context) chezmoiPushing() (string, bool) {
 
 func (context *Context) chezmoiNoPush(log *runlog.Log, text string) error {
 	config := context.chezmoiConfig()
-	part := config + ".hyprtrixie-part"
+	part := config + ".solanum-part"
 	err := context.Person.Write(log, part, text)
 	for _, args := range [][]string{{"chmod", "600", part}, {"mv", "-fT", part, config}} {
 		if err == nil {

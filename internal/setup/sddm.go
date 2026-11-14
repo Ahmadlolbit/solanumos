@@ -5,20 +5,20 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/account"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
-	sddmTheme    = "hyprtrixie"
+	sddmTheme    = "solanum"
 	oldSddmTheme = "catppuccin-mocha-blue"
 	sddmUnit     = "sddm.service"
 	sddmProgram  = "/usr/bin/sddm"
@@ -27,23 +27,23 @@ const (
 )
 
 func displayFile() string {
-	return env.Or("HYPRTRIXIE_DISPLAY_FILE", "/etc/X11/default-display-manager")
+	return env.Or("SOLANUM_DISPLAY_FILE", "/etc/X11/default-display-manager")
 }
 
 func displayAlias() string {
-	return env.Or("HYPRTRIXIE_DISPLAY_ALIAS", "/etc/systemd/system/display-manager.service")
+	return env.Or("SOLANUM_DISPLAY_ALIAS", "/etc/systemd/system/display-manager.service")
 }
 
 func sddmConf() string {
-	return env.Or("HYPRTRIXIE_SDDM_CONF", "/etc/sddm.conf.d/10-hyprtrixie.conf")
+	return env.Or("SOLANUM_SDDM_CONF", "/etc/sddm.conf.d/10-solanum.conf")
 }
 
 func sddmState() string {
-	return env.Or("HYPRTRIXIE_SDDM_STATE", "/var/lib/sddm/state.conf")
+	return env.Or("SOLANUM_SDDM_STATE", "/var/lib/sddm/state.conf")
 }
 
 func sddmThemes() string {
-	return env.Or("HYPRTRIXIE_SDDM_THEMES", "/usr/share/sddm/themes")
+	return env.Or("SOLANUM_SDDM_THEMES", "/usr/share/sddm/themes")
 }
 
 func (context *Context) sddmPackages(log *runlog.Log) error {
@@ -133,7 +133,7 @@ func (context *Context) sddmThemeInstall(log *runlog.Log) error {
 	if err := apt.InstallLists(log, "sddm-theme"); err != nil {
 		return err
 	}
-	if err := context.Deploy.Tree("system/sddm/hyprtrixie", filepath.Join(sddmThemes(), sddmTheme)); err != nil {
+	if err := context.Deploy.Tree("system/sddm/solanum", filepath.Join(sddmThemes(), sddmTheme)); err != nil {
 		return err
 	}
 	if err := context.Deploy.RemoveTree(filepath.Join(sddmThemes(), oldSddmTheme)); err != nil {
@@ -151,7 +151,7 @@ func sddmThemeReady(*runlog.Log) error {
 
 func sddmSteps(context *Context) {
 	context.Run.Step("Install the login screen", context.sddmPackages)
-	context.Run.Step("Install the Hyprtrixie login screen", context.sddmThemeInstall)
+	context.Run.Step("Install the Solanum login screen", context.sddmThemeInstall)
 	context.Run.Step("Configure the login screen", context.sddmConfigure)
 	context.Run.Step("Start into the login screen at boot", sddmEnable)
 }
@@ -167,5 +167,5 @@ func sddmStarts(*runlog.Log) error {
 func sddmChecks(context *Context) {
 	context.Run.Check("The login screen starts at boot", sddmStarts)
 	context.Run.Check("Hyprland is offered as a session", filesCheck(sessionFile))
-	context.Run.Check("The login screen uses the Hyprtrixie theme", sddmThemeReady)
+	context.Run.Check("The login screen uses the Solanum theme", sddmThemeReady)
 }

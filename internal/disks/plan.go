@@ -11,11 +11,11 @@ import (
 const (
 	espSize    = 1 * GiB
 	bootSize   = 1 * GiB
-	Mapper     = "hyprtrixie_crypt"
+	Mapper     = "solanum_crypt"
 	Target     = "/target"
-	top        = "/run/hyprtrixie-top"
+	top        = "/run/solanum-top"
 	options    = "noatime,compress=zstd:1"
-	RootName   = "hyprtrixie"
+	RootName   = "solanum"
 	Unfinished = RootName + "-unfinished"
 	linuxData  = "0fc63daf-8483-4772-8e79-3d69d8477de4"
 	linuxLUKS  = "ca7d7ccb-63ed-4c53-861c-1742536059cc"
@@ -139,7 +139,7 @@ func (plan Plan) Partition() []Step {
 		Step{"Format the boot partition", []string{"mkfs.ext4", "-F", "-q", "-L", "boot", plan.BootDevice()}, false},
 		Step{"Encrypt the rest", []string{"cryptsetup", "luksFormat", "--type", "luks2", "--batch-mode", "--key-file=-", plan.RootDevice()}, true},
 		Step{"Unlock it", []string{"cryptsetup", "open", "--key-file=-", plan.RootDevice(), Mapper}, true},
-		Step{"Make the btrfs filesystem", []string{"mkfs.btrfs", "-f", "-q", "-L", "hyprtrixie", "/dev/mapper/" + Mapper}, false})
+		Step{"Make the btrfs filesystem", []string{"mkfs.btrfs", "-f", "-q", "-L", "solanum", "/dev/mapper/" + Mapper}, false})
 }
 
 func Layout() []Step {

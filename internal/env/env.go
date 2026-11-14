@@ -4,6 +4,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const Version = "0.9.0"
@@ -41,11 +43,15 @@ func StateHome() string {
 }
 
 func ThemeRoot() string {
-	return Or("HYPRTRIXIE_THEME_ROOT", ShareDir())
+	return Or("SOLANUM_THEME_ROOT", ShareDir())
 }
 
 func AppConfig() string {
-	return filepath.Join(ConfigHome(), "hyprtrixie")
+	return oldname.Prefer(filepath.Join(ConfigHome(), "solanum"))
+}
+
+func OwnState() string {
+	return oldname.Prefer(filepath.Join(StateHome(), "solanum"))
 }
 
 func LocalState() string {
@@ -53,7 +59,7 @@ func LocalState() string {
 }
 
 func ThemeState() string {
-	return filepath.Join(LocalState(), "hyprtrixie", "current")
+	return filepath.Join(LocalState(), "solanum", "current")
 }
 
 func CacheHome() string {
@@ -65,37 +71,37 @@ func DataHome() string {
 }
 
 func ShareDir() string {
-	return Or("HYPRTRIXIE_SHARE_DIR", "/usr/share/hyprtrixie")
+	return Or("SOLANUM_SHARE_DIR", oldname.Prefer("/usr/share/solanum"))
 }
 
 func Root() string {
-	return os.Getenv("HYPRTRIXIE_ROOT")
+	return os.Getenv("SOLANUM_ROOT")
 }
 
 func SystemClone() string {
-	return Or("HYPRTRIXIE_SYSTEM_CLONE", "/opt/hyprtrixie")
+	return Or("SOLANUM_SYSTEM_CLONE", "/opt/solanum")
 }
 
 func BinDir() string {
-	return Or("HYPRTRIXIE_BIN_DIR", "/usr/local/bin")
+	return Or("SOLANUM_BIN_DIR", "/usr/local/bin")
 }
 
 func ToolsDir() string {
-	return Or("HYPRTRIXIE_TOOLS_DIR", filepath.Join(Root(), "build", "bin"))
+	return Or("SOLANUM_TOOLS_DIR", filepath.Join(Root(), "build", "bin"))
 }
 
 func Manifests() string {
-	return Or("HYPRTRIXIE_MANIFESTS", filepath.Join(Or("HYPRTRIXIE_ROOT", "."), "manifests"))
+	return Or("SOLANUM_MANIFESTS", filepath.Join(Or("SOLANUM_ROOT", "."), "manifests"))
 }
 
 func CacheDir() string {
-	return Or("HYPRTRIXIE_CACHE_DIR", "/var/cache/hyprtrixie")
+	return Or("SOLANUM_CACHE_DIR", oldname.Prefer("/var/cache/solanum"))
 }
 
 func LogDir() string {
-	return Or("HYPRTRIXIE_LOG_DIR", "/var/log/hyprtrixie")
+	return Or("SOLANUM_LOG_DIR", oldname.Prefer("/var/log/solanum"))
 }
 
 func StateDir() string {
-	return Or("HYPRTRIXIE_STATE_DIR", "/var/lib/hyprtrixie")
+	return Or("SOLANUM_STATE_DIR", oldname.Prefer("/var/lib/solanum"))
 }

@@ -1,4 +1,4 @@
-module github.com/Ahmadlolbit/hyprtrixie
+module github.com/Ahmadlolbit/solanumos
 
 go 1.24.2
 

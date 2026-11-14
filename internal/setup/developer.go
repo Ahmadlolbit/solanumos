@@ -9,17 +9,18 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apps"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fetch"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/apps"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fetch"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 const (
@@ -29,7 +30,7 @@ const (
 	toolboxDir   = "/opt/jetbrains-toolbox"
 	toolboxTool  = "jetbrains-toolbox"
 	zedDesktop   = "share/applications/dev.zed.Zed.desktop"
-	zedVersion   = ".hyprtrixie-version"
+	zedVersion   = ".solanum-version"
 	podmanSocket = "podman.socket"
 
 	globalPodmanSocket = "/etc/systemd/user/sockets.target.wants/" + podmanSocket
@@ -110,7 +111,7 @@ func (context *Context) podmanInstall(log *runlog.Log) error {
 }
 
 func subordinateFile(kind, path string) string {
-	return env.Or("HYPRTRIXIE_"+kind, path)
+	return env.Or("SOLANUM_"+kind, path)
 }
 
 func freeRange(path, name string) (string, bool) {
@@ -375,7 +376,7 @@ func (context *Context) lazyvimSetup(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	scheme, err := os.ReadFile(filepath.Join(env.Root(), "config/nvim/hyprtrixie.lua"))
+	scheme, err := os.ReadFile(filepath.Join(env.Root(), "config/nvim/solanum.lua"))
 	if err != nil {
 		return err
 	}
@@ -389,14 +390,14 @@ func (context *Context) lazyvimSetup(log *runlog.Log) error {
 			return err
 		}
 	}
-	if err := context.Person.Write(log, filepath.Join(plugins, "hyprtrixie.lua"), string(scheme)); err != nil {
+	if err := context.Person.Write(log, filepath.Join(plugins, "solanum.lua"), string(scheme)); err != nil {
 		return err
 	}
 	return context.Person.RunWithin(run.Minute, log, "mv", "-T", part, config)
 }
 
 func (context *Context) lazyvimPlugins(log *runlog.Log) error {
-	if !fsutil.IsFile(context.Person.Path(".config/nvim/lua/plugins/hyprtrixie.lua")) {
+	if !fsutil.IsFile(context.Person.Path(".config/nvim/lua/plugins/solanum.lua")) {
 		log.Line("info", "your Neovim config isn't the LazyVim one the setup made, so its plugins stay as they are")
 		return nil
 	}
@@ -469,8 +470,12 @@ func (context *Context) zedUnpack(log *runlog.Log, app, version string) error {
 }
 
 func (context *Context) zedVersionIn(app string) (string, bool) {
+	stamp := filepath.Join(app, zedVersion)
+	if old := filepath.Join(app, oldname.VersionStamp); !fsutil.Exists(stamp) && fsutil.Exists(old) {
+		stamp = old
+	}
 	var text strings.Builder
-	err := context.Person.RunWithin(run.Quick, &text, "head", "-c", "64", filepath.Join(app, zedVersion))
+	err := context.Person.RunWithin(run.Quick, &text, "head", "-c", "64", stamp)
 	return strings.TrimSpace(text.String()), err == nil
 }
 
@@ -563,7 +568,7 @@ func (context *Context) editorColours(log *runlog.Log) error {
 		log.Line("info", "no theme is applied yet; module 14 gives the editors its colours")
 		return nil
 	}
-	return context.Person.Run(log, "env", "HYPRTRIXIE_THEME_ROOT="+env.ThemeRoot(), "HYPRTRIXIE_LOOK_SYSTEM="+lookConf(), setter, "--editors")
+	return context.Person.Run(log, "env", "SOLANUM_THEME_ROOT="+env.ThemeRoot(), "SOLANUM_LOOK_SYSTEM="+lookConf(), setter, "--editors")
 }
 
 func (context *Context) toolSteps() []toolStep {

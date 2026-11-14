@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/notify"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/restic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/notify"
+	"github.com/Ahmadlolbit/solanumos/internal/restic"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -92,7 +92,7 @@ func usbOff() int {
 }
 
 func usbRun() int {
-	app, urgent := []string{"--app-name=hyprtrixie"}, []string{"--app-name=hyprtrixie", "--urgency=critical"}
+	app, urgent := []string{"--app-name=solanum"}, []string{"--app-name=solanum", "--urgency=critical"}
 	notify.Post(app, "Backup started", "Leave the drive plugged in.")
 	cleanup.Notify(make(chan os.Signal, 1))
 	code := backup()

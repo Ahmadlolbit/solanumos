@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/cleanup"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/term"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ui"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/words"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (

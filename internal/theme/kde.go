@@ -5,17 +5,23 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const (
-	KDEScheme      = "ColorScheme=Hyprtrixie"
+	KDEScheme      = "ColorScheme=Solanum"
 	kdeFontKey     = "font="
-	kdeRecord      = "[Hyprtrixie]"
+	kdeRecord      = "[Solanum]"
 	kdeRecordKey   = "GeneralFont="
 	kdeFontSize    = 10
 	kdeFontRest    = ",-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 	kdeDefaultFont = "Noto Sans"
 )
+
+func OursKDE(text string) bool {
+	return strings.Contains(text, KDEScheme) || strings.Contains(text, oldname.KDEScheme)
+}
 
 func kdeFont(font string, scale float64) string {
 	if font == "" && scale == 1 {
@@ -51,7 +57,7 @@ func yourKDELines(current string, colors, font bool) []string {
 		if strings.HasPrefix(line, "[") {
 			header = line
 		}
-		if colors && kdeColorGroup(header) || header == kdeRecord || header == "[General]" && ownKDESetting(line, colors, font) {
+		if colors && kdeColorGroup(header) || header == kdeRecord || header == oldname.KDERecord || header == "[General]" && ownKDESetting(line, colors, font) {
 			continue
 		}
 		kept = append(kept, line)
@@ -96,7 +102,8 @@ func KDEGivenBack(current, before string) string {
 
 func KDEGlobals(current, scheme, font string, scale float64) string {
 	have := kdeValue(current, "[General]", kdeFontKey)
-	yours := font == "" && have != "" && have != kdeValue(current, kdeRecord, kdeRecordKey)
+	recorded := cmp.Or(kdeValue(current, kdeRecord, kdeRecordKey), kdeValue(current, oldname.KDERecord, kdeRecordKey))
+	yours := font == "" && have != "" && have != recorded
 	wanted := ""
 	if !yours {
 		wanted = kdeFont(font, scale)
@@ -108,7 +115,7 @@ func KDEGlobals(current, scheme, font string, scale float64) string {
 	if wanted != "" {
 		settings = append(settings, kdeFontKey+wanted)
 	}
-	lines := yourKDELines(current, scheme != "" || strings.Contains(current, KDEScheme), !yours)
+	lines := yourKDELines(current, scheme != "" || OursKDE(current), !yours)
 	if len(settings) > 0 {
 		lines = withKDESettings(lines, settings)
 	}

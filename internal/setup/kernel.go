@@ -9,20 +9,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/bootimage"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/bootimage"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
 	kernelPackage  = "linux-image-amd64"
 	kernelSpec     = kernelPackage + "/backports"
 	packageFiles   = "/var/lib/dpkg/info/linux-image-"
-	nvidiaSettings = "/etc/modprobe.d/hyprtrixie-nvidia.conf"
+	nvidiaSettings = "/etc/modprobe.d/solanum-nvidia.conf"
 	hybridPower    = " NVreg_DynamicPowerManagement=0x02"
 	kernelKept     = "The backports kernel stays installed, because the setup never removes a kernel."
 	nvidiaLegacy   = "This NVIDIA card is older than Maxwell, and Debian 13's NVIDIA driver no longer supports it, so it stays on nouveau, the open driver."

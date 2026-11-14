@@ -11,11 +11,11 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/disks"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 type Answers struct {
@@ -110,7 +110,7 @@ func (answers Answers) Check() error {
 }
 
 func liveEtc() string {
-	return env.Or("HYPRTRIXIE_LIVE_ETC", "/etc")
+	return env.Or("SOLANUM_LIVE_ETC", "/etc")
 }
 
 func known(name string) bool {
@@ -129,13 +129,13 @@ func known(name string) bool {
 
 func Ready() error {
 	if !fsutil.IsFile(squashfs()) {
-		return errors.New("the installer only runs on the Hyprtrixie live system, started from its USB stick (" + squashfs() + " isn't here)")
+		return errors.New("the installer only runs on the Solanum live system, started from its USB stick (" + squashfs() + " isn't here)")
 	}
 	switch secureBoot() {
 	case "enabled":
-		return errors.New("this computer has Secure Boot on, and Hyprtrixie doesn't start with it: restart into the firmware setup (often F2, F10 or Del), turn Secure Boot off, then start the installer again")
+		return errors.New("this computer has Secure Boot on, and Solanum doesn't start with it: restart into the firmware setup (often F2, F10 or Del), turn Secure Boot off, then start the installer again")
 	case "legacy":
-		return errors.New("this computer started the stick in legacy BIOS mode, and Hyprtrixie needs UEFI: start it again and pick the stick's UEFI entry in the boot menu")
+		return errors.New("this computer started the stick in legacy BIOS mode, and Solanum needs UEFI: start it again and pick the stick's UEFI entry in the boot menu")
 	}
 	return nil
 }

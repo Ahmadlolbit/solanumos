@@ -1,4 +1,4 @@
-local screens = require("hyprtrixie.hypr.screens")
+local screens = require("solanum.hypr.screens")
 
 local panels, others = screens.connected()
 if #others > 0 and screens.lid_closed() then

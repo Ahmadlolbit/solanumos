@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 type slot struct {
@@ -93,7 +95,8 @@ func (table Table) unfinished() (Table, []string) {
 	slices.SortFunc(slots, func(a, b slot) int { return cmp.Compare(a.Start, b.Start) })
 	for index := 0; index+1 < len(slots); index++ {
 		boot, root := slots[index], slots[index+1]
-		if boot.is(linuxData, "boot") && root.is(linuxLUKS, Unfinished) && root.Start == boot.Start+boot.Size {
+		unfinished := root.is(linuxLUKS, Unfinished) || root.is(linuxLUKS, oldname.Unfinished)
+		if boot.is(linuxData, "boot") && unfinished && root.Start == boot.Start+boot.Size {
 			left := table
 			left.Slots = slices.Delete(slots, index, index+2)
 			return left, []string{boot.number(), root.number()}

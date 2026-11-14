@@ -26,6 +26,6 @@ while IFS= read -r name; do
 done < <(git -C "$from" tag --points-at HEAD --list 'v*')
 git -c advice.detachedHead=false clone --quiet --no-local --single-branch --no-tags "$from" "$target"
 [[ -z $tag ]] || git -C "$target" fetch --quiet --no-tags "$from" "refs/tags/$tag:refs/tags/$tag"
-git -C "$target" remote set-url origin https://github.com/Ahmadlolbit/hyprtrixie.git
+git -C "$target" remote set-url origin https://github.com/Ahmadlolbit/solanumos.git
 printf 'commit %s\n' "$(git -C "$target" rev-parse HEAD)" >"$record"
 [[ -z $tag ]] || printf 'tag %s\n' "$tag" >>"$record"

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
 
 var Keys = []string{"accent", "font", "ui_font", "text", "glass", "corners", "style", "apps", "auto", "light", "dark", "light_at", "dark_at", "location",
@@ -35,7 +35,7 @@ type Store struct {
 }
 
 func Open() *Store {
-	return &Store{path: filepath.Join(env.ConfigHome(), "hyprtrixie", "look.conf")}
+	return &Store{path: filepath.Join(env.ConfigHome(), "solanum", "look.conf")}
 }
 
 func Default(key string) (string, bool) {
@@ -49,7 +49,7 @@ func (store *Store) load() {
 	}
 	store.loaded = true
 	store.user = text(store.path)
-	store.system = text(env.Or("HYPRTRIXIE_LOOK_SYSTEM", "/etc/hyprtrixie/look.conf"))
+	store.system = text(env.Or("SOLANUM_LOOK_SYSTEM", "/etc/solanum/look.conf"))
 }
 
 func text(path string) string {
@@ -126,14 +126,14 @@ func (store *Store) Coordinates() (string, bool) {
 	if !ok {
 		return "", false
 	}
-	return ZoneLookup(env.Or("HYPRTRIXIE_ZONEINFO", "/usr/share/zoneinfo"), name)
+	return ZoneLookup(env.Or("SOLANUM_ZONEINFO", "/usr/share/zoneinfo"), name)
 }
 
 func zone() (string, bool) {
 	if name := os.Getenv("TZ"); name != "" {
 		return strings.TrimPrefix(name, ":"), true
 	}
-	path, err := fsutil.RealPath(env.Or("HYPRTRIXIE_LOCALTIME", "/etc/localtime"))
+	path, err := fsutil.RealPath(env.Or("SOLANUM_LOCALTIME", "/etc/localtime"))
 	if err != nil {
 		return "", false
 	}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Paint the text consoles in the theme's colours
+ConditionPathExists=/etc/solanum/vtrgb
+After=console-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/setvtrgb /etc/solanum/vtrgb
+
+[Install]
+WantedBy=multi-user.target

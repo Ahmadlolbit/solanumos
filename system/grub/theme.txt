@@ -7,7 +7,7 @@ terminal-font: "DejaVu Sans Mono Regular 16"
   left = 0
   width = 100%
   align = "center"
-  text = "hyprtrixie"
+  text = "solanum"
   font = "DejaVu Sans Mono Regular 28"
   color = "{{ ACCENT }}"
 }

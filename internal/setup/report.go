@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/modules"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 ## Next
 
 - Reboot to start the desktop.
-- ` + "`sudo hyprtrixie verify`" + ` runs every check again.
+- ` + "`sudo solanum verify`" + ` runs every check again.
 `
 )
 
@@ -49,8 +49,8 @@ func markList(text *strings.Builder, heading string, marks []step.Mark) {
 
 func report(context *Context) string {
 	var text strings.Builder
-	text.WriteString("# Hyprtrixie report\n\n")
-	fmt.Fprintf(&text, "- Date: %s\n- hyprtrixie: %s\n- Configuration: %s\n- Log: %s\n\n",
+	text.WriteString("# Solanum report\n\n")
+	fmt.Fprintf(&text, "- Date: %s\n- solanum: %s\n- Configuration: %s\n- Log: %s\n\n",
 		time.Now().Format(time.DateTime), env.Version, config.Path(), context.Run.Log.Path())
 	text.WriteString("## Machine\n\n")
 	for _, line := range strings.Split(strings.TrimSuffix(context.machine(), "\n"), "\n") {

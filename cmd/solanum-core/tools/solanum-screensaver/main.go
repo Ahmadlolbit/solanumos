@@ -1,0 +1,226 @@
+package screensaver
+
+import (
+	"fmt"
+	"math/rand/v2"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"strconv"
+	"syscall"
+	"time"
+
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
+	"github.com/Ahmadlolbit/solanumos/internal/notify"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/term"
+)
+
+const usage = `Usage: solanum-screensaver start|stop|toggle|status
+
+start   shows the screensaver on every monitor
+stop    ends it (the idle timer runs this when it turns the screens off)
+toggle  turns the screensaver off or back on for your account: off keeps
+        it from starting while you're away, and start still shows it
+status  prints on or off
+
+The idle timer runs start --idle, which does nothing while it's off.
+
+The text comes from ~/.config/solanum/screensaver.txt when it exists,
+otherwise from /usr/share/solanum/screensaver.txt.
+`
+
+const (
+	class      = "solanum.screensaver"
+	sharedText = "/usr/share/solanum/screensaver.txt"
+	kitty      = "hl.dsp.exec_cmd([[kitty --class " + class + " -o background=#000000 -o background_opacity=1 -o window_padding_width=0 -o confirm_os_window_close=0 -o font_size=16 -e solanum-screensaver run]])"
+	mouseOn    = "\x1b[?1003h\x1b[?1006h"
+	mouseOff   = "\x1b[?1006l\x1b[?1003l"
+
+	effectLimit = time.Hour
+)
+
+var effects = []string{"beams", "binarypath", "blackhole", "bouncyballs", "bubbles", "burn", "colorshift", "crumble", "decrypt", "errorcorrect", "expand", "fireworks",
+	"highlight", "laseretch", "matrix", "middleout", "orbittingvolley", "overflow", "pour", "print", "rain", "randomsequence", "rings", "scattered", "slice",
+	"slide", "spotlights", "spray", "swarm", "sweep", "synthgrid", "unstable", "vhstape", "waves", "wipe"}
+
+func configDir() string {
+	return filepath.Join(env.ConfigHome(), "solanum")
+}
+
+func offFile() string {
+	return filepath.Join(configDir(), "screensaver-off")
+}
+
+func textFile() string {
+	own := filepath.Join(configDir(), "screensaver.txt")
+	if fsutil.IsFile(own) {
+		return own
+	}
+	return sharedText
+}
+
+func running() bool {
+	return run.Quiet(run.Quick, "pgrep", "-u", strconv.Itoa(os.Getuid()), "-f", "kitty --class "+class) == 0
+}
+
+func stop() {
+	run.Quiet(run.Quick, "pkill", "-f", "kitty --class "+class)
+}
+
+func locked() bool {
+	return run.Quiet(run.Quick, "pgrep", "-xu", strconv.Itoa(os.Getuid()), "hyprlock") == 0
+}
+
+func monitors() []string {
+	found, _ := hypr.Monitors()
+	var others, last []string
+	for _, monitor := range found {
+		switch {
+		case !hypr.ValidMonitor(monitor.Name):
+		case monitor.Focused:
+			last = append(last, monitor.Name)
+		default:
+			others = append(others, monitor.Name)
+		}
+	}
+	return append(others, last...)
+}
+
+func dispatch(command string) int {
+	_, err := run.Capture(run.Quick, "hyprctl", "dispatch", command)
+	return run.Report(err)
+}
+
+func start(idle bool) int {
+	if (idle && fsutil.Exists(offFile())) || running() || locked() {
+		return 0
+	}
+	code := 0
+	for _, monitor := range monitors() {
+		dispatch(`hl.dsp.focus({ monitor = "` + monitor + `" })`)
+		code = dispatch(kitty)
+	}
+	return code
+}
+
+func focused() bool {
+	window, ok := hypr.ActiveWindow()
+	return ok && window.Class == class
+}
+
+func cursor(invisible string) {
+	run.Quiet(run.Quick, "hyprctl", "eval", "hl.config({ cursor = { invisible = "+invisible+" } })")
+}
+
+func show(file string) <-chan struct{} {
+	finished := make(chan struct{}, 1)
+	effect := effects[rand.IntN(len(effects))]
+	go func() {
+		run.Within(effectLimit, "tte", "--input-file", file, "--frame-rate", "60", "--canvas-width", "0", "--canvas-height", "0",
+			"--anchor-canvas", "c", "--anchor-text", "c", effect)
+		finished <- struct{}{}
+	}()
+	return finished
+}
+
+func keys() <-chan struct{} {
+	pressed := make(chan struct{}, 1)
+	go func() {
+		key := make([]byte, 1)
+		if count, _ := os.Stdin.Read(key); count > 0 {
+			pressed <- struct{}{}
+		}
+	}()
+	return pressed
+}
+
+func watch(file string, pressed <-chan struct{}, signals <-chan os.Signal) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	finished := show(file)
+	for {
+		select {
+		case <-pressed:
+			return
+		case <-signals:
+			return
+		case <-finished:
+			finished = nil
+		case <-ticker.C:
+			if !focused() || locked() {
+				return
+			}
+			if finished == nil {
+				finished = show(file)
+			}
+		}
+	}
+}
+
+func saver() {
+	signal.Ignore(syscall.SIGTSTP)
+	file := textFile()
+	signals := make(chan os.Signal, 1)
+	cleanup.Notify(signals)
+	cursor("true")
+	time.Sleep(500 * time.Millisecond)
+	restore := term.Raw()
+	fmt.Print(mouseOn)
+	watch(file, keys(), signals)
+	fmt.Print(mouseOff)
+	restore()
+	cursor("false")
+	stop()
+}
+
+func failed(summary string, err error) int {
+	fmt.Fprintln(os.Stderr, err)
+	notify.Post([]string{"--app-name=Screensaver"}, summary, err.Error())
+	return 1
+}
+
+func toggle() int {
+	if fsutil.Exists(offFile()) {
+		if err := os.Remove(offFile()); err != nil {
+			return failed("Couldn't turn the screensaver on", err)
+		}
+		return notify.Post([]string{"--app-name=Screensaver"}, "Screensaver on", "")
+	}
+	err := os.MkdirAll(configDir(), 0o777)
+	if err == nil {
+		err = atomic.Write(offFile(), nil, 0o666)
+	}
+	if err != nil {
+		return failed("Couldn't turn the screensaver off", err)
+	}
+	return notify.Post([]string{"--app-name=Screensaver"}, "Screensaver off", "")
+}
+
+func Main() {
+	switch env.Arg(1) {
+	case "start":
+		os.Exit(start(env.Arg(2) == "--idle"))
+	case "run":
+		saver()
+	case "stop":
+		stop()
+	case "toggle":
+		os.Exit(toggle())
+	case "status":
+		if fsutil.Exists(offFile()) {
+			fmt.Println("off")
+		} else {
+			fmt.Println("on")
+		}
+	case "-h", "--help":
+		fmt.Print(usage)
+	default:
+		fmt.Fprint(os.Stderr, usage)
+		os.Exit(2)
+	}
+}

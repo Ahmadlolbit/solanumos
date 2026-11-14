@@ -7,14 +7,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 )
 
 const (
-	liveUser   = "hyprtrixie"
+	liveUser   = "solanum"
 	liveHome   = "/home/" + liveUser + "/"
 	stateMode  = 0o600
-	targetData = "var/lib/hyprtrixie"
+	targetData = "var/lib/solanum"
 )
 
 func dropLines(path string, gone func(string) bool) error {

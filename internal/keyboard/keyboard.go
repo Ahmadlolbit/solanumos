@@ -5,8 +5,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
 
 const (
@@ -26,11 +26,11 @@ type Layout struct {
 }
 
 func File() string {
-	return env.Or("HYPRTRIXIE_KEYBOARD_FILE", "/etc/default/keyboard")
+	return env.Or("SOLANUM_KEYBOARD_FILE", "/etc/default/keyboard")
 }
 
 func rules() string {
-	return fsutil.Optional(env.Or("HYPRTRIXIE_XKB_RULES", "/usr/share/X11/xkb/rules/base.lst"))
+	return fsutil.Optional(env.Or("SOLANUM_XKB_RULES", "/usr/share/X11/xkb/rules/base.lst"))
 }
 
 func Layouts() []Layout {

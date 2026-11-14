@@ -6,18 +6,18 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/detect"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/detect"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
 const securityMirror = "https://security.debian.org/debian-security"
 
 func sourcesList() string {
-	return env.Or("HYPRTRIXIE_SOURCES_LIST", "/etc/apt/sources.list")
+	return env.Or("SOLANUM_SOURCES_LIST", "/etc/apt/sources.list")
 }
 
 func debianEntry(line string) bool {
@@ -44,7 +44,7 @@ func moveDebianEntries(log *runlog.Log) error {
 	if replaced, err := replaceKept(log, path, []byte(kept.String())); err != nil || !replaced {
 		return err
 	}
-	log.Line("info", "moved the Debian entries out of "+path+" (backup in "+path+".hyprtrixie-old)")
+	log.Line("info", "moved the Debian entries out of "+path+" (backup in "+path+".solanum-old)")
 	return nil
 }
 
@@ -172,6 +172,7 @@ func repositorySteps(context *Context) {
 	context.Run.Step("Prepare vendor repositories", extrepoSetup)
 	context.Run.Step("Install base packages", packages("base"))
 	context.Run.Step("Install firmware for this machine", context.firmwareInstall)
+	context.nameSteps()
 }
 
 func repositoryChecks(context *Context) {

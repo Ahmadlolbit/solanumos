@@ -1,1 +1,1 @@
-dofile("/usr/share/hyprtrixie/hypr/hyprtrixie.lua")
+dofile("/usr/share/solanum/hypr/solanum.lua")

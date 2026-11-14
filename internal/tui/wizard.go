@@ -9,11 +9,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/burst"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/config"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/privilege"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/words"
+	"github.com/Ahmadlolbit/solanumos/internal/burst"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/privilege"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -308,7 +308,7 @@ func (flow *wizard) footer() (string, string) {
 }
 
 func (flow *wizard) header(width int) string {
-	title := headingStyle.Render("hyprtrixie") + " " + dimStyle.Render(env.Version)
+	title := headingStyle.Render("SolanumOS") + " " + dimStyle.Render(env.Version)
 	where := fmt.Sprintf(words.T("%s · %d of %d"), words.T(flow.stages[flow.at].name()), flow.at+1, len(flow.stages))
 	gap := max(width-lipgloss.Width(title)-lipgloss.Width(where), 1)
 	return title + strings.Repeat(" ", gap) + dimStyle.Render(where)

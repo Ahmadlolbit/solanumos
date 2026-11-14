@@ -9,22 +9,23 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/apt"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/atomic"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/btrfs"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fetch"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/files"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/fsutil"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/ledger"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/modules"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/run"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/runlog"
-	"github.com/Ahmadlolbit/hyprtrixie/internal/service"
+	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/btrfs"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/fetch"
+	"github.com/Ahmadlolbit/solanumos/internal/files"
+	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
+	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/service"
 )
 
 const (
-	firstSnapshot     = "hyprtrixie: before setup"
+	firstSnapshot     = "solanum: before setup"
 	snapperTemplate   = "/usr/share/snapper/config-templates/default"
 	snapshotSubvolume = "@snapshots"
 	installerRoot     = "@rootfs"
@@ -50,15 +51,15 @@ type grubMenu struct {
 }
 
 func snapperDefaults() string {
-	return env.Or("HYPRTRIXIE_SNAPPER_DEFAULTS", "/etc/default/snapper")
+	return env.Or("SOLANUM_SNAPPER_DEFAULTS", "/etc/default/snapper")
 }
 
 func snapperConfig() string {
-	return env.Or("HYPRTRIXIE_SNAPPER_CONFIG", "/etc/snapper/configs/root")
+	return env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")
 }
 
 func snapshotDir() string {
-	return env.Or("HYPRTRIXIE_SNAPSHOT_DIR", "/.snapshots")
+	return env.Or("SOLANUM_SNAPSHOT_DIR", "/.snapshots")
 }
 
 func snapperArgs(args ...string) []string {
@@ -170,7 +171,7 @@ func firstTakenBefore() bool {
 
 func firstIn(listing string) (string, string, bool) {
 	for _, line := range run.Lines(listing) {
-		if fields := strings.SplitN(line, "\t", 3); len(fields) == 3 && fields[2] == firstSnapshot {
+		if fields := strings.SplitN(line, "\t", 3); len(fields) == 3 && (fields[2] == firstSnapshot || fields[2] == oldname.FirstSnapshot) {
 			return fields[0], fields[1], true
 		}
 	}
@@ -288,7 +289,7 @@ func snapshotsStop(log *runlog.Log) error {
 			return err
 		}
 	}
-	log.Line("info", "no new snapshots are taken from now on; the ones taken so far stay: sudo snapper delete removes those you no longer want, and sudo hyprtrixie cleanup removes old automatic ones when / is nearly full")
+	log.Line("info", "no new snapshots are taken from now on; the ones taken so far stay: sudo snapper delete removes those you no longer want, and sudo solanum cleanup removes old automatic ones when / is nearly full")
 	return nil
 }
 
@@ -336,7 +337,7 @@ func containerStorageOK(*runlog.Log) error {
 }
 
 func grubBuild(log *runlog.Log, source string) error {
-	folder, err := os.MkdirTemp("", "hyprtrixie")
+	folder, err := os.MkdirTemp("", "solanum")
 	if err != nil {
 		return err
 	}

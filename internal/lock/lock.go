@@ -7,7 +7,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/Ahmadlolbit/hyprtrixie/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 const (
@@ -17,12 +18,23 @@ const (
 
 var heldLocks = "/proc/locks"
 
-func Path() string {
-	return env.Or("HYPRTRIXIE_LOCK", "/run/hyprtrixie.lock")
+type Held struct {
+	files []*os.File
 }
 
-func open(path string) (*os.File, error) {
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, fileMode)
+func Path() string {
+	return env.Or("SOLANUM_LOCK", "/run/solanum.lock")
+}
+
+func oldPath() string {
+	if os.Getenv("SOLANUM_LOCK") != "" {
+		return os.Getenv("SOLANUM_OLD_LOCK")
+	}
+	return oldname.Lock
+}
+
+func open(path string, how int) (*os.File, error) {
+	file, err := os.OpenFile(path, how, fileMode)
 	if err != nil {
 		return nil, err
 	}
@@ -33,17 +45,41 @@ func open(path string) (*os.File, error) {
 	return file, nil
 }
 
-func Take() (*os.File, error) {
+func (held *Held) Close() error {
+	var err error
+	for _, file := range held.files {
+		err = errors.Join(err, file.Close())
+	}
+	return err
+}
+
+func (held *Held) hold(file *os.File) error {
+	held.files = append(held.files, file)
+	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		held.Close()
+		return errors.New("another Solanum run is still going")
+	}
+	return nil
+}
+
+func Take() (*Held, error) {
 	path := Path()
-	file, err := open(path)
+	file, err := open(path, os.O_CREATE|os.O_WRONLY)
 	if err != nil {
 		return nil, errors.New("cannot create " + path)
 	}
-	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
-		file.Close()
-		return nil, errors.New("another Hyprtrixie run is still going")
+	held := &Held{}
+	if err := held.hold(file); err != nil {
+		return nil, err
 	}
-	return file, nil
+	if old := oldPath(); old != "" {
+		if file, err := open(old, os.O_WRONLY); err == nil {
+			if err := held.hold(file); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return held, nil
 }
 
 func identity(info os.FileInfo) string {
@@ -67,11 +103,16 @@ func written(locks, id string) bool {
 	return false
 }
 
-func Busy() bool {
-	info, err := os.Stat(Path())
+func busy(path string) bool {
+	info, err := os.Stat(path)
 	if err != nil {
 		return false
 	}
 	locks, err := os.ReadFile(heldLocks)
 	return err == nil && written(string(locks), identity(info))
+}
+
+func Busy() bool {
+	old := oldPath()
+	return busy(Path()) || old != "" && busy(old)
 }
