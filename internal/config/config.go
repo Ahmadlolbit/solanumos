@@ -21,7 +21,7 @@ const (
 	version       = 3
 	versionKey    = "SOLANUM_CONFIG_VERSION"
 	keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
-	newApps       = "imv evince obsidian localsend calculator"
+	newApps       = "imv evince obsidian localsend calculator texteditor"
 )
 
 var renamedThemes = map[string]string{"lumon": "northern-sea", "vantablack": "pitch-black"}
