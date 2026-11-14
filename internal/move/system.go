@@ -37,6 +37,8 @@ var renamedInside = [][2]string{
 	{"/var/cache/solanum/sources/" + oldname.ThemesSource, "/var/cache/solanum/sources/solanumos-themes"},
 }
 
+var leftovers = []string{"/usr/share/plymouth/themes/solanum/" + oldname.Name + ".script"}
+
 func (work *mover) quietly(name string, args ...string) {
 	if err := run.LoggedWithin(run.Minute, work.out, name, args...); err != nil {
 		fmt.Fprintf(work.out, "%s %s: %v\n", name, strings.Join(args, " "), err)
@@ -106,6 +108,9 @@ func (work *mover) moveFolders() {
 	}
 	for _, pair := range renamedInside {
 		work.moveFile(at(pair[0]), at(pair[1]))
+	}
+	for _, path := range leftovers {
+		work.remove(at(path))
 	}
 }
 
