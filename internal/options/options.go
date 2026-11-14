@@ -2,6 +2,7 @@ package options
 
 import (
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -42,7 +43,11 @@ type Option struct {
 
 var profiles = []string{"minimal", "everyday", "developer"}
 
-var sources = map[string]string{"teams": "TEAMS_SOURCE"}
+var (
+	sources       = map[string]string{"teams": "TEAMS_SOURCE"}
+	formats       = map[string]func(string) bool{"DEBIAN_MIRROR": mirrors}
+	mirrorAddress = regexp.MustCompile(`^[a-z][a-z0-9+.-]*:/+[^/]`)
+)
 
 var table = []Option{
 	{"PROFILE", "Profile", Choice, "developer", "developer everyday minimal", "profile", "Presets for apps and tools: minimal, everyday, or developer (everything)", nil},
@@ -250,8 +255,16 @@ func (option Option) Valid(value string) bool {
 	case Multi:
 		items := option.Items()
 		return len(items) == 0 || !slices.ContainsFunc(strings.Fields(value), func(word string) bool { return !slices.Contains(items, word) })
+	case Text:
+		format, found := formats[option.Key]
+		return !found || format(value)
 	}
 	return true
+}
+
+func mirrors(value string) bool {
+	addresses := strings.Fields(value)
+	return len(addresses) > 0 && !slices.ContainsFunc(addresses, func(address string) bool { return !mirrorAddress.MatchString(address) })
 }
 
 func whole(value string) bool {
