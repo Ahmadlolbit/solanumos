@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"hash/fnv"
 	"image"
-	"image/color"
 	"image/jpeg"
 	"math"
 	"runtime"
@@ -45,13 +44,23 @@ func pick(colors theme.Colors, names ...string) rgb {
 	return rgb{128, 128, 128}
 }
 
+func within(value, low, high float64) float64 {
+	if value < low {
+		return low
+	}
+	if value > high {
+		return high
+	}
+	return value
+}
+
 func mix(a, b rgb, t float64) rgb {
-	t = math.Max(0, math.Min(1, t))
+	t = within(t, 0, 1)
 	return rgb{a.r + (b.r-a.r)*t, a.g + (b.g-a.g)*t, a.b + (b.b-a.b)*t}
 }
 
 func smooth(edge0, edge1, x float64) float64 {
-	t := math.Max(0, math.Min(1, (x-edge0)/(edge1-edge0)))
+	t := within((x-edge0)/(edge1-edge0), 0, 1)
 	return t * t * (3 - 2*t)
 }
 
@@ -120,19 +129,28 @@ func contours(colors theme.Colors, n noise, aspect float64) func(x, y float64) r
 }
 
 func clamp(value float64) uint8 {
-	return uint8(math.Max(0, math.Min(255, math.Round(value))))
+	return uint8(within(math.Round(value), 0, 255))
 }
 
-func paintRow(img *image.RGBA, shade func(x, y float64) rgb, grain noise, y int) {
-	width, height := img.Rect.Dx(), img.Rect.Dy()
-	for x := range width {
-		c := shade(float64(x)/float64(width), float64(y)/float64(height))
-		d := (grain.lattice(x, y) - 0.5) * 2.4
-		img.SetRGBA(x, y, color.RGBA{clamp(c.r + d), clamp(c.g + d), clamp(c.b + d), 255})
+func grained(grain noise) finisher {
+	return func(img *image.RGBA, row []rgb, y int) {
+		pix := img.Pix[y*img.Stride:]
+		for x, c := range row {
+			d := (grain.lattice(x, y) - 0.5) * 2.4
+			pix[x*4], pix[x*4+1], pix[x*4+2], pix[x*4+3] = clamp(c.r+d), clamp(c.g+d), clamp(c.b+d), 255
+		}
 	}
 }
 
-func render(shade func(x, y float64) rgb, grain noise, width, height int) *image.RGBA {
+func shaded(shade func(x, y float64) rgb, at area) painter {
+	return func(y int, row []rgb) {
+		for x := range row {
+			row[x] = shade(float64(x)/at.width, float64(y)/at.height)
+		}
+	}
+}
+
+func render(paint painter, finish finisher, width, height int) *image.RGBA {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	rows := make(chan int, height)
 	for y := range height {
@@ -144,8 +162,10 @@ func render(shade func(x, y float64) rgb, grain noise, width, height int) *image
 		group.Add(1)
 		go func() {
 			defer group.Done()
+			row := make([]rgb, width)
 			for y := range rows {
-				paintRow(img, shade, grain, y)
+				paint(y, row)
+				finish(img, row, y)
 			}
 		}()
 	}
@@ -154,8 +174,8 @@ func render(shade func(x, y float64) rgb, grain noise, width, height int) *image
 }
 
 func Contours(colors theme.Colors, seed uint32, width, height int) *image.RGBA {
-	n := noise{seed}
-	return render(contours(colors, n, float64(width)/float64(height)), noise{seed ^ 0x9e3779b9}, width, height)
+	n, at := noise{seed}, sized(width, height)
+	return render(shaded(contours(colors, n, at.width/at.height), at), grained(noise{seed ^ 0x9e3779b9}), width, height)
 }
 
 func JPEG(img image.Image) ([]byte, error) {

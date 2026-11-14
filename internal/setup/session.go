@@ -35,7 +35,7 @@ const (
 	userUnits    = "/etc/systemd/user/"
 	verdictLine  = "Config parsing result:"
 	verdictShown = 20
-	screensCall  = "qs -p /usr/share/solanum/shell ipc call screens "
+	screensCall  = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
 	dpmsOn       = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
 	dpmsOff      = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
 	secondsAMin  = 60

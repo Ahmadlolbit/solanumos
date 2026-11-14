@@ -69,8 +69,9 @@ func drawnPicture(date string) (string, error) {
 	if fsutil.IsFile(path) {
 		return path, nil
 	}
-	img := wallpaper.Contours(themeColorsNow(), wallpaper.Seed(date+" "+currentTheme()), wallpaper.Width, wallpaper.Height)
-	data, err := wallpaper.JPEG(img)
+	style, seed := wallpaper.Random()
+	width, height := wallpaper.Size()
+	data, err := wallpaper.JPEG(wallpaper.Draw(style, themeColorsNow(), seed, width, height))
 	if err != nil {
 		return "", err
 	}

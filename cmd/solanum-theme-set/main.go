@@ -76,7 +76,7 @@ func themeNames() []string {
 func previewOf(name string) string {
 	own, shipped := filepath.Join(userThemes(), name), filepath.Join(systemRoot, "themes", name)
 	for _, dir := range []string{own, shipped} {
-		for _, kind := range []string{"png", "jpg", "jpeg", "webp"} {
+		for _, kind := range []string{"jpg", "jpeg", "png", "webp"} {
 			if file := filepath.Join(dir, "preview."+kind); fsutil.IsFile(file) {
 				return file
 			}
@@ -344,9 +344,23 @@ func paperChange(otherTheme bool, before string) paper {
 	return paperKept
 }
 
+func logoShown(colors theme.Colors, link string) bool {
+	if settings.Get("logo") != "animated" {
+		return false
+	}
+	still, err := wallpaper.LogoStill(colors)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return false
+	}
+	symlink(still, link)
+	wallpaper.Tidy(still)
+	return true
+}
+
 func pickBackground(name, previous string, colors theme.Colors) {
 	link := backgroundLink()
-	if previous == name && fsutil.Exists(link) {
+	if logoShown(colors, link) || (previous == name && fsutil.Exists(link)) {
 		return
 	}
 	found := fsutil.Images(filepath.Join(state(), "theme", "backgrounds"), look.OwnBackgrounds(name))

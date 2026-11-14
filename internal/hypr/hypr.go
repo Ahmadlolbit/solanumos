@@ -16,6 +16,9 @@ const monitorCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0
 type Monitor struct {
 	Name            string `json:"name"`
 	Focused         bool   `json:"focused"`
+	Width           int    `json:"width"`
+	Height          int    `json:"height"`
+	Transform       int    `json:"transform"`
 	ActiveWorkspace struct {
 		ID *int `json:"id"`
 	} `json:"activeWorkspace"`
@@ -53,6 +56,21 @@ func QuietMonitors() ([]Monitor, bool) {
 		return nil, false
 	}
 	return found, true
+}
+
+func LargestScreen() (int, int, bool) {
+	monitors, _ := QuietMonitors()
+	width, height := 0, 0
+	for _, monitor := range monitors {
+		wide, high := monitor.Width, monitor.Height
+		if monitor.Transform%2 == 1 {
+			wide, high = high, wide
+		}
+		if wide*high > width*height {
+			width, height = wide, high
+		}
+	}
+	return width, height, width > 0 && height > 0
 }
 
 func ActiveWindow() (Window, bool) {

@@ -25,6 +25,20 @@ Scope {
   readonly property string hint: failed ? "Couldn't apply " + failed : filter ? "Filter: " + filter : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
   readonly property var shown: items.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()))
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
+  readonly property var drawn: [
+    {
+      value: "draw",
+      label: "Draw another",
+      image: "",
+      glyph: "\uf1fc"
+    },
+    {
+      value: "logo",
+      label: "Animated logo",
+      image: "",
+      glyph: ""
+    }
+  ]
 
   function show(kind) {
     mode = kind;
@@ -46,8 +60,8 @@ Scope {
   function take(kind, text) {
     if (mode !== kind)
       return;
-    items = text.split("\n").filter(line => line !== "").map(line => parse(kind, line));
-    index = Math.max(0, shown.findIndex(item => item.value === selected));
+    items = text.split("\n").filter(line => line !== "").map(line => parse(kind, line)).concat(kind === "backgrounds" ? drawn : []);
+    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "logo" && Theme.looks.logo === "animated"));
   }
 
   function address(path) {
@@ -287,7 +301,7 @@ Scope {
             Rectangle {
               anchors.fill: parent
               radius: Theme.radius
-              color: Theme.surface
+              color: slice.modelData.value === "logo" ? Theme.base : Theme.surface
               border.width: slice.current ? 2 : 0
               border.color: Theme.accent
               clip: true
@@ -300,6 +314,24 @@ Scope {
                 asynchronous: true
                 sourceSize.width: root.wide
                 sourceSize.height: carousel.height
+              }
+
+              Label {
+                anchors.centerIn: parent
+                visible: !slice.modelData.image
+                text: slice.modelData.glyph || ""
+                color: Theme.subtext
+                font.pixelSize: Theme.size(slice.current ? 64 : 24)
+              }
+
+              Loader {
+                anchors.centerIn: parent
+                active: slice.modelData.value === "logo"
+
+                sourceComponent: LogoCanvas {
+                  cell: Math.min(slice.width, slice.height) * 0.8 / Logo.cells
+                  resting: !slice.current
+                }
               }
 
               Rectangle {

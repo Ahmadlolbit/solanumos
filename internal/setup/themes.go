@@ -52,7 +52,8 @@ const (
 var (
 	consoleFont = [][2]string{{"FONTFACE", `"Terminus"`}, {"FONTSIZE", `"16x32"`}}
 	debianFont  = map[string]string{"FONTFACE": `"Fixed"`, "FONTSIZE": `"8x16"`}
-	themeFiles  = []string{"colors.toml", "icons.theme", "preview.png", "chromium.theme", "btop.theme"}
+	themeFiles  = []string{"colors.toml", "icons.theme", "preview.jpg", "chromium.theme", "btop.theme"}
+	themeLegal  = [][2]string{{"LICENSE", "LICENSE.themes"}, {"THIRD-PARTY-LICENSES", "THIRD-PARTY-LICENSES"}, {"CREDITS.md", "CREDITS.md"}}
 	themeTools  = []string{"solanum-look", "solanum-theme-install", "solanum-weather", "solanum-background", themeSetter}
 	lookOptions = [][2]string{
 		{"ACCENT", "ACCENT_COLOR"}, {"GLASS", "GLASS"}, {"CORNERS", "ROUNDED_CORNERS"}, {"STYLE", "WINDOW_STYLE"}, {"TEXT", "TEXT_SIZE"}, {"READER", "SCREEN_READER"}, {"CHIME", "STARTUP_SOUND"}, {"APPS", "APPS_THEME"}, {"EDITORS", "EDITORS_THEME"}, {"AUTO", "AUTO_THEME"}, {"LIGHT", "LIGHT_THEME"},
@@ -152,17 +153,28 @@ func (theme *themeRun) themesFetch(log *runlog.Log, fetched string) error {
 			}
 		}
 	}
-	if err := run.Logged(log, "install", "-D", "-m", "0644", filepath.Join(fetched, "LICENSE"), filepath.Join(env.ThemeRoot(), "LICENSE.themes")); err != nil {
-		return err
+	for _, file := range themeLegal {
+		if err := run.Logged(log, "install", "-D", "-m", "0644", filepath.Join(fetched, file[0]), filepath.Join(env.ThemeRoot(), file[1])); err != nil {
+			return err
+		}
 	}
-	return run.Logged(log, "install", "-D", "-m", "0644", filepath.Join(fetched, "THIRD-PARTY-LICENSES"), filepath.Join(env.ThemeRoot(), "THIRD-PARTY-LICENSES"))
+	return nil
+}
+
+func legalInstalled() bool {
+	for _, file := range themeLegal {
+		if !fsutil.IsFile(filepath.Join(env.ThemeRoot(), file[1])) {
+			return false
+		}
+	}
+	return true
 }
 
 func (theme *themeRun) themesInstall(log *runlog.Log) error {
-	if fetch.SourceCurrent(log, themesSource) && fsutil.IsFile(filepath.Join(env.ThemeRoot(), "THIRD-PARTY-LICENSES")) {
+	if fetch.SourceCurrent(log, themesSource) && legalInstalled() {
 		return nil
 	}
-	fetched, err := fetch.GitCached(log, themesSource, "/themes/", "/LICENSE", "/THIRD-PARTY-LICENSES")
+	fetched, err := fetch.GitCached(log, themesSource, "/themes/", "/LICENSE", "/THIRD-PARTY-LICENSES", "/CREDITS.md")
 	if err != nil {
 		return err
 	}
