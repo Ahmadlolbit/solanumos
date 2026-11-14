@@ -50,19 +50,24 @@ func markers() []string {
 	return []string{filepath.Join(at("/var/lib/"+oldname.Name), markFile), filepath.Join(stateDir(), markFile)}
 }
 
-func Pending() bool {
-	if fsutil.Exists(filepath.Join(stateDir(), stampFile)) {
-		return false
-	}
-	if slices.ContainsFunc(markers(), fsutil.Exists) {
-		return true
-	}
+func oldFolders() bool {
 	for _, each := range folders {
 		if fsutil.IsDir(at(each.old)) && !fsutil.IsLink(at(each.old)) {
 			return true
 		}
 	}
 	return false
+}
+
+func Pending() bool {
+	if fsutil.Exists(filepath.Join(stateDir(), stampFile)) {
+		return false
+	}
+	return slices.ContainsFunc(markers(), fsutil.Exists) || oldFolders()
+}
+
+func Unfinished() bool {
+	return Pending() && !oldFolders()
 }
 
 func Snapshot() string {
