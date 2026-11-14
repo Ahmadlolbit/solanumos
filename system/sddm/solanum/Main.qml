@@ -11,6 +11,7 @@ Rectangle {
   readonly property color fail: config.fail || "#f38ba8"
   readonly property color muted: Qt.alpha(root.foreground, 0.6)
   readonly property string fontFamily: config.font || "monospace"
+  readonly property string displayFamily: Qt.fontFamilies().includes("Departure Mono") ? "Departure Mono" : root.fontFamily
   readonly property string timeFormat: config.clock === "12h" ? "h:mm AP" : "HH:mm"
   property int userIndex: userModel.lastIndex >= 0 ? userModel.lastIndex : 0
   readonly property var currentUser: users.count > 0 ? users.itemAt(Math.min(userIndex, users.count - 1)) : null
@@ -112,8 +113,8 @@ Rectangle {
       anchors.horizontalCenter: parent.horizontalCenter
       text: Qt.formatTime(root.now, root.timeFormat)
       color: root.foreground
-      font.family: root.fontFamily
-      font.pixelSize: 128
+      font.family: root.displayFamily
+      font.pixelSize: 132
     }
 
     Text {
