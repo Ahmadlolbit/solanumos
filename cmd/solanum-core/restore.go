@@ -12,6 +12,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 )
@@ -86,6 +87,13 @@ func keptWords(root, table string) string {
 		"/home is a subvolume inside the root, so it comes up empty after going back, and your files stay in the old root.") +
 		keptWord(root, table, "var/log", "", " The logs in /var/log stay as they are.",
 			" /var/log comes up empty, and the old logs stay in the old root.") + "\n"
+}
+
+func movedBackWords(before, apart bool) string {
+	if !before || !apart {
+		return ""
+	}
+	return "That snapshot is from before the move to Solanum, so the folders and lines in each home go back to Hyprtrixie's names too.\n"
 }
 
 func kernelsIn(boot string) ([]string, error) {
@@ -165,7 +173,7 @@ func goBack(number string) int {
 	}
 	modules := filepath.Join(env.Or("SOLANUM_SNAPSHOTS", "/.snapshots"), number, "snapshot/usr/lib/modules")
 	advice := kernelAdvice(modules, env.Or("SOLANUM_BOOT", "/boot"), "/")
-	kept := keptWords("/", fsutil.Optional("/proc/self/mountinfo"))
+	kept := keptWords("/", fsutil.Optional("/proc/self/mountinfo")) + movedBackWords(move.Before(number), move.HomeApart())
 	if code := say(snapshots.Changes(status) + "\n" + kept + advice + "\n"); code != 0 {
 		return code
 	}
