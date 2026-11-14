@@ -108,6 +108,23 @@ func FileKeys() []string {
 	return keys
 }
 
+func Changed(text string, changes map[string]string) string {
+	colors := Parse(text)
+	for _, pair := range aliases {
+		colors.fallback(pair[0], pair[1], "")
+	}
+	background := changes["background"]
+	if background == "" || strings.EqualFold(background, colors["background"]) {
+		return WithColours(text, changes)
+	}
+	maps.Copy(colors, changes)
+	colors.fallback("foreground", "", defaultLooks[Dark(background)]["foreground"])
+	colors.fallback("accent", "blue", "")
+	made := Make(background, colors["foreground"], colors["accent"])
+	maps.Copy(made, changes)
+	return made.File()
+}
+
 func WithColours(text string, changes map[string]string) string {
 	lines := strings.Split(strings.TrimSuffix(strings.TrimPrefix(text, "\ufeff"), "\n"), "\n")
 	done := map[string]bool{}
