@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Ahmadlolbit/solanumos/internal/burst"
 	"github.com/Ahmadlolbit/solanumos/internal/follow"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 )
@@ -36,23 +37,28 @@ func menuFace() string {
 	return "JetBrains Mono"
 }
 
-func chosen(current theme) string {
-	data, err := solid(opaque(current.accent))
+func picture(name string, data []byte, err error) error {
 	if err == nil {
-		_, err = refresh(filepath.Join(grubDir, "select_c.png"), string(data))
+		_, err = refresh(filepath.Join(grubDir, name), string(data))
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return current.accent
 	}
-	return current.background
+	return err
 }
 
 func menu(current theme) bool {
-	_, err := render(filepath.Join(templates, "theme.txt"), filepath.Join(grubDir, "theme.txt"), "BACKGROUND="+current.background,
-		"FOREGROUND="+current.foreground, "ACCENT="+current.accent, "MUTED="+current.muted, "FONT="+menuFace(), "SELECTED="+chosen(current))
+	logo, err := burst.PNG(2, opaque(current.accent))
+	drawn := picture("logo.png", logo, err) == nil
+	selected := current.background
+	square, err := solid(opaque(current.accent))
+	if picture("select_c.png", square, err) != nil {
+		drawn, selected = false, current.accent
+	}
+	_, err = render(filepath.Join(templates, "theme.txt"), filepath.Join(grubDir, "theme.txt"), "BACKGROUND="+current.background,
+		"FOREGROUND="+current.foreground, "ACCENT="+current.accent, "MUTED="+current.muted, "FONT="+menuFace(), "SELECTED="+selected)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
-	return err == nil
+	return drawn && err == nil
 }

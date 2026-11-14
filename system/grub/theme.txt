@@ -2,6 +2,16 @@ title-text: ""
 desktop-color: "{{ BACKGROUND }}"
 terminal-font: "{{ FONT }} Regular 16"
 
++ circular_progress {
+  top = 16%-88
+  left = 50%-32
+  width = 64
+  height = 64
+  center_bitmap = "logo.png"
+  tick_bitmap = "logo.png"
+  num_ticks = 0
+}
+
 + label {
   top = 16%
   left = 0
