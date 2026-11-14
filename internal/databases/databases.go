@@ -14,6 +14,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -63,6 +64,24 @@ func (database Database) Container() string {
 	return "solanum-" + database.Name
 }
 
+func (database Database) oldName() string {
+	return oldname.Prefix + database.Name
+}
+
+func (database Database) Volume() string {
+	if !exists("volume", database.Container()) && exists("volume", database.oldName()) {
+		return database.oldName()
+	}
+	return database.Container()
+}
+
+func (database Database) adopt(out io.Writer) error {
+	if exists("container", database.Container()) || !exists("container", database.oldName()) {
+		return nil
+	}
+	return run.LoggedWithin(run.Minute, out, "docker", "rename", database.oldName(), database.Container())
+}
+
 func folder() string {
 	return filepath.Join(env.StateHome(), "solanum", "databases")
 }
@@ -81,7 +100,7 @@ func (database Database) Password() (string, error) {
 	if password, ok := database.saved(); ok {
 		return password, nil
 	}
-	if exists("volume", database.Container()) {
+	if exists("volume", database.Volume()) {
 		return "", fmt.Errorf("%s has data but its password is gone: delete the data with solanum db remove %s", database.Title, database.Name)
 	}
 	if err := os.MkdirAll(folder(), folderMode); err != nil {
@@ -127,14 +146,18 @@ func exists(kind, name string) bool {
 	return run.Quiet(run.Minute, "docker", kind, "inspect", name) == 0
 }
 
-func (database Database) Running() bool {
-	state, err := run.CaptureQuiet(run.Minute, "docker", "container", "inspect", "--format", "{{.State.Running}}", database.Container())
+func running(container string) bool {
+	state, err := run.CaptureQuiet(run.Minute, "docker", "container", "inspect", "--format", "{{.State.Running}}", container)
 	return err == nil && strings.TrimSpace(state) == "true"
+}
+
+func (database Database) Running() bool {
+	return running(database.Container()) || running(database.oldName())
 }
 
 func (database Database) runArgs(password string) ([]string, error) {
 	args := []string{"run", "--detach", "--name", database.Container(),
-		"--publish", "127.0.0.1:" + database.Port + ":" + database.Port, "--volume", database.Container() + ":" + database.Data}
+		"--publish", "127.0.0.1:" + database.Port + ":" + database.Port, "--volume", database.Volume() + ":" + database.Data}
 	if database.Variable != "" {
 		if err := atomic.Install(database.secret(".env"), []byte(database.Variable+"="+password+"\n"), secretMode); err != nil {
 			return nil, err
@@ -152,6 +175,9 @@ func (database Database) runArgs(password string) ([]string, error) {
 
 func (database Database) Start(out io.Writer) (string, error) {
 	if err := Engine(); err != nil {
+		return "", err
+	}
+	if err := database.adopt(out); err != nil {
 		return "", err
 	}
 	password, err := database.Password()
@@ -173,6 +199,9 @@ func (database Database) Stop(out io.Writer) error {
 	if err := Engine(); err != nil {
 		return err
 	}
+	if err := database.adopt(out); err != nil {
+		return err
+	}
 	if !exists("container", database.Container()) {
 		return nil
 	}
@@ -186,8 +215,8 @@ func (database Database) Remove(out io.Writer) error {
 	if err := database.Stop(out); err != nil {
 		return err
 	}
-	if exists("volume", database.Container()) {
-		if err := run.LoggedWithin(run.Minute, out, "docker", "volume", "rm", database.Container()); err != nil {
+	if volume := database.Volume(); exists("volume", volume) {
+		if err := run.LoggedWithin(run.Minute, out, "docker", "volume", "rm", volume); err != nil {
 			return err
 		}
 	}
