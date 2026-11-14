@@ -12,7 +12,19 @@ type placed struct {
 	modules string
 }
 
+const forOthers = "The default for other accounts"
+
 var (
+	twins = map[string]string{
+		"accent": "ACCENT_COLOR", "glass": "GLASS", "style": "WINDOW_STYLE", "apps": "APPS_THEME", "editors": "EDITORS_THEME", "auto": "AUTO_THEME",
+		"light": "LIGHT_THEME", "dark": "DARK_THEME", "light_at": "LIGHT_AT", "dark_at": "DARK_AT", "daily": "DAILY_THEME", "rotate": "WALLPAPER_MINUTES",
+		"workspaces": "WALLPAPER_PER_WORKSPACE", "day_wallpaper": "DAY_WALLPAPER", "wallpaper_folder": "WALLPAPER_FOLDER", "corners": "ROUNDED_CORNERS",
+		"night": "NIGHT_LIGHT", "night_from": "NIGHT_FROM", "night_to": "NIGHT_TO", "chime": "STARTUP_SOUND", "power": "POWER_FOLLOW",
+		"lock_media": "LOCK_MEDIA", "lock_battery": "LOCK_BATTERY", "weather": "WEATHER", "weather_units": "WEATHER_UNITS", "quiet": "QUIET_HOURS",
+		"quiet_from": "QUIET_FROM", "quiet_to": "QUIET_TO", "text": "TEXT_SIZE", "reader": "SCREEN_READER",
+		"bar.preset": "BAR_PRESET", "bar.position": "BAR_POSITION", "bar.clock": "CLOCK_FORMAT",
+	}
+
 	afterRestart = []string{"KERNEL", "GRAPHICS", "WEBCAM", "GREETER", "HIBERNATE", "BOOT_SPLASH", "BOOT_PROMPT", "BOOT_MENU_THEME", "CONSOLE_THEME"}
 	systemRows   = map[string]placed{
 		"PROFILE": {"apps", ""}, "FAILURE_MODE": {"updates", ""}, "DEBIAN_MIRROR": {"updates", "02"}, "KERNEL": {"hardware", "03"},
@@ -81,4 +93,21 @@ func systemRow(option options.Option, facts options.Facts) Row {
 		row.After = "restart"
 	}
 	return row
+}
+
+func paired(rows []Row) []Row {
+	yoursOf := map[string]string{}
+	for yours, computer := range twins {
+		yoursOf[computer] = yours
+	}
+	for index, row := range rows {
+		switch {
+		case row.Whose == Yours:
+			rows[index].Twin = twins[row.Name]
+		case yoursOf[row.Name] != "":
+			rows[index].Twin = yoursOf[row.Name]
+			rows[index].Help = strings.TrimSuffix(forOthers+". "+row.Help, ". ")
+		}
+	}
+	return rows
 }

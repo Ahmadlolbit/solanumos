@@ -38,6 +38,7 @@ type Row struct {
 	Max      float64  `json:"max,omitempty"`
 	Step     float64  `json:"step,omitempty"`
 	Whose    string   `json:"whose"`
+	Twin     string   `json:"twin,omitempty"`
 	After    string   `json:"after,omitempty"`
 	Help     string   `json:"help,omitempty"`
 	Keywords []string `json:"keywords,omitempty"`
