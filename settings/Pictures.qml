@@ -34,7 +34,7 @@ Tile {
     return true;
   }
 
-  title: every ? "Yours for every theme" : "Yours for " + (Store.current ? Store.current.replace(/-/g, " ") : "this theme")
+  title: every ? "Yours for every theme" : "Yours for " + (Store.current ? Store.currentLabel : "this theme")
   hint: current ? "Enter shows it or adds pictures · Delete moves one to the Trash" : every ? "~/.config/solanum/backgrounds" : "~/.config/solanum/backgrounds/" + Store.current
 
   Flow {

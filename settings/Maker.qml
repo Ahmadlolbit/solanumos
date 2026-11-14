@@ -102,7 +102,7 @@ Tile {
       }
 
       Choice {
-        label: "Change " + (Store.current ? Store.current.replace(/-/g, " ") : "this theme") + "'s colours"
+        label: "Change " + (Store.current ? Store.currentLabel : "this theme") + "'s colours"
         selected: maker.mode === "change"
         onClicked: maker.step(1)
       }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/options"
+	"github.com/Ahmadlolbit/solanumos/internal/theme"
 )
 
 type placed struct {
@@ -87,12 +88,25 @@ func systemRow(option options.Option, facts options.Facts) Row {
 		row.Step = 1
 	}
 	if kind == Pick {
-		row.Choices = named(option.Items())
+		row.Choices = systemChoices(option)
 	}
 	if slices.Contains(afterRestart, option.Key) {
 		row.After = "restart"
 	}
 	return row
+}
+
+func systemChoices(option options.Option) []Choice {
+	found := named(option.Items())
+	if !strings.HasSuffix(option.Key, "THEME") {
+		return found
+	}
+	for index, choice := range found {
+		if slices.Contains(options.Themes(), choice.Value) {
+			found[index].Label = theme.Pretty(choice.Value)
+		}
+	}
+	return found
 }
 
 func paired(rows []Row) []Row {
