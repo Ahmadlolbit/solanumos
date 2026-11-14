@@ -16,6 +16,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/fetch"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/service"
@@ -469,8 +470,12 @@ func (context *Context) zedUnpack(log *runlog.Log, app, version string) error {
 }
 
 func (context *Context) zedVersionIn(app string) (string, bool) {
+	stamp := filepath.Join(app, zedVersion)
+	if old := filepath.Join(app, oldname.VersionStamp); !fsutil.Exists(stamp) && fsutil.Exists(old) {
+		stamp = old
+	}
 	var text strings.Builder
-	err := context.Person.RunWithin(run.Quick, &text, "head", "-c", "64", filepath.Join(app, zedVersion))
+	err := context.Person.RunWithin(run.Quick, &text, "head", "-c", "64", stamp)
 	return strings.TrimSpace(text.String()), err == nil
 }
 

@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/files"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/step"
@@ -114,8 +115,15 @@ func filesCheck(path string) step.Work {
 	return func(*runlog.Log) error { return fileThere(path) }
 }
 
+func originalOf(path string) string {
+	if !fsutil.Exists(path+".solanum-old") && fsutil.Exists(path+oldname.OldSuffix) {
+		return path + oldname.OldSuffix
+	}
+	return path + ".solanum-old"
+}
+
 func keepOld(_ *runlog.Log, path string) error {
-	if fsutil.Exists(path + ".solanum-old") {
+	if fsutil.Exists(originalOf(path)) {
 		return nil
 	}
 	return files.KeepCopy(path, path+".solanum-old")
@@ -123,7 +131,7 @@ func keepOld(_ *runlog.Log, path string) error {
 
 func replaceKept(log *runlog.Log, path string, data []byte) (bool, error) {
 	before, _ := files.Hash(path)
-	if saved, err := files.Hash(path + ".solanum-old"); err == nil && saved != before {
+	if saved, err := files.Hash(originalOf(path)); err == nil && saved != before {
 		fresh := path + ".solanum-new"
 		log.Line("warn", "kept local edits in "+path+", new version written to "+fresh)
 		if fsutil.Optional(fresh) == string(data) {

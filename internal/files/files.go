@@ -20,6 +20,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/ledger"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
@@ -240,7 +241,7 @@ func (deployer *Deployer) existing(target string, data []byte, mode os.FileMode,
 		return true, deployer.keepEdits(target, data, mode, owner)
 	case known != "":
 		return false, nil
-	case fsutil.Exists(target+oldSuffix) || deployer.inHome(target):
+	case fsutil.Exists(target+oldSuffix) || fsutil.Exists(target+oldname.OldSuffix) || deployer.inHome(target):
 		return true, deployer.keepEdits(target, data, mode, owner)
 	}
 	return false, deployer.saveOld(target)
@@ -593,6 +594,9 @@ func (deployer *Deployer) ours(path string) bool {
 
 func (deployer *Deployer) Undeploy(path string) (string, error) {
 	if err := deployer.remove(path + newSuffix); err != nil {
+		return "", err
+	}
+	if err := deployer.remove(path + oldname.NewSuffix); err != nil {
 		return "", err
 	}
 	if !deployer.ours(path) {
