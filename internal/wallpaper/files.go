@@ -34,7 +34,7 @@ func CurrentColors() theme.Colors {
 	return colors
 }
 
-func Folder(name string) string {
+func folder(name string) string {
 	return filepath.Join(env.ThemeState(), name)
 }
 
@@ -52,16 +52,16 @@ func Another(colors theme.Colors) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return keep(filepath.Join(Folder("drawings"), fmt.Sprintf("%s-%d.jpg", name, seed)), data)
+	return keep(filepath.Join(folder("drawings"), fmt.Sprintf("%s-%d.jpg", name, seed)), data)
 }
 
 func IsLogo(path string) bool {
-	folder, err := fsutil.RealPath(Folder("logo"))
+	logos, err := fsutil.RealPath(folder("logo"))
 	if err != nil {
 		return false
 	}
 	dir, err := fsutil.RealPath(filepath.Dir(path))
-	return err == nil && dir == folder
+	return err == nil && dir == logos
 }
 
 func logoImage(colors theme.Colors, width, height int) *image.Paletted {
@@ -84,7 +84,7 @@ func logoImage(colors theme.Colors, width, height int) *image.Paletted {
 func LogoStill(colors theme.Colors) (string, error) {
 	width, height := Size()
 	name := fmt.Sprintf("%08x-%dx%d.png", Seed(colors["background"]+colors["foreground"]+colors["accent"]), width, height)
-	path := filepath.Join(Folder("logo"), name)
+	path := filepath.Join(folder("logo"), name)
 	if fsutil.IsFile(path) {
 		return path, nil
 	}
