@@ -106,7 +106,7 @@ func Matches(commit, last string) bool {
 func Changes(limit time.Duration, messages *os.File) ([]Change, error) {
 	data, err := os.ReadFile(filepath.Join(env.StateDir(), "files.db"))
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	lines := strings.Split(string(data), "\n")
 	lines = lines[:len(lines)-1]
