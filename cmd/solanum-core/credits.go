@@ -12,7 +12,7 @@ import (
 var (
 	madeBy = [][2]string{
 		{"Solanum, made by Ahmad", "GPL-3.0"},
-		{"solanum themes", "GPL-3.0"},
+		{"solanum themes: code and colours", "GPL-3.0"},
 	}
 	otherCredits = [][2]string{
 		{"Walker", "GPL-3.0"}, {"Elephant", "GPL-3.0"}, {"adw-gtk3", "LGPL-2.1"}, {"Bibata cursors", "GPL-3.0"},
@@ -42,6 +42,7 @@ func creditLines() []string {
 	for _, credit := range madeBy {
 		lines = append(lines, credit[0]+"\t"+credit[1])
 	}
+	lines = append(lines, "solanum themes: pictures\ttheir own credits and licences, in "+filepath.Join(env.ThemeRoot(), "CREDITS.md"))
 	installed, _ := apt.Installed()
 	docs := env.Or("SOLANUM_DOC_ROOT", "/usr/share/doc")
 	for _, name := range debianCredits {
