@@ -28,6 +28,21 @@ Rectangle {
     sddm.login(root.userName, password.text, root.sessionIndex);
   }
 
+  function nextUser() {
+    if (users.count < 2)
+      return;
+    userIndex = (Math.min(userIndex, users.count - 1) + 1) % users.count;
+    failed = false;
+    password.text = "";
+    password.forceActiveFocus();
+  }
+
+  Shortcut {
+    sequences: ["F1", "Alt+U"]
+    enabled: users.count > 1
+    onActivated: root.nextUser()
+  }
+
   Connections {
     target: sddm
 
@@ -112,16 +127,26 @@ Rectangle {
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
       text: root.currentUser ? root.currentUser.shown : root.userName
-      color: root.foreground
-      opacity: 0.8
+      color: Qt.alpha(root.foreground, 0.8)
       font.family: root.fontFamily
       font.pixelSize: 18
+
+      Text {
+        anchors.left: parent.right
+        anchors.leftMargin: 16
+        anchors.baseline: parent.baseline
+        visible: users.count > 1
+        text: Math.min(root.userIndex, users.count - 1) + 1 + " of " + users.count
+        color: root.muted
+        font.family: root.fontFamily
+        font.pixelSize: 16
+      }
 
       MouseArea {
         anchors.fill: parent
         enabled: users.count > 1
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.userIndex = (root.userIndex + 1) % users.count
+        onClicked: root.nextUser()
       }
     }
 
@@ -178,7 +203,7 @@ Rectangle {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 32
-    text: password.activeFocus ? "Enter to log in · Tab to sleep, restart or shut down" : "Enter to press · Left and Right to move · Tab to go back"
+    text: !password.activeFocus ? "Enter to press · Left and Right to move · Tab to go back" : users.count > 1 ? "Enter to log in · F1 for the next account · Tab to sleep, restart or shut down" : "Enter to log in · Tab to sleep, restart or shut down"
     color: root.muted
     font.family: root.fontFamily
     font.pixelSize: 14
