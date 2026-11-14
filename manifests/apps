@@ -30,6 +30,7 @@ syncthing files offered debian syncthing Syncthing
 nextcloud files offered debian nextcloud-desktop Nextcloud
 qbittorrent files offered debian qbittorrent qBittorrent
 filezilla files offered debian filezilla FileZilla
+nautilus files offered debian nautilus Nautilus (files)
 bitwarden security everyday release:bitwarden bitwarden Bitwarden
 keepassxc security offered debian keepassxc KeePassXC
 mullvad security offered extrepo:mullvad mullvad-vpn Mullvad VPN
