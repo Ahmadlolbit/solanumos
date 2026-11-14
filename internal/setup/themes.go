@@ -45,6 +45,8 @@ const (
 	unitFolder     = "/etc/systemd/system/"
 	splashScript   = "/usr/share/plymouth/themes/solanum/"
 	grubFont       = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+	grubFace       = "JetBrains Mono"
+	grubRanges     = "0x20-0x7E,0xA0-0x52F,0x2000-0x206F,0x2190-0x21FF,0x2500-0x259F"
 	btopTheme      = `color_theme = "solanum"`
 	btopSetting    = "color_theme = "
 )
@@ -526,14 +528,26 @@ func (theme *themeRun) grubThemeInstall(log *runlog.Log) error {
 	if err := os.MkdirAll(grubThemeDir(), programMode); err != nil {
 		return err
 	}
+	if err := theme.grubFonts(log, "dejavu", grubFont); err != nil {
+		return err
+	}
+	face := filepath.Join(fontDir(), fontPrefix+"-Regular.ttf")
+	if !fsutil.IsFile(face) {
+		return nil
+	}
+	return theme.grubFonts(log, "jetbrains", face, "-n", grubFace, "-r", grubRanges)
+}
+
+func (theme *themeRun) grubFonts(log *runlog.Log, name, source string, args ...string) error {
 	for _, size := range []string{"16", "20", "28"} {
-		font := filepath.Join(grubThemeDir(), "dejavu-"+size+".pf2")
+		font := filepath.Join(grubThemeDir(), name+"-"+size+".pf2")
 		if fsutil.IsFile(font) {
 			continue
 		}
-		if err := run.Logged(log, "grub-mkfont", "-s", size, "-o", font, grubFont); err != nil {
+		if err := run.Logged(log, "grub-mkfont", append(args, "-s", size, "-o", font, source)...); err != nil {
 			return err
 		}
+		theme.grubUpdate.need(true)
 	}
 	return nil
 }

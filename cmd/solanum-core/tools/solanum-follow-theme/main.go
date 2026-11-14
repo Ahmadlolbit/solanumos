@@ -157,15 +157,6 @@ func owe(files [][2]string) error {
 	return nil
 }
 
-func menu(current theme) bool {
-	_, err := render(filepath.Join(templates, "theme.txt"), filepath.Join(grubDir, "theme.txt"), "BACKGROUND="+current.background,
-		"FOREGROUND="+current.foreground, "ACCENT="+current.accent, "MUTED="+current.muted)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-	return err == nil
-}
-
 func console(current theme) bool {
 	changed, err := refresh(vtrgb, follow.Palette(current.colors, current.foreground))
 	if err != nil {

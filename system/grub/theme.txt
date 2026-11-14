@@ -1,6 +1,6 @@
 title-text: ""
 desktop-color: "{{ BACKGROUND }}"
-terminal-font: "DejaVu Sans Mono Regular 16"
+terminal-font: "{{ FONT }} Regular 16"
 
 + label {
   top = 16%
@@ -8,7 +8,7 @@ terminal-font: "DejaVu Sans Mono Regular 16"
   width = 100%
   align = "center"
   text = "solanum"
-  font = "DejaVu Sans Mono Regular 28"
+  font = "{{ FONT }} Regular 28"
   color = "{{ ACCENT }}"
 }
 
@@ -17,9 +17,9 @@ terminal-font: "DejaVu Sans Mono Regular 16"
   top = 30%
   width = 50%
   height = 50%
-  item_font = "DejaVu Sans Mono Regular 20"
+  item_font = "{{ FONT }} Regular 20"
   item_color = "{{ FOREGROUND }}"
-  selected_item_font = "DejaVu Sans Mono Regular 20"
+  selected_item_font = "{{ FONT }} Regular 20"
   selected_item_color = "{{ ACCENT }}"
   item_height = 40
   item_padding = 12
@@ -36,7 +36,7 @@ terminal-font: "DejaVu Sans Mono Regular 16"
   align = "center"
   id = "__timeout__"
   text = "Starting in %d seconds"
-  font = "DejaVu Sans Mono Regular 16"
+  font = "{{ FONT }} Regular 16"
   color = "{{ MUTED }}"
 }
 
@@ -46,6 +46,6 @@ terminal-font: "DejaVu Sans Mono Regular 16"
   width = 100%
   align = "center"
   text = "Enter starts the selected entry, e edits it, c opens a command line"
-  font = "DejaVu Sans Mono Regular 16"
+  font = "{{ FONT }} Regular 16"
   color = "{{ MUTED }}"
 }
