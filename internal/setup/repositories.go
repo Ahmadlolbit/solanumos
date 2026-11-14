@@ -172,6 +172,7 @@ func repositorySteps(context *Context) {
 	context.Run.Step("Prepare vendor repositories", extrepoSetup)
 	context.Run.Step("Install base packages", packages("base"))
 	context.Run.Step("Install firmware for this machine", context.firmwareInstall)
+	context.nameSteps()
 }
 
 func repositoryChecks(context *Context) {

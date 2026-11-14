@@ -60,6 +60,8 @@ Boot menu in the theme
 Boot splash	
 Browsers follow the theme	
 Build the boot image	
+Call the system Debian again	
+Call the system SolanumOS	
 Change wallpaper every (minutes)	
 Checking your password	
 Choose the apps that open images, PDFs, videos and archives	
@@ -463,6 +465,7 @@ The solanum command points at this folder
 The song or video that's playing, under the password field	
 The swapfile is not copy-on-write	
 The swapfile is on	
+The system's name	
 The text consoles (Ctrl+Alt+F3) in your theme's colours, with a larger font and the logo above the login	
 The theme for the day	
 The theme for the night	
@@ -516,6 +519,7 @@ Weather units
 Weekly snapshots to keep	
 Welcome	
 What mise sets up for every terminal: Node.js LTS, Python, Java 25 (Temurin) and Go	
+What the boot menu, the text consoles, fastfetch and About call the system; programs that check which system this is still find Debian 13	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words, and the TPM's PIN prompt keeps its own	
 When a step fails	
