@@ -14,6 +14,8 @@ const (
 	barSensors     = "solanum-sensors"
 	settingsHelper = "solanum-settings-helper"
 	settingsPolicy = "/usr/share/polkit-1/actions/org.solanumos.settings.policy"
+	taskHelper     = "solanum-task-helper"
+	taskPolicy     = "/usr/share/polkit-1/actions/org.solanumos.task.policy"
 )
 
 func barDir() string {
@@ -42,11 +44,18 @@ func settingsReady(*runlog.Log) error {
 	if err := fileThere(filepath.Join(settingsDir(), "common", "Theme.qml")); err != nil {
 		return err
 	}
-	if err := fileThere(env.Or("SOLANUM_SETTINGS_POLICY", settingsPolicy)); err != nil {
-		return err
+	for _, policy := range []string{env.Or("SOLANUM_SETTINGS_POLICY", settingsPolicy), env.Or("SOLANUM_TASK_POLICY", taskPolicy)} {
+		if err := fileThere(policy); err != nil {
+			return err
+		}
 	}
-	helper := filepath.Join(env.BinDir(), settingsHelper)
-	return expect(fsutil.Runnable(helper), helper+" won't run")
+	for _, name := range []string{settingsHelper, taskHelper} {
+		helper := filepath.Join(env.BinDir(), name)
+		if err := expect(fsutil.Runnable(helper), helper+" won't run"); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (context *Context) settingsInstall(*runlog.Log) error {
@@ -56,10 +65,15 @@ func (context *Context) settingsInstall(*runlog.Log) error {
 	if err := context.Deploy.Link("../shell/common", filepath.Join(settingsDir(), "common")); err != nil {
 		return err
 	}
-	if err := context.Deploy.Tool(settingsHelper); err != nil {
+	for _, name := range []string{settingsHelper, taskHelper} {
+		if err := context.Deploy.Tool(name); err != nil {
+			return err
+		}
+	}
+	if err := context.Deploy.File("system/polkit/org.solanumos.settings.policy", env.Or("SOLANUM_SETTINGS_POLICY", settingsPolicy), "HELPER="+filepath.Join(env.BinDir(), settingsHelper)); err != nil {
 		return err
 	}
-	return context.Deploy.File("system/polkit/org.solanumos.settings.policy", env.Or("SOLANUM_SETTINGS_POLICY", settingsPolicy), "HELPER="+filepath.Join(env.BinDir(), settingsHelper))
+	return context.Deploy.File("system/polkit/org.solanumos.task.policy", env.Or("SOLANUM_TASK_POLICY", taskPolicy), "HELPER="+filepath.Join(env.BinDir(), taskHelper))
 }
 
 func (context *Context) barInstall(*runlog.Log) error {
