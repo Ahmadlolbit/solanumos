@@ -14,6 +14,7 @@ thunderbird chat offered debian thunderbird Thunderbird
 slack chat offered extrepo:slack slack-desktop Slack
 geary chat offered debian geary Geary (mail)
 evolution chat offered debian evolution Evolution (mail, calendar)
+element chat offered extrepo:element.io element-desktop Element (Matrix)
 libreoffice office everyday debian libreoffice,libreoffice-gtk3 LibreOffice
 obsidian office everyday release:obsidian obsidian Obsidian
 onlyoffice office offered release:onlyoffice onlyoffice-desktopeditors OnlyOffice
