@@ -98,6 +98,7 @@ Debian 13 (trixie)
 Debian mirror	
 Debian's security fixes install on their own in the background	
 Degrees Celsius and km/h, or Fahrenheit and mph	
+Departure Mono is installed	
 Desktop services are installed	
 Desktop session	
 Detect hardware	
@@ -168,6 +169,7 @@ Idle locking and suspend are configured
 Input and display	
 Install	
 Install %s	
+Install Departure Mono	
 Install Docker	
 Install Flatpak	
 Install GameMode and MangoHud	
