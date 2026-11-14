@@ -3,6 +3,7 @@ package snapperrollback
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	runs "github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 	"github.com/Ahmadlolbit/solanumos/internal/term"
@@ -254,9 +256,20 @@ func goBack(top layout, number string) error {
 	if err != nil {
 		return err
 	}
+	homesBack(number)
 	fmt.Printf("The rollback is done. What was %s stays on the disk as %s.\n", top.main, filepath.Base(paths.kept))
 	fmt.Printf("Restart now to use snapshot %s. Until then, anything that updates the boot menu, like a new kernel, would point it at the old root.\n", number)
 	return nil
+}
+
+func homesBack(number string) {
+	if !move.Before(number) || !move.HomeApart() {
+		return
+	}
+	fmt.Println("That snapshot is from before the move to Solanum, so the folders and lines in each home go back to Hyprtrixie's names too.")
+	for _, note := range move.Back(io.Discard) {
+		fmt.Println(note)
+	}
 }
 
 func arguments() (string, string, bool) {
