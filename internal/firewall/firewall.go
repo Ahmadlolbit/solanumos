@@ -27,6 +27,7 @@ type Service struct {
 
 var Services = []Service{
 	{App: "localsend", Package: "localsend", Ports: []string{"53317/tcp", "53317/udp"}},
+	{App: "kdeconnect", Package: "kdeconnect", Ports: []string{"1714:1764/tcp", "1714:1764/udp"}},
 }
 
 var events = []string{"up", "down", "reapply"}

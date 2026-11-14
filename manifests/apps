@@ -61,4 +61,5 @@ camera system offered debian gnome-snapshot Camera
 scanner system offered debian simple-scan Scanner
 remmina system offered debian remmina Remmina (remote desktop)
 chezmoi system offered release:chezmoi chezmoi chezmoi (dotfiles)
+kdeconnect system offered debian kdeconnect KDE Connect (phone link)
 lutris games offered debian lutris Lutris
