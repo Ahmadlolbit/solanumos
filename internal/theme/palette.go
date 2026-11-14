@@ -12,6 +12,7 @@ const (
 	white       = "#ffffff"
 	hueChroma   = 0.11
 	searchSteps = 40
+	mixStep     = 0.005
 )
 
 type rgb [3]float64
@@ -80,6 +81,15 @@ func Dark(background string) bool {
 	return Contrast(background, white) >= Contrast(background, black)
 }
 
+func blend(from, to string, share float64) string {
+	one, other := floats(from), floats(to)
+	var mixed rgb
+	for index := range mixed {
+		mixed[index] = one[index] + float64((other[index]-one[index])*share)
+	}
+	return mixed.hex()
+}
+
 func oklab(lightness, chroma, hue float64) rgb {
 	radians := hue * degree
 	a, b := chroma*math.Cos(radians), chroma*math.Sin(radians)
@@ -128,6 +138,14 @@ func hueFor(background string, at, chroma, target float64) string {
 		return oklch(high, chroma, at)
 	}
 	return oklch(low, chroma, at)
+}
+
+func firstMix(background, foreground string, target float64) string {
+	share := 0.0
+	for share < 1 && Contrast(blend(background, foreground, share), background) < target {
+		share += mixStep
+	}
+	return blend(background, foreground, share)
 }
 
 func hueTargets(key string) (float64, float64) {

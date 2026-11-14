@@ -30,12 +30,27 @@ const usage = `Usage: solanum-theme-set <theme>
        solanum-theme-set --previews
        solanum-theme-set --current
        solanum-theme-set --editors
+       solanum-theme-set --make NAME BACKGROUND FOREGROUND ACCENT
+       solanum-theme-set --copy THEME NAME [KEY=#RRGGBB ...]
+       solanum-theme-set --change NAME KEY=#RRGGBB ...
+       solanum-theme-set --palette THEME [KEY=#RRGGBB ...]
+       solanum-theme-set --palette BACKGROUND FOREGROUND ACCENT
 
 Applies a theme to Hyprland, the bar, kitty, the launcher, notifications, the
 lock screen, btop, Neovim, VS Code, VSCodium, Zed, Firefox, GTK and KDE
 apps, and the wallpaper. Themes come from /usr/share/solanum/themes and
-~/.config/solanum/themes. --editors gives the editors and Firefox's
-profiles the current theme again, for one installed or made since.
+~/.config/solanum/themes. Before a theme applies, its colours and files are
+checked: what's missing is worked out, text too faint to read is made
+readable, and files that can't be read are left out, each said in one line.
+A theme that can't be read at all is never applied. --editors gives the
+editors and Firefox's profiles the current theme again, for one installed or
+made since. --make makes a theme of your own from a background, a foreground
+and an accent: the rest of its colours are worked out, dark or light follows
+from the background, and it gets a preview and contours as its first
+background. --copy makes your own copy of a theme with any colours changed;
+the theme you started from stays as it was. --change changes colours of a
+theme of your own, and applies it again if it's in use. --palette prints a
+theme's colours as JSON, each with its contrast, and what a switch would fix.
 `
 
 const (
@@ -613,6 +628,9 @@ func main() {
 		time.Sleep(time.Second)
 		os.Exit(run.Report(run.Exec("solanum-background", "workspaces")))
 	default:
+		if command, found := ownCommands[argument]; found {
+			os.Exit(command(os.Args[2:]))
+		}
 		os.Exit(set(argument))
 	}
 }
