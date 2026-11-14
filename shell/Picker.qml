@@ -19,10 +19,12 @@ Scope {
   property bool busy: false
   property string trying: ""
   property string failed: ""
+  property string why: ""
+  property var said: []
   property int opening: 0
   property int startedIn: 0
   readonly property bool open: mode !== ""
-  readonly property string hint: failed ? "Couldn't apply " + failed : filter ? "Filter: " + filter : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
+  readonly property string hint: failed ? why || "Couldn't apply " + failed : said.length ? "Applied, with what was fixed below · Esc to close" : filter ? "Filter: " + filter : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
   readonly property var shown: items.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()))
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
   readonly property var drawn: [
@@ -44,6 +46,7 @@ Scope {
     mode = kind;
     filter = "";
     failed = "";
+    said = [];
     busy = applying.running;
     opening++;
     items = [];
@@ -74,6 +77,7 @@ Scope {
 
   function move(step) {
     failed = "";
+    said = [];
     if (shown.length)
       index = Math.max(0, Math.min(shown.length - 1, index + step));
   }
@@ -84,6 +88,7 @@ Scope {
       return;
     busy = true;
     failed = "";
+    said = [];
     trying = item.label;
     startedIn = opening;
     applying.command = mode === "themes" ? ["solanum-theme-set", item.value] : ["solanum-background", item.value];
@@ -106,9 +111,29 @@ Scope {
     };
   }
 
+  function settle(code) {
+    const lines = (applyOut.text + "\n" + applyErr.text).split("\n").filter(line => line.trim() !== "");
+    if (startedIn !== opening) {
+      busy = false;
+      return;
+    }
+    if (code === 0 && lines.length === 0) {
+      done.restart();
+      return;
+    }
+    busy = false;
+    if (code === 0) {
+      said = lines;
+      return;
+    }
+    failed = trying;
+    why = lines.find(line => line.startsWith("Couldn't apply")) || "";
+  }
+
   onFilterChanged: {
     index = 0;
     failed = "";
+    said = [];
   }
 
   FileView {
@@ -154,17 +179,29 @@ Scope {
   Process {
     id: applying
 
-    onExited: code => {
-      if (root.startedIn !== root.opening) {
-        root.busy = false;
-        return;
-      }
-      if (code === 0) {
-        done.restart();
-        return;
-      }
-      root.busy = false;
-      root.failed = root.trying;
+    property int code: 0
+    property int waiting: 0
+
+    function finished() {
+      waiting--;
+      if (waiting === 0)
+        root.settle(code);
+    }
+
+    onStarted: waiting = 3
+    onExited: exitCode => {
+      code = exitCode;
+      finished();
+    }
+    stdout: StdioCollector {
+      id: applyOut
+
+      onStreamFinished: applying.finished()
+    }
+    stderr: StdioCollector {
+      id: applyErr
+
+      onStreamFinished: applying.finished()
     }
   }
 
@@ -373,11 +410,36 @@ Scope {
       }
 
       Label {
+        id: hintLine
+
         anchors.top: title.bottom
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(implicitWidth, parent.width - 80)
         text: root.hint
         color: root.failed ? Theme.critical : Theme.subtext
+        elide: Text.ElideRight
+      }
+
+      Column {
+        anchors.top: hintLine.bottom
+        anchors.topMargin: 14
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(900, parent.width - 80)
+        spacing: 6
+
+        Repeater {
+          model: root.said
+
+          Label {
+            required property string modelData
+
+            width: parent.width
+            text: modelData
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+          }
+        }
       }
     }
   }
