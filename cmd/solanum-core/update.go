@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -150,8 +151,16 @@ func writeChanges(dir, text string) error {
 	return atomic.Write(filepath.Join(dir, "changes-unseen"), nil, 0o666)
 }
 
-func update() int {
+func updatePart() string {
 	part := cmp.Or(env.Arg(2), "all")
+	if part == oldname.UpdatePart {
+		return "solanum"
+	}
+	return part
+}
+
+func update() int {
+	part := updatePart()
 	if !slices.Contains([]string{"all", "system", "apps", "solanum"}, part) || env.Arg(3) != "" {
 		return fail("usage: solanum update [system | apps | solanum]")
 	}

@@ -21,6 +21,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-tip"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-weather"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-webapp"
+	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 )
 
 var tools = map[string]func(){
@@ -44,7 +45,7 @@ var tools = map[string]func(){
 }
 
 func runTool() {
-	name := filepath.Base(os.Args[0])
+	name := oldname.Swap(filepath.Base(os.Args[0]))
 	if name == "solanum" && os.Getenv("SOLANUM_ENGINE") != "" {
 		return
 	}
