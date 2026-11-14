@@ -290,9 +290,11 @@ func pickBackground(name, previous string, colors theme.Colors) {
 	if logoShown(colors, link) || (previous == name && fsutil.Exists(link)) {
 		return
 	}
-	found := fsutil.Images(filepath.Join(state(), "theme", "backgrounds"), look.OwnBackgrounds(name))
+	found := settings.Backgrounds(name)
 	target, _ := os.Readlink(link)
 	switch {
+	case settings.Get("wallpapers") == "mine" && slices.Contains(found, target):
+		return
 	case len(found) > 0:
 		symlink("the wallpaper", found[0], link)
 	case !fsutil.Exists(link) || target == drawnBackground():

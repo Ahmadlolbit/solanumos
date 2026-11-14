@@ -45,6 +45,7 @@ type message struct {
 	kind      byte
 	replyTo   uint32
 	signature string
+	member    string
 	body      []byte
 	order     binary.ByteOrder
 }
@@ -194,7 +195,7 @@ func receive(reader io.Reader) (message, error) {
 	}
 	header := &decoder{data: rest[:fields], order: order}
 	got := message{kind: head[1], body: rest[start:], order: order}
-	got.replyTo, got.signature = header.fields()
+	got.replyTo, got.signature, got.member = header.fields()
 	if header.bad {
 		return message{}, errGarbled
 	}
@@ -220,9 +221,9 @@ func (m message) names() ([]string, error) {
 	return names, nil
 }
 
-func (d *decoder) fields() (uint32, string) {
+func (d *decoder) fields() (uint32, string, string) {
 	var serial uint32
-	var signature string
+	var signature, member string
 	for !d.bad && d.at < len(d.data) {
 		d.align(8)
 		code := d.octet()
@@ -232,7 +233,9 @@ func (d *decoder) fields() (uint32, string) {
 				serial = number
 			}
 		case "s", "o":
-			d.text()
+			if text := d.text(); code == fieldMember {
+				member = text
+			}
 		case "g":
 			if text := d.signature(); code == fieldSignature {
 				signature = text
@@ -241,7 +244,7 @@ func (d *decoder) fields() (uint32, string) {
 			d.bad = true
 		}
 	}
-	return serial, signature
+	return serial, signature, member
 }
 
 func (d *decoder) take(size int) []byte {
