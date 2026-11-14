@@ -179,6 +179,7 @@ Install LazyVim plugins
 Install Neovim	
 Install Podman	
 Install Rust (stable)	
+Install Settings	
 Install Solanum next to Windows on %s?	
 Install Solanum with these choices	
 Install SolanumOS	
@@ -366,6 +367,7 @@ Set up the wallpaper
 Set up tmux	
 Set up your Hyprland config	
 Set up zsh with Oh My Zsh	
+Settings is installed	
 Sharp corners with thin gaps, or soft rounded corners	
 Shell	
 Show a boot splash in the theme's colours	

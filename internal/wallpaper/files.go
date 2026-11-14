@@ -55,13 +55,21 @@ func Another(colors theme.Colors) (string, error) {
 	return keep(filepath.Join(folder("drawings"), fmt.Sprintf("%s-%d.jpg", name, seed)), data)
 }
 
-func IsLogo(path string) bool {
-	logos, err := fsutil.RealPath(folder("logo"))
+func inFolder(path, name string) bool {
+	real, err := fsutil.RealPath(folder(name))
 	if err != nil {
 		return false
 	}
 	dir, err := fsutil.RealPath(filepath.Dir(path))
-	return err == nil && dir == logos
+	return err == nil && dir == real
+}
+
+func IsLogo(path string) bool {
+	return inFolder(path, "logo")
+}
+
+func IsDrawing(path string) bool {
+	return inFolder(path, "drawings")
 }
 
 func logoImage(colors theme.Colors, width, height int) *image.Paletted {

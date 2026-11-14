@@ -42,7 +42,7 @@ func appColors(colors theme.Colors) theme.Colors {
 		return colors
 	}
 	for _, dir := range []string{filepath.Join(userThemes(), name), filepath.Join(systemRoot, "themes", name)} {
-		if fixed, err := themeColors(dir); err == nil {
+		if fixed, _, err := themeColors(dir); err == nil {
 			return fixed
 		}
 	}
@@ -101,12 +101,12 @@ func ourLink(link string) bool {
 	return err == nil && (strings.HasPrefix(target, filepath.Join(state(), "theme")+string(filepath.Separator)) || strings.HasPrefix(target, old))
 }
 
-func linkUnlessYours(file, link string) {
+func linkUnlessYours(app, file, link string) {
 	if (fsutil.Exists(link) || fsutil.IsLink(link)) && !ourLink(link) {
 		fmt.Fprintf(os.Stderr, "left your %s alone\n", link)
 		return
 	}
-	symlink(file, link)
+	symlink(app, file, link)
 }
 
 func kdeBackupOf(globals string) string {
@@ -157,7 +157,7 @@ func kdeColors(file string) {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
-	symlink(file, filepath.Join(env.DataHome(), "color-schemes", "Solanum.colors"))
+	symlink("KDE apps", file, filepath.Join(env.DataHome(), "color-schemes", "Solanum.colors"))
 	writeKDEGlobals(string(scheme))
 }
 
@@ -234,7 +234,7 @@ func linkToolkits(current string) {
 		return
 	}
 	if file := filepath.Join(current, "gtk4.css"); fsutil.IsFile(file) {
-		linkUnlessYours(file, filepath.Join(env.ConfigHome(), "gtk-4.0", gtkUserFile))
+		linkUnlessYours("GTK apps", file, filepath.Join(env.ConfigHome(), "gtk-4.0", gtkUserFile))
 	}
 	if file := filepath.Join(current, "kde.colors"); fsutil.IsFile(file) {
 		kdeColors(file)

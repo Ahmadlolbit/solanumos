@@ -24,17 +24,27 @@ import (
 const usage = `Usage: solanum-background <file>
        solanum-background next
        solanum-background draw
+       solanum-background keep
        solanum-background logo
+       solanum-background add [--every] [FILE ...]
+       solanum-background remove FILE
        solanum-background --list
+       solanum-background --yours
        solanum-background --current
        solanum-background --frames
        solanum-background workspaces
        solanum-background workspace MONITOR WORKSPACE
 
-Sets the wallpaper. Backgrounds come from the current theme and from
-~/.config/solanum/backgrounds/<theme>. draw draws a new one in the theme's
-colours, in a style and with a seed picked at random, and keeps only the
-last one drawn. logo shows the burst logo, animated by the bar in the
+Sets the wallpaper. Backgrounds come from the current theme, from yours for
+that theme in ~/.config/solanum/backgrounds/<theme>, and from yours for every
+theme, the pictures in ~/.config/solanum/backgrounds itself; solanum-look
+wallpapers picks the theme's, yours or both. add copies pictures into yours
+for the current theme, or for every theme with --every; without files it
+opens the file chooser. remove moves one of yours to the Trash. --yours lists
+yours for the current theme and for every theme, shown or not. draw draws a
+new one in the theme's colours, in a style and with a seed picked at random,
+and keeps only the last one drawn; keep keeps the one drawn last in yours for
+the current theme. logo shows the burst logo, animated by the bar in the
 theme's colours, over the still logo; it rests while a window is on the
 screen or on battery, and stays across themes until another wallpaper is
 set. --frames prints its frames. With a wallpaper per workspace on
@@ -57,8 +67,7 @@ func current() string {
 }
 
 func backgrounds() []string {
-	name, _ := fsutil.Text(filepath.Join(state(), "theme.name"))
-	return fsutil.Images(filepath.Join(state(), "theme", "backgrounds"), look.OwnBackgrounds(name))
+	return look.Open().Backgrounds(themeName())
 }
 
 func next() (string, bool) {
@@ -271,10 +280,8 @@ func Main() {
 		os.Exit(2)
 	case "-h", "--help":
 		fmt.Print(usage)
-	case "--list":
-		for _, file := range backgrounds() {
-			fmt.Println(file)
-		}
+	case "--list", "--yours":
+		listed(command)
 	case "--current":
 		os.Exit(showCurrent())
 	case "workspaces":
@@ -290,6 +297,23 @@ func Main() {
 	case "--frames":
 		fmt.Print(burst.Flipbook())
 	default:
-		os.Exit(set(command))
+		os.Exit(other(command))
 	}
+}
+
+func listed(command string) {
+	found := backgrounds()
+	if command == "--yours" {
+		found = fsutil.Images(yourFolder(false), yourFolder(true))
+	}
+	for _, file := range found {
+		fmt.Println(file)
+	}
+}
+
+func other(command string) int {
+	if yours, found := yourCommands[command]; found {
+		return yours(os.Args[2:])
+	}
+	return set(command)
 }

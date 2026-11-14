@@ -3,6 +3,13 @@ package look
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+
+	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 
 	"github.com/Ahmadlolbit/solanumos/internal/ordered"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -50,6 +57,14 @@ func WithPosition(data []byte, position string) ([]byte, error) {
 }
 
 func withBar(data []byte, key, value string) ([]byte, error) {
+	name, err := json.Marshal(value)
+	if err != nil {
+		return nil, err
+	}
+	return WithBar(data, key, name)
+}
+
+func WithBar(data []byte, key string, value json.RawMessage) ([]byte, error) {
 	document, err := parseOrEmpty(unmarked(data))
 	if err != nil {
 		return nil, err
@@ -59,11 +74,7 @@ func withBar(data []byte, key, value string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	name, err := json.Marshal(value)
-	if err != nil {
-		return nil, err
-	}
-	bar.Set(key, name)
+	bar.Set(key, value)
 	updated, err := bar.Indented()
 	if err != nil {
 		return nil, err
@@ -82,4 +93,27 @@ func parseOrEmpty(data []byte) (*ordered.Object, error) {
 		return &ordered.Object{}, nil
 	}
 	return ordered.Parse(data)
+}
+
+func SetBar(path, key string, value json.RawMessage) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o777); err != nil {
+		return err
+	}
+	unlock, err := hold(filepath.Dir(path))
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	data, err := os.ReadFile(path)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	updated, err := WithBar(data, key, value)
+	if err != nil {
+		return fmt.Errorf("%s is not valid JSON; fix it first", path)
+	}
+	if err := atomic.Write(path, updated, 0o600); err != nil {
+		return err
+	}
+	return os.Chmod(path, 0o600)
 }

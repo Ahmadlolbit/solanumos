@@ -19,10 +19,15 @@ Scope {
   property bool busy: false
   property string trying: ""
   property string failed: ""
+  property string why: ""
+  property var said: []
+  property string action: ""
   property int opening: 0
   property int startedIn: 0
   readonly property bool open: mode !== ""
-  readonly property string hint: failed ? "Couldn't apply " + failed : filter ? "Filter: " + filter : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
+  readonly property string yours: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/backgrounds/"
+  readonly property var current: shown[index] || null
+  readonly property string hint: failed ? why || "Couldn't apply " + failed : said.length ? "Applied, with what was fixed below · Esc to close" : filter ? "Filter: " + filter : current && current.value === "keep" ? "Enter keeps this drawing in the theme's own wallpapers · Esc to close" : current && current.yours ? "Enter to show it · Delete moves it to the Trash · Esc to close" : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
   readonly property var shown: items.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()))
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
   readonly property var drawn: [
@@ -37,6 +42,18 @@ Scope {
       label: "Animated logo",
       image: "",
       glyph: ""
+    },
+    {
+      value: "add",
+      label: "Add pictures to this theme",
+      image: "",
+      glyph: "\uf067"
+    },
+    {
+      value: "add-every",
+      label: "Add pictures for every theme",
+      image: "",
+      glyph: "\uf067"
     }
   ]
 
@@ -44,6 +61,7 @@ Scope {
     mode = kind;
     filter = "";
     failed = "";
+    said = [];
     busy = applying.running;
     opening++;
     items = [];
@@ -60,8 +78,16 @@ Scope {
   function take(kind, text) {
     if (mode !== kind)
       return;
-    items = text.split("\n").filter(line => line !== "").map(line => parse(kind, line)).concat(kind === "backgrounds" ? drawn : []);
-    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "logo" && Theme.looks.logo === "animated"));
+    const drawing = kind === "backgrounds" && selected.includes("/.local/state/solanum/current/drawings/") ? [
+      {
+        value: "keep",
+        label: "Keep this drawing",
+        image: selected,
+        glyph: ""
+      }
+    ] : [];
+    items = drawing.concat(text.split("\n").filter(line => line !== "").map(line => parse(kind, line))).concat(kind === "backgrounds" ? drawn : []);
+    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "keep" || item.value === "logo" && Theme.looks.logo === "animated"));
   }
 
   function address(path) {
@@ -74,20 +100,40 @@ Scope {
 
   function move(step) {
     failed = "";
+    said = [];
     if (shown.length)
       index = Math.max(0, Math.min(shown.length - 1, index + step));
+  }
+
+  function run(item, command) {
+    busy = true;
+    failed = "";
+    said = [];
+    action = item.value;
+    trying = item.label;
+    startedIn = opening;
+    applying.command = command;
+    applying.running = true;
   }
 
   function apply() {
     const item = shown[index];
     if (!item || busy)
       return;
-    busy = true;
-    failed = "";
-    trying = item.label;
-    startedIn = opening;
-    applying.command = mode === "themes" ? ["solanum-theme-set", item.value] : ["solanum-background", item.value];
-    applying.running = true;
+    if (item.value === "add" || item.value === "add-every") {
+      close();
+      adding.command = item.value === "add" ? ["solanum-background", "add"] : ["solanum-background", "add", "--every"];
+      adding.running = true;
+      return;
+    }
+    run(item, mode === "themes" ? ["solanum-theme-set", item.value] : ["solanum-background", item.value]);
+  }
+
+  function remove() {
+    if (current && current.yours && !busy)
+      run(Object.assign({}, current, {
+        value: "remove"
+      }), ["solanum-background", "remove", current.value]);
   }
 
   function parse(kind, line) {
@@ -102,13 +148,40 @@ Scope {
     return {
       value: line,
       label: line.split("/").pop().replace(/\.[^.]+$/, ""),
-      image: line
+      image: line,
+      yours: line.startsWith(yours)
     };
+  }
+
+  function settle(code) {
+    const lines = (applyOut.text + "\n" + applyErr.text).split("\n").filter(line => line.trim() !== "");
+    if (startedIn !== opening) {
+      busy = false;
+      return;
+    }
+    const again = mode === "backgrounds" && ["draw", "keep", "remove"].includes(action);
+    if (code === 0 && again) {
+      busy = false;
+      show("backgrounds");
+      return;
+    }
+    if (code === 0 && (lines.length === 0 || mode === "backgrounds")) {
+      done.restart();
+      return;
+    }
+    busy = false;
+    if (code === 0) {
+      said = lines;
+      return;
+    }
+    failed = trying;
+    why = lines.find(line => line.startsWith("Couldn't apply")) || (mode === "backgrounds" ? lines[lines.length - 1] || "" : "");
   }
 
   onFilterChanged: {
     index = 0;
     failed = "";
+    said = [];
   }
 
   FileView {
@@ -154,18 +227,36 @@ Scope {
   Process {
     id: applying
 
-    onExited: code => {
-      if (root.startedIn !== root.opening) {
-        root.busy = false;
-        return;
-      }
-      if (code === 0) {
-        done.restart();
-        return;
-      }
-      root.busy = false;
-      root.failed = root.trying;
+    property int code: 0
+    property int waiting: 0
+
+    function finished() {
+      waiting--;
+      if (waiting === 0)
+        root.settle(code);
     }
+
+    onStarted: waiting = 3
+    onExited: exitCode => {
+      code = exitCode;
+      finished();
+    }
+    stdout: StdioCollector {
+      id: applyOut
+
+      onStreamFinished: applying.finished()
+    }
+    stderr: StdioCollector {
+      id: applyErr
+
+      onStreamFinished: applying.finished()
+    }
+  }
+
+  Process {
+    id: adding
+
+    onExited: root.show("backgrounds")
   }
 
   Timer {
@@ -230,6 +321,8 @@ Scope {
           root.move(1);
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
           root.apply();
+        else if (event.key === Qt.Key_Delete)
+          root.remove();
         else if (event.key === Qt.Key_Backspace)
           root.filter = root.filter.slice(0, -1);
         else if (/^[\w .-]$/.test(event.text))
@@ -373,11 +466,56 @@ Scope {
       }
 
       Label {
+        id: hintLine
+
         anchors.top: title.bottom
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(implicitWidth, parent.width - 80)
         text: root.hint
         color: root.failed ? Theme.critical : Theme.subtext
+        elide: Text.ElideRight
+      }
+
+      Label {
+        id: trash
+
+        anchors.top: hintLine.bottom
+        anchors.topMargin: 10
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: !!root.current && !!root.current.yours && !root.busy && !root.failed
+        text: "\uf1f8  Move to the Trash"
+        color: trashArea.containsMouse ? Theme.critical : Theme.subtext
+
+        MouseArea {
+          id: trashArea
+
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: root.remove()
+        }
+      }
+
+      Column {
+        anchors.top: trash.visible ? trash.bottom : hintLine.bottom
+        anchors.topMargin: 14
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(900, parent.width - 80)
+        spacing: 6
+
+        Repeater {
+          model: root.said
+
+          Label {
+            required property string modelData
+
+            width: parent.width
+            text: modelData
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+          }
+        }
       }
     }
   }

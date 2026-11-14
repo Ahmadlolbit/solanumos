@@ -16,7 +16,7 @@ const (
 
 func linkNeovim(current string) {
 	if file := filepath.Join(current, "nvim.lua"); fsutil.IsFile(file) {
-		symlink(file, filepath.Join(env.DataHome(), "nvim", "site", "colors", neovimScheme+".lua"))
+		symlink("Neovim", file, filepath.Join(env.DataHome(), "nvim", "site", "colors", neovimScheme+".lua"))
 	}
 }
 

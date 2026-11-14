@@ -486,6 +486,10 @@ func unchanged(source, target string) (string, bool) {
 	return hash, true
 }
 
+func (deployer *Deployer) Link(program, target string) error {
+	return deployer.link(program, target)
+}
+
 func (deployer *Deployer) link(program, target string) error {
 	ledger.Note(ledger.File, target)
 	if current, err := os.Readlink(target); err == nil && current == program {

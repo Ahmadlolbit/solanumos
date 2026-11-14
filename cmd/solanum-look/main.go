@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"syscall"
 
@@ -35,6 +36,7 @@ const usage = `Usage: solanum-look
        solanum-look rotate [MINUTES|off|toggle]
        solanum-look wallpaper-day [off|drawn|nasa|folder [PATH]]
        solanum-look workspaces [on|off|toggle]
+       solanum-look wallpapers [theme|mine|both]
        solanum-look bar [full|floating|minimal|vertical]
        solanum-look position [top|bottom]
        solanum-look style [sharp|soft]
@@ -85,6 +87,10 @@ wallpaper-day gives you a new wallpaper every day: drawn in the theme's
 colours, NASA's picture of the day (with its credit; a day without a
 picture is drawn), or one from a folder or a list of pictures, one per
 line.
+wallpapers picks the pictures the picker, next, rotation and the
+workspaces use: the theme's, with yours for it in
+~/.config/solanum/backgrounds/THEME; yours for every theme, the pictures in
+~/.config/solanum/backgrounds; or both, the default.
 workspaces gives each workspace its own wallpaper. bar and position set
 the bar's layout and edge in ~/.config/solanum/shell.json. style makes
 windows, popups and the lock screen sharp or soft. video plays a video file as
@@ -462,6 +468,24 @@ func rotate(args []string) int {
 	})()
 }
 
+func wallpapers(args []string) int {
+	switch value := arg(args, 0); value {
+	case "":
+		return show("wallpapers")
+	case "theme", "mine", "both":
+		if !put("wallpapers", value) {
+			return 1
+		}
+		shown, _ := os.Readlink(filepath.Join(env.ThemeState(), "background"))
+		if found := settings.Backgrounds(currentTheme()); len(found) > 0 && !slices.Contains(found, shown) {
+			return background("next")
+		}
+		return 0
+	}
+	fmt.Fprintln(os.Stderr, "wallpapers takes theme, mine or both")
+	return 2
+}
+
 func getSetting(args []string) int {
 	key := arg(args, 0)
 	if _, known := look.Default(key); !known {
@@ -481,7 +505,7 @@ func all() int {
 func commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"get": getSetting, "accent": accent, "glass": glass, "editors": editorsFollow, "corners": corners, "apps": appsTheme, "sun": sun, "auto": auto, "times": times, "daily": daily,
-		"tick": tick, "remember": remember, "rotate": rotate, "wallpaper-day": dayWallpaper, "workspaces": workspaces, "bar": barLayout, "position": barPosition, "style": windowStyle, "text": textSize, "reader": reader, "chime": chimeCommand, "video": video,
+		"tick": tick, "remember": remember, "rotate": rotate, "wallpapers": wallpapers, "wallpaper-day": dayWallpaper, "workspaces": workspaces, "bar": barLayout, "position": barPosition, "style": windowStyle, "text": textSize, "reader": reader, "chime": chimeCommand, "video": video,
 		"video-battery": videoBattery, "weather": weather, "weather-units": weatherUnits, "coordinates": showCoordinates,
 		"quiet": quiet, "quiet-hours": quietHours, "night": night, "night-hours": nightHours, "night-warmth": nightWarmth, "location": location,
 		"power": powerFollow, "power-profiles": powerProfiles, "power-apply": powerApply,

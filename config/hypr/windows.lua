@@ -60,6 +60,13 @@ hl.window_rule({
 })
 
 hl.window_rule({
+  name = "settings",
+  match = { class = "^org\\.quickshell$", title = "^Settings$" },
+  float = true,
+  center = true,
+})
+
+hl.window_rule({
   name = "floating-terminal",
   match = { class = "^solanum\\.floating$" },
   float = true,

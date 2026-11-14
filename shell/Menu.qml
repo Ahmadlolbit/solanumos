@@ -88,7 +88,7 @@ Scope {
   }
 
   function isPage(entry) {
-    return !!entry.list || order.some(key => parentOf(key) === entry.id);
+    return !entry.action && (!!entry.list || order.some(key => parentOf(key) === entry.id));
   }
 
   function row(entry) {
