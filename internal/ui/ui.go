@@ -162,7 +162,15 @@ func CanAsk() bool {
 	return stream != nil || term.IsTerminal(os.Stdin) && term.IsTerminal(os.Stdout)
 }
 
+const (
+	Yes = "Yes"
+	No  = "No"
+)
+
 func Confirm(prompt string) bool {
+	if stream != nil {
+		return chosenYes(prompt)
+	}
 	if !CanAsk() {
 		return false
 	}
@@ -171,8 +179,16 @@ func Confirm(prompt string) bool {
 }
 
 func Proceed(prompt string) bool {
+	if stream != nil {
+		return chosenYes(prompt)
+	}
 	answer, err := term.ReadAnswer(prompt + " [Y/n] ")
 	return err == nil && !clearNo(answer)
+}
+
+func chosenYes(prompt string) bool {
+	answer, ok := ask(events.Choose, prompt, Yes, No)
+	return ok && answer == Yes
 }
 
 func Input(header string) (string, bool) {
