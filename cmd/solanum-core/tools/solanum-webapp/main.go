@@ -59,6 +59,9 @@ func chooseIcon(name, address string) string {
 }
 
 func givenIcon(icon string) string {
+	if rest, ok := strings.CutPrefix(icon, "~/"); ok {
+		icon = filepath.Join(env.Home(), rest)
+	}
 	if !fsutil.IsFile(icon) {
 		return icon
 	}
