@@ -268,6 +268,8 @@ FocusScope {
   Item {
     id: content
 
+    readonly property real column: Math.min(width - 64, Theme.size(880))
+
     anchors.left: rule.right
     anchors.right: parent.right
     anchors.top: parent.top
@@ -277,9 +279,10 @@ FocusScope {
       id: title
 
       anchors.left: parent.left
-      anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: 24
+      anchors.leftMargin: 46
+      anchors.topMargin: 24
+      width: content.column - 28
       text: Store.search ? "Settings matching " + Store.search : Store.pageNow.label
       font.pixelSize: Theme.size(22)
       font.bold: true
@@ -312,8 +315,10 @@ FocusScope {
       anchors.right: parent.right
       anchors.top: line.visible ? line.bottom : title.bottom
       anchors.bottom: parent.bottom
-      anchors.margins: 16
+      anchors.leftMargin: 32
+      anchors.rightMargin: 32
       anchors.topMargin: 12
+      anchors.bottomMargin: 16
       clip: true
       spacing: 8
       cacheBuffer: 100000
@@ -331,7 +336,7 @@ FocusScope {
         required property int index
         readonly property var entry: JSON.parse(json)
 
-        width: ListView.view.width
+        width: ["grid", "maker", "pictures"].includes(entry.kind) ? ListView.view.width : content.column
         sourceComponent: ({
             about: aboutPart,
             grid: gridPart,
