@@ -22,6 +22,13 @@ Singleton {
       label: "Check",
       glyph: "\uf0f1",
       help: "The system check, and the safe fixes it offers"
+    },
+    {
+      id: "changes",
+      source: "Changes.qml",
+      label: "What changed",
+      glyph: "\uf1da",
+      help: "What the last update of SolanumOS changed"
     }
   ]
   property string page: known(Quickshell.env("SOLANUM_CARE_PAGE")) ? Quickshell.env("SOLANUM_CARE_PAGE") : "updates"
