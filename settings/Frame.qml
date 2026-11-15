@@ -289,7 +289,10 @@ FocusScope {
   }
   onEditingChanged: {
     if (!editing)
-      Qt.callLater(takeKeys);
+      Qt.callLater(() => {
+        if (!editing)
+          takeKeys();
+      });
   }
   Keys.onPressed: event => {
     if (frame.key(event))
