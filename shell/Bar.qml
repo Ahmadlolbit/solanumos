@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.common
+import qs.common.panels
 
 PanelWindow {
   id: bar
