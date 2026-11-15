@@ -53,21 +53,6 @@ Label {
     }
   }
 
-  component Button: Label {
-    id: button
-
-    signal pressed
-
-    font.pixelSize: Theme.size(22)
-    color: enabled ? Theme.text : Theme.subtext
-
-    MouseArea {
-      anchors.fill: parent
-      cursorShape: Qt.PointingHandCursor
-      onClicked: button.pressed()
-    }
-  }
-
   BarPopup {
     id: popup
 
@@ -136,24 +121,28 @@ Label {
 
     RowLayout {
       Layout.alignment: Qt.AlignHCenter
-      spacing: 28
+      spacing: 16
 
       Button {
-        text: "\u{f04ae}"
+        label: "\u{f04ae}"
         enabled: root.player ? root.player.canGoPrevious : false
-        onPressed: root.player.previous()
+        opacity: enabled ? 1 : 0.4
+        onClicked: root.player.previous()
       }
 
       Button {
-        text: root.player && root.player.isPlaying ? "\u{f03e4}" : "\u{f040a}"
+        label: root.player && root.player.isPlaying ? "\u{f03e4}" : "\u{f040a}"
+        primary: true
         enabled: root.player ? root.player.canTogglePlaying : false
-        onPressed: root.player.togglePlaying()
+        opacity: enabled ? 1 : 0.4
+        onClicked: root.player.togglePlaying()
       }
 
       Button {
-        text: "\u{f04ad}"
+        label: "\u{f04ad}"
         enabled: root.player ? root.player.canGoNext : false
-        onPressed: root.player.next()
+        opacity: enabled ? 1 : 0.4
+        onClicked: root.player.next()
       }
     }
 

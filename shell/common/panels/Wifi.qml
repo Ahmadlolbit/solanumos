@@ -1,0 +1,255 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
+import Quickshell.Networking
+import qs.common
+
+ColumnLayout {
+  id: root
+
+  property bool active: false
+  readonly property var wifi: Networking.devices.values.find(item => item.type === DeviceType.Wifi) || null
+  property var asking: null
+  property string failure: ""
+  property bool trusted: false
+  property string trustedName: ""
+
+  signal done
+
+  function strength(network) {
+    return network.signalStrength > 1 ? network.signalStrength / 100 : network.signalStrength;
+  }
+
+  function signalIcon(level) {
+    if (level > 0.75)
+      return "\u{f0928}";
+    if (level > 0.5)
+      return "\u{f0925}";
+    if (level > 0.25)
+      return "\u{f0922}";
+    return "\u{f091f}";
+  }
+
+  function open(network) {
+    return network.security === WifiSecurityType.Open || network.security === WifiSecurityType.Owe;
+  }
+
+  function needsPassword(network) {
+    return [WifiSecurityType.Sae, WifiSecurityType.Wpa2Psk, WifiSecurityType.WpaPsk, WifiSecurityType.StaticWep].includes(network.security);
+  }
+
+  function askPassword(network) {
+    asking = network;
+    password.text = "";
+    password.focusInput();
+  }
+
+  function choose(network) {
+    failure = "";
+    if (network.connected)
+      return;
+    if (network.known || open(network)) {
+      asking = null;
+      network.connect();
+    } else if (needsPassword(network)) {
+      askPassword(network);
+    } else {
+      asking = null;
+      failure = network.name + " needs more settings";
+    }
+  }
+
+  function settle() {
+    asking = null;
+    password.text = "";
+    if (list.visible)
+      list.forceActiveFocus();
+  }
+
+  function join() {
+    if (asking && password.text !== "")
+      asking.connectWithPsk(password.text);
+    settle();
+  }
+
+  function wrongPassword(code) {
+    return code === ConnectionFailReason.NoSecrets || code === ConnectionFailReason.WifiAuthTimeout;
+  }
+
+  function reason(code) {
+    if (wrongPassword(code))
+      return "wrong password";
+    if (code === ConnectionFailReason.WifiNetworkLost)
+      return "out of range";
+    return "could not connect";
+  }
+
+  function leave(command) {
+    done();
+    Quickshell.execDetached(command);
+  }
+
+  spacing: 10
+  onActiveChanged: {
+    asking = null;
+    failure = "";
+    password.text = "";
+    if (wifi)
+      wifi.scannerEnabled = active;
+    if (active)
+      trustStatus.running = true;
+  }
+
+  RowLayout {
+    Layout.fillWidth: true
+    Layout.preferredWidth: Theme.size(300)
+    spacing: 10
+
+    Label {
+      Layout.fillWidth: true
+      text: "Wi-Fi"
+      font.bold: true
+    }
+
+    Toggle {
+      visible: root.wifi !== null
+      worded: true
+      checked: Networking.wifiEnabled
+      onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
+    }
+  }
+
+  Label {
+    visible: !list.visible
+    text: !root.wifi ? "No Wi-Fi adapter" : !Networking.wifiHardwareEnabled ? "Wi-Fi is off with the hardware switch" : !Networking.wifiEnabled ? "Wi-Fi is off" : "Looking for networks..."
+    color: Theme.subtext
+  }
+
+  Rows {
+    id: list
+
+    Layout.fillWidth: true
+    Layout.preferredHeight: Math.min(contentHeight, 300)
+    spacing: 2
+    model: ScriptModel {
+      values: root.wifi && Networking.wifiEnabled ? root.wifi.networks.values.filter(item => item.name !== "").sort((a, b) => b.connected - a.connected || root.strength(b) - root.strength(a)) : []
+    }
+
+    delegate: Choice {
+      id: choice
+
+      required property var modelData
+
+      width: list.width
+      activeFocusOnTab: false
+      icon: root.signalIcon(root.strength(modelData))
+      label: modelData.name
+      detail: modelData.connected ? "Connected" : modelData.stateChanging ? "Connecting..." : modelData.known ? "Saved" : root.open(modelData) ? "" : "\u{f033e}"
+      selected: modelData.connected
+      action: modelData.known ? "Forget" : ""
+      onClicked: root.choose(modelData)
+      onActionClicked: modelData.forget()
+
+      Connections {
+        target: choice.modelData
+
+        function onConnectionFailed(reason) {
+          root.failure = choice.modelData.name + ": " + root.reason(reason);
+          if (root.wrongPassword(reason) && root.needsPassword(choice.modelData))
+            root.askPassword(choice.modelData);
+        }
+      }
+    }
+  }
+
+  ColumnLayout {
+    visible: root.asking !== null
+    Layout.fillWidth: true
+    spacing: 6
+
+    Label {
+      text: root.asking ? "Password for " + root.asking.name : ""
+      color: Theme.subtext
+    }
+
+    Field {
+      id: password
+
+      Layout.fillWidth: true
+      activeFocusOnTab: true
+      secret: true
+      placeholder: "Password"
+      onAccepted: root.join()
+      Keys.onEscapePressed: root.settle()
+    }
+  }
+
+  Label {
+    visible: root.failure !== ""
+    text: root.failure
+    color: Theme.critical
+  }
+
+  RowLayout {
+    visible: root.trustedName !== ""
+    Layout.fillWidth: true
+    spacing: 10
+
+    Label {
+      Layout.fillWidth: true
+      text: "Trust this network"
+    }
+
+    Toggle {
+      worded: true
+      checked: root.trusted
+      onToggled: {
+        trustChange.command = ["solanum", "trust", root.trusted ? "off" : "on"];
+        trustChange.running = true;
+      }
+    }
+  }
+
+  Label {
+    visible: root.trustedName !== ""
+    Layout.fillWidth: true
+    Layout.preferredWidth: Theme.size(300)
+    text: root.trusted ? "LocalSend and KDE Connect can reach this computer on " + root.trustedName : "LocalSend and KDE Connect can't reach this computer on " + root.trustedName
+    color: Theme.subtext
+    wrapMode: Text.WordWrap
+  }
+
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f013}"
+    label: "More settings"
+    onClicked: root.leave(["solanum", "settings", "network"])
+  }
+
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f120}"
+    label: "Connections in a terminal"
+    onClicked: root.leave(["solanum-terminal", "nmtui-connect"])
+  }
+
+  Process {
+    id: trustStatus
+
+    command: ["solanum", "trust"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        const fields = text.trim().split("\t");
+        root.trusted = fields[0] === "yes";
+        root.trustedName = fields.length === 2 ? fields[1] : "";
+      }
+    }
+  }
+
+  Process {
+    id: trustChange
+
+    onExited: trustStatus.running = true
+  }
+}

@@ -13,16 +13,19 @@ Singleton {
   property bool quiet: false
   property int seen: 0
   property int cleared: 0
+  property var dismissed: []
   property real refreshed: 0
-  readonly property var shownItems: items.filter(item => item.id > cleared)
+  readonly property var shownItems: items.filter(item => item.id > cleared && !dismissed.includes(item.id))
   readonly property int newest: items.length ? Math.max(...items.map(item => item.id)) : 0
-  readonly property int unread: items.filter(item => item.id > Math.max(seen, cleared)).length
+  readonly property int unread: items.filter(item => item.id > Math.max(seen, cleared) && !dismissed.includes(item.id)).length
   readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || ""
   readonly property bool watching: watcher.running
 
   onSeenChanged: keeper.restart()
   onClearedChanged: keeper.restart()
+  onDismissedChanged: keeper.restart()
   onNewestChanged: startedAgain()
+  onItemsChanged: prune()
   Component.onCompleted: refresh()
 
   function character(match, name) {
@@ -66,6 +69,7 @@ Singleton {
     if (newest > 0 && newest < Math.max(seen, cleared)) {
       seen = 0;
       cleared = 0;
+      dismissed = [];
     }
   }
 
@@ -74,6 +78,7 @@ Singleton {
       const state = JSON.parse(text);
       seen = Math.max(seen, state.seen || 0);
       cleared = Math.max(cleared, state.cleared || 0);
+      dismissed = dismissed.concat((state.dismissed || []).filter(id => !dismissed.includes(id)));
     } catch (error) {
       return;
     }
@@ -93,9 +98,22 @@ Singleton {
 
   function clear() {
     cleared = newest;
+    dismissed = [];
   }
 
-  function heard() {
+  function dismiss(id) {
+    dismissed = dismissed.filter(known => known > cleared).concat([id]);
+  }
+
+  function prune() {
+    const ids = items.map(item => item.id);
+    if (dismissed.some(id => !ids.includes(id)))
+      dismissed = dismissed.filter(id => ids.includes(id));
+  }
+
+  function heard(line) {
+    if (String(line).includes("NameOwnerChanged"))
+      dismissed = [];
     if (settle.running)
       return;
     settle.interval = Math.max(300, Math.min(2000, refreshed + 2000 - Date.now()));
@@ -112,7 +130,7 @@ Singleton {
     running: true
     command: ["busctl", "--user", "monitor", "--json=short", "--match=type='method_call',interface='org.freedesktop.Notifications',member='Notify'", "--match=type='signal',interface='org.freedesktop.Notifications'", "--match=type='method_call',interface='fr.emersion.Mako',member='RestoreNotification'", "--match=type='method_call',interface='fr.emersion.Mako',member='SetModes'", "--match=type='method_call',interface='fr.emersion.Mako',member='SetMode'", "--match=type='signal',sender='org.freedesktop.DBus',member='NameOwnerChanged',arg0='org.freedesktop.Notifications'"]
     stdout: SplitParser {
-      onRead: root.heard()
+      onRead: line => root.heard(line)
     }
   }
 
@@ -176,7 +194,8 @@ Singleton {
     interval: 100
     onTriggered: kept.setText(JSON.stringify({
         seen: root.seen,
-        cleared: root.cleared
+        cleared: root.cleared,
+        dismissed: root.dismissed
       }))
   }
 
