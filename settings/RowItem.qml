@@ -110,7 +110,7 @@ Rectangle {
         visible: item.marks.length > 0
         text: item.marks.join("   ")
         color: item.computer && !item.grouped ? Theme.warning : Theme.subtext
-        font.pixelSize: Theme.size(11)
+        font.pixelSize: Theme.size(12)
       }
     }
 
