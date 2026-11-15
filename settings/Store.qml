@@ -34,6 +34,7 @@ Singleton {
   }
   readonly property var shown: search ? found(search) : rows.filter(row => row.page === page && !row.hidden)
   readonly property string currentLabel: pretty(current)
+  readonly property bool sectioned: !search && rows.filter(row => row.page === page && !(row.whose === "computer" && row.twin)).length > 4
 
   function pretty(name) {
     const listed = themes.find(item => item.name === name);
@@ -43,6 +44,17 @@ Singleton {
   function words(row) {
     const owner = pages.find(item => item.id === row.page);
     return [row.label, row.help || "", (row.keywords || []).join(" "), owner ? owner.label + " " + (owner.keywords || []).join(" ") : ""].join(" ").toLowerCase();
+  }
+
+  function headed(list) {
+    return !sectioned ? list : list.reduce((found, row, at) => found.concat(row.section && (at === 0 || list[at - 1].section !== row.section) ? [
+          {
+            kind: "section",
+            name: "section." + row.section,
+            label: row.section
+          },
+          row
+        ] : [row]), []);
   }
 
   function found(text) {

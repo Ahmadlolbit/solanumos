@@ -23,6 +23,7 @@ type barRow struct {
 	key      string
 	label    string
 	page     string
+	section  string
 	kind     string
 	choices  string
 	fallback string
@@ -30,15 +31,15 @@ type barRow struct {
 }
 
 var barRows = []barRow{
-	{"preset", "Bar layout", "bar", Pick, "full:Full width|floating:Floating|minimal:Minimal|vertical:Down the left side", "full", "Full width, floating with rounded corners, minimal, or down the left side"},
-	{"position", "Bar position", "bar", Pick, "top:Top|bottom:Bottom", "top", "The bar at the top or the bottom of the screen"},
-	{"style", "Bar style", "bar", Pick, ":Like the windows|sharp:Sharp|soft:Soft", "", "The bar's corners: like the windows, sharp or soft"},
-	{"clockFormat", "Clock details", "bar", Text, "", "", "The clock's format in Qt's words, such as ddd d MMM HH:mm; empty keeps the default"},
-	{"workspaces", "Workspaces shown", "bar", Text, "", "", "The workspace numbers the bar always shows, such as 1 2 3; empty shows the ones in use"},
-	{"left", "Widgets on the left", "bar", Text, "", "workspaces window", "The bar's widgets on the left, in order"},
-	{"center", "Widgets in the middle", "bar", Text, "", "media clock focus", "The bar's widgets in the middle, in order"},
-	{"right", "Widgets on the right", "bar", Text, "", "privacy indicators updates snapshots weather tray cpu memory temperature network bluetooth audio brightness power-profile battery notifications", "The bar's widgets on the right, in order"},
-	{"clock", "24-hour clock", "time", Pick, "24h:24-hour|12h:12-hour", "24h", "24-hour or 12-hour time in the bar and on the lock screen"},
+	{"preset", "Bar layout", "bar", "Layout", Pick, "full:Full width|floating:Floating|minimal:Minimal|vertical:Down the left side", "full", "Full width, floating with rounded corners, minimal, or down the left side"},
+	{"position", "Bar position", "bar", "Layout", Pick, "top:Top|bottom:Bottom", "top", "The bar at the top or the bottom of the screen"},
+	{"style", "Bar style", "bar", "Layout", Pick, ":Like the windows|sharp:Sharp|soft:Soft", "", "The bar's corners: like the windows, sharp or soft"},
+	{"clockFormat", "Clock details", "bar", "Clock", Text, "", "", "The clock's format in Qt's words, such as ddd d MMM HH:mm; empty keeps the default"},
+	{"workspaces", "Workspaces shown", "bar", "Widgets", Text, "", "", "The workspace numbers the bar always shows, such as 1 2 3; empty shows the ones in use"},
+	{"left", "Widgets on the left", "bar", "Widgets", Text, "", "workspaces window", "The bar's widgets on the left, in order"},
+	{"center", "Widgets in the middle", "bar", "Widgets", Text, "", "media clock focus", "The bar's widgets in the middle, in order"},
+	{"right", "Widgets on the right", "bar", "Widgets", Text, "", "privacy indicators updates snapshots weather tray cpu memory temperature network bluetooth audio brightness power-profile battery notifications", "The bar's widgets on the right, in order"},
+	{"clock", "24-hour clock", "time", "Clock", Pick, "24h:24-hour|12h:12-hour", "24h", "24-hour or 12-hour time in the bar and on the lock screen"},
 }
 
 func shellFile() string {
@@ -126,7 +127,7 @@ func yourChoices(key string) []Choice {
 }
 
 func yourRow(row yours, settings *look.Store) Row {
-	shown := Row{Name: row.key, Label: row.label, Page: row.page, Kind: row.kind, Value: settings.Get(row.key), Whose: Yours, Help: row.help,
+	shown := Row{Name: row.key, Label: row.label, Page: row.page, Section: row.section, Kind: row.kind, Value: settings.Get(row.key), Whose: Yours, Help: row.help,
 		Choices: choicesOf(row.choices), Hidden: row.shows != nil && !row.shows(settings.Get)}
 	if shown.Choices == nil {
 		shown.Choices = yourChoices(row.key)
@@ -153,7 +154,7 @@ func List() Listing {
 		rows = append(rows, yourRow(row, settings))
 	}
 	for _, row := range barRows {
-		rows = append(rows, Row{Name: "bar." + row.key, Label: row.label, Page: row.page, Kind: row.kind, Value: barValue(row.key, row.fallback), Whose: Yours, Help: row.help, Choices: choicesOf(row.choices)})
+		rows = append(rows, Row{Name: "bar." + row.key, Label: row.label, Page: row.page, Section: row.section, Kind: row.kind, Value: barValue(row.key, row.fallback), Whose: Yours, Help: row.help, Choices: choicesOf(row.choices)})
 	}
 	current := config.Read(config.Path())
 	facts := current.Facts(detect.NvidiaOnBus())
@@ -164,5 +165,5 @@ func List() Listing {
 		button.Kind, button.Whose = Button, Yours
 		rows = append(rows, button)
 	}
-	return Listing{Pages: pages, Rows: paired(rows)}
+	return Listing{Pages: pages, Rows: ranked(paired(rows))}
 }

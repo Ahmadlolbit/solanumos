@@ -48,7 +48,7 @@ FocusScope {
         name: "header.everyone"
       }
     ] : []
-  readonly property var items: headers.concat(Store.shown.filter(row => !everyone.some(other => other.name === row.name)), heading, everyone)
+  readonly property var items: headers.concat(Store.headed(Store.shown.filter(row => !everyone.some(other => other.name === row.name))), heading, everyone)
   readonly property var focused: list.currentItem ? list.currentItem.item : null
 
   function sync() {
@@ -77,8 +77,19 @@ FocusScope {
     if (listed.count > names.length)
       listed.remove(names.length, listed.count - names.length);
     const back = names.indexOf(kept);
-    index = back >= 0 ? back : Math.max(0, Math.min(index, names.length - 1));
+    index = landing(back >= 0 ? back : index, 1);
     list.currentIndex = index;
+  }
+
+  function skipped(item) {
+    return !!item && (item.kind === "everyone" || item.kind === "section");
+  }
+
+  function landing(at, step) {
+    let next = Math.max(0, Math.min(items.length - 1, at));
+    while (skipped(items[next]))
+      next += step;
+    return items[next] ? next : Math.max(0, Math.min(index, items.length - 1));
   }
 
   function move(step) {
@@ -86,10 +97,7 @@ FocusScope {
       Store.show(Store.pages[(pageIndex + step + Store.pages.length) % Store.pages.length].id);
       index = 0;
     } else if (items.length) {
-      let next = Math.max(0, Math.min(items.length - 1, index + step));
-      if (items[next].kind === "everyone")
-        next = items[next + step] ? next + step : index;
-      index = next;
+      index = landing(index + step, step);
     }
   }
 
@@ -199,7 +207,11 @@ FocusScope {
   focus: true
   Component.onCompleted: sync()
   onItemsChanged: sync()
-  onIndexChanged: list.currentIndex = index
+  onIndexChanged: {
+    if (skipped(items[index]))
+      index = landing(index, 1);
+    list.currentIndex = index;
+  }
   onEditingChanged: {
     if (!editing)
       Qt.callLater(takeKeys);
@@ -291,8 +303,7 @@ FocusScope {
       id: list
 
       function keepShown() {
-        const above = frame.items[currentIndex - 1];
-        if (above && above.kind === "everyone")
+        if (frame.skipped(frame.items[currentIndex - 1]))
           positionViewAtIndex(currentIndex - 1, ListView.Contain);
         positionViewAtIndex(currentIndex, ListView.Contain);
       }
@@ -326,7 +337,8 @@ FocusScope {
             grid: gridPart,
             maker: makerPart,
             pictures: picturesPart,
-            everyone: everyonePart
+            everyone: headingPart,
+            section: headingPart
           })[entry.kind] || rowPart
 
         Component {
@@ -344,9 +356,11 @@ FocusScope {
         }
 
         Component {
-          id: everyonePart
+          id: headingPart
 
           Item {
+            readonly property bool everyone: holder.entry.kind === "everyone"
+
             function activate() {
               return false;
             }
@@ -355,7 +369,7 @@ FocusScope {
               return false;
             }
 
-            implicitHeight: everyoneTitle.implicitHeight + 30
+            implicitHeight: words.implicitHeight + (everyone ? 30 : 16)
 
             Rectangle {
               anchors.left: parent.left
@@ -363,20 +377,19 @@ FocusScope {
               anchors.top: parent.top
               anchors.topMargin: 10
               height: 1
+              visible: parent.everyone
               color: Theme.overlay
             }
 
-            Label {
-              id: everyoneTitle
+            Heading {
+              id: words
 
               anchors.left: parent.left
+              anchors.right: parent.right
               anchors.bottom: parent.bottom
               anchors.leftMargin: 14
               anchors.bottomMargin: 2
-              text: "\uf023  " + "For everyone on this computer".toUpperCase()
-              color: Theme.subtext
-              font.pixelSize: Theme.size(11)
-              font.bold: true
+              text: parent.everyone ? "\uf023  " + "For everyone on this computer".toUpperCase() : holder.entry.label
             }
           }
         }

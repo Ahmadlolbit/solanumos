@@ -83,7 +83,7 @@ func systemKind(option options.Option) (string, float64, float64) {
 
 func systemRow(option options.Option, facts options.Facts) Row {
 	kind, low, high := systemKind(option)
-	row := Row{Name: option.Key, Label: option.Label, Page: systemRows[option.Key].page, Kind: kind, Value: facts.Value(option.Key), Whose: Computer,
+	row := Row{Name: option.Key, Label: option.Label, Page: systemRows[option.Key].page, Section: systemSections[option.Key], Kind: kind, Value: facts.Value(option.Key), Whose: Computer,
 		Help: option.Help, Hidden: !option.Shows(facts), Min: low, Max: high, Multiple: option.Kind == options.Multi}
 	if kind == Slide {
 		row.Step = 1

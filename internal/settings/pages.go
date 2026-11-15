@@ -32,6 +32,7 @@ type Row struct {
 	Name     string   `json:"name"`
 	Label    string   `json:"label"`
 	Page     string   `json:"page"`
+	Section  string   `json:"section,omitempty"`
 	Kind     string   `json:"kind"`
 	Value    string   `json:"value"`
 	Choices  []Choice `json:"choices,omitempty"`
@@ -100,15 +101,15 @@ func popup(name string) []string {
 
 func buttons() []Row {
 	return []Row{
-		{Name: "open.wifi", Label: "Wi-Fi networks", Page: "network", Help: "Join a network, see the ones in range and trust the one you're on", Keywords: []string{"wi-fi", "wifi", "join"}, Command: popup("wifi")},
-		{Name: "open.bluetooth", Label: "Bluetooth devices", Page: "bluetooth", Help: "Turn Bluetooth on, pair, connect and see a device's battery", Keywords: []string{"pair", "connect"}, Command: popup("bluetooth")},
-		{Name: "open.audio", Label: "Output, input and volume", Page: "sound", Help: "Speakers, microphones and the volume of each app", Keywords: []string{"audio", "volume", "speakers", "microphone"}, Command: popup("audio")},
-		{Name: "open.brightness", Label: "Brightness", Page: "display", Help: "The screen's brightness and the keyboard's light", Keywords: []string{"backlight"}, Command: popup("brightness")},
-		{Name: "open.battery", Label: "Power mode, battery and charge limit", Page: "power", Help: "The power profile, the battery's health and where charging stops", Keywords: []string{"battery", "charge limit", "power profile"}, Command: popup("battery")},
-		{Name: "open.layout", Label: "Keyboard layout", Page: "keyboard", Help: "One layout plus US; Alt+Shift switches for layouts that aren't Latin", Keywords: []string{"layout", "language"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "menu", "open", "settings.keyboard"}},
-		{Name: "open.keys", Label: "Key bindings", Page: "keyboard", Help: "Every key binding, your own included; Super+K shows them too", Keywords: []string{"shortcuts", "bindings"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "keys", "open"}},
-		{Name: "open.themes", Label: "Theme picker", Page: "themes", Help: "Every theme with its preview; Super+Ctrl+T opens it too", Keywords: []string{"theme", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "themes"}},
-		{Name: "open.backgrounds", Label: "Wallpaper picker", Page: "wallpaper", Help: "The pictures in use, drawing another, and adding or removing yours", Keywords: []string{"background", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "backgrounds"}},
-		{Name: "open.next", Label: "Next wallpaper", Page: "wallpaper", Help: "The next picture along; Super+Ctrl+B does it too", Keywords: []string{"next background"}, Command: []string{"solanum-background", "next"}},
+		{Name: "open.wifi", Label: "Wi-Fi networks", Page: "network", Section: "Wi-Fi", Help: "Join a network, see the ones in range and trust the one you're on", Keywords: []string{"wi-fi", "wifi", "join"}, Command: popup("wifi")},
+		{Name: "open.bluetooth", Label: "Bluetooth devices", Page: "bluetooth", Section: "Devices", Help: "Turn Bluetooth on, pair, connect and see a device's battery", Keywords: []string{"pair", "connect"}, Command: popup("bluetooth")},
+		{Name: "open.audio", Label: "Output, input and volume", Page: "sound", Section: "Speakers and microphones", Help: "Speakers, microphones and the volume of each app", Keywords: []string{"audio", "volume", "speakers", "microphone"}, Command: popup("audio")},
+		{Name: "open.brightness", Label: "Brightness", Page: "display", Section: "Brightness", Help: "The screen's brightness and the keyboard's light", Keywords: []string{"backlight"}, Command: popup("brightness")},
+		{Name: "open.battery", Label: "Power mode, battery and charge limit", Page: "power", Section: "Battery", Help: "The power profile, the battery's health and where charging stops", Keywords: []string{"battery", "charge limit", "power profile"}, Command: popup("battery")},
+		{Name: "open.layout", Label: "Keyboard layout", Page: "keyboard", Section: "Layout", Help: "One layout plus US; Alt+Shift switches for layouts that aren't Latin", Keywords: []string{"layout", "language"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "menu", "open", "settings.keyboard"}},
+		{Name: "open.keys", Label: "Key bindings", Page: "keyboard", Section: "Key bindings", Help: "Every key binding, your own included; Super+K shows them too", Keywords: []string{"shortcuts", "bindings"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "keys", "open"}},
+		{Name: "open.themes", Label: "Theme picker", Page: "themes", Section: "Theme", Help: "Every theme with its preview; Super+Ctrl+T opens it too", Keywords: []string{"theme", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "themes"}},
+		{Name: "open.backgrounds", Label: "Wallpaper picker", Page: "wallpaper", Section: "Pictures", Help: "The pictures in use, drawing another, and adding or removing yours", Keywords: []string{"background", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "backgrounds"}},
+		{Name: "open.next", Label: "Next wallpaper", Page: "wallpaper", Section: "Changing", Help: "The next picture along; Super+Ctrl+B does it too", Keywords: []string{"next background"}, Command: []string{"solanum-background", "next"}},
 	}
 }
