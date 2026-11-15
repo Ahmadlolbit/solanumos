@@ -25,6 +25,7 @@ Singleton {
   onClearedChanged: keeper.restart()
   onDismissedChanged: keeper.restart()
   onNewestChanged: startedAgain()
+  onItemsChanged: prune()
   Component.onCompleted: refresh()
 
   function character(match, name) {
@@ -104,7 +105,15 @@ Singleton {
     dismissed = dismissed.filter(known => known > cleared).concat([id]);
   }
 
-  function heard() {
+  function prune() {
+    const ids = items.map(item => item.id);
+    if (dismissed.some(id => !ids.includes(id)))
+      dismissed = dismissed.filter(id => ids.includes(id));
+  }
+
+  function heard(line) {
+    if (String(line).includes("NameOwnerChanged"))
+      dismissed = [];
     if (settle.running)
       return;
     settle.interval = Math.max(300, Math.min(2000, refreshed + 2000 - Date.now()));
@@ -121,7 +130,7 @@ Singleton {
     running: true
     command: ["busctl", "--user", "monitor", "--json=short", "--match=type='method_call',interface='org.freedesktop.Notifications',member='Notify'", "--match=type='signal',interface='org.freedesktop.Notifications'", "--match=type='method_call',interface='fr.emersion.Mako',member='RestoreNotification'", "--match=type='method_call',interface='fr.emersion.Mako',member='SetModes'", "--match=type='method_call',interface='fr.emersion.Mako',member='SetMode'", "--match=type='signal',sender='org.freedesktop.DBus',member='NameOwnerChanged',arg0='org.freedesktop.Notifications'"]
     stdout: SplitParser {
-      onRead: root.heard()
+      onRead: line => root.heard(line)
     }
   }
 
