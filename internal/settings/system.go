@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/Ahmadlolbit/solanumos/internal/apps"
 	"github.com/Ahmadlolbit/solanumos/internal/options"
 	"github.com/Ahmadlolbit/solanumos/internal/theme"
 )
@@ -97,6 +98,9 @@ func systemRow(option options.Option, facts options.Facts) Row {
 }
 
 func systemChoices(option options.Option) []Choice {
+	if option.Key == "APPS" {
+		return appChoices()
+	}
 	found := named(option.Items())
 	if !strings.HasSuffix(option.Key, "THEME") {
 		return found
@@ -104,6 +108,17 @@ func systemChoices(option options.Option) []Choice {
 	for index, choice := range found {
 		if slices.Contains(options.Themes(), choice.Value) {
 			found[index].Label = theme.Pretty(choice.Value)
+		}
+	}
+	return found
+}
+
+func appChoices() []Choice {
+	catalogue := apps.All()
+	var found []Choice
+	for _, category := range apps.Categories {
+		for _, app := range apps.InCategory(catalogue, category[0]) {
+			found = append(found, Choice{Value: app.ID, Label: app.Name})
 		}
 	}
 	return found
