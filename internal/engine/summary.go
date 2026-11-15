@@ -1,7 +1,10 @@
 package engine
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -20,6 +23,7 @@ const (
 	minuteSeconds = 60
 	hourSeconds   = 3600
 	changesShown  = 30
+	changesLimit  = 1 << 20
 )
 
 func duration(seconds int) string {
@@ -91,7 +95,11 @@ func (work *session) changes() {
 	if work.options.Changes == "" {
 		return
 	}
-	lines := run.Lines(strings.TrimSuffix(fsutil.Optional(work.options.Changes), "\n"))
+	text, err := fsutil.ReadPlain(work.options.Changes, changesLimit, callers()...)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		fmt.Fprintln(os.Stderr, err)
+	}
+	lines := run.Lines(strings.TrimRight(string(text), "\n"))
 	if len(lines) == 0 {
 		return
 	}
