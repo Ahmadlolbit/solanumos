@@ -34,4 +34,9 @@ ShellRoot {
     active: Theme.video === "" && Theme.looks.logo === "animated"
     source: "LogoWallpaper.qml"
   }
+
+  Loader {
+    active: Theme.video === "" && Theme.looks.logo === "life"
+    source: "LifeWallpaper.qml"
+  }
 }

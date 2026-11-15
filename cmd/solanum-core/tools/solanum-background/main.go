@@ -26,12 +26,15 @@ const usage = `Usage: solanum-background <file>
        solanum-background draw
        solanum-background keep
        solanum-background logo
+       solanum-background life
+       solanum-background off
        solanum-background add [--every] [FILE ...]
        solanum-background remove FILE
        solanum-background --list
        solanum-background --yours
        solanum-background --current
        solanum-background --frames
+       solanum-background --play NAME COLUMNS ROWS
        solanum-background workspaces
        solanum-background workspace MONITOR WORKSPACE
 
@@ -39,18 +42,25 @@ Sets the wallpaper. Backgrounds come from the current theme, from yours for
 that theme in ~/.config/solanum/backgrounds/<theme>, and from yours for every
 theme, the pictures in ~/.config/solanum/backgrounds itself; solanum-look
 wallpapers picks the theme's, yours or both. add copies pictures into yours
-for the current theme, or for every theme with --every; without files it
-opens the file chooser. remove moves one of yours to the Trash. --yours lists
-yours for the current theme and for every theme, shown or not. draw draws a
-new one in the theme's colours, in a style and with a seed picked at random,
-and keeps only the last one drawn; keep keeps the one drawn last in yours for
-the current theme. logo shows the burst logo, animated by the bar in the
-theme's colours, over the still logo; it rests while a window is on the
-screen or on battery, and stays across themes until another wallpaper is
-set. --frames prints its frames. With a wallpaper per workspace on
-(solanum-look workspaces on), each workspace shows the next one along,
-workspaces shows each monitor's, and workspace shows one monitor's for the
-workspace it just switched to.
+for the current theme, or for every theme with --every; without files it opens
+the file chooser. remove moves one of yours to the Trash. --yours lists yours
+for the current theme and for every theme, shown or not. draw draws a new one
+in the theme's colours, in a style and with a seed picked at random, and keeps
+only the last one drawn; keep keeps the one drawn last in yours for the
+current theme. logo shows the burst logo, animated by the bar in the theme's
+colours, over the still logo; life shows Conway's Game of Life, played by the
+bar in the theme's colours over a still of its first soup, starting a new soup
+whenever the last one settles. Either rests while a window is on the screen,
+on battery or with the screens off, and stays across themes until another
+wallpaper is set; off ends it and shows the theme's first background, or a
+drawing when the theme has none, and leaves the wallpaper alone when neither
+is on. --frames prints the logo's frames. --play is how the bar plays Life on
+a screen named NAME: it starts from the still's soup, writes each frame to one
+of two pictures in $XDG_RUNTIME_DIR, and reads step (the next generation),
+paint (the theme's colours again) and sow (a new soup) from its input. With a
+wallpaper per workspace on (solanum-look workspaces on), each workspace shows
+the next one along, workspaces shows each monitor's, and workspace shows one
+monitor's for the workspace it just switched to.
 `
 
 func state() string {
@@ -173,7 +183,7 @@ func apply(file string) int {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	logoFollows(file)
+	liveFollows(file)
 	if perWorkspace() {
 		if workspaces() {
 			return 0
@@ -183,6 +193,20 @@ func apply(file string) int {
 	}
 	restartPaper()
 	return 0
+}
+
+func serially(run func() int) int {
+	err := os.MkdirAll(state(), 0o777)
+	unlock := func() {}
+	if err == nil {
+		unlock, err = look.Hold(state())
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer unlock()
+	return run()
 }
 
 func reason(err error) string {
@@ -212,35 +236,6 @@ func moveOn() int {
 		return 1
 	}
 	return apply(file)
-}
-
-func logoFollows(file string) {
-	settings := look.Open()
-	if wallpaper.IsLogo(file) || settings.Get("logo") == "off" {
-		return
-	}
-	if err := settings.Put("logo", "off"); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
-	look.ReloadShell()
-}
-
-func logoOn() int {
-	still, err := wallpaper.LogoStill(wallpaper.CurrentColors())
-	if err == nil {
-		err = look.Open().Put("logo", "animated")
-	}
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return 1
-	}
-	code := apply(still)
-	if code == 0 {
-		wallpaper.Tidy(still)
-	}
-	look.ReloadShell()
-	return code
 }
 
 func drawAnother() int {
@@ -289,11 +284,9 @@ func Main() {
 	case "workspace":
 		os.Exit(oneWorkspace(env.Arg(2), env.Arg(3)))
 	case "next":
-		os.Exit(moveOn())
+		os.Exit(serially(moveOn))
 	case "draw":
-		os.Exit(drawAnother())
-	case "logo":
-		os.Exit(logoOn())
+		os.Exit(serially(drawAnother))
 	case "--frames":
 		fmt.Print(burst.Flipbook())
 	default:
@@ -312,8 +305,17 @@ func listed(command string) {
 }
 
 func other(command string) int {
-	if yours, found := yourCommands[command]; found {
+	yours, found := yourCommands[command]
+	switch {
+	case command == "add":
 		return yours(os.Args[2:])
+	case command == "--play":
+		return play(os.Args[2:])
+	case found:
+		return serially(func() int { return yours(os.Args[2:]) })
 	}
-	return set(command)
+	if live, found := liveCommands[command]; found {
+		return serially(live)
+	}
+	return serially(func() int { return set(command) })
 }

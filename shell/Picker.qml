@@ -44,6 +44,12 @@ Scope {
       glyph: ""
     },
     {
+      value: "life",
+      label: "Game of Life",
+      image: "",
+      glyph: "\uf00a"
+    },
+    {
       value: "add",
       label: "Add pictures to this theme",
       image: "",
@@ -87,7 +93,7 @@ Scope {
       }
     ] : [];
     items = drawing.concat(text.split("\n").filter(line => line !== "").map(line => parse(kind, line))).concat(kind === "backgrounds" ? drawn : []);
-    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "keep" || item.value === "logo" && Theme.looks.logo === "animated"));
+    index = Math.max(0, shown.findIndex(item => item.value === selected || item.value === "keep" || item.value === "logo" && Theme.looks.logo === "animated" || item.value === "life" && Theme.looks.logo === "life"));
   }
 
   function address(path) {
@@ -394,7 +400,7 @@ Scope {
             Rectangle {
               anchors.fill: parent
               radius: Theme.radius
-              color: slice.modelData.value === "logo" ? Theme.base : Theme.surface
+              color: ["logo", "life"].includes(slice.modelData.value) ? Theme.base : Theme.surface
               border.width: slice.current ? 2 : 0
               border.color: Theme.accent
               clip: true
@@ -424,6 +430,24 @@ Scope {
                 sourceComponent: LogoCanvas {
                   cell: Math.min(slice.width, slice.height) * 0.8 / Logo.cells
                   resting: !slice.current
+                }
+              }
+
+              Loader {
+                anchors.fill: parent
+                anchors.margins: 2
+                active: slice.modelData.value === "life" && slice.current
+                clip: true
+
+                sourceComponent: Item {
+                  LifePlayer {
+                    x: (parent.width - width * scale) / 2
+                    y: (parent.height - height * scale) / 2
+                    name: "picker"
+                    cols: Math.ceil(root.wide / 6)
+                    rows: Math.ceil(carousel.height / 6)
+                    scale: 6
+                  }
                 }
               }
 

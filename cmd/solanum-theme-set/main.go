@@ -271,11 +271,29 @@ func paperChange(otherTheme bool, before string) paper {
 	return paperKept
 }
 
-func logoShown(colors theme.Colors, link string) bool {
-	if settings.Get("logo") != "animated" {
+func liveStill(kind string, colors theme.Colors, link string) (string, error) {
+	if kind == "animated" {
+		return wallpaper.LogoStill(colors)
+	}
+	seed, ok := wallpaper.LifeSeed(link)
+	if !ok {
+		seed = wallpaper.NewSeed()
+	}
+	return wallpaper.LifeStill(colors, seed)
+}
+
+func liveShown(colors theme.Colors, link string) bool {
+	unlock, err := look.Hold(state())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
-	still, err := wallpaper.LogoStill(colors)
+	defer unlock()
+	kind := look.Open().Get("logo")
+	if kind != "animated" && kind != "life" {
+		return false
+	}
+	still, err := liveStill(kind, colors, link)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return false
@@ -287,7 +305,7 @@ func logoShown(colors theme.Colors, link string) bool {
 
 func pickBackground(name, previous string, colors theme.Colors) {
 	link := backgroundLink()
-	if logoShown(colors, link) || (previous == name && fsutil.Exists(link)) {
+	if liveShown(colors, link) || (previous == name && fsutil.Exists(link)) {
 		return
 	}
 	found := settings.Backgrounds(name)
