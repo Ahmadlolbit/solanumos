@@ -88,7 +88,7 @@ FocusScope {
       return chooser.hints;
     if (editing || list.activeFocus)
       return focused && focused.hop ? [["Tab", "next field"], ["Enter", "save"], ["Esc", "stop"]] : [["Enter", "save"], ["Esc", "cancel"]];
-    const tail = [["Tab", zone === "pages" ? "rows" : "pages"], ["", "type to search"], ["Esc", Store.search || seeking ? "clear" : "close"]];
+    const tail = [["Tab", zone === "pages" ? "rows" : "pages"], ["", "type to search"], ["Esc", Store.result === "failed" ? "dismiss" : Store.search || seeking ? "clear" : "close"]];
     if (zone === "pages")
       return [[["Up", "Down"], "pages"], ["Enter", "open"]].concat(tail);
     const item = items[index] || {};
@@ -180,7 +180,9 @@ FocusScope {
   }
 
   function leave() {
-    if (Store.search || seeking) {
+    if (Store.result === "failed") {
+      Store.dismiss();
+    } else if (Store.search || seeking) {
       Store.search = "";
       seeking = false;
       index = 0;
