@@ -53,7 +53,7 @@ FocusScope {
       }))), [])
   readonly property var steps: stepped(Store.task.rows.count, Store.running, Store.task.code, Store.part)
   readonly property bool restart: !!waiting && waiting.restart && !Store.running
-  readonly property var actions: [everything, debian, apps, solanum, firmware, restarting].filter(item => item.visible)
+  readonly property var actions: [everything, debian, apps, solanum, firmware, restarting, again].filter(item => item.visible)
   readonly property var hints: working ? [] : [[["Left", "Right"], "pick"], ["Enter", "press"], [["Up", "Down"], "scroll"]]
 
   function begun(id, text) {
@@ -116,6 +116,10 @@ FocusScope {
 
   Keys.onPressed: event => event.accepted = page.key(event)
   onWorkingChanged: Qt.callLater(enter)
+  onActionsChanged: {
+    if (page.activeFocus && !working && !actions.some(item => item.activeFocus))
+      Qt.callLater(enter);
+  }
 
   ColumnLayout {
     anchors.fill: parent
@@ -247,6 +251,8 @@ FocusScope {
       }
 
       Button {
+        id: again
+
         visible: !!page.waiting && page.waiting.busy
         label: "Look again"
         onClicked: Store.load()

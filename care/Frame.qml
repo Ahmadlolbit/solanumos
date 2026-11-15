@@ -8,7 +8,8 @@ FocusScope {
   property string zone: "page"
   property bool asking: false
   readonly property Item shown: pages.item
-  readonly property var hints: asking ? [[["Left", "Right"], "pick"], ["Enter", "answer"]] : zone === "pages" ? [[["Up", "Down"], "page"], ["Enter", "open"], ["Tab", "page"], ["Esc", "close"]] : (shown && shown.hints ? shown.hints : []).concat([["Tab", "pages"], ["Esc", "close"]])
+  readonly property bool following: zone === "page" && !!shown && !!shown.working
+  readonly property var hints: asking ? [[["Left", "Right"], "pick"], ["Enter", "answer"]] : zone === "pages" ? [[["Up", "Down"], "page"], ["Enter", "open"], ["Tab", "page"], ["Esc", "close"]] : (shown && shown.hints ? shown.hints : []).concat([[following ? "Shift+Tab" : "Tab", "pages"], ["Esc", "close"]])
 
   signal done
 
@@ -18,8 +19,15 @@ FocusScope {
     else if (zone === "page" && shown)
       shown.enter();
     else
-      frame.forceActiveFocus();
+      sidebarKeys();
     return true;
+  }
+
+  function sidebarKeys() {
+    pages.focus = false;
+    if (shown)
+      shown.focus = false;
+    frame.forceActiveFocus();
   }
 
   function ask() {
@@ -62,7 +70,7 @@ FocusScope {
       return leave();
     if (asking)
       return sideways(event.key);
-    if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+    if (event.key === Qt.Key_Backtab || event.key === Qt.Key_Tab && !following) {
       zone = zone === "pages" ? "page" : "pages";
       return takeKeys();
     }
@@ -137,6 +145,7 @@ FocusScope {
           icon: modelData.glyph
           label: modelData.label
           selected: modelData.id === Store.page
+          activeFocusOnTab: false
           border.width: selected && frame.zone === "pages" && !frame.asking ? Theme.focusBorder : 0
           border.color: Theme.accent
           onClicked: {

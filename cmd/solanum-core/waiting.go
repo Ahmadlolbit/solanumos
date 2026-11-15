@@ -78,7 +78,7 @@ func solanumWaiting() []pending {
 		return []pending{}
 	}
 	if tag, _ := newestSigned(signers); tag != "" && !related(tag, "HEAD") {
-		return []pending{{"SolanumOS", env.Version, tag}}
+		return []pending{{"SolanumOS", env.Version, strings.TrimPrefix(tag, "v")}}
 	}
 	return []pending{}
 }
