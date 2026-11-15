@@ -60,6 +60,18 @@ ColumnLayout {
     }
   }
 
+  function settle() {
+    asking = null;
+    if (list.visible)
+      list.forceActiveFocus();
+  }
+
+  function join() {
+    if (asking && password.text !== "")
+      asking.connectWithPsk(password.text);
+    settle();
+  }
+
   function wrongPassword(code) {
     return code === ConnectionFailReason.NoSecrets || code === ConnectionFailReason.WifiAuthTimeout;
   }
@@ -157,13 +169,11 @@ ColumnLayout {
       id: password
 
       Layout.fillWidth: true
+      activeFocusOnTab: true
       secret: true
       placeholder: "Password"
-      onAccepted: {
-        if (root.asking && text !== "")
-          root.asking.connectWithPsk(text);
-        root.asking = null;
-      }
+      onAccepted: root.join()
+      Keys.onEscapePressed: root.settle()
     }
   }
 
