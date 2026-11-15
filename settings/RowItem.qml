@@ -170,13 +170,32 @@ Rectangle {
     Field {
       id: editor
 
+      readonly property string empty: item.row.kind === "time" ? "07:00" : "The default"
+
       visible: item.row.kind === "text" || item.row.kind === "time"
-      implicitWidth: item.row.kind === "time" ? Theme.size(90) : Theme.size(280)
-      placeholder: item.row.kind === "time" ? "07:00" : ""
+      implicitWidth: item.row.kind === "time" ? Theme.size(90) : Math.min(Theme.size(360), item.width / 2)
+      placeholder: item.editing ? empty : ""
       text: item.row.value
       onAccepted: {
         item.editing = false;
         Store.set(item.row, text);
+      }
+
+      Rectangle {
+        anchors.fill: parent
+        anchors.margins: 1
+        visible: !item.editing
+        radius: Math.max(0, Theme.radius - 1)
+        color: Theme.surface
+
+        Label {
+          anchors.fill: parent
+          anchors.leftMargin: 7
+          anchors.rightMargin: 7
+          text: item.row.value || editor.empty
+          color: item.row.value ? Theme.text : Theme.subtext
+          elide: Text.ElideRight
+        }
       }
 
       MouseArea {
