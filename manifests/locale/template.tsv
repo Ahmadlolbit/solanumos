@@ -62,6 +62,7 @@ Browsers follow the theme
 Build the boot image	
 Call the system Debian again	
 Call the system SolanumOS	
+Care is installed	
 Change wallpaper every (minutes)	
 Checking your password	
 Choose the apps that open images, PDFs, videos, archives and text files	
@@ -169,6 +170,7 @@ Idle locking and suspend are configured
 Input and display	
 Install	
 Install %s	
+Install Care	
 Install Departure Mono	
 Install Docker	
 Install Flatpak	
