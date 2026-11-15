@@ -149,12 +149,13 @@ func (work *mover) mark() {
 	}
 }
 
-func (work *mover) stamp() {
+func (work *mover) stamp() error {
 	text := fmt.Sprintf("snapshot %s\nwhen %s\n", work.snapshot, time.Now().Format(time.DateTime))
 	if err := atomic.Install(filepath.Join(stateDir(), stampFile), []byte(text), stampMode); err != nil {
-		work.note("Couldn't note that the move is done: %v", err)
+		return err
 	}
 	os.Remove(filepath.Join(stateDir(), markFile))
+	return nil
 }
 
 func Run(out io.Writer) []string {
@@ -176,7 +177,10 @@ func Run(out io.Writer) []string {
 		work.note("The move to Solanum isn't finished: run sudo solanum install again to finish it.")
 		return work.notes
 	}
-	work.stamp()
+	if err := work.stamp(); err != nil {
+		work.note("Couldn't note that the move is done (%v): run sudo solanum install again to finish it.", err)
+		return work.notes
+	}
 	work.note("This computer has moved from Hyprtrixie to Solanum. Log out and back in once to finish.")
 	return work.notes
 }
