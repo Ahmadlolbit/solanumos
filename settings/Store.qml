@@ -68,8 +68,6 @@ Singleton {
   function loadThemes() {
     themeList.running = true;
     shownTheme.reload();
-    current = shownTheme.text().trim();
-    pictureList.running = true;
   }
 
   function show(id) {
@@ -124,10 +122,11 @@ Singleton {
     blockLoading: true
     printErrors: false
     watchChanges: true
-    onFileChanged: {
-      reload();
+    onFileChanged: reload()
+    onLoaded: {
       state.current = text().trim();
       pictureList.running = true;
+      facts.running = true;
     }
   }
 
