@@ -6,8 +6,9 @@ Rectangle {
   property string label: ""
   property string glyph: ""
   property bool primary: false
+  property bool chosen: false
   readonly property bool framed: activeFocus && Keyboard.used
-  readonly property bool filled: primary !== (area.containsMouse || framed)
+  readonly property bool filled: primary !== (area.containsMouse || framed || chosen)
   readonly property color ink: primary ? Theme.accent : Theme.text
 
   signal clicked
@@ -17,7 +18,7 @@ Rectangle {
   radius: Theme.radius
   color: filled ? ink : "transparent"
   border.width: Theme.focusBorder
-  border.color: framed ? Theme.accent : ink
+  border.color: framed || chosen ? Theme.accent : ink
   activeFocusOnTab: true
   Keys.onPressed: event => {
     Keyboard.used = true;
