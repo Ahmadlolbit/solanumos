@@ -95,12 +95,13 @@ Rectangle {
       spacing: 24
 
       Item {
-        Layout.preferredWidth: Theme.size(176)
-        Layout.preferredHeight: Theme.size(176)
+        Layout.preferredWidth: logo.width * logo.scale
+        Layout.preferredHeight: logo.height * logo.scale
 
         LogoCanvas {
-          anchors.centerIn: parent
-          cell: parent.width / Logo.cells
+          id: logo
+
+          cell: Theme.size(176) / Logo.cells
           resting: true
         }
       }
