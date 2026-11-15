@@ -15,6 +15,13 @@ Singleton {
       label: "Updates",
       glyph: "\uf021",
       help: "What's waiting, and updating it with a snapshot taken first"
+    },
+    {
+      id: "check",
+      source: "Check.qml",
+      label: "Check",
+      glyph: "\uf0f1",
+      help: "The system check, and the safe fixes it offers"
     }
   ]
   property string page: known(Quickshell.env("SOLANUM_CARE_PAGE")) ? Quickshell.env("SOLANUM_CARE_PAGE") : "updates"
