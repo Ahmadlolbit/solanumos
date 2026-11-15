@@ -94,10 +94,12 @@ func barSteps(context *Context) {
 	context.Run.Step("Apply the bar settings", context.barSetup)
 	context.Run.Step("Install Care", context.careWindowInstall)
 	context.Run.Step("Install Settings", context.settingsInstall)
+	context.Run.Step("Install Software", context.softwareInstall)
 }
 
 func barChecks(context *Context) {
 	context.Run.Check("The bar is installed", barReady)
 	context.Run.Check("Care is installed", careWindowReady)
 	context.Run.Check("Settings is installed", settingsReady)
+	context.Run.Check("Software is installed", softwareReady)
 }
