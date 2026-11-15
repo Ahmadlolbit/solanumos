@@ -36,7 +36,7 @@ var (
 		{"workspaces", "A wallpaper per workspace", "wallpaper", Toggle, "", "Each workspace shows its own picture", nil},
 		{"day_wallpaper", "Wallpaper of the day", "wallpaper", Pick, "off:Off|drawn:Drawn in the theme's colours|nasa:NASA's picture of the day|folder:From your folder", "A new wallpaper every day", nil},
 		{"wallpaper_folder", "Wallpaper folder", "wallpaper", Text, "", "The folder of pictures, or a file that lists them one per line, for the wallpaper of the day", is("day_wallpaper", "folder")},
-		{"logo", "Animated logo as the wallpaper", "wallpaper", Toggle, "", "The burst logo, animated in the theme's colours; it rests while a window covers it or on battery", nil},
+		{"logo", "Live wallpaper", "wallpaper", Pick, "off:Off|animated:Animated logo|life:Game of Life", "Drawn in the theme's colours behind your windows; it rests while a window covers it, on battery and with the screens off", nil},
 		{"video", "Video as the wallpaper", "wallpaper", Text, "", "A video file played muted and looping, or off", nil},
 		{"video_battery", "Video on battery", "wallpaper", Pick, "pause:Pause|play:Play", "Whether a video wallpaper plays on battery", isnt("video", "off")},
 		{"corners", "Rounded screen corners", "display", Toggle, "", "Round the corners of the screen, like a phone's", nil},

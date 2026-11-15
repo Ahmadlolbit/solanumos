@@ -139,9 +139,8 @@ func yourRow(row yours, settings *look.Store) Row {
 	case "reader":
 		shown.After = "login"
 	case "logo":
-		shown.Value = "no"
-		if settings.Get("logo") == "animated" {
-			shown.Value = "yes"
+		if shown.Value != "animated" && shown.Value != "life" {
+			shown.Value = "off"
 		}
 	}
 	return shown
