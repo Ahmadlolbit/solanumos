@@ -14,9 +14,46 @@ PanelWindow {
   readonly property bool below: Config.position !== "bottom"
   readonly property bool beside: bar ? bar.vertical === true : false
   readonly property int gap: bar && bar.gap ? bar.gap : 0
+  readonly property Item keyed: scope.Window.activeFocusItem
+  readonly property bool lost: keyed === scope || (keyed !== null && !keyed.visible)
 
   function toggle() {
     Popups.toggle(root);
+  }
+
+  function inside(item) {
+    for (let at = item; at; at = at.parent) {
+      if (at === scope)
+        return true;
+    }
+    return false;
+  }
+
+  function stop(item) {
+    let at = item;
+    while (at && at !== scope && !at.activeFocusOnTab)
+      at = at.parent;
+    return at || scope;
+  }
+
+  function first() {
+    const next = scope.nextItemInFocusChain(true);
+    if (next && next !== scope && inside(next))
+      next.forceActiveFocus(Qt.TabFocusReason);
+    else
+      scope.forceActiveFocus();
+  }
+
+  function regain() {
+    if (lost && visible)
+      first();
+  }
+
+  function step(forward) {
+    const from = stop(keyed);
+    const next = from.nextItemInFocusChain(forward);
+    if (next && next !== from && inside(next))
+      next.forceActiveFocus(forward ? Qt.TabFocusReason : Qt.BacktabFocusReason);
   }
 
   function place() {
@@ -44,8 +81,9 @@ PanelWindow {
     if (!visible)
       return;
     place();
-    frame.forceActiveFocus();
+    first();
   }
+  onLostChanged: Qt.callLater(regain)
   onWidthChanged: place()
   onHeightChanged: place()
 
@@ -73,8 +111,6 @@ PanelWindow {
     border.color: Theme.accent
     border.width: 2
     radius: Theme.radius
-    focus: true
-    Keys.onEscapePressed: Popups.close(root)
     onWidthChanged: root.place()
     onHeightChanged: root.place()
 
@@ -82,12 +118,22 @@ PanelWindow {
       anchors.fill: parent
     }
 
-    ColumnLayout {
-      id: body
+    FocusScope {
+      id: scope
 
       anchors.fill: parent
-      anchors.margins: 14
-      spacing: 10
+      focus: true
+      Keys.onEscapePressed: Popups.close(root)
+      Keys.onUpPressed: root.step(false)
+      Keys.onDownPressed: root.step(true)
+
+      ColumnLayout {
+        id: body
+
+        anchors.fill: parent
+        anchors.margins: 14
+        spacing: 10
+      }
     }
   }
 }
