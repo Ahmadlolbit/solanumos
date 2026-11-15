@@ -62,6 +62,7 @@ ColumnLayout {
 
   function settle() {
     asking = null;
+    password.text = "";
     if (list.visible)
       list.forceActiveFocus();
   }
@@ -93,6 +94,7 @@ ColumnLayout {
   onActiveChanged: {
     asking = null;
     failure = "";
+    password.text = "";
     if (wifi)
       wifi.scannerEnabled = active;
     if (active)
