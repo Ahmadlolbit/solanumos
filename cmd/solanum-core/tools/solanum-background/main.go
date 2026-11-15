@@ -305,11 +305,14 @@ func listed(command string) {
 }
 
 func other(command string) int {
-	if yours, found := yourCommands[command]; found {
+	yours, found := yourCommands[command]
+	switch {
+	case command == "add":
 		return yours(os.Args[2:])
-	}
-	if command == "--play" {
+	case command == "--play":
 		return play(os.Args[2:])
+	case found:
+		return serially(func() int { return yours(os.Args[2:]) })
 	}
 	if live, found := liveCommands[command]; found {
 		return serially(live)
