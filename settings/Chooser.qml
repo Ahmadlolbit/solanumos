@@ -7,17 +7,20 @@ Item {
   property var row: null
   property int index: 0
   property var picked: []
-  readonly property var hints: [[["Up", "Down"], "move"], ["Enter", row && row.multiple ? "tick" : "pick"], ["Esc", "close"]]
+  property string filter: ""
+  readonly property var hints: [[["Up", "Down"], "move"], ["Enter", row && row.multiple ? "tick" : "pick"], ["", "type to filter"], ["Esc", filter ? "clear" : "close"]]
+  readonly property var matching: (row ? row.choices || [] : []).filter(entry => entry.label.toLowerCase().includes(filter.toLowerCase()))
   readonly property var choices: row ? (row.multiple ? [
         {
           value: "\n",
           label: "Apply the ticked ones"
         }
-      ].concat(row.choices || []) : row.choices || []) : []
+      ].concat(matching) : matching) : []
 
   signal closed
 
   function open(chosen) {
+    filter = "";
     row = chosen;
     picked = (chosen.value || "").split(" ").filter(word => word);
     index = Math.max(0, choices.findIndex(entry => entry.value === chosen.value));
@@ -26,11 +29,14 @@ Item {
 
   function close() {
     visible = false;
+    filter = "";
     row = null;
     closed();
   }
 
   function pick(entry) {
+    if (!entry)
+      return;
     if (!row.multiple) {
       Store.set(row, entry.value);
       close();
@@ -42,15 +48,34 @@ Item {
     }
   }
 
+  function typed(event) {
+    if (event.key === Qt.Key_Backspace && filter)
+      filter = filter.slice(0, -1);
+    else if (/^[\w .,+-]$/.test(event.text))
+      filter += event.text;
+    else
+      return;
+    index = Math.max(0, choices.findIndex(entry => entry.value !== "\n"));
+  }
+
   function key(event) {
-    if (event.key === Qt.Key_Escape)
+    const moves = {
+      [Qt.Key_Up]: index - 1,
+      [Qt.Key_Down]: index + 1,
+      [Qt.Key_Tab]: index + 1,
+      [Qt.Key_Home]: 0,
+      [Qt.Key_End]: choices.length - 1
+    };
+    if (event.key === Qt.Key_Escape && filter)
+      filter = "";
+    else if (event.key === Qt.Key_Escape)
       close();
-    else if (event.key === Qt.Key_Up)
-      index = Math.max(0, index - 1);
-    else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab)
-      index = Math.min(choices.length - 1, index + 1);
-    else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space)
+    else if (moves[event.key] !== undefined)
+      index = Math.max(0, Math.min(choices.length - 1, moves[event.key]));
+    else if ([Qt.Key_Return, Qt.Key_Enter].includes(event.key) || event.key === Qt.Key_Space && !filter)
       pick(choices[index]);
+    else
+      typed(event);
     return true;
   }
 
@@ -83,12 +108,24 @@ Item {
       id: heading
 
       anchors.left: parent.left
-      anchors.right: parent.right
+      anchors.right: sought.left
       anchors.top: parent.top
       anchors.margins: 16
       text: chooser.row ? chooser.row.label : ""
       font.bold: true
       elide: Text.ElideRight
+    }
+
+    Label {
+      id: sought
+
+      anchors.right: parent.right
+      anchors.verticalCenter: heading.verticalCenter
+      anchors.rightMargin: 16
+      width: Math.min(implicitWidth, parent.width / 2)
+      text: chooser.filter ? "\uf002  " + chooser.filter : "Type to filter"
+      color: chooser.filter ? Theme.text : Theme.subtext
+      elide: Text.ElideLeft
     }
 
     ListView {
@@ -111,7 +148,7 @@ Item {
         required property int index
 
         width: ListView.view.width
-        icon: chooser.row && chooser.row.multiple && modelData.value !== "\n" ? (chooser.picked.includes(modelData.value) ? "\uf14a" : "\uf096") : modelData.value === (chooser.row ? chooser.row.value : "") ? "\uf00c" : " "
+        icon: chooser.row && chooser.row.multiple && modelData.value !== "\n" ? (chooser.picked.includes(modelData.value) ? "\uf14a" : "\uf096") : modelData.value === (chooser.row ? chooser.row.value : "") ? "\u25a0" : " "
         label: modelData.label
         selected: index === chooser.index
         onClicked: {
