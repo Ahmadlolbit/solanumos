@@ -17,8 +17,13 @@ Tile {
       found[each.key] = each.value;
     return found;
   }
+  readonly property real swatchWidth: Math.max(Theme.size(232), Math.ceil(Math.max(0, ...swatches.map(each => metrics.advanceWidth(swatchText(each))))) + Theme.size(22) + 24)
 
   signal pointed
+
+  function swatchText(each) {
+    return each.key.replace(/_/g, " ") + " " + each.value + "  " + each.contrast.toFixed(1) + ":1";
+  }
 
   function hex(text) {
     return /^#[0-9A-Fa-f]{6}$/.test(text.trim());
@@ -67,6 +72,13 @@ Tile {
   title: "Your own theme"
   hint: !open ? (current ? "Enter opens it" : "From three colours, or any theme's colours changed") : current ? "Left: three colours · Right: change this theme's colours · Enter to type · Esc stops" : ""
 
+  FontMetrics {
+    id: metrics
+
+    font.family: Theme.font
+    font.pixelSize: Theme.size(12)
+  }
+
   ColumnLayout {
     width: parent.width
     spacing: 14
@@ -90,7 +102,7 @@ Tile {
       }
 
       Choice {
-        label: "Change " + (Store.current ? Store.current.replace(/-/g, " ") : "this theme") + "'s colours"
+        label: "Change " + (Store.current ? Store.currentLabel : "this theme") + "'s colours"
         selected: maker.mode === "change"
         onClicked: maker.step(1)
       }
@@ -227,8 +239,11 @@ Tile {
     }
 
     Flow {
+      id: colours
+
       visible: maker.open && !!Store.palette
       Layout.fillWidth: true
+      Layout.maximumWidth: parent.width
       spacing: 8
 
       Repeater {
@@ -239,8 +254,8 @@ Tile {
 
           required property var modelData
 
-          width: Theme.size(232)
-          height: Theme.size(34)
+          width: Math.min(colours.width, maker.swatchWidth)
+          height: Math.max(Theme.size(34), label.implicitHeight + 12)
           radius: Theme.radius
           color: Theme.surface
 
@@ -258,15 +273,17 @@ Tile {
           }
 
           Label {
+            id: label
+
             anchors.left: dot.right
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 8
             anchors.rightMargin: 6
-            text: swatch.modelData.key.replace(/_/g, " ") + " " + swatch.modelData.value + "  " + swatch.modelData.contrast.toFixed(1) + ":1"
-            color: swatch.modelData.contrast < (swatch.modelData.key === "accent" ? 3 : 4.5) && swatch.modelData.against === "background" && !swatch.modelData.key.includes("background") ? Theme.critical : Theme.text
+            text: maker.swatchText(swatch.modelData)
+            color: swatch.modelData.contrast < (swatch.modelData.target || 0) ? Theme.critical : Theme.text
             font.pixelSize: Theme.size(12)
-            elide: Text.ElideRight
+            wrapMode: Text.Wrap
           }
 
           MouseArea {

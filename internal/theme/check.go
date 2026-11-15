@@ -11,6 +11,7 @@ import (
 const (
 	TextRatio   = 4.5
 	AccentRatio = 3.0
+	MutedRatio  = 3.0
 	liftStep    = 5
 )
 
@@ -123,6 +124,19 @@ func (check *checking) workAccent() {
 	if check.colors["accent"] == "" {
 		check.worked("accent", check.colors["blue"], "the theme's blue")
 	}
+}
+
+func Target(key string) float64 {
+	hue := strings.TrimPrefix(key, "bright_")
+	switch {
+	case key == "accent":
+		return AccentRatio
+	case key == "muted":
+		return MutedRatio
+	case key == "selection", strings.HasSuffix(key, "foreground"), slices.ContainsFunc(hueAngles, func(each hueAngle) bool { return each.key == hue }):
+		return TextRatio
+	}
+	return 0
 }
 
 func (colors Colors) Readable() []string {

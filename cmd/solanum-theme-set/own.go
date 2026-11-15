@@ -35,6 +35,7 @@ type swatch struct {
 	Value    string  `json:"value"`
 	Contrast float64 `json:"contrast"`
 	Against  string  `json:"against"`
+	Target   float64 `json:"target,omitempty"`
 }
 
 type paletteShown struct {
@@ -182,7 +183,7 @@ func linkPictures(from, name string) error {
 		if err := os.MkdirAll(dir, 0o777); err != nil {
 			return err
 		}
-		if err := atomic.Symlink(picture, filepath.Join(dir, filepath.Base(picture))); err != nil {
+		if err := atomic.Symlink(fsutil.Followed(picture), filepath.Join(dir, filepath.Base(picture))); err != nil {
 			return err
 		}
 	}
@@ -206,7 +207,7 @@ func copyTheme(args []string) int {
 		err = writeIcons(name, icons)
 	}
 	if err == nil {
-		err = writeOwn(name, theme.WithColours(text, changes), light, true)
+		err = writeOwn(name, theme.Changed(text, changes), light, true)
 	}
 	if err == nil {
 		err = linkPictures(from, name)
@@ -238,7 +239,7 @@ func changeTheme(args []string) int {
 	}
 	text, light, readErr := themeText(name)
 	if err = errors.Join(err, readErr); err == nil {
-		err = writeOwn(name, theme.WithColours(text, changes), light, fsutil.IsFile(filepath.Join(own, "backgrounds", firstPicture)))
+		err = writeOwn(name, theme.Changed(text, changes), light, fsutil.IsFile(filepath.Join(own, "backgrounds", firstPicture)))
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -269,7 +270,7 @@ func paletteText(args []string) (string, string, bool, error) {
 	if err = errors.Join(err, bad); err != nil {
 		return "", "", false, err
 	}
-	return name, theme.WithColours(text, changes), light, nil
+	return name, theme.Changed(text, changes), light, nil
 }
 
 func swatches(colors theme.Colors) []swatch {
@@ -282,7 +283,7 @@ func swatches(colors theme.Colors) []swatch {
 		if key == "background" || slices.Contains(surfaces, key) {
 			against, other = "foreground", colors["foreground"]
 		}
-		found = append(found, swatch{key, colors[key], math.Round(theme.Contrast(colors[key], other)*10) / 10, against})
+		found = append(found, swatch{key, colors[key], math.Round(theme.Contrast(colors[key], other)*10) / 10, against, theme.Target(key)})
 	}
 	return found
 }

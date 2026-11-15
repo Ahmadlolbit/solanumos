@@ -165,5 +165,5 @@ func List() Listing {
 		button.Kind, button.Whose = Button, Yours
 		rows = append(rows, button)
 	}
-	return Listing{Pages: pages, Rows: rows}
+	return Listing{Pages: pages, Rows: paired(rows)}
 }

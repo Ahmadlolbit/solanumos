@@ -32,6 +32,12 @@ Singleton {
     glyph: ""
   }
   readonly property var shown: search ? found(search) : rows.filter(row => row.page === page && !row.hidden)
+  readonly property string currentLabel: pretty(current)
+
+  function pretty(name) {
+    const listed = themes.find(item => item.name === name);
+    return listed ? listed.label : name.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  }
 
   function words(row) {
     const owner = pages.find(item => item.id === row.page);

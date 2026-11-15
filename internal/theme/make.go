@@ -64,7 +64,7 @@ func (colors Colors) workShades() {
 	colors.fallback("dark_background", "", blend(background, black, darker))
 	colors.fallback("darker_background", "", blend(background, black, darkest))
 	colors.fallback("lighter_background", "", blend(background, foreground, 0.10))
-	colors.fallback("dark_foreground", "", firstMix(background, foreground, 4.5))
+	colors.fallback("dark_foreground", "", firstMix(background, foreground, TextRatio))
 	colors.fallback("light_foreground", "", blend(background, foreground, 0.85))
 	colors.fallback("bright_foreground", "", foreground)
 }
@@ -72,7 +72,7 @@ func (colors Colors) workShades() {
 func Make(background, foreground, accent string) Colors {
 	colors := Colors{"mode": modeOf(background), "background": background, "foreground": foreground, "accent": accent}
 	colors["selection"] = blend(background, foreground, 0.15)
-	colors["muted"] = firstMix(background, foreground, 3)
+	colors["muted"] = firstMix(background, foreground, MutedRatio)
 	if nearest := NearestHue(accent); nearest != "" {
 		colors[nearest] = accent
 	}
@@ -106,6 +106,38 @@ func FileKeys() []string {
 		keys = append(keys, group...)
 	}
 	return keys
+}
+
+func Changed(text string, changes map[string]string) string {
+	colors := Parse(text)
+	for _, pair := range aliases {
+		colors.fallback(pair[0], pair[1], "")
+	}
+	background := changes["background"]
+	if background == "" || strings.EqualFold(background, colors["background"]) {
+		return WithColours(text, changes)
+	}
+	flipped := Dark(background) != Dark(colors["background"])
+	maps.Copy(colors, changes)
+	if (flipped && changes["foreground"] == "") || colors["foreground"] == "" {
+		colors["foreground"] = defaultLooks[Dark(background)]["foreground"]
+	}
+	colors.fallback("accent", "blue", "")
+	colors.carry("foreground", changes)
+	colors.carry("accent", changes)
+	made := Make(background, colors["foreground"], colors["accent"])
+	maps.Copy(made, changes)
+	return made.File()
+}
+
+func (colors Colors) carry(key string, changes map[string]string) {
+	ratio := TextRatio
+	if key == "accent" && NearestHue(colors[key]) == "" {
+		ratio = AccentRatio
+	}
+	if changes[key] == "" {
+		colors.lift(key, ratio)
+	}
 }
 
 func WithColours(text string, changes map[string]string) string {

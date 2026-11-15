@@ -28,6 +28,7 @@ ShellRoot {
     visible: true
     implicitWidth: Number(Quickshell.env("SOLANUM_SETTINGS_WIDTH")) || 1100
     implicitHeight: Number(Quickshell.env("SOLANUM_SETTINGS_HEIGHT")) || 720
+    minimumSize: Qt.size(800, 560)
     color: Theme.base
     onVisibleChanged: {
       if (!visible)
