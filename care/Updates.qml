@@ -49,12 +49,16 @@ FocusScope {
       }
     ], group.list.map(item => ({
         name: item.name,
-        change: item.to ? (item.from ? item.from + " \u2192 " : "") + item.to : ""
+        change: item.to ? (item.from ? page.plain(item.from) + " \u2192 " : "") + page.plain(item.to) : ""
       }))), [])
   readonly property var steps: stepped(Store.task.rows.count, Store.running, Store.task.code, Store.part)
   readonly property bool restart: !!waiting && waiting.restart && !Store.running
   readonly property var actions: [everything, debian, apps, solanum, firmware, restarting, again].filter(item => item.visible)
   readonly property var hints: working ? [] : [[["Left", "Right"], "pick"], ["Enter", "press"], [["Up", "Down"], "scroll"]]
+
+  function plain(version) {
+    return version.replace(/^v(?=[0-9])/, "");
+  }
 
   function begun(id, text) {
     if (id === "system")
