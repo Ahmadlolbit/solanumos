@@ -353,6 +353,50 @@ Scope {
       index = (index + step + rows.length) % rows.length;
   }
 
+  function jump(step) {
+    if (rows.length)
+      index = Math.max(0, Math.min(rows.length - 1, index + step));
+  }
+
+  function opens(event) {
+    const item = rows[index];
+    return event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Right && !filter && !!item && item.page;
+  }
+
+  function key(event) {
+    const steps = {
+      [Qt.Key_Down]: 1,
+      [Qt.Key_Tab]: 1,
+      [Qt.Key_Up]: -1,
+      [Qt.Key_Backtab]: -1
+    };
+    const jumps = {
+      [Qt.Key_Home]: -rows.length,
+      [Qt.Key_End]: rows.length,
+      [Qt.Key_PageUp]: 1 - visibleRows,
+      [Qt.Key_PageDown]: visibleRows - 1
+    };
+    if (secret(event.key))
+      showCredits();
+    else if (event.key === Qt.Key_Escape)
+      close();
+    else if (steps[event.key] !== undefined)
+      move(steps[event.key]);
+    else if (jumps[event.key] !== undefined)
+      jump(jumps[event.key]);
+    else if (opens(event))
+      activate(rows[index]);
+    else if (event.key === Qt.Key_Backspace && filter)
+      filter = filter.slice(0, -1);
+    else if ((event.key === Qt.Key_Backspace || event.key === Qt.Key_Left) && !filter)
+      back();
+    else if (/^[\w .+-]$/.test(event.text))
+      filter += event.text;
+    else
+      return false;
+    return true;
+  }
+
   function close() {
     open = false;
   }
@@ -502,32 +546,10 @@ Scope {
       id: content
 
       anchors.fill: parent
-      color: Qt.alpha(Theme.base, 0.45)
+      color: Qt.alpha(Theme.base, 0.85)
       opacity: root.open ? 1 : 0
       focus: true
-      Keys.onPressed: event => {
-        if (root.secret(event.key))
-          root.showCredits();
-        else if (event.key === Qt.Key_Escape)
-          root.close();
-        else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab)
-          root.move(1);
-        else if (event.key === Qt.Key_Up || event.key === Qt.Key_Backtab)
-          root.move(-1);
-        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
-          root.activate(root.rows[root.index]);
-        else if (event.key === Qt.Key_Right && !root.filter && root.rows[root.index] && root.rows[root.index].page)
-          root.activate(root.rows[root.index]);
-        else if (event.key === Qt.Key_Backspace && root.filter)
-          root.filter = root.filter.slice(0, -1);
-        else if ((event.key === Qt.Key_Backspace || event.key === Qt.Key_Left) && !root.filter)
-          root.back();
-        else if (/^[\w .+-]$/.test(event.text))
-          root.filter += event.text;
-        else
-          return;
-        event.accepted = true;
-      }
+      Keys.onPressed: event => event.accepted = root.key(event)
 
       Behavior on opacity {
         NumberAnimation {
@@ -544,7 +566,7 @@ Scope {
       Rectangle {
         anchors.centerIn: parent
         width: Theme.size(480)
-        height: header.height + list.height + 36
+        height: header.height + list.height + more.height + hints.height + 52
         color: Theme.panel
         border.color: Theme.accent
         border.width: 2
@@ -571,8 +593,8 @@ Scope {
           }
 
           Label {
-            text: root.filter ? "\u{f0349} " + root.filter : "Type to search"
-            color: root.filter ? Theme.text : Theme.subtext
+            visible: root.filter !== ""
+            text: "\u{f0349} " + root.filter
           }
         }
 
@@ -691,6 +713,32 @@ Scope {
           visible: root.rows.length === 0
           text: root.filter ? "Nothing matches " + root.filter : "Nothing here yet"
           color: Theme.subtext
+        }
+
+        Label {
+          id: more
+
+          anchors.top: list.bottom
+          anchors.left: list.left
+          anchors.right: list.right
+          height: root.rows.length > root.visibleRows ? Theme.size(18) : 0
+          visible: height > 0 && !list.atYEnd
+          horizontalAlignment: Text.AlignHCenter
+          text: "\u{f0140}"
+          color: Theme.subtext
+          font.pixelSize: Theme.size(16)
+        }
+
+        Hints {
+          id: hints
+
+          anchors.top: more.bottom
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.leftMargin: 18
+          anchors.rightMargin: 18
+          anchors.topMargin: 8
+          pairs: [["Enter", "open"], ["Left", root.stack.length > 1 ? "back" : "close"], ["", "type to search"]]
         }
       }
     }
