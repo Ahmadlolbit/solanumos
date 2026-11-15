@@ -108,11 +108,15 @@ func play(args []string) int {
 	if !found {
 		seed = wallpaper.NewSeed()
 	}
-	prefix := filepath.Join(env.Or("XDG_RUNTIME_DIR", state()), "solanum-life-"+args[0])
+	prefix := framePrefix(args[0])
 	defer forgetFrames(prefix)
 	defer cleanup.OnSignal(func() { forgetFrames(prefix) })()
 	fmt.Println(prefix)
 	return playing(wallpaper.NewGame(seed, cols, rows), prefix, os.Stdin)
+}
+
+func framePrefix(name string) string {
+	return filepath.Join(env.Or("XDG_RUNTIME_DIR", state()), fmt.Sprintf("solanum-life-%s-%d", name, os.Getpid()))
 }
 
 func frameFile(prefix string, shown int) string {
