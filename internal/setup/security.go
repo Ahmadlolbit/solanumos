@@ -321,7 +321,7 @@ func securitySteps(context *Context) {
 		if settings.Get("SSH_POLICY") == "leave" && sshServerOn() {
 			context.Run.Step("Let SSH in through the firewall", sshThrough)
 		}
-		context.Run.Step("Open LocalSend only on networks you trust", context.trustSetup)
+		context.Run.Step("Open LocalSend and KDE Connect only on networks you trust", context.trustSetup)
 	} else if firewallSetUp() {
 		context.Run.Step("Turn off the firewall", firewallOff)
 	}
@@ -343,7 +343,7 @@ func securityChecks(context *Context) {
 	settings := context.Config
 	if settings.Get("FIREWALL") == "yes" {
 		context.Run.Check("The firewall is on", firewallReady)
-		context.Run.Check("LocalSend opens only on networks you trust", trustReady)
+		context.Run.Check("LocalSend and KDE Connect open only on networks you trust", trustReady)
 	} else if firewallSetUp() {
 		context.Run.Check("The firewall is off", firewallOffReady)
 	}

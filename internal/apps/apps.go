@@ -17,9 +17,9 @@ const (
 )
 
 var Categories = [][2]string{
-	{"browsers", "Browsers"}, {"chat", "Chat and calls"}, {"office", "Office and notes"}, {"viewers", "Viewers"},
-	{"files", "Files and sharing"}, {"security", "Passwords and VPN"}, {"creative", "Creative"}, {"media", "Audio and video"},
-	{"system", "System tools"}, {"games", "Games"},
+	{"browsers", "Browsers"}, {"chat", "Chat and calls"}, {"office", "Office and notes"}, {"editors", "Text editors"},
+	{"viewers", "Viewers"}, {"files", "Files and sharing"}, {"security", "Passwords and VPN"}, {"creative", "Creative"},
+	{"media", "Audio and video"}, {"terminals", "Terminals"}, {"system", "System tools"}, {"games", "Games"},
 }
 
 type App struct {

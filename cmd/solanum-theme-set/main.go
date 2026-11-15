@@ -332,6 +332,7 @@ func linkApps() {
 		linkUnlessYours("fastfetch", file, filepath.Join(env.ConfigHome(), "fastfetch", "config.jsonc"))
 	}
 	linkNeovim(current)
+	linkAlacritty(current)
 	followFirefox(current)
 	linkToolkits(current)
 }

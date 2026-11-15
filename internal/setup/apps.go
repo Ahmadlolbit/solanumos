@@ -24,16 +24,20 @@ const (
 	snapLimit     = 20 * time.Minute
 	downloadLimit = 30 * time.Minute
 	yourDefaults  = ".local/state/solanum/defaults"
+	yourMimeApps  = ".config/mimeapps.list"
+	chosenSection = "[Default Applications]"
 )
 
 var (
 	webTypes     = []string{"x-scheme-handler/http", "x-scheme-handler/https", "text/html", "application/xhtml+xml"}
 	imageTypes   = []string{"image/png", "image/jpeg", "image/gif", "image/webp", "image/bmp", "image/tiff", "image/svg+xml", "image/avif", "image/heif"}
+	textTypes    = []string{"text/plain"}
 	videoTypes   = []string{"video/mp4", "video/x-matroska", "video/webm", "video/quicktime", "video/x-msvideo", "video/mpeg", "video/ogg", "audio/mpeg", "audio/ogg", "audio/flac", "audio/x-wav", "audio/mp4", "audio/aac", "audio/opus"}
 	archiveTypes = []string{
 		"application/zip", "application/x-tar", "application/gzip", "application/x-compressed-tar", "application/x-7z-compressed",
 		"application/vnd.rar", "application/x-rar", "application/x-xz", "application/x-xz-compressed-tar", "application/zstd", "application/x-bzip2",
 	}
+	appConfigs = map[string]string{"foot": "foot/foot.ini", "alacritty": "alacritty/alacritty.toml"}
 )
 
 func applicationsDir() string {
@@ -210,9 +214,20 @@ func (context *Context) appRemove(log *runlog.Log, app apps.App) error {
 	return apt.ExtrepoDisable(log, repository)
 }
 
+func (context *Context) appConfig(app apps.App) {
+	rel, found := appConfigs[app.ID]
+	if !found {
+		return
+	}
+	context.Run.Step("Set up "+app.Name, func(*runlog.Log) error {
+		return context.Deploy.UserFile(filepath.Join("config", rel), filepath.Join(".config", rel))
+	})
+}
+
 func AddApp(context *Context, app apps.App) {
 	context.Run.Step("Install "+app.Name, func(log *runlog.Log) error { return context.appInstall(log, app) })
-	context.Run.Step("Choose the apps that open images, PDFs, videos and archives", context.defaultApps)
+	context.appConfig(app)
+	context.Run.Step("Choose the apps that open images, PDFs, videos, archives and text files", context.defaultApps)
 }
 
 func RemoveApp(context *Context, app apps.App) {
@@ -227,15 +242,46 @@ func (context *Context) defaultApp(log *runlog.Log, name, entry string, types []
 	return err
 }
 
+func chosenDefaults(text string) map[string]string {
+	chosen := map[string]string{}
+	section := ""
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "[") {
+			section = line
+		} else if kind, entries, found := strings.Cut(line, "="); found && section == chosenSection {
+			chosen[strings.TrimSpace(kind)], _, _ = strings.Cut(strings.TrimSpace(entries), ";")
+		}
+	}
+	return chosen
+}
+
+func (context *Context) notChosen(log *runlog.Log, entry string, types []string) ([]string, error) {
+	path := context.Person.Path(yourMimeApps)
+	if !fsutil.IsFile(path) {
+		return types, nil
+	}
+	text, err := context.Person.Read(log, path)
+	if err != nil {
+		return nil, err
+	}
+	chosen := chosenDefaults(text)
+	return slices.DeleteFunc(slices.Clone(types), func(kind string) bool { return chosen[kind] != "" && chosen[kind] != entry }), nil
+}
+
 func (context *Context) defaultOnce(log *runlog.Log, name, entry string, types []string) (bool, error) {
 	stamp := context.Person.Path(filepath.Join(yourDefaults, name))
 	if fsutil.IsFile(stamp) {
 		return false, nil
 	}
+	open, err := context.notChosen(log, entry, types)
+	if err != nil {
+		return false, err
+	}
 	shared := filepath.Join(env.StateDir(), "defaults", name)
-	set := !fsutil.IsFile(shared)
+	set := !fsutil.IsFile(shared) && len(open) > 0
 	if set {
-		if err := context.Person.Run(log, append([]string{"xdg-mime", "default", entry}, types...)...); err != nil {
+		if err := context.Person.Run(log, append([]string{"xdg-mime", "default", entry}, open...)...); err != nil {
 			return false, err
 		}
 	}
@@ -273,6 +319,7 @@ func (context *Context) defaultApps(log *runlog.Log) error {
 		{"pdf", viewer, []string{"application/pdf"}},
 		{"videos", "vlc.desktop", videoTypes},
 		{"archives", "org.kde.ark.desktop", archiveTypes},
+		{"text", "org.gnome.TextEditor.desktop", textTypes},
 	} {
 		if err := context.defaultApp(log, choice.name, choice.entry, choice.types); err != nil {
 			return err
@@ -335,11 +382,12 @@ func appSteps(context *Context) {
 			ahead = nil
 			return context.appInstall(log, app)
 		})
+		context.appConfig(app)
 	}
 	if context.Config.Enabled("APPS", "helium") {
 		context.heliumDefault()
 	}
-	context.Run.Step("Choose the apps that open images, PDFs, videos and archives", context.defaultApps)
+	context.Run.Step("Choose the apps that open images, PDFs, videos, archives and text files", context.defaultApps)
 	chezmoiSteps(context)
 	extrasSteps(context)
 }

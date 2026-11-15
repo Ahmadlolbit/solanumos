@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	version       = 3
+	version       = 4
 	versionKey    = "SOLANUM_CONFIG_VERSION"
 	keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 	newApps       = "imv evince obsidian localsend calculator"
+	appsNewIn4    = "texteditor"
 )
 
 var renamedThemes = map[string]string{"lumon": "northern-sea", "vantablack": "pitch-black"}
@@ -90,7 +91,7 @@ func (current *Config) Merged(path string) *Config {
 }
 
 func (current *Config) LoadText(path, text string) {
-	current.migrate(current.apply(path, text))
+	current.migrate(current.apply(path, text), true)
 	current.validate()
 }
 
@@ -105,7 +106,7 @@ func (current *Config) Merge(path string) bool {
 func (current *Config) MergeText(path, text string) {
 	text = strings.ReplaceAll(strings.TrimPrefix(text, "\ufeff"), "\r\n", "\n")
 	loaded := current.apply(path, strings.TrimSuffix(text, "\r"))
-	current.migrate(cmp.Or(loaded, strconv.Itoa(version)))
+	current.migrate(cmp.Or(loaded, strconv.Itoa(version)), false)
 	current.validate()
 }
 
@@ -215,18 +216,21 @@ func invalid(option options.Option, value, fallback string) string {
 	return "invalid " + option.Key + "='" + value + "' in the configuration, using '" + fallback + "'"
 }
 
-func (current *Config) migrate(loaded string) {
+func (current *Config) migrate(loaded string, yours bool) {
 	from, err := strconv.ParseUint(loaded, 10, 64)
 	if err != nil {
 		from = 1
 	}
-	if from < 2 {
+	if from < 2 && yours {
 		current.note("info", "updating the configuration for version 2: apps_add_new_defaults")
-		current.addNewApps()
+		current.addNewApps(newApps)
 	}
 	if from < 3 {
 		current.note("info", "updating the configuration for version 3: theme_names_update")
 		current.renameThemes()
+	}
+	if from < 4 && yours && current.addNewApps(appsNewIn4) {
+		current.note("info", "updating the configuration for version 4: apps_add_text_editor")
 	}
 }
 
@@ -241,16 +245,18 @@ func added(list, word string) string {
 	return list + " " + word
 }
 
-func (current *Config) addNewApps() {
+func (current *Config) addNewApps(ids string) bool {
 	index := slices.IndexFunc(current.options, func(option options.Option) bool { return option.Key == "APPS" })
 	defaults := current.options[index].DefaultFor(current.values["PROFILE"])
 	apps := current.values["APPS"]
-	for _, id := range strings.Fields(newApps) {
+	for _, id := range strings.Fields(ids) {
 		if listed(defaults, id) && !listed(apps, id) {
 			apps = added(apps, id)
 		}
 	}
+	changed := apps != current.values["APPS"]
 	current.values["APPS"] = apps
+	return changed
 }
 
 func (current *Config) renameThemes() {

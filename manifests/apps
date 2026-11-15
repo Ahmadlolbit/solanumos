@@ -5,6 +5,7 @@ brave browsers offered extrepo:brave_release brave-browser Brave
 chrome browsers offered extrepo:google_chrome google-chrome-stable Google Chrome
 librewolf browsers offered extrepo:librewolf librewolf LibreWolf
 torbrowser browsers offered debian torbrowser-launcher Tor Browser
+epiphany browsers offered debian epiphany-browser GNOME Web
 whatsapp chat everyday webapp - WhatsApp
 signal chat everyday extrepo:signal signal-desktop Signal
 telegram chat everyday debian telegram-desktop/backports Telegram
@@ -12,28 +13,41 @@ vesktop chat everyday release:vesktop vesktop Discord (Vesktop)
 teams chat everyday teams teams-for-linux Teams
 thunderbird chat offered debian thunderbird Thunderbird
 slack chat offered extrepo:slack slack-desktop Slack
+geary chat offered debian geary Geary (mail)
+evolution chat offered debian evolution Evolution (mail, calendar)
+element chat offered extrepo:element.io element-desktop Element (Matrix)
 libreoffice office everyday debian libreoffice,libreoffice-gtk3 LibreOffice
 obsidian office everyday release:obsidian obsidian Obsidian
 onlyoffice office offered release:onlyoffice onlyoffice-desktopeditors OnlyOffice
 xournalpp office offered debian xournalpp Xournal++
 calibre office offered debian calibre Calibre
 foliate office offered debian foliate Foliate
+pdfarranger office offered debian pdfarranger PDF Arranger
+texteditor editors everyday debian gnome-text-editor Text Editor
+kate editors offered debian kate Kate
 imv viewers minimal debian imv imv (images)
 evince viewers minimal debian evince Evince (PDFs)
 vlc viewers everyday debian vlc VLC (videos and music)
 okular viewers offered debian okular Okular (PDFs)
 mpv viewers offered debian mpv,mpv-mpris mpv (videos)
+loupe viewers offered debian loupe Loupe (images)
+celluloid viewers offered debian celluloid Celluloid (videos)
 dolphin files minimal debian dolphin,ark,kio-extras,ffmpegthumbs,kde-cli-tools Dolphin (files and archives)
 localsend files everyday release:localsend localsend LocalSend
 syncthing files offered debian syncthing Syncthing
 nextcloud files offered debian nextcloud-desktop Nextcloud
 qbittorrent files offered debian qbittorrent qBittorrent
 filezilla files offered debian filezilla FileZilla
+nautilus files offered debian nautilus Nautilus (files)
+transmission files offered debian transmission-gtk Transmission (torrents)
+thunar files offered debian thunar,tumbler Thunar (files)
 bitwarden security everyday release:bitwarden bitwarden Bitwarden
 keepassxc security offered debian keepassxc KeePassXC
 mullvad security offered extrepo:mullvad mullvad-vpn Mullvad VPN
 protonvpn security offered extrepo:protonvpn proton-vpn-gnome-desktop Proton VPN
 forticlient security offered release:forticlient forticlient FortiClient VPN
+1password security offered extrepo:1password 1password 1Password
+tailscale security offered extrepo:tailscale tailscale Tailscale (VPN)
 gimp creative offered debian gimp GIMP
 inkscape creative offered debian inkscape Inkscape
 krita creative offered debian krita Krita
@@ -48,6 +62,9 @@ shotcut media offered debian shotcut Shotcut
 obs media offered debian obs-studio OBS Studio
 handbrake media offered debian handbrake HandBrake
 kooha media offered debian kooha Kooha (screen recorder)
+amberol media offered debian amberol Amberol (music)
+foot terminals offered debian foot foot
+alacritty terminals offered debian alacritty Alacritty
 calculator system minimal debian gnome-calculator Calculator
 disks system offered debian gnome-disk-utility Disks
 gparted system offered debian gparted GParted
@@ -56,4 +73,9 @@ camera system offered debian gnome-snapshot Camera
 scanner system offered debian simple-scan Scanner
 remmina system offered debian remmina Remmina (remote desktop)
 chezmoi system offered release:chezmoi chezmoi chezmoi (dotfiles)
+kdeconnect system offered debian kdeconnect KDE Connect (phone link)
+systemmonitor system offered debian gnome-system-monitor System Monitor
+dejadup system offered debian deja-dup Deja Dup (backups)
+btrfsassistant system offered debian btrfs-assistant Btrfs Assistant (snapshots)
 lutris games offered debian lutris Lutris
+supertuxkart games offered debian supertuxkart SuperTuxKart

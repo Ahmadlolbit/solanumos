@@ -40,9 +40,9 @@ func trustShow() int {
 }
 
 func trustNews(name string, trusted, applied bool) string {
-	news := name + " isn't trusted any more, so LocalSend can't receive files on it"
+	news := name + " isn't trusted any more, so LocalSend and KDE Connect can't reach this computer on it"
 	if trusted {
-		news = name + " is trusted now, so LocalSend can receive files on it"
+		news = name + " is trusted now, so LocalSend and KDE Connect can reach this computer on it"
 	}
 	if !applied {
 		news += ", from the next time you connect to it"

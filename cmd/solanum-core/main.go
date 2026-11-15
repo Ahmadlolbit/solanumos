@@ -43,7 +43,7 @@ USAGE
   solanum keyboard [LAYOUT]        Show the keyboard layout, list them (list), or set one (run it with sudo)
   solanum battery-limit [N|off]    Show or set where charging stops, 50 to 100 (run it with sudo to set it)
   solanum trust [on|off]           Show or set whether you trust the network you're on (run it without sudo);
-                                     LocalSend can receive files only on networks you trust
+                                     LocalSend and KDE Connect can reach this computer only on networks you trust
   solanum update [PART]            Update everything (run it without sudo): a snapshot, Debian, the apps,
                                      then Solanum and its installer; PART is system, apps or solanum
   solanum changes                  Show what the last solanum update changed
