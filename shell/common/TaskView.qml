@@ -19,11 +19,21 @@ FocusScope {
         126: "Cancelled",
         130: "Stopped"
       })[code] || "Failed"
-  readonly property string reason: !running && code !== -1 && code !== 0 && code !== 130 ? task.reason.split("\n").filter(line => line.trim()).pop() || "" : ""
+  readonly property string reason: !running && code !== -1 && code !== 0 && code !== 130 ? failure() : ""
   readonly property var hints: (choosing ? [[["Left", "Right"], "pick"], ["Enter", "answer"]] : question ? [["Enter", "answer"]] : []).concat([["L", logShown ? "hide log" : "show log"], [["Up", "Down"], "scroll"], ["Tab", "next"]])
   readonly property int textColumn: 8 + Theme.size(12) + 8 + Math.ceil(widest.advanceWidth) + 8
 
   signal closed
+
+  function failure() {
+    const line = task.reason.split("\n").filter(text => text.trim()).pop() || "";
+    const wanted = line.toLowerCase();
+    for (let index = 0; index < task.rows.count; index++) {
+      if (task.rows.get(index).text.toLowerCase().includes(wanted))
+        return "";
+    }
+    return line;
+  }
 
   function settle() {
     if (choosing)
