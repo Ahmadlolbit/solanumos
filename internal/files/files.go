@@ -239,12 +239,17 @@ func (deployer *Deployer) existing(target string, data []byte, mode os.FileMode,
 		return true, nil
 	case known != "" && found != known:
 		return true, deployer.keepEdits(target, data, mode, owner)
-	case known != "":
+	case known != "" || deployer.asSaved(target, found):
 		return false, nil
 	case fsutil.Exists(target+oldSuffix) || fsutil.Exists(target+oldname.OldSuffix) || deployer.inHome(target):
 		return true, deployer.keepEdits(target, data, mode, owner)
 	}
 	return false, deployer.saveOld(target)
+}
+
+func (deployer *Deployer) asSaved(target, found string) bool {
+	saved := savedOriginal(target)
+	return !deployer.inHome(target) && fsutil.Exists(saved) && current(saved) == found
 }
 
 func (deployer *Deployer) deploy(data []byte, target string, mode os.FileMode, owner string) (bool, error) {

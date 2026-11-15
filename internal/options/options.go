@@ -2,6 +2,7 @@ package options
 
 import (
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ const (
 	lightAt   = "05:00 06:00 07:00 08:00 09:00"
 	extras    = "flatpak@offered gaming@offered printing@offered distrobox@offered"
 	miseTools = "mise-node@minimal mise-python@offered mise-java@offered mise-go@offered"
+	safeText  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._:/@+,-~"
 )
 
 type Facts struct {
@@ -42,7 +44,16 @@ type Option struct {
 
 var profiles = []string{"minimal", "everyday", "developer"}
 
-var sources = map[string]string{"teams": "TEAMS_SOURCE"}
+type format struct {
+	valid func(string) bool
+	takes string
+}
+
+var (
+	sources       = map[string]string{"teams": "TEAMS_SOURCE"}
+	formats       = map[string]format{"DEBIAN_MIRROR": {mirrors, "the mirror's address, such as https://deb.debian.org/debian"}}
+	mirrorAddress = regexp.MustCompile(`^(mirror\+)?(https?://[^/]|file:(/|///)[^/])`)
+)
 
 var table = []Option{
 	{"PROFILE", "Profile", Choice, "developer", "developer everyday minimal", "profile", "Presets for apps and tools: minimal, everyday, or developer (everything)", nil},
@@ -239,7 +250,29 @@ func (option Option) Items() []string {
 	return words
 }
 
+func SafeText(character rune) bool {
+	return strings.ContainsRune(safeText, character)
+}
+
+func Keepable(value string) bool {
+	return strings.Trim(value, safeText) == ""
+}
+
+func (option Option) Refusal(value string) string {
+	format, found := formats[option.Key]
+	switch {
+	case !Keepable(value):
+		return option.Key + " takes only English letters, digits, spaces, slashes and . , _ : @ + - ~"
+	case found:
+		return option.Key + " takes " + format.takes
+	}
+	return value + " isn't a value for " + option.Key
+}
+
 func (option Option) Valid(value string) bool {
+	if !Keepable(value) {
+		return false
+	}
 	switch option.Kind {
 	case Choice:
 		return slices.Contains(option.Items(), value)
@@ -250,8 +283,16 @@ func (option Option) Valid(value string) bool {
 	case Multi:
 		items := option.Items()
 		return len(items) == 0 || !slices.ContainsFunc(strings.Fields(value), func(word string) bool { return !slices.Contains(items, word) })
+	case Text:
+		format, found := formats[option.Key]
+		return !found || format.valid(value)
 	}
 	return true
+}
+
+func mirrors(value string) bool {
+	addresses := strings.Fields(value)
+	return len(addresses) > 0 && !slices.ContainsFunc(addresses, func(address string) bool { return !mirrorAddress.MatchString(address) })
 }
 
 func whole(value string) bool {

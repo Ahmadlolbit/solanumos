@@ -136,10 +136,14 @@ func (context *Context) sddmThemeInstall(log *runlog.Log) error {
 	if err := context.Deploy.Tree("system/sddm/solanum", filepath.Join(sddmThemes(), sddmTheme)); err != nil {
 		return err
 	}
+	mark := filepath.Join(env.StateDir(), "releases", "catppuccin-sddm")
+	if !fsutil.Exists(mark) {
+		return nil
+	}
 	if err := context.Deploy.RemoveTree(filepath.Join(sddmThemes(), oldSddmTheme)); err != nil {
 		return err
 	}
-	return os.RemoveAll(filepath.Join(env.StateDir(), "releases", "catppuccin-sddm"))
+	return os.RemoveAll(mark)
 }
 
 func sddmThemeReady(*runlog.Log) error {

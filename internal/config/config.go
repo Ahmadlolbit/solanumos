@@ -18,11 +18,10 @@ import (
 )
 
 const (
-	version        = 3
-	versionKey     = "SOLANUM_CONFIG_VERSION"
-	keyCharacters  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
-	safeCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._:/@+,-~"
-	newApps        = "imv evince obsidian localsend calculator"
+	version       = 3
+	versionKey    = "SOLANUM_CONFIG_VERSION"
+	keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+	newApps       = "imv evince obsidian localsend calculator"
 )
 
 var renamedThemes = map[string]string{"lumon": "northern-sea", "vantablack": "pitch-black"}
@@ -135,7 +134,7 @@ func (current *Config) ResetProfile() {
 }
 
 func SafeText(character rune) bool {
-	return strings.ContainsRune(safeCharacters, character)
+	return options.SafeText(character)
 }
 
 func (current *Config) Tick(key, item string) {
@@ -162,7 +161,7 @@ func parseLine(line string) (string, string, bool) {
 		return "", "", false
 	}
 	value := rest[1 : len(rest)-1]
-	return key, value, strings.Trim(value, safeCharacters) == ""
+	return key, value, options.Keepable(value)
 }
 
 func (current *Config) note(level, text string) {

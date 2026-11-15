@@ -32,7 +32,14 @@ func mark(log *runlog.Log, how string, names []string) error {
 }
 
 func putBack(log *runlog.Log, manual []string, cause error) error {
-	if err := mark(log, "manual", manual); err != nil {
+	if len(manual) == 0 {
+		return cause
+	}
+	output, err := run.CaptureTo(run.Minute, log, "apt-mark", append([]string{"manual"}, manual...)...)
+	if output != "" {
+		fmt.Fprintln(log, output)
+	}
+	if err != nil {
 		return errors.Join(cause, err)
 	}
 	return cause

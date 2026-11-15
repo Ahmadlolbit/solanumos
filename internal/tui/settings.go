@@ -15,8 +15,10 @@ import (
 const (
 	twoValues   = 2
 	kernelKey   = "KERNEL"
+	mirrorKey   = "DEBIAN_MIRROR"
 	liveKernel  = "backports"
 	safeRefused = "Only English letters, digits, spaces, slashes and . , _ : @ + - ~"
+	mirrorWrong = "Type the mirror's address, such as https://deb.debian.org/debian"
 )
 
 type section struct {
@@ -102,6 +104,9 @@ func (flow *wizard) fieldRow(option options.Option) row {
 		valid:   func(text string) bool { return (text != "" || option.DefaultFor("") == "") && option.Valid(text) },
 		set:     func(text string) { flow.settings.Set(option.Key, text) },
 		refused: safeRefused,
+	}
+	if option.Key == mirrorKey {
+		line.input.wrong = mirrorWrong
 	}
 	if option.Kind == options.Number {
 		line.input.allow = digit

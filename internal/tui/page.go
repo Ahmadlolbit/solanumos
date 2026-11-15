@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"strings"
@@ -29,6 +30,7 @@ type field struct {
 	valid   func(string) bool
 	set     func(string)
 	refused string
+	wrong   string
 	small   bool
 	replace bool
 	secret  bool
@@ -266,7 +268,7 @@ func (view *page) commit() {
 	case text == "":
 		view.wizard.notice = emptyRefused
 	default:
-		view.wizard.notice = line.input.refused
+		view.wizard.notice = cmp.Or(line.input.wrong, line.input.refused)
 	}
 	view.draft = nil
 }
