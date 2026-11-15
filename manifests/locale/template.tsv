@@ -260,7 +260,7 @@ Linux
 Load a configuration file	
 Load configuration	
 Loaded %s	
-LocalSend opens only on networks you trust	
+LocalSend and KDE Connect open only on networks you trust	
 Lock after (minutes)	
 Lock the screen when you're away; it turns off 30 s later; 0 = never, and the screen turns off 10 minutes after the screensaver starts, or after 10 minutes without one	
 Login screen	
@@ -299,7 +299,7 @@ Now and then a tip as a notification, at most once a day
 Now playing on the lock screen	
 Only English letters, digits and signs: the boot prompt may misread others	
 Only English letters, digits, spaces, slashes and . , _ : @ + - ~	
-Open LocalSend only on networks you trust	
+Open LocalSend and KDE Connect only on networks you trust	
 Open the filesystem	
 Open the new system	
 Optional parts, set up only if you tick them: Flatpak with the Bazaar store, Steam with GameMode and MangoHud, printing and scanning, and distrobox	

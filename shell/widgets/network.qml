@@ -222,7 +222,7 @@ Label {
       visible: root.trustedName !== ""
       Layout.fillWidth: true
       Layout.preferredWidth: Theme.size(300)
-      text: root.trusted ? "LocalSend can receive files on " + root.trustedName : "LocalSend can't receive files on " + root.trustedName
+      text: root.trusted ? "LocalSend and KDE Connect can reach this computer on " + root.trustedName : "LocalSend and KDE Connect can't reach this computer on " + root.trustedName
       color: Theme.subtext
       wrapMode: Text.WordWrap
     }
