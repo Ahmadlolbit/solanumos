@@ -197,12 +197,7 @@ Scope {
       focus: true
       Keys.onPressed: event => event.accepted = root.key(event)
 
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 200
-          easing.type: Easing.OutCubic
-        }
-      }
+      Fade on opacity {}
 
       MouseArea {
         anchors.fill: parent

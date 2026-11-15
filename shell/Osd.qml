@@ -65,7 +65,7 @@ Scope {
   }
 
   PanelWindow {
-    visible: root.shown
+    visible: root.shown || frame.opacity > 0
     anchors.bottom: true
     margins.bottom: 96
     exclusiveZone: 0
@@ -77,10 +77,15 @@ Scope {
     WlrLayershell.namespace: "solanum-osd"
 
     Rectangle {
+      id: frame
+
       anchors.fill: parent
+      opacity: root.shown ? 1 : 0
       color: Theme.panel
       border.color: Theme.accent
       border.width: 2
+
+      Fade on opacity {}
 
       Label {
         id: glyph

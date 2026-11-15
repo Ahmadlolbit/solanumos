@@ -108,12 +108,7 @@ Scope {
         event.accepted = true;
       }
 
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.OutCubic
-        }
-      }
+      Fade on opacity {}
 
       Rectangle {
         anchors.centerIn: parent
