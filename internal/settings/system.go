@@ -136,7 +136,19 @@ func paired(rows []Row) []Row {
 		case yoursOf[row.Name] != "":
 			rows[index].Twin = yoursOf[row.Name]
 			rows[index].Help = strings.TrimSuffix(forOthers+". "+row.Help, ". ")
+			if twin, found := Find(rows, yoursOf[row.Name]); found {
+				rows[index].Choices = inYourWords(row.Choices, twin.Choices)
+			}
 		}
 	}
 	return rows
+}
+
+func inYourWords(choices, yours []Choice) []Choice {
+	for index, choice := range choices {
+		if at := slices.IndexFunc(yours, func(word Choice) bool { return word.Value == choice.Value }); at >= 0 {
+			choices[index].Label = yours[at].Label
+		}
+	}
+	return choices
 }
