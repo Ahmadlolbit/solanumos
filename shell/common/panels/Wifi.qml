@@ -106,13 +106,11 @@ ColumnLayout {
     color: Theme.subtext
   }
 
-  ListView {
+  Rows {
     id: list
 
-    visible: count > 0
     Layout.fillWidth: true
     Layout.preferredHeight: Math.min(contentHeight, 300)
-    clip: true
     spacing: 2
     model: ScriptModel {
       values: root.wifi && Networking.wifiEnabled ? root.wifi.networks.values.filter(item => item.name !== "").sort((a, b) => b.connected - a.connected || root.strength(b) - root.strength(a)) : []
@@ -124,6 +122,7 @@ ColumnLayout {
       required property var modelData
 
       width: list.width
+      activeFocusOnTab: false
       icon: root.signalIcon(root.strength(modelData))
       label: modelData.name
       detail: modelData.connected ? "Connected" : modelData.stateChanging ? "Connecting..." : modelData.known ? "Saved" : root.open(modelData) ? "" : "\u{f033e}"
@@ -202,17 +201,13 @@ ColumnLayout {
     wrapMode: Text.WordWrap
   }
 
-  Label {
-    text: "More settings"
-    color: Theme.accent
-
-    MouseArea {
-      anchors.fill: parent
-      cursorShape: Qt.PointingHandCursor
-      onClicked: {
-        root.done();
-        Quickshell.execDetached(["kitty", "--class", "nmtui", "-e", "nmtui-connect"]);
-      }
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f013}"
+    label: "More settings"
+    onClicked: {
+      root.done();
+      Quickshell.execDetached(["kitty", "--class", "nmtui", "-e", "nmtui-connect"]);
     }
   }
 

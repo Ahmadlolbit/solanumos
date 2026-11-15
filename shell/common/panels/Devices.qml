@@ -78,13 +78,11 @@ ColumnLayout {
     color: Theme.subtext
   }
 
-  ListView {
+  Rows {
     id: list
 
-    visible: count > 0
     Layout.fillWidth: true
     Layout.preferredHeight: Math.min(contentHeight, 300)
-    clip: true
     spacing: 2
     model: ScriptModel {
       values: root.adapter && root.adapter.enabled ? root.devices.filter(device => device.paired || root.adapter.discovering).sort((a, b) => b.connected - a.connected || b.paired - a.paired || a.name.localeCompare(b.name)) : []
@@ -96,6 +94,7 @@ ColumnLayout {
       required property var modelData
 
       width: list.width
+      activeFocusOnTab: false
       icon: root.deviceIcon(modelData)
       label: modelData.name || modelData.address
       detail: root.detail(modelData)
@@ -117,33 +116,21 @@ ColumnLayout {
     }
   }
 
-  RowLayout {
-    spacing: 16
+  Choice {
+    Layout.fillWidth: true
+    visible: root.adapter !== null && root.adapter.enabled
+    icon: "\u{f002}"
+    label: root.adapter && root.adapter.discovering ? "Stop scanning" : "Scan"
+    onClicked: root.adapter.discovering = !root.adapter.discovering
+  }
 
-    Label {
-      visible: root.adapter !== null && root.adapter.enabled
-      text: root.adapter && root.adapter.discovering ? "Stop scanning" : "Scan"
-      color: Theme.accent
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.adapter.discovering = !root.adapter.discovering
-      }
-    }
-
-    Label {
-      text: "More settings"
-      color: Theme.accent
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: {
-          root.done();
-          Quickshell.execDetached(["blueman-manager"]);
-        }
-      }
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f013}"
+    label: "More settings"
+    onClicked: {
+      root.done();
+      Quickshell.execDetached(["blueman-manager"]);
     }
   }
 }

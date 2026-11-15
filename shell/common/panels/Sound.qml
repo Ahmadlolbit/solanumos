@@ -72,15 +72,10 @@ ColumnLayout {
     Layout.fillWidth: true
     spacing: 10
 
-    Label {
-      text: root.icon()
-      color: root.muted ? Theme.subtext : Theme.text
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.mute(root.sink)
-      }
+    Button {
+      Layout.preferredWidth: Theme.size(30)
+      label: root.icon()
+      onClicked: root.mute(root.sink)
     }
 
     Slider {
@@ -129,15 +124,10 @@ ColumnLayout {
       Layout.fillWidth: true
       spacing: 10
 
-      Label {
-        text: app.muted ? "\u{f075b}" : "\u{f075a}"
-        color: app.muted ? Theme.subtext : Theme.text
-
-        MouseArea {
-          anchors.fill: parent
-          cursorShape: Qt.PointingHandCursor
-          onClicked: root.mute(app.modelData)
-        }
+      Button {
+        Layout.preferredWidth: Theme.size(30)
+        label: app.muted ? "\u{f075b}" : "\u{f075a}"
+        onClicked: root.mute(app.modelData)
       }
 
       Label {
@@ -169,15 +159,10 @@ ColumnLayout {
     Layout.fillWidth: true
     spacing: 10
 
-    Label {
-      text: root.micMuted ? "\u{f036d}" : "\u{f036c}"
-      color: root.micMuted ? Theme.critical : Theme.text
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.mute(root.source)
-      }
+    Button {
+      Layout.preferredWidth: Theme.size(30)
+      label: root.micMuted ? "\u{f036d}" : "\u{f036c}"
+      onClicked: root.mute(root.source)
     }
 
     Slider {
@@ -207,17 +192,13 @@ ColumnLayout {
     }
   }
 
-  Label {
-    text: "More settings"
-    color: Theme.accent
-
-    MouseArea {
-      anchors.fill: parent
-      cursorShape: Qt.PointingHandCursor
-      onClicked: {
-        root.done();
-        Quickshell.execDetached(["pavucontrol"]);
-      }
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f013}"
+    label: "More settings"
+    onClicked: {
+      root.done();
+      Quickshell.execDetached(["pavucontrol"]);
     }
   }
 }
