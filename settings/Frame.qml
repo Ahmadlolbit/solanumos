@@ -48,8 +48,38 @@ FocusScope {
         name: "header.everyone"
       }
     ] : []
-  readonly property var items: headers.concat(Store.shown.filter(row => !everyone.includes(row)), heading, everyone)
+  readonly property var items: headers.concat(Store.shown.filter(row => !everyone.some(other => other.name === row.name)), heading, everyone)
   readonly property var focused: list.currentItem ? list.currentItem.item : null
+
+  function sync() {
+    const kept = index < listed.count ? listed.get(index).name : "";
+    const unique = items.filter((item, at) => items.findIndex(other => other.name === item.name) === at);
+    const names = unique.map(item => item.name);
+    for (let at = listed.count - 1; at >= 0; at--) {
+      if (!names.includes(listed.get(at).name))
+        listed.remove(at);
+    }
+    unique.forEach((item, at) => {
+      const json = JSON.stringify(item);
+      let from = at;
+      while (from < listed.count && listed.get(from).name !== item.name)
+        from++;
+      if (from === listed.count)
+        listed.insert(at, {
+          name: item.name,
+          json: json
+        });
+      else if (from !== at)
+        listed.move(from, at, 1);
+      if (listed.get(at).json !== json)
+        listed.setProperty(at, "json", json);
+    });
+    if (listed.count > names.length)
+      listed.remove(names.length, listed.count - names.length);
+    const back = names.indexOf(kept);
+    index = back >= 0 ? back : Math.max(0, Math.min(index, names.length - 1));
+    list.currentIndex = index;
+  }
 
   function move(step) {
     if (zone === "pages" && Store.pages.length) {
@@ -151,6 +181,9 @@ FocusScope {
   }
 
   focus: true
+  Component.onCompleted: sync()
+  onItemsChanged: sync()
+  onIndexChanged: list.currentIndex = index
   onEditingChanged: {
     if (!editing)
       frame.forceActiveFocus();
@@ -167,6 +200,10 @@ FocusScope {
       if (frame.zone !== "pages")
         frame.index = 0;
     }
+  }
+
+  ListModel {
+    id: listed
   }
 
   Rectangle {
@@ -239,8 +276,8 @@ FocusScope {
       anchors.topMargin: 12
       clip: true
       spacing: 8
-      model: frame.items
-      currentIndex: frame.index
+      cacheBuffer: 100000
+      model: listed
       highlightMoveDuration: 0
       boundsBehavior: Flickable.StopAtBounds
       onCurrentIndexChanged: keepShown()
@@ -249,8 +286,10 @@ FocusScope {
       delegate: Loader {
         id: holder
 
-        required property var modelData
+        required property string name
+        required property string json
         required property int index
+        readonly property var entry: JSON.parse(json)
 
         width: ListView.view.width
         sourceComponent: ({
@@ -259,16 +298,16 @@ FocusScope {
             maker: makerPart,
             pictures: picturesPart,
             everyone: everyonePart
-          })[modelData.kind] || rowPart
+          })[entry.kind] || rowPart
 
         Component {
           id: rowPart
 
           RowItem {
-            row: holder.modelData
+            row: holder.entry
             current: holder.index === frame.index && frame.zone === "rows"
             searching: !!Store.search
-            grouped: frame.everyone.some(row => row.name === holder.modelData.name)
+            grouped: frame.everyone.some(row => row.name === holder.name)
             onChosen: frame.choose(row)
             onEditingChanged: frame.editing = editing
             onPointed: frame.index = holder.index
@@ -344,7 +383,7 @@ FocusScope {
           id: picturesPart
 
           Pictures {
-            every: holder.modelData.every
+            every: holder.entry.every
             current: holder.index === frame.index && frame.zone === "rows"
             onPointed: frame.index = holder.index
           }
