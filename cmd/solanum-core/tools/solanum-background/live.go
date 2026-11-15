@@ -65,7 +65,12 @@ func lifeOn() int {
 }
 
 func liveOff() int {
-	if err := look.Open().Put("logo", "off"); err != nil {
+	settings := look.Open()
+	if _, live := liveStills[settings.Get("logo")]; !live {
+		fmt.Println("The live wallpaper is already off")
+		return 0
+	}
+	if err := settings.Put("logo", "off"); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
