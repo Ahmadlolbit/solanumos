@@ -86,7 +86,7 @@ func systemRow(option options.Option, facts options.Facts) Row {
 	row := Row{Name: option.Key, Label: option.Label, Page: systemRows[option.Key].page, Section: systemSections[option.Key], Kind: kind, Value: facts.Value(option.Key), Whose: Computer,
 		Help: option.Help, Hidden: !option.Shows(facts), Min: low, Max: high, Multiple: option.Kind == options.Multi}
 	if kind == Slide {
-		row.Step = 1
+		row.Step, row.Unit = 1, unitOf(option.Key)
 	}
 	if kind == Pick {
 		row.Choices = systemChoices(option)
@@ -95,6 +95,16 @@ func systemRow(option options.Option, facts options.Facts) Row {
 		row.After = "restart"
 	}
 	return row
+}
+
+func unitOf(key string) string {
+	switch {
+	case strings.HasSuffix(key, "_MINUTES"):
+		return "min"
+	case strings.HasSuffix(key, "_PERCENT"):
+		return "%"
+	}
+	return ""
 }
 
 func systemChoices(option options.Option) []Choice {

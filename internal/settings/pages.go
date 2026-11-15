@@ -40,6 +40,7 @@ type Row struct {
 	Min      float64  `json:"min,omitempty"`
 	Max      float64  `json:"max,omitempty"`
 	Step     float64  `json:"step,omitempty"`
+	Unit     string   `json:"unit,omitempty"`
 	Whose    string   `json:"whose"`
 	Twin     string   `json:"twin,omitempty"`
 	After    string   `json:"after,omitempty"`

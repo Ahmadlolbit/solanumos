@@ -134,7 +134,7 @@ func yourRow(row yours, settings *look.Store) Row {
 	}
 	switch row.key {
 	case "night_warmth":
-		shown.Min, shown.Max, shown.Step = 1000, 6500, 100
+		shown.Min, shown.Max, shown.Step, shown.Unit = 1000, 6500, 100, "K"
 	case "trackpoint_speed":
 		shown.Min, shown.Max, shown.Step = -1, 1, 0.1
 	case "reader":

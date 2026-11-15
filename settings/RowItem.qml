@@ -46,6 +46,12 @@ Rectangle {
     return true;
   }
 
+  function amount(value) {
+    if (row.unit === "min" && Number(value) === 0)
+      return "Never";
+    return row.unit ? value + " " + row.unit : String(value);
+  }
+
   function edit() {
     editor.text = row.value;
     editing = true;
@@ -143,9 +149,20 @@ Rectangle {
       }
 
       Label {
-        Layout.preferredWidth: Theme.size(56)
-        text: item.row.value
+        id: reading
+
+        Layout.preferredWidth: Math.ceil(Math.max(digits.advanceWidth(item.amount(item.row.min)), digits.advanceWidth(item.amount(item.row.max))))
+        text: item.amount(item.row.value)
         horizontalAlignment: Text.AlignRight
+        font.features: ({
+            "tnum": 1
+          })
+
+        FontMetrics {
+          id: digits
+
+          font: reading.font
+        }
       }
     }
 
