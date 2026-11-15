@@ -22,3 +22,5 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cmd/solanum-core/tools/snapper-rollback is a Go rewrite of snapper-rollback by jrabinow (https://github.com/jrabinow/snapper-rollback), GPL-3.0.
+
+system/fonts/departure-mono holds Departure Mono by Helena Zhang (https://github.com/rektdeckard/departure-mono), under the SIL Open Font License 1.1, whose text is OFL.txt beside it.

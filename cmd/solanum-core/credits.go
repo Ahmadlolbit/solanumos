@@ -16,7 +16,7 @@ var (
 	}
 	otherCredits = [][2]string{
 		{"Walker", "GPL-3.0"}, {"Elephant", "GPL-3.0"}, {"adw-gtk3", "LGPL-2.1"}, {"Bibata cursors", "GPL-3.0"},
-		{"JetBrains Mono Nerd Font", "OFL-1.1"}, {"Starship", "ISC"}, {"Catppuccin for SDDM", "MIT"},
+		{"JetBrains Mono Nerd Font", "OFL-1.1"}, {"Departure Mono", "OFL-1.1"}, {"Starship", "ISC"}, {"Catppuccin for SDDM", "MIT"},
 		{"Bubble Tea, Lip Gloss and the Charm libraries", "MIT"}, {"Go and golang.org/x", "BSD-3-Clause"},
 	}
 	debianCredits = []string{"hyprland", "hyprlock", "hypridle", "hyprpaper", "hyprsunset", "xdg-desktop-portal-hyprland",

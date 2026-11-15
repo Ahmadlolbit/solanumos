@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
-	"image/color"
 	"io/fs"
 	"math/rand/v2"
 	"os"
@@ -120,16 +119,16 @@ func splashFiles(current theme) ([][2]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent))
+	steps := burst.Steps()
+	script := follow.Fill(string(data), "BACKGROUND="+follow.Floats(current.background), "FOREGROUND="+follow.Floats(current.foreground), "ACCENT="+follow.Floats(current.accent),
+		"MUTED="+follow.Floats(current.muted), "FRAMES="+strconv.Itoa(len(steps)), "MARK="+strconv.Itoa(burst.Mark()), "HOLDS="+holds(steps))
 	files := [][2]string{{filepath.Join(plymouthDir, "solanum.script"), script}}
-	channels := follow.Channels(current.accent)
-	paint := color.NRGBA{R: uint8(channels[0]), G: uint8(channels[1]), B: uint8(channels[2]), A: 255}
 	for _, scale := range []int{4, 8} {
-		picture, err := burst.PNG(scale, paint)
+		pictures, err := logoFiles(scale, steps, opaque(current.accent))
 		if err != nil {
 			return nil, err
 		}
-		files = append(files, [2]string{filepath.Join(plymouthDir, fmt.Sprintf("burst-%d.png", scale)), string(picture)})
+		files = append(files, pictures...)
 	}
 	return files, nil
 }
@@ -154,15 +153,6 @@ func owe(files [][2]string) error {
 		}
 	}
 	return nil
-}
-
-func menu(current theme) bool {
-	_, err := render(filepath.Join(templates, "theme.txt"), filepath.Join(grubDir, "theme.txt"), "BACKGROUND="+current.background,
-		"FOREGROUND="+current.foreground, "ACCENT="+current.accent, "MUTED="+current.muted)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-	return err == nil
 }
 
 func console(current theme) bool {

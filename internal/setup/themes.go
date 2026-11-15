@@ -45,6 +45,9 @@ const (
 	unitFolder     = "/etc/systemd/system/"
 	splashScript   = "/usr/share/plymouth/themes/solanum/"
 	grubFont       = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+	grubFace       = "JetBrains Mono"
+	displayFonts   = "system/fonts/departure-mono"
+	grubRanges     = "0x20-0x7E,0xA0-0x52F,0x2000-0x206F,0x2190-0x21FF,0x2500-0x259F"
 	btopTheme      = `color_theme = "solanum"`
 	btopSetting    = "color_theme = "
 )
@@ -91,6 +94,10 @@ func grubThemeDir() string {
 
 func grubSettings() string {
 	return env.Or("SOLANUM_GRUB_SETTINGS", "/etc/default/grub.d/solanum.cfg")
+}
+
+func displayFontDir() string {
+	return env.Or("SOLANUM_DISPLAY_FONT_DIR", "/usr/local/share/fonts/departure-mono")
 }
 
 func followFile(name string) string {
@@ -516,6 +523,21 @@ func (theme *themeRun) bootSplashInstall(log *runlog.Log) error {
 	return theme.splashFile("initramfs/drm-modules", "/usr/share/initramfs-tools/modules.d/solanum-drm")
 }
 
+func (theme *themeRun) displayFontInstall(log *runlog.Log) error {
+	fresh := false
+	for _, name := range []string{"DepartureMono-Regular.otf", "OFL.txt"} {
+		changed, err := theme.Deploy.Changed(filepath.Join(displayFonts, name), filepath.Join(displayFontDir(), name))
+		if err != nil {
+			return err
+		}
+		fresh = fresh || changed
+	}
+	if !fresh {
+		return nil
+	}
+	return run.Logged(log, "fc-cache", "-f", displayFontDir())
+}
+
 func (theme *themeRun) grubThemeInstall(log *runlog.Log) error {
 	if theme.Config.Get("BOOT_MENU_THEME") != "yes" {
 		return nil
@@ -526,14 +548,26 @@ func (theme *themeRun) grubThemeInstall(log *runlog.Log) error {
 	if err := os.MkdirAll(grubThemeDir(), programMode); err != nil {
 		return err
 	}
+	if err := theme.grubFonts(log, "dejavu", grubFont); err != nil {
+		return err
+	}
+	face := filepath.Join(fontDir(), fontPrefix+"-Regular.ttf")
+	if !fsutil.IsFile(face) {
+		return nil
+	}
+	return theme.grubFonts(log, "jetbrains", face, "-n", grubFace, "-r", grubRanges)
+}
+
+func (theme *themeRun) grubFonts(log *runlog.Log, name, source string, args ...string) error {
 	for _, size := range []string{"16", "20", "28"} {
-		font := filepath.Join(grubThemeDir(), "dejavu-"+size+".pf2")
+		font := filepath.Join(grubThemeDir(), name+"-"+size+".pf2")
 		if fsutil.IsFile(font) {
 			continue
 		}
-		if err := run.Logged(log, "grub-mkfont", "-s", size, "-o", font, grubFont); err != nil {
+		if err := run.Logged(log, "grub-mkfont", append(args, "-s", size, "-o", font, source)...); err != nil {
 			return err
 		}
+		theme.grubUpdate.need(true)
 	}
 	return nil
 }
@@ -727,6 +761,7 @@ func themeSteps(context *Context) {
 	theme := &themeRun{Context: context, bootImage: followUp{name: "boot-image"}, grubUpdate: followUp{name: "update-grub"}, consoleFont: followUp{name: "console-font"},
 		consoleUnit: followUp{name: "console-unit"}, followUnits: followUp{name: "follow-units"}}
 	context.Run.Step("Install theme packages", packages("themes"))
+	context.Run.Step("Install Departure Mono", theme.displayFontInstall)
 	context.Run.Step("Move your themes to their new folders", theme.migrate)
 	context.Run.Step("Install the themes", theme.themesInstall)
 	context.Run.Step("Install the base for GTK themes", theme.gtkBaseInstall)
@@ -755,6 +790,7 @@ func themeChecks(context *Context) {
 		return expect(service.Enabled(followPath), followPath+" isn't enabled")
 	})
 	context.Run.Check("The look settings are written", func(*runlog.Log) error { return fileThere(lookConf()) })
+	context.Run.Check("Departure Mono is installed", filesCheck(filepath.Join(displayFontDir(), "DepartureMono-Regular.otf")))
 	if context.Config.Get("SCREEN_READER") == "yes" {
 		context.Run.Check("The screen reader is installed", func(log *runlog.Log) error { return apt.ListsPresent(log, "screen-reader") })
 	}
