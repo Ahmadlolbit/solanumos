@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
@@ -49,10 +50,49 @@ func notifyChanges(dir string) int {
 	return 0
 }
 
+type changeGroup struct {
+	Heading string   `json:"heading"`
+	Items   []string `json:"items"`
+}
+
+type changeNotes struct {
+	Date   string        `json:"date"`
+	Groups []changeGroup `json:"groups"`
+}
+
+func notesGroups(text string) []changeGroup {
+	groups := []changeGroup{}
+	for _, line := range strings.Split(text, "\n") {
+		item, listed := strings.CutPrefix(line, "  - ")
+		switch {
+		case strings.TrimSpace(line) == "":
+		case !listed:
+			groups = append(groups, changeGroup{Heading: line, Items: []string{}})
+		case len(groups) == 0:
+			groups = append(groups, changeGroup{Items: []string{item}})
+		default:
+			groups[len(groups)-1].Items = append(groups[len(groups)-1].Items, item)
+		}
+	}
+	return groups
+}
+
+func changesJSON(dir string) int {
+	path := filepath.Join(dir, "changes.txt")
+	notes := changeNotes{Groups: notesGroups(fsutil.Optional(path))}
+	if info, err := os.Stat(path); err == nil && len(notes.Groups) > 0 {
+		notes.Date = info.ModTime().Format(time.RFC3339)
+	}
+	return printed(notes)
+}
+
 func changes() int {
 	dir := changesDir()
-	if env.Arg(2) == "--notify" {
+	switch env.Arg(2) {
+	case "--notify":
 		return notifyChanges(dir)
+	case "--json":
+		return changesJSON(dir)
 	}
 	if text := fsutil.Optional(filepath.Join(dir, "changes.txt")); text != "" {
 		say(text + "\n")

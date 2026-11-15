@@ -52,7 +52,8 @@ USAGE
                                      LocalSend and KDE Connect can reach this computer only on networks you trust
   solanum update [PART]            Update everything (run it without sudo): a snapshot, Debian, the apps,
                                      then Solanum and its installer; PART is system, apps or solanum
-  solanum changes                  Show what the last solanum update changed
+  solanum update --list --json     What's waiting to update, as JSON; changes nothing
+  solanum changes [--json]         Show what the last solanum update changed
   solanum restore [NUMBER]         List the restore points, or show what changed since one and go back to it
                                      (run it without sudo)
   solanum doctor                   Check the system and offer the safe fixes (run it with sudo)
@@ -97,7 +98,7 @@ var commands = map[string]func() int{
 	"--help":        showHelp,
 	"verbose":       verbose,
 	"changes":       changes,
-	"update":        update,
+	"update":        updateCommand,
 	"config":        configCommand,
 	"modules":       nothingAfter("modules", modulesCommand),
 	"collect":       collect,

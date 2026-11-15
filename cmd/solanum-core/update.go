@@ -148,14 +148,16 @@ func fullUpgrade() []string {
 		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade")
 }
 
+var appTools = []struct {
+	name, what, action, unasked string
+}{
+	{"flatpak", "Flatpak apps", "update", "--noninteractive"},
+	{"mise", "mise's tools", "upgrade", "--yes"},
+	{"rustup", "Rust", "update", ""},
+}
+
 func updateApps() int {
-	for _, tool := range []struct {
-		name, what, action, unasked string
-	}{
-		{"flatpak", "Flatpak apps", "update", "--noninteractive"},
-		{"mise", "mise's tools", "upgrade", "--yes"},
-		{"rustup", "Rust", "update", ""},
-	} {
+	for _, tool := range appTools {
 		if !installed(tool.name) {
 			continue
 		}
