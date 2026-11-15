@@ -122,6 +122,7 @@ Rectangle {
 
     Toggle {
       visible: item.row.kind === "toggle"
+      worded: true
       checked: item.row.value === "yes"
       onToggled: {
         item.pointed();
