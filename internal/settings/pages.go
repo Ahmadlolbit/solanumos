@@ -56,7 +56,7 @@ type Listing struct {
 }
 
 var pages = []Page{
-	{"themes", "Appearance and themes", "\uf53f", "Look", "The theme, its accent and fonts, light and dark by the clock, and themes of your own.", []string{"theme", "colours", "colors", "accent", "dark", "light", "fonts", "style", "your own theme"}},
+	{"themes", "Appearance and themes", "\U000f03d8", "Look", "The theme, its accent and fonts, light and dark by the clock, and themes of your own.", []string{"theme", "colours", "colors", "accent", "dark", "light", "fonts", "style", "your own theme"}},
 	{"wallpaper", "Wallpaper and desktop", "\uf03e", "Look", "The wallpapers, how often they change, and live wallpapers.", []string{"wallpaper", "background", "pictures", "slideshow", "logo", "life"}},
 	{"bar", "Bar, dock and menu", "\uf0c9", "Look", "The bar's layout, its widgets, the clock and the weather.", []string{"bar", "widgets", "clock", "weather", "zen"}},
 	{"windows", "Windows and workspaces", "\uf2d2", "Look", "How windows and workspaces move.", []string{"windows", "animations", "workspaces"}},
