@@ -65,7 +65,8 @@ Label {
         }
 
         Toggle {
-              checked: root.quiet
+          worded: true
+          checked: root.quiet
           onToggled: Notifications.toggleQuiet()
         }
       }

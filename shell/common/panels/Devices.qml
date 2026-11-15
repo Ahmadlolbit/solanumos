@@ -67,6 +67,7 @@ ColumnLayout {
 
     Toggle {
       visible: root.adapter !== null
+      worded: true
       checked: root.adapter ? root.adapter.enabled : false
       onToggled: root.adapter.enabled = !root.adapter.enabled
     }

@@ -112,6 +112,7 @@ ColumnLayout {
 
     Toggle {
       visible: root.wifi !== null
+      worded: true
       checked: Networking.wifiEnabled
       onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
     }
@@ -199,6 +200,7 @@ ColumnLayout {
     }
 
     Toggle {
+      worded: true
       checked: root.trusted
       onToggled: {
         trustChange.command = ["solanum", "trust", root.trusted ? "off" : "on"];
