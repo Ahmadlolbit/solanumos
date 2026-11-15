@@ -17,7 +17,7 @@ Singleton {
   property real refreshed: 0
   readonly property var shownItems: items.filter(item => item.id > cleared && !dismissed.includes(item.id))
   readonly property int newest: items.length ? Math.max(...items.map(item => item.id)) : 0
-  readonly property int unread: items.filter(item => item.id > Math.max(seen, cleared)).length
+  readonly property int unread: items.filter(item => item.id > Math.max(seen, cleared) && !dismissed.includes(item.id)).length
   readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || ""
   readonly property bool watching: watcher.running
 
