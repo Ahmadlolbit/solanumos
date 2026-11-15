@@ -161,14 +161,27 @@ func kernelAdvice(snapshotModules, boot, root string) string {
 		"open Advanced options and pick " + pick + ". Do that at every restart until the next update brings " + newest + " back.\n"
 }
 
+func comparing(number string) int {
+	text := "Comparing snapshot " + number + " with today, this can take a minute"
+	if !streamed {
+		return say(text + "...\n")
+	}
+	ui.Busy(text)
+	return 0
+}
+
 func goBack(number string) int {
 	defer cleanup.IgnoreQuit()()
 	if lock.Busy() {
 		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
-	ui.Busy("Comparing snapshot " + number + " with today, this can take a minute")
+	if code := comparing(number); code != 0 {
+		return code
+	}
 	status, err := run.Capture(run.Slow, "snapper", "-c", "root", "status", number+"..0")
-	ui.Done()
+	if streamed {
+		ui.Done()
+	}
 	if err != nil {
 		return fail("snapshot %s can't be read: see solanum restore", number)
 	}
