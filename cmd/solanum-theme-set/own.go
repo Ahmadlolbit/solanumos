@@ -84,6 +84,12 @@ func iconsFor(colors theme.Colors) string {
 	return "Yaru-dark"
 }
 
+func iconsKept(dir string, colors theme.Colors) bool {
+	first, _, _ := strings.Cut(fsutil.Optional(filepath.Join(dir, "icons.theme")), "\n")
+	icons := strings.ToLower(strings.TrimSpace(strings.TrimPrefix(first, "\ufeff")))
+	return icons != "" && (colors["mode"] != "light" || !strings.HasSuffix(icons, "-dark"))
+}
+
 func contoursOf(name string, colors theme.Colors, width, height int) ([]byte, error) {
 	return wallpaper.JPEG(wallpaper.Contours(colors, wallpaper.Seed(name), width, height))
 }
@@ -116,7 +122,7 @@ func writeOwn(name, text string, light, draw bool) error {
 	if err == nil {
 		err = atomic.Write(filepath.Join(dir, "colors.toml"), []byte(text), 0o644)
 	}
-	if err == nil && !fsutil.IsFile(filepath.Join(dir, "icons.theme")) {
+	if err == nil && !iconsKept(dir, colors) {
 		err = atomic.Write(filepath.Join(dir, "icons.theme"), []byte(iconsFor(colors)+"\n"), 0o644)
 	}
 	if err != nil || !draw {
