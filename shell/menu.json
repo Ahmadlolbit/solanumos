@@ -804,7 +804,7 @@
   "update.everything": {
     "glyph": "\udb81\udeb0",
     "label": "Everything",
-    "action": "solanum-terminal --wait solanum update",
+    "action": "solanum care updates",
     "keywords": [
       "update",
       "upgrade",
@@ -816,7 +816,7 @@
   "update.solanum": {
     "glyph": "\udb81\udeb0",
     "label": "Solanum",
-    "action": "solanum-terminal --wait solanum update solanum",
+    "action": "solanum care updates",
     "keywords": [
       "update",
       "upgrade",
@@ -826,7 +826,7 @@
   "update.debian": {
     "glyph": "\uf306",
     "label": "Debian packages",
-    "action": "solanum-terminal --wait sh -c 'sudo apt update && sudo apt full-upgrade'",
+    "action": "solanum care updates",
     "keywords": [
       "update",
       "upgrade",
@@ -837,7 +837,7 @@
   "update.firmware": {
     "glyph": "\udb81\ude1a",
     "label": "Firmware",
-    "action": "solanum-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'",
+    "action": "solanum care updates",
     "keywords": [
       "update",
       "firmware",
@@ -847,7 +847,7 @@
   "update.changes": {
     "glyph": "\udb82\udf0a",
     "label": "What changed",
-    "action": "solanum-terminal --wait solanum changes",
+    "action": "solanum care changes",
     "keywords": [
       "changes",
       "news",
@@ -862,7 +862,7 @@
   "system.doctor": {
     "glyph": "\uf0f1",
     "label": "Check the system",
-    "action": "solanum-terminal --wait sudo solanum doctor",
+    "action": "solanum care check",
     "keywords": [
       "doctor",
       "check",

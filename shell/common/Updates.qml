@@ -14,7 +14,7 @@ Singleton {
   }
 
   function upgrade() {
-    Quickshell.execDetached(["sh", "-c", "solanum-terminal --wait solanum update; qs -p /usr/share/solanum/shell ipc call updates refresh"]);
+    Quickshell.execDetached(["solanum", "care", "updates"]);
   }
 
   Process {

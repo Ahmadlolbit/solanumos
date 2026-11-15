@@ -53,7 +53,7 @@ Label {
       label: "Check the system"
       onClicked: {
         Popups.close(popup);
-        Quickshell.execDetached(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
+        Quickshell.execDetached(["solanum", "care", "check"]);
       }
     }
   }
