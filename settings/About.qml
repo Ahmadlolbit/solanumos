@@ -8,6 +8,7 @@ Rectangle {
 
   property bool current: false
   property int at: 0
+  property bool credits: false
   readonly property var buttons: [
     {
       stop: "copy",
@@ -25,7 +26,7 @@ Rectangle {
       primary: false
     }
   ]
-  readonly property var stops: buttons.map(button => button.stop)
+  readonly property var stops: buttons.map(button => button.stop).concat(["credits"])
   readonly property var facts: Store.about.facts || []
   readonly property string details: [[Store.about.name || "SolanumOS Chert", Store.about.version].filter(word => !!word).join(" "), "Debian " + (Store.about.debian || "13")].concat(facts.map(fact => fact.label + ": " + fact.value)).join("\n")
 
@@ -49,6 +50,8 @@ Rectangle {
       Store.launch(["solanum-terminal", "--wait", "solanum", "changes"]);
     else if (stop === "check")
       Store.launch(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
+    else
+      credits = !credits;
   }
 
   function copy() {
@@ -256,38 +259,98 @@ Rectangle {
       }
     }
 
-    Label {
-      text: "CREDITS"
-      color: Theme.subtext
-      font.pixelSize: Theme.size(11)
-      font.bold: true
-    }
-
-    Label {
+    ColumnLayout {
       Layout.fillWidth: true
-      text: "Who made SolanumOS, and the projects it builds on with their licences. solanum credits lists them in a terminal."
-      color: Theme.subtext
-      wrapMode: Text.Wrap
-    }
+      spacing: 16
 
-    Flow {
-      Layout.fillWidth: true
-      spacing: 6
+      Rectangle {
+        id: fold
 
-      Repeater {
-        model: Store.credits
+        readonly property bool chosen: about.current && about.stops[about.at] === "credits"
 
-        Rectangle {
-          required property var modelData
+        Layout.fillWidth: true
+        implicitHeight: foldRow.implicitHeight + 24
+        radius: Theme.radius
+        color: chosen ? Theme.overlay : foldPointer.containsMouse ? Theme.surface : "transparent"
+        border.width: chosen ? 2 : 1
+        border.color: chosen ? Theme.accent : Theme.overlay
 
-          width: (about.width - 54) / 2
-          height: Theme.size(26)
-          color: "transparent"
+        RowLayout {
+          id: foldRow
+
+          anchors.left: parent.left
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: 14
+          anchors.rightMargin: 14
+          spacing: 16
+
+          ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 3
+
+            Label {
+              Layout.fillWidth: true
+              text: "Credits and licences"
+              font.bold: true
+              elide: Text.ElideRight
+            }
+
+            Label {
+              Layout.fillWidth: true
+              text: "Who made SolanumOS, and the projects it builds on with their licences. solanum credits lists them in a terminal."
+              color: Theme.subtext
+              font.pixelSize: Theme.size(12)
+              wrapMode: Text.Wrap
+            }
+          }
 
           Label {
-            anchors.fill: parent
-            text: "\uf004  " + parent.modelData[0] + " · " + (parent.modelData[1] || "")
-            elide: Text.ElideRight
+            text: about.credits ? "Hide  \uf077" : "Show  \uf078"
+            color: Theme.accent
+          }
+        }
+
+        MouseArea {
+          id: foldPointer
+
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: about.press("credits")
+        }
+      }
+
+      Flow {
+        Layout.fillWidth: true
+        Layout.leftMargin: 14
+        Layout.rightMargin: 14
+        visible: about.credits
+        spacing: 8
+
+        Repeater {
+          model: Store.credits
+
+          RowLayout {
+            id: credit
+
+            required property var modelData
+
+            width: (about.width - 84) / 2
+            spacing: 8
+
+            Label {
+              Layout.maximumWidth: credit.width * 0.7
+              text: credit.modelData[0]
+              elide: Text.ElideRight
+            }
+
+            Label {
+              Layout.fillWidth: true
+              text: credit.modelData[1] || ""
+              color: Theme.subtext
+              elide: Text.ElideRight
+            }
           }
         }
       }
