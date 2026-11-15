@@ -39,6 +39,11 @@ Scope {
       next.forceActiveFocus(forward ? Qt.TabFocusReason : Qt.BacktabFocusReason);
   }
 
+  onOpenChanged: {
+    if (open)
+      Keyboard.used = false;
+  }
+
   FileView {
     id: seen
 

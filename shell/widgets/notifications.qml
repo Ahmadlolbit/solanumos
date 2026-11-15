@@ -14,6 +14,7 @@ Label {
   readonly property int unread: Notifications.unread
 
   function remove(event, item) {
+    Keyboard.used = true;
     if (event.modifiers & Qt.ShiftModifier)
       Notifications.clear();
     else if (item)
@@ -96,7 +97,7 @@ Label {
           height: lines.implicitHeight + 8
           radius: Theme.radius
           color: "transparent"
-          border.width: activeFocus ? Theme.focusBorder : 0
+          border.width: activeFocus && Keyboard.used ? Theme.focusBorder : 0
           border.color: Theme.accent
           Keys.onDeletePressed: event => event.accepted = root.remove(event, item.modelData)
 

@@ -14,6 +14,7 @@ Item {
   }
 
   function key(event) {
+    Keyboard.used = true;
     if (event.key === Qt.Key_Home || event.key === Qt.Key_End)
       moved(event.key === Qt.Key_Home ? 0 : 1);
     else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
@@ -60,7 +61,7 @@ Item {
   Rectangle {
     anchors.fill: knob
     anchors.margins: -2 * Theme.focusBorder
-    visible: root.activeFocus
+    visible: root.activeFocus && Keyboard.used
     radius: Theme.radius ? width / 2 : 0
     color: "transparent"
     border.width: Theme.focusBorder

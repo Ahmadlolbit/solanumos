@@ -1,4 +1,5 @@
 import QtQuick
+import qs.common
 
 ListView {
   id: root
@@ -14,6 +15,7 @@ ListView {
   visible: count > 0
   clip: true
   activeFocusOnTab: true
+  Keys.onPressed: Keyboard.used = true
   onCurrentItemChanged: Qt.callLater(follow)
   onActiveFocusChanged: Qt.callLater(follow)
 }
