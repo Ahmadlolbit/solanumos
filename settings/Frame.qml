@@ -274,6 +274,19 @@ FocusScope {
       elide: Text.ElideRight
     }
 
+    Label {
+      id: line
+
+      anchors.left: title.left
+      anchors.right: title.right
+      anchors.top: title.bottom
+      anchors.topMargin: 4
+      visible: text !== ""
+      text: Store.search ? "" : Store.pageNow.help || ""
+      color: Theme.subtext
+      wrapMode: Text.Wrap
+    }
+
     ListView {
       id: list
 
@@ -286,7 +299,7 @@ FocusScope {
 
       anchors.left: parent.left
       anchors.right: parent.right
-      anchors.top: title.bottom
+      anchors.top: line.visible ? line.bottom : title.bottom
       anchors.bottom: parent.bottom
       anchors.margins: 16
       anchors.topMargin: 12
