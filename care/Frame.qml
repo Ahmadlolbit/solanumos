@@ -39,7 +39,7 @@ FocusScope {
     asking = false;
     if (stop)
       Store.task.stop();
-    takeKeys();
+    return takeKeys();
   }
 
   function leave() {
