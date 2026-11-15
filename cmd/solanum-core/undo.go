@@ -128,10 +128,10 @@ func snapshotBefore(description string) (bool, error) {
 		return false, nil
 	}
 	if !installed("snapper") || !fsutil.IsFile(env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
-		fmt.Println("Snapshots aren't set up, so there's no restore point.")
+		ui.Print("Snapshots aren't set up, so there's no restore point.\n")
 		return false, nil
 	}
-	fmt.Println("Taking a restore point first")
+	ui.Print("Taking a restore point first\n")
 	if run.Status("snapper", "--no-dbus", "-c", "root", "create", "--description", description, "--cleanup-algorithm", "number") != 0 {
 		return false, errors.New("the restore point failed, so nothing was changed")
 	}
