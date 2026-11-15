@@ -340,6 +340,7 @@ func (state *system) installRow(flow *wizard) row {
 		for index, ready := range []func() string{state.welcomeReady, state.diskReady, state.lockReady, state.youReady} {
 			if why := ready(); why != "" {
 				flow.notice = why
+				flow.reviewing = true
 				flow.jump(index)
 				return nil
 			}

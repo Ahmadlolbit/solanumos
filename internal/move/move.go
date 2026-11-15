@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -34,6 +35,8 @@ type mover struct {
 	out      io.Writer
 	notes    []string
 	snapshot string
+	unlisted bool
+	kept     []string
 }
 
 func at(path string) string {
@@ -44,16 +47,28 @@ func stateDir() string {
 	return at("/var/lib/solanum")
 }
 
-func Pending() bool {
-	if fsutil.Exists(filepath.Join(stateDir(), stampFile)) {
-		return false
-	}
+func markers() []string {
+	return []string{filepath.Join(at("/var/lib/"+oldname.Name), markFile), filepath.Join(stateDir(), markFile)}
+}
+
+func oldFolders() bool {
 	for _, each := range folders {
 		if fsutil.IsDir(at(each.old)) && !fsutil.IsLink(at(each.old)) {
 			return true
 		}
 	}
 	return false
+}
+
+func Pending() bool {
+	if fsutil.Exists(filepath.Join(stateDir(), stampFile)) {
+		return false
+	}
+	return slices.ContainsFunc(markers(), fsutil.Exists) || oldFolders()
+}
+
+func Unfinished() bool {
+	return Pending() && !oldFolders()
 }
 
 func Snapshot() string {
@@ -72,8 +87,8 @@ func (work *mover) note(format string, args ...any) {
 }
 
 func (work *mover) marked() string {
-	for _, dir := range []string{at("/var/lib/" + oldname.Name), stateDir()} {
-		if text, err := fsutil.Text(filepath.Join(dir, markFile)); err == nil {
+	for _, path := range markers() {
+		if text, err := fsutil.Text(path); err == nil {
 			return strings.TrimSpace(text)
 		}
 	}
@@ -134,12 +149,13 @@ func (work *mover) mark() {
 	}
 }
 
-func (work *mover) stamp() {
+func (work *mover) stamp() error {
 	text := fmt.Sprintf("snapshot %s\nwhen %s\n", work.snapshot, time.Now().Format(time.DateTime))
 	if err := atomic.Install(filepath.Join(stateDir(), stampFile), []byte(text), stampMode); err != nil {
-		work.note("Couldn't note that the move is done: %v", err)
+		return err
 	}
 	os.Remove(filepath.Join(stateDir(), markFile))
+	return nil
 }
 
 func Run(out io.Writer) []string {
@@ -157,7 +173,14 @@ func Run(out io.Writer) []string {
 	work.moveCommands()
 	work.moveHomes()
 	work.moveRest()
-	work.stamp()
+	if work.unlisted {
+		work.note("The move to Solanum isn't finished: run sudo solanum install again to finish it.")
+		return work.notes
+	}
+	if err := work.stamp(); err != nil {
+		work.note("Couldn't note that the move is done (%v): run sudo solanum install again to finish it.", err)
+		return work.notes
+	}
 	work.note("This computer has moved from Hyprtrixie to Solanum. Log out and back in once to finish.")
 	return work.notes
 }

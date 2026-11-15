@@ -468,6 +468,8 @@ func (visit *checkup) files() {
 		ui.Note("Fix: sudo solanum install puts them back")
 	case run.TimedOut(err):
 		tooLong("Comparing the installed files")
+	case errors.Is(err, os.ErrNotExist):
+		ui.Skip("No record of the installed files yet")
 	case err != nil:
 		couldNot("the installed files", "sha256sum", err)
 	default:

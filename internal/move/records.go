@@ -29,6 +29,11 @@ func homeOf(path string) (string, string) {
 	return "/home/" + name, "/" + tail
 }
 
+func inAHome(path string) bool {
+	home, _ := homeOf(strings.TrimPrefix(path, strings.TrimSuffix(at("/"), "/")))
+	return home != ""
+}
+
 func swapPath(path string) string {
 	home, tail := homeOf(path)
 	if home != "" && (tail == "/"+oldname.Clone || strings.HasPrefix(tail, "/"+oldname.Clone+"/")) {
@@ -80,7 +85,10 @@ func (work *mover) movePath(path, hash string) string {
 	}
 	switch {
 	case !fsutil.Exists(at(fresh)) && !fsutil.IsLink(at(fresh)):
-		work.rename(now, fresh)
+		if !work.rename(now, fresh) {
+			work.kept = append(work.kept, path)
+			return path
+		}
 	case sameFile(at(now), at(fresh)):
 	case unchanged(at(now), hash):
 		work.remove(at(now))
@@ -100,11 +108,14 @@ func sameFile(one, other string) bool {
 	return err == nil && os.SameFile(first, second)
 }
 
-func (work *mover) rename(now, fresh string) {
+func (work *mover) rename(now, fresh string) bool {
 	if person, found := work.ownerOf(now); found {
 		work.asPerson(person, "mkdir", "-p", filepath.Dir(at(fresh)))
-		work.asPerson(person, "mv", "-T", "--update=none-fail", at(now), at(fresh))
-		return
+		return work.asPerson(person, "mv", "-T", "--update=none-fail", at(now), at(fresh))
+	}
+	if inAHome(now) {
+		work.note("Left %s where it is: its owner couldn't be found", now)
+		return false
 	}
 	err := os.MkdirAll(filepath.Dir(at(fresh)), folderMode)
 	if err == nil {
@@ -113,6 +124,7 @@ func (work *mover) rename(now, fresh string) {
 	if err != nil {
 		work.note("Left %s where it is: %v", now, err)
 	}
+	return err == nil
 }
 
 func (work *mover) moveDatabase() {
@@ -140,10 +152,10 @@ func (work *mover) moveDatabase() {
 	}
 }
 
-func recordLine(line string) string {
+func (work *mover) recordLine(line string) string {
 	kind, value, found := strings.Cut(line, " ")
 	switch {
-	case !found:
+	case !found || slices.Contains(work.kept, value):
 		return line
 	case kind == "file" || kind == "made" || kind == "replaced":
 		return kind + " " + swapPath(value)
@@ -163,7 +175,7 @@ func (work *mover) moveRecords() {
 		}
 		var text strings.Builder
 		for _, line := range lines {
-			text.WriteString(recordLine(line) + "\n")
+			text.WriteString(work.recordLine(line) + "\n")
 		}
 		if err := atomic.Write(record, []byte(text.String()), stampMode); err != nil {
 			work.note("%s keeps the old names: %v", record, err)

@@ -194,6 +194,9 @@ func command(name string) (func() int, bool) {
 	found, ok := commands[name]
 	if ok && !slices.Contains(beforeTheMove, name) && move.Pending() {
 		return func() int {
+			if move.Unfinished() {
+				return fail("The move to Solanum isn't finished. Finish it first: sudo solanum install")
+			}
 			return fail("This computer still has Hyprtrixie's folders. Move it over to Solanum first: sudo solanum install")
 		}, true
 	}

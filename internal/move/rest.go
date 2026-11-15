@@ -66,6 +66,9 @@ func (work *mover) inClone(clone string, args ...string) (string, bool) {
 		output, err := run.CaptureQuiet(run.Minute, "runuser", person.RunuserArgs(append([]string{"git"}, command...)...)...)
 		return output, err == nil
 	}
+	if inAHome(clone) {
+		return "", false
+	}
 	output, err := run.CaptureQuiet(run.Minute, "git", command...)
 	return output, err == nil
 }
@@ -86,6 +89,9 @@ func (work *mover) tidyClone(clone string) {
 	}
 	if person, found := work.cloneOwner(clone); found {
 		work.asPerson(person, append([]string{"rm", "-f", "--"}, built...)...)
+		return
+	}
+	if inAHome(clone) {
 		return
 	}
 	for _, path := range built {
