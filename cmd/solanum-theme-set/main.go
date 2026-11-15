@@ -283,16 +283,16 @@ func liveStill(kind string, colors theme.Colors, link string) (string, error) {
 }
 
 func liveShown(colors theme.Colors, link string) bool {
-	kind := settings.Get("logo")
-	if kind != "animated" && kind != "life" {
-		return false
-	}
 	unlock, err := look.Hold(state())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
 	defer unlock()
+	kind := look.Open().Get("logo")
+	if kind != "animated" && kind != "life" {
+		return false
+	}
 	still, err := liveStill(kind, colors, link)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
