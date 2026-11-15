@@ -106,6 +106,7 @@ var commands = map[string]func() int{
 	"collect":       collect,
 	"doctor":        doctor,
 	"app":           appCommand,
+	"pkg":           pkgCommand,
 	"db":            dbCommand,
 	"dotfiles":      dotfilesCommand,
 	"restore":       restore,
@@ -212,7 +213,7 @@ func throughScript() int {
 }
 
 var (
-	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo"}
+	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg"}
 	streamed      bool
 )
 
