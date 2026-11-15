@@ -42,6 +42,7 @@ QtObject {
   readonly property var specialPattern: /[\x22\\]/g
   readonly property var escapeShape: /^\\(?:[abfnrtv\\\x22]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-3][0-7]{2})/
   readonly property var escapePattern: /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([0-7]{3})|(.))/g
+  readonly property var utf8Pattern: /[\x00-\x7f]+|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2}|[\x80-\xff]/g
   readonly property var sequencePattern: /\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()*+].|\x1b./g
   readonly property Process child: Process {
     stdinEnabled: true
@@ -114,7 +115,7 @@ QtObject {
     try {
       return decodeURIComponent(escape(bytes));
     } catch (error) {
-      return bytes.replace(/[\x80-\xff]/g, "�");
+      return bytes.replace(utf8Pattern, piece => piece.charCodeAt(0) < 0x80 ? piece : piece.length > 1 ? decodeURIComponent(escape(piece)) : "\ufffd");
     }
   }
 
