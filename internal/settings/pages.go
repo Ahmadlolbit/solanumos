@@ -18,6 +18,7 @@ type Page struct {
 	ID       string   `json:"id"`
 	Label    string   `json:"label"`
 	Glyph    string   `json:"glyph"`
+	Group    string   `json:"group"`
 	Keywords []string `json:"keywords,omitempty"`
 }
 
@@ -52,31 +53,31 @@ type Listing struct {
 }
 
 var pages = []Page{
-	{"about", "About", "\uf05a", []string{"version", "system", "hardware", "credits", "licences", "debian"}},
-	{"themes", "Appearance and themes", "\uf53f", []string{"theme", "colours", "colors", "accent", "dark", "light", "fonts", "style", "your own theme"}},
-	{"wallpaper", "Wallpaper and desktop", "\uf03e", []string{"wallpaper", "background", "pictures", "slideshow", "logo", "life"}},
-	{"display", "Display", "\uf108", []string{"screen", "scale", "brightness", "night light", "corners"}},
-	{"sound", "Sound", "\uf028", []string{"audio", "volume", "speakers", "microphone", "chime"}},
-	{"network", "Network", "\uf1eb", []string{"wi-fi", "wifi", "internet", "networkmanager"}},
-	{"bluetooth", "Bluetooth", "\uf293", []string{"devices", "pair", "headphones"}},
-	{"power", "Power and battery", "\uf240", []string{"battery", "power profile", "suspend", "hibernate", "charge"}},
-	{"lock", "Lock screen and idle", "\uf023", []string{"lock", "idle", "screensaver", "login screen"}},
-	{"keyboard", "Keyboard", "\uf11c", []string{"layout", "keys", "shortcuts", "bindings"}},
-	{"mouse", "Mouse and touchpad", "\uf245", []string{"touchpad", "trackpoint", "scrolling", "tap"}},
-	{"bar", "Bar, dock and menu", "\uf0c9", []string{"bar", "widgets", "clock", "weather", "zen"}},
-	{"notifications", "Notifications", "\uf0f3", []string{"do not disturb", "quiet hours", "tips", "warnings"}},
-	{"windows", "Windows and workspaces", "\uf2d2", []string{"windows", "animations", "workspaces"}},
-	{"apps", "Apps and default apps", "\uf009", []string{"apps", "applications", "flatpak", "extras", "profile"}},
-	{"privacy", "Privacy and security", "\uf132", []string{"firewall", "security"}},
-	{"accounts", "Accounts and family", "\uf007", []string{"fingerprint", "account", "user"}},
-	{"sharing", "Sharing and remote access", "\uf1e0", []string{"ssh", "remote"}},
-	{"time", "Date and time", "\uf017", []string{"clock", "24-hour", "12-hour", "location", "sun"}},
-	{"accessibility", "Accessibility", "\uf29a", []string{"screen reader", "orca", "text size", "larger text"}},
-	{"updates", "Updates, snapshots and backups", "\uf021", []string{"updates", "snapshots", "restore", "mirror"}},
-	{"storage", "Storage and memory", "\uf1c0", []string{"swap", "zram", "memory", "disk"}},
-	{"startup", "Startup, login and boot", "\uf011", []string{"boot", "splash", "grub", "console"}},
-	{"hardware", "Hardware and drivers", "\uf2db", []string{"kernel", "graphics", "nvidia", "webcam", "drivers"}},
-	{"developer", "Developer", "\uf121", []string{"docker", "podman", "mise", "prompt", "containers"}},
+	{"themes", "Appearance and themes", "\uf53f", "Look", []string{"theme", "colours", "colors", "accent", "dark", "light", "fonts", "style", "your own theme"}},
+	{"wallpaper", "Wallpaper and desktop", "\uf03e", "Look", []string{"wallpaper", "background", "pictures", "slideshow", "logo", "life"}},
+	{"bar", "Bar, dock and menu", "\uf0c9", "Look", []string{"bar", "widgets", "clock", "weather", "zen"}},
+	{"windows", "Windows and workspaces", "\uf2d2", "Look", []string{"windows", "animations", "workspaces"}},
+	{"display", "Display", "\uf108", "Devices", []string{"screen", "scale", "brightness", "night light", "corners"}},
+	{"sound", "Sound", "\uf028", "Devices", []string{"audio", "volume", "speakers", "microphone", "chime"}},
+	{"network", "Network", "\uf1eb", "Devices", []string{"wi-fi", "wifi", "internet", "networkmanager"}},
+	{"bluetooth", "Bluetooth", "\uf293", "Devices", []string{"devices", "pair", "headphones"}},
+	{"power", "Power and battery", "\uf240", "Devices", []string{"battery", "power profile", "suspend", "hibernate", "charge"}},
+	{"keyboard", "Keyboard", "\uf11c", "Devices", []string{"layout", "keys", "shortcuts", "bindings"}},
+	{"mouse", "Mouse and touchpad", "\uf245", "Devices", []string{"touchpad", "trackpoint", "scrolling", "tap"}},
+	{"hardware", "Hardware and drivers", "\uf2db", "Devices", []string{"kernel", "graphics", "nvidia", "webcam", "drivers"}},
+	{"lock", "Lock screen and idle", "\uf023", "You", []string{"lock", "idle", "screensaver", "login screen"}},
+	{"notifications", "Notifications", "\uf0f3", "You", []string{"do not disturb", "quiet hours", "tips", "warnings"}},
+	{"apps", "Apps and default apps", "\uf009", "You", []string{"apps", "applications", "flatpak", "extras", "profile"}},
+	{"accounts", "Accounts and family", "\uf007", "You", []string{"fingerprint", "account", "user"}},
+	{"privacy", "Privacy and security", "\uf132", "You", []string{"firewall", "security"}},
+	{"sharing", "Sharing and remote access", "\uf1e0", "You", []string{"ssh", "remote"}},
+	{"time", "Date and time", "\uf017", "You", []string{"clock", "24-hour", "12-hour", "location", "sun"}},
+	{"accessibility", "Accessibility", "\uf29a", "You", []string{"screen reader", "orca", "text size", "larger text"}},
+	{"updates", "Updates, snapshots and backups", "\uf021", "System", []string{"updates", "snapshots", "restore", "mirror"}},
+	{"storage", "Storage and memory", "\uf1c0", "System", []string{"swap", "zram", "memory", "disk"}},
+	{"startup", "Startup, login and boot", "\uf011", "System", []string{"boot", "splash", "grub", "console"}},
+	{"developer", "Developer", "\uf121", "System", []string{"docker", "podman", "mise", "prompt", "containers"}},
+	{"about", "About", "\uf05a", "System", []string{"version", "system", "hardware", "credits", "licences", "debian"}},
 }
 
 func Pages() []Page {
