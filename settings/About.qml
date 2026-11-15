@@ -6,6 +6,7 @@ Rectangle {
   id: about
 
   property bool current: false
+  readonly property var facts: Store.about.facts || []
 
   function activate() {
     return false;
@@ -15,7 +16,7 @@ Rectangle {
     return false;
   }
 
-  implicitHeight: layout.implicitHeight + 40
+  implicitHeight: layout.implicitHeight + 48
   radius: Theme.radius
   color: "transparent"
   border.width: current ? 2 : 1
@@ -27,8 +28,8 @@ Rectangle {
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.top: parent.top
-    anchors.margins: 20
-    spacing: 18
+    anchors.margins: 24
+    spacing: 24
 
     RowLayout {
       spacing: 24
@@ -46,23 +47,31 @@ Rectangle {
 
       ColumnLayout {
         Layout.fillWidth: true
-        spacing: 6
+        spacing: 8
 
         Label {
+          Layout.fillWidth: true
           text: Store.about.name || "SolanumOS Chert"
           font.pixelSize: Theme.size(26)
           font.bold: true
+          wrapMode: Text.Wrap
         }
 
         Label {
           text: Store.about.version ? "Version " + Store.about.version : ""
           color: Theme.subtext
+          font.features: ({
+              "tnum": 1
+            })
         }
 
         Label {
           Layout.fillWidth: true
           text: "Built on Debian " + (Store.about.debian || "13") + ". Not part of Debian."
           wrapMode: Text.Wrap
+          font.features: ({
+              "tnum": 1
+            })
         }
 
         Label {
@@ -74,45 +83,63 @@ Rectangle {
       }
     }
 
-    Label {
-      text: "THIS COMPUTER"
-      color: Theme.subtext
-      font.pixelSize: Theme.size(11)
-      font.bold: true
-    }
-
-    GridLayout {
+    ColumnLayout {
       Layout.fillWidth: true
-      columns: 2
-      columnSpacing: 24
-      rowSpacing: 6
+      spacing: 16
 
-      Repeater {
-        model: Store.about.facts || []
+      Item {
+        Layout.fillWidth: true
+        implicitHeight: Theme.size(20)
 
         Label {
-          required property var modelData
-          required property int index
-
-          Layout.row: index
-          Layout.column: 0
-          text: modelData.label
+          anchors.left: parent.left
+          anchors.verticalCenter: parent.verticalCenter
+          text: "This computer"
           color: Theme.subtext
+          font.pixelSize: Theme.size(11)
+          font.bold: true
+          font.capitalization: Font.AllUppercase
+          font.letterSpacing: Theme.size(11) * 0.08
         }
       }
 
-      Repeater {
-        model: Store.about.facts || []
+      GridLayout {
+        Layout.fillWidth: true
+        visible: about.facts.length > 0
+        columns: 2
+        columnSpacing: 32
+        rowSpacing: 8
 
-        Label {
-          required property var modelData
-          required property int index
+        Repeater {
+          model: about.facts
 
-          Layout.row: index
-          Layout.column: 1
-          Layout.fillWidth: true
-          text: modelData.value
-          elide: Text.ElideRight
+          Label {
+            required property var modelData
+            required property int index
+
+            Layout.row: index
+            Layout.column: 0
+            text: modelData.label
+            color: Theme.subtext
+          }
+        }
+
+        Repeater {
+          model: about.facts
+
+          Label {
+            required property var modelData
+            required property int index
+
+            Layout.row: index
+            Layout.column: 1
+            Layout.fillWidth: true
+            text: modelData.value
+            elide: Text.ElideRight
+            font.features: ({
+                "tnum": 1
+              })
+          }
         }
       }
     }
@@ -141,7 +168,7 @@ Rectangle {
         Rectangle {
           required property var modelData
 
-          width: (about.width - 52) / 2
+          width: (about.width - 54) / 2
           height: Theme.size(26)
           color: "transparent"
 
