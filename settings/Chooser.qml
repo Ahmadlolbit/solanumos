@@ -7,6 +7,7 @@ Item {
   property var row: null
   property int index: 0
   property var picked: []
+  readonly property var hints: [[["Up", "Down"], "move"], ["Enter", row && row.multiple ? "tick" : "pick"], ["Esc", "close"]]
   readonly property var choices: row ? (row.multiple ? [
         {
           value: "\n",

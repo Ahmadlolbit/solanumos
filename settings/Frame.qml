@@ -51,6 +51,7 @@ FocusScope {
     ] : []
   readonly property var items: headers.concat(Store.headed(Store.shown.filter(row => !everyone.some(other => other.name === row.name))), heading, everyone)
   readonly property var focused: list.currentItem ? list.currentItem.item : null
+  readonly property var hints: hinted()
 
   function sync() {
     const kept = index < listed.count ? listed.get(index).name : "";
@@ -80,6 +81,30 @@ FocusScope {
     const back = names.indexOf(kept);
     index = landing(back >= 0 ? back : index, 1);
     list.currentIndex = index;
+  }
+
+  function hinted() {
+    if (chooser.visible)
+      return chooser.hints;
+    if (editing || list.activeFocus)
+      return focused && focused.hop ? [["Tab", "next field"], ["Enter", "save"], ["Esc", "stop"]] : [["Enter", "save"], ["Esc", "cancel"]];
+    const tail = [["Tab", zone === "pages" ? "rows" : "pages"], ["", "type to search"], ["Esc", Store.search || seeking ? "clear" : "close"]];
+    if (zone === "pages")
+      return [[["Up", "Down"], "pages"], ["Enter", "open"]].concat(tail);
+    const item = items[index] || {};
+    const own = {
+      toggle: [["Space", "flip"]],
+      choice: item.multiple ? [["Enter", "choose"]] : [[["Left", "Right"], "change"], ["Enter", "choose"]],
+      slider: [[["Left", "Right"], "change"]],
+      text: [["Enter", "edit"]],
+      time: [["Enter", "edit"]],
+      button: [["Enter", "open"]],
+      grid: [[["Left", "Right"], "themes"], ["Enter", "apply"]],
+      maker: focused && focused.open ? [[["Left", "Right"], "mode"], ["Enter", "type"]] : [["Enter", "open"]],
+      pictures: [[["Left", "Right"], "pictures"], ["Enter", "show"], ["Delete", "to the Trash"]],
+      about: [[["Left", "Right"], "buttons"], ["Enter", "press"]]
+    }[item.kind] || [];
+    return [[["Up", "Down"], "move"]].concat(own, tail);
   }
 
   function skipped(item) {
@@ -363,11 +388,11 @@ FocusScope {
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: line.visible ? line.bottom : title.bottom
-      anchors.bottom: parent.bottom
+      anchors.bottom: keys.top
       anchors.leftMargin: 32
       anchors.rightMargin: 32
       anchors.topMargin: 12
-      anchors.bottomMargin: 16
+      anchors.bottomMargin: 12
       clip: true
       spacing: 8
       cacheBuffer: 100000
@@ -485,6 +510,17 @@ FocusScope {
           }
         }
       }
+    }
+
+    Hints {
+      id: keys
+
+      anchors.left: parent.left
+      anchors.bottom: parent.bottom
+      anchors.leftMargin: 46
+      anchors.bottomMargin: 16
+      width: content.column - 28
+      pairs: frame.hints
     }
 
     Label {
