@@ -44,10 +44,15 @@ type Option struct {
 
 var profiles = []string{"minimal", "everyday", "developer"}
 
+type format struct {
+	valid func(string) bool
+	takes string
+}
+
 var (
 	sources       = map[string]string{"teams": "TEAMS_SOURCE"}
-	formats       = map[string]func(string) bool{"DEBIAN_MIRROR": mirrors}
-	mirrorAddress = regexp.MustCompile(`^[a-z][a-z0-9+.-]*:/+[^/]`)
+	formats       = map[string]format{"DEBIAN_MIRROR": {mirrors, "the mirror's address, such as https://deb.debian.org/debian"}}
+	mirrorAddress = regexp.MustCompile(`^(mirror\+)?(https?://[^/]|file:(/|///)[^/])`)
 )
 
 var table = []Option{
@@ -254,8 +259,12 @@ func Keepable(value string) bool {
 }
 
 func (option Option) Refusal(value string) string {
-	if !Keepable(value) {
+	format, found := formats[option.Key]
+	switch {
+	case !Keepable(value):
 		return option.Key + " takes only English letters, digits, spaces, slashes and . , _ : @ + - ~"
+	case found:
+		return option.Key + " takes " + format.takes
 	}
 	return value + " isn't a value for " + option.Key
 }
@@ -276,7 +285,7 @@ func (option Option) Valid(value string) bool {
 		return len(items) == 0 || !slices.ContainsFunc(strings.Fields(value), func(word string) bool { return !slices.Contains(items, word) })
 	case Text:
 		format, found := formats[option.Key]
-		return !found || format(value)
+		return !found || format.valid(value)
 	}
 	return true
 }
