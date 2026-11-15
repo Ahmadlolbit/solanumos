@@ -44,8 +44,8 @@ func othersDone() bool {
 	return true
 }
 
-func alsoRemoved(names []string) []string {
-	output, _ := run.CaptureQuiet(run.Minute, "env", append([]string{"LC_ALL=C.UTF-8", "apt-get", "-s", "remove"}, names...)...)
+func alsoRemoved(action string, names []string) []string {
+	output, _ := run.CaptureQuiet(run.Minute, "env", append([]string{"LC_ALL=C.UTF-8", "apt-get", "-s", action}, names...)...)
 	var others []string
 	for _, line := range run.Lines(output) {
 		fields := strings.Fields(line)
@@ -57,11 +57,8 @@ func alsoRemoved(names []string) []string {
 }
 
 func agreed(action string, names []string) bool {
-	if action != "remove" {
-		return true
-	}
-	others := alsoRemoved(names)
-	return len(others) == 0 || ui.Confirm("This also removes "+strings.Join(others, ", ")+". Remove them all?")
+	others := alsoRemoved(action, names)
+	return len(others) == 0 || ui.Confirm("This also removes "+strings.Join(others, ", ")+". Go ahead?")
 }
 
 func changePackages(action string, names []string) int {
@@ -75,7 +72,7 @@ func changePackages(action string, names []string) int {
 	defer held.Close()
 	listed := strings.Join(names, ", ")
 	if !agreed(action, names) {
-		ui.Skip("Nothing removed")
+		ui.Skip("Nothing changed")
 		return 0
 	}
 	ui.Busy(pkgVerbs[action][0] + listed)
