@@ -34,6 +34,7 @@ const usage = `Usage: solanum-background <file>
        solanum-background --yours
        solanum-background --current
        solanum-background --frames
+       solanum-background --play NAME COLUMNS ROWS
        solanum-background workspaces
        solanum-background workspace MONITOR WORKSPACE
 
@@ -53,7 +54,10 @@ starting a new soup whenever the last one settles. Either rests while a window
 is on the screen, on battery or with the screens off, and stays across themes
 until another wallpaper is set; off ends it and shows the theme's first
 background, or a drawing when the theme has none. --frames prints the logo's
-frames. With a wallpaper per workspace on
+frames. --play is how the bar plays Life on a screen named NAME: it starts
+from the still's soup, writes each frame to one of two pictures in
+$XDG_RUNTIME_DIR, and reads step (the next generation), paint (the theme's
+colours again) and sow (a new soup) from its input. With a wallpaper per workspace on
 (solanum-look workspaces on), each workspace shows the next one along,
 workspaces shows each monitor's, and workspace shows one monitor's for the
 workspace it just switched to.
@@ -303,6 +307,9 @@ func listed(command string) {
 func other(command string) int {
 	if yours, found := yourCommands[command]; found {
 		return yours(os.Args[2:])
+	}
+	if command == "--play" {
+		return play(os.Args[2:])
 	}
 	if live, found := liveCommands[command]; found {
 		return serially(live)

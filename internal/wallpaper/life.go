@@ -54,23 +54,31 @@ func (soup Soup) Alive(x, y int) bool {
 	return soup.cells[(y%soup.Rows+soup.Rows)%soup.Rows*soup.Cols+(x%soup.Cols+soup.Cols)%soup.Cols]
 }
 
-func (soup Soup) neighbours(x, y int) int {
-	count := 0
-	for dy := -1; dy <= 1; dy++ {
-		for dx := -1; dx <= 1; dx++ {
-			if (dx != 0 || dy != 0) && soup.Alive(x+dx, y+dy) {
-				count++
-			}
-		}
+func one(alive bool) int {
+	if alive {
+		return 1
 	}
-	return count
+	return 0
+}
+
+func (soup Soup) columns(sums []int, y int) {
+	cols, rows := soup.Cols, soup.Rows
+	up, here, down := (y+rows-1)%rows*cols, y*cols, (y+1)%rows*cols
+	for x := range cols {
+		sums[x] = one(soup.cells[up+x]) + one(soup.cells[here+x]) + one(soup.cells[down+x])
+	}
 }
 
 func (soup Soup) next() Soup {
-	after := Soup{soup.Cols, soup.Rows, make([]bool, len(soup.cells))}
-	for at := range after.cells {
-		count := soup.neighbours(at%soup.Cols, at/soup.Cols)
-		after.cells[at] = count == 3 || count == 2 && soup.cells[at]
+	cols := soup.Cols
+	after, sums := Soup{cols, soup.Rows, make([]bool, len(soup.cells))}, make([]int, cols)
+	for y := range soup.Rows {
+		soup.columns(sums, y)
+		for x := range cols {
+			at := y*cols + x
+			count := sums[(x+cols-1)%cols] + sums[x] + sums[(x+1)%cols] - one(soup.cells[at])
+			after.cells[at] = count == 3 || count == 2 && soup.cells[at]
+		}
 	}
 	return after
 }
