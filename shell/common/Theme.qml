@@ -19,6 +19,8 @@ Singleton {
   readonly property color critical: palette.red || "#f38ba8"
   readonly property var look: settings(lookFile.text())
   readonly property string font: look.font || "JetBrainsMono Nerd Font"
+  readonly property string display: Qt.fontFamilies().includes("Departure Mono") ? "Departure Mono" : font
+  readonly property bool displayBold: display !== "Departure Mono"
   readonly property bool glass: look.glass === "yes"
   readonly property color panel: Qt.alpha(base, glass ? 0.8 : 1)
   readonly property var looks: Object.assign({}, lines(systemLook.text()), lines(userLook.text()))
@@ -32,6 +34,10 @@ Singleton {
   readonly property int barWidth: size(60)
   readonly property int spacing: 14
   readonly property int radius: (Config.style || looks.style) === "soft" ? 10 : 0
+  readonly property int quick: 120
+  readonly property int fadeIn: 200
+  readonly property int fadeOut: 150
+  readonly property int focusBorder: 2
 
   function size(pixels) {
     return Math.round(pixels * textScale);

@@ -18,7 +18,11 @@ Rectangle {
   radius: Theme.radius
   color: Theme.surface
   border.color: input.activeFocus ? Theme.accent : Theme.overlay
-  border.width: 1
+  border.width: input.activeFocus ? Theme.focusBorder : 1
+  onActiveFocusChanged: {
+    if (activeFocus)
+      input.forceActiveFocus();
+  }
 
   TextInput {
     id: input
