@@ -25,6 +25,7 @@ Singleton {
   property string busy: ""
   property var said: []
   property string result: ""
+  property string word: ""
   readonly property string yours: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/backgrounds/"
   readonly property var pageNow: pages.find(item => item.id === page) || {
     id: page,
@@ -82,6 +83,7 @@ Singleton {
     busy = row.name;
     said = [];
     result = "";
+    word = "";
     setter.command = ["solanum", "settings", "set", row.name, String(value)];
     setter.running = true;
   }
@@ -92,6 +94,7 @@ Singleton {
     busy = name;
     said = [];
     result = "";
+    word = "";
     actor.then = then || "";
     actor.command = command;
     actor.running = true;

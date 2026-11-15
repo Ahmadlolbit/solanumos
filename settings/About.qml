@@ -59,6 +59,7 @@ Rectangle {
       return;
     Store.said = [];
     Store.result = "";
+    Store.word = "";
     copier.command = ["wl-copy", "--", details];
     copier.running = true;
   }
@@ -76,8 +77,7 @@ Rectangle {
       onRead: line => Store.heard(line)
     }
     onExited: code => {
-      if (code === 0)
-        Store.said = ["Copied the details"];
+      Store.word = code === 0 ? "Copied" : "";
       Store.result = code === 0 ? "done" : "failed";
     }
   }

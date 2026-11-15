@@ -31,7 +31,7 @@ Rectangle {
 
     Label {
       width: parent.width
-      text: Store.busy ? "\uf110  Working on it" : Store.result === "done" ? "\uf00c  Done" : "\uf071  It didn't change"
+      text: Store.busy ? "\uf110  Working on it" : Store.result === "done" ? "\uf00c  " + (Store.word || "Done") : "\uf071  It didn't change"
       color: Store.busy ? Theme.accent : Store.result === "done" ? Theme.good : Theme.critical
       font.bold: true
     }
