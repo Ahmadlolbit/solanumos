@@ -101,6 +101,37 @@ FocusScope {
     }
   }
 
+  function page(step) {
+    if (zone === "pages")
+      return turn(step);
+    const from = list.itemAtIndex(index);
+    let next = index;
+    while (from && list.itemAtIndex(next + step) && Math.abs(list.itemAtIndex(next + step).y - from.y) <= list.height)
+      next += step;
+    index = landing(next === index ? index + step : next, step);
+    return true;
+  }
+
+  function turn(step) {
+    const starts = Store.pages.map((page, at) => at).filter(at => at === 0 || Store.pages[at - 1].group !== Store.pages[at].group);
+    const here = starts.filter(at => at <= pageIndex).length - 1;
+    const back = pageIndex > starts[here] ? starts[here] : starts[Math.max(0, here - 1)];
+    const target = step < 0 ? back : here + 1 < starts.length ? starts[here + 1] : Store.pages.length - 1;
+    Store.show(Store.pages[target].id);
+    index = 0;
+    return true;
+  }
+
+  function ends(step) {
+    if (zone === "pages") {
+      Store.show(Store.pages[step < 0 ? 0 : Store.pages.length - 1].id);
+      index = 0;
+    } else {
+      index = landing(step < 0 ? 0 : items.length - 1, -step);
+    }
+    return true;
+  }
+
   function typed(event) {
     if (event.key === Qt.Key_Backspace && Store.search) {
       Store.search = Store.search.slice(0, -1);
@@ -162,7 +193,11 @@ FocusScope {
       [Qt.Key_Return]: () => confirm(),
       [Qt.Key_Enter]: () => confirm(),
       [Qt.Key_Space]: () => Store.search ? typed(event) : zone === "rows" && !!focused && focused.activate(),
-      [Qt.Key_Delete]: () => !!focused && !!focused.remove && focused.remove()
+      [Qt.Key_Delete]: () => !!focused && !!focused.remove && focused.remove(),
+      [Qt.Key_PageUp]: () => page(-1),
+      [Qt.Key_PageDown]: () => page(1),
+      [Qt.Key_Home]: () => ends(-1),
+      [Qt.Key_End]: () => ends(1)
     };
     if (keys[event.key]) {
       keys[event.key]();
