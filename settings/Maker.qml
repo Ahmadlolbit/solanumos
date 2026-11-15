@@ -60,6 +60,14 @@ Tile {
     return true;
   }
 
+  function hop(direction) {
+    const fields = [nameField, background, foreground, accent, picked].filter(field => field.visible);
+    const held = maker.Window.activeFocusItem;
+    const at = fields.findIndex(field => !!held && held.parent === field);
+    fields[at < 0 ? 0 : (at + direction + fields.length) % fields.length].focusInput();
+    editing = true;
+  }
+
   function step(direction) {
     if (!open)
       return false;
@@ -70,7 +78,7 @@ Tile {
   }
 
   title: "Your own theme"
-  hint: !open ? (current ? "Enter opens it" : "From three colours, or any theme's colours changed") : current ? "Left: three colours · Right: change this theme's colours · Enter to type · Esc stops" : ""
+  hint: !open ? (current ? "Enter opens it" : "From three colours, or any theme's colours changed") : current ? "Left: three colours · Right: change this theme's colours · Enter to type · Tab: next field · Esc stops" : ""
 
   FontMetrics {
     id: metrics

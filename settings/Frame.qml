@@ -142,7 +142,7 @@ FocusScope {
     if (chooser.visible)
       return chooser.key(event);
     if (editing || list.activeFocus)
-      return event.key === Qt.Key_Escape ? takeKeys() : event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab;
+      return fieldKey(event);
     const keys = {
       [Qt.Key_Escape]: () => leave(),
       [Qt.Key_Tab]: () => flip(),
@@ -161,6 +161,15 @@ FocusScope {
       return true;
     }
     return typed(event);
+  }
+
+  function fieldKey(event) {
+    if (event.key === Qt.Key_Escape)
+      return takeKeys();
+    const step = event.key === Qt.Key_Tab ? 1 : event.key === Qt.Key_Backtab ? -1 : 0;
+    if (step && focused && focused.hop)
+      focused.hop(step);
+    return step !== 0;
   }
 
   function flip() {
