@@ -39,9 +39,9 @@ QtObject {
       "\\": "\\",
       "\"": "\""
     })
-  readonly property var eventPattern: /^([a-z]+)((?: \x22(?:[^\x22\\]+|\\(?:x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-7]{3}|[abfnrtv\\\x22]))*\x22)+)$/
-  readonly property var fieldPattern: /\x22(?:[^\x22\\]+|\\.)*\x22/g
-  readonly property var escapePattern: /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([0-7]{3})|(.))|[^\\]+/g
+  readonly property var specialPattern: /[\x22\\]/g
+  readonly property var escapeShape: /^\\(?:[abfnrtv\\\x22]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-3][0-7]{2})/
+  readonly property var escapePattern: /\\(?:x([0-9a-fA-F]{2})|u([0-9a-fA-F]{4})|U([0-9a-fA-F]{8})|([0-7]{3})|(.))/g
   readonly property var sequencePattern: /\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()*+].|\x1b./g
   readonly property Process child: Process {
     stdinEnabled: true
@@ -120,24 +120,50 @@ QtObject {
   }
 
   function unquoted(quoted) {
-    return quoted.slice(1, -1).replace(escapePattern, (all, hex, four, eight, octal, single) => {
+    return encoded(quoted.slice(1, -1)).replace(escapePattern, (all, hex, four, eight, octal, single) => {
       if (hex || octal)
         return String.fromCharCode(parseInt(hex || octal, hex ? 16 : 8));
       if (single)
         return escapes[single];
-      return encoded(four || eight ? String.fromCodePoint(parseInt(four || eight, 16)) : all);
+      return encoded(String.fromCodePoint(parseInt(four || eight, 16)));
     });
   }
 
+  function closing(text, from) {
+    specialPattern.lastIndex = from;
+    for (let found = specialPattern.exec(text); found; found = specialPattern.exec(text)) {
+      if (found[0] === "\"")
+        return found.index;
+      const shape = escapeShape.exec(text.slice(found.index, found.index + 10));
+      if (!shape)
+        return -1;
+      specialPattern.lastIndex = found.index + shape[0].length;
+    }
+    return -1;
+  }
+
+  function fields(text) {
+    const found = [];
+    let at = 0;
+    while (at < text.length) {
+      const end = text[at] === "\"" ? closing(text, at + 1) : -1;
+      if (end < 0)
+        return null;
+      found.push(text.slice(at, end + 1));
+      at = text[end + 1] === " " ? end + 2 : end + 1;
+    }
+    return found.length > 0 ? found : null;
+  }
+
   function parsed(line) {
-    const found = eventPattern.exec(line);
-    if (!found || !kinds.includes(found[1]))
-      return null;
+    const space = line.indexOf(" ");
+    const kind = line.slice(0, space);
+    const found = space > 0 && kinds.includes(kind) ? fields(line.slice(space + 1)) : null;
     try {
-      return {
-        kind: found[1],
-        fields: found[2].match(fieldPattern).map(unquoted)
-      };
+      return found ? {
+        kind: kind,
+        fields: found.map(unquoted)
+      } : null;
     } catch (error) {
       return null;
     }
