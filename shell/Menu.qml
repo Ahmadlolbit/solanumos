@@ -28,6 +28,7 @@ Scope {
       credits: makers
     })
   property var typed: []
+  property point pointer: Qt.point(-1, -1)
   readonly property var secretKeys: [Qt.Key_Up, Qt.Key_Up, Qt.Key_Down, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right, Qt.Key_Left, Qt.Key_Right, Qt.Key_B, Qt.Key_A]
   property var entries: ({})
   property var order: []
@@ -135,6 +136,7 @@ Scope {
     for (let at = id; at && at !== "root" && entries[at]; at = parentOf(at))
       path.unshift(at);
     stack = ["root"].concat(path);
+    pointer = Qt.point(-1, -1);
     open = true;
     enter();
     content.forceActiveFocus();
@@ -351,6 +353,13 @@ Scope {
   function move(step) {
     if (rows.length)
       index = (index + step + rows.length) % rows.length;
+  }
+
+  function point(at, where) {
+    const moved = pointer.x >= 0 && (Math.round(where.x) !== Math.round(pointer.x) || Math.round(where.y) !== Math.round(pointer.y));
+    pointer = where;
+    if (moved)
+      index = at;
   }
 
   function jump(step) {
@@ -702,7 +711,8 @@ Scope {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              onEntered: root.index = item.index
+              onEntered: root.point(item.index, mapToItem(null, mouseX, mouseY))
+              onPositionChanged: mouse => root.point(item.index, mapToItem(null, mouse.x, mouse.y))
               onClicked: root.activate(item.modelData)
             }
           }
