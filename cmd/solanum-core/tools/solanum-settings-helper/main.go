@@ -3,11 +3,10 @@ package helper
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/config"
-	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/settings"
@@ -16,7 +15,13 @@ import (
 const usage = "usage: pkexec solanum-settings-helper NAME VALUE"
 
 var install = func(modules []string) int {
-	return run.Status(filepath.Join(env.BinDir(), "solanum"), "install", "--only", strings.Join(modules, ","), "--yes")
+	person, _ := pkexec.Caller()
+	program, err := pkexec.Launcher(person)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	return run.Status(program, "install", "--only", strings.Join(modules, ","), "--yes")
 }
 
 func Main() {
