@@ -24,6 +24,8 @@ const (
 	snapLimit     = 20 * time.Minute
 	downloadLimit = 30 * time.Minute
 	yourDefaults  = ".local/state/solanum/defaults"
+	yourMimeApps  = ".config/mimeapps.list"
+	chosenSection = "[Default Applications]"
 )
 
 var (
@@ -240,15 +242,46 @@ func (context *Context) defaultApp(log *runlog.Log, name, entry string, types []
 	return err
 }
 
+func chosenDefaults(text string) map[string]string {
+	chosen := map[string]string{}
+	section := ""
+	for _, line := range strings.Split(text, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "[") {
+			section = line
+		} else if kind, entries, found := strings.Cut(line, "="); found && section == chosenSection {
+			chosen[strings.TrimSpace(kind)], _, _ = strings.Cut(strings.TrimSpace(entries), ";")
+		}
+	}
+	return chosen
+}
+
+func (context *Context) notChosen(log *runlog.Log, entry string, types []string) ([]string, error) {
+	path := context.Person.Path(yourMimeApps)
+	if !fsutil.IsFile(path) {
+		return types, nil
+	}
+	text, err := context.Person.Read(log, path)
+	if err != nil {
+		return nil, err
+	}
+	chosen := chosenDefaults(text)
+	return slices.DeleteFunc(slices.Clone(types), func(kind string) bool { return chosen[kind] != "" && chosen[kind] != entry }), nil
+}
+
 func (context *Context) defaultOnce(log *runlog.Log, name, entry string, types []string) (bool, error) {
 	stamp := context.Person.Path(filepath.Join(yourDefaults, name))
 	if fsutil.IsFile(stamp) {
 		return false, nil
 	}
+	open, err := context.notChosen(log, entry, types)
+	if err != nil {
+		return false, err
+	}
 	shared := filepath.Join(env.StateDir(), "defaults", name)
-	set := !fsutil.IsFile(shared)
+	set := !fsutil.IsFile(shared) && len(open) > 0
 	if set {
-		if err := context.Person.Run(log, append([]string{"xdg-mime", "default", entry}, types...)...); err != nil {
+		if err := context.Person.Run(log, append([]string{"xdg-mime", "default", entry}, open...)...); err != nil {
 			return false, err
 		}
 	}
