@@ -14,7 +14,10 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
-const pkgUsage = "usage: sudo solanum pkg install|remove NAME..."
+const (
+	pkgUsage    = "usage: sudo solanum pkg install|remove NAME..."
+	stoppedCode = 130
+)
 
 var (
 	packageName = regexp.MustCompile(`^[a-z0-9][a-z0-9+.-]{0,99}(:[a-z0-9-]{1,20})?$`)
@@ -31,17 +34,26 @@ func packagesWanted() (string, []string, bool) {
 	return action, names, known && len(names) > 0 && !slices.ContainsFunc(names, bad)
 }
 
-func othersDone() bool {
-	for waited := time.Duration(0); apt.Busy() || lock.Busy(); waited += othersPause {
+func lockedWhenFree() (*lock.Held, int) {
+	for waited := time.Duration(0); ; waited += othersPause {
+		if !apt.Busy() {
+			if held, err := lock.Take(); err == nil {
+				return held, 0
+			}
+		}
 		if waited == 0 {
 			ui.Busy("Waiting for another install or update to finish, perhaps the daily update")
 		}
-		if waited >= othersLimit || run.Stopped() {
-			return false
+		if run.Stopped() {
+			ui.Done()
+			ui.Skip("Stopped, nothing changed")
+			return nil, stoppedCode
+		}
+		if waited >= othersLimit {
+			return nil, fail("another install or update went on for 10 minutes, so nothing changed: try again once it ends")
 		}
 		time.Sleep(othersPause)
 	}
-	return true
 }
 
 func alsoRemoved(action string, names []string) []string {
@@ -62,12 +74,9 @@ func agreed(action string, names []string) bool {
 }
 
 func changePackages(action string, names []string) int {
-	if !othersDone() {
-		return fail("another install or update went on for 10 minutes, so nothing changed: try again once it ends")
-	}
-	held, err := lock.Take()
-	if err != nil {
-		return fail("%v", err)
+	held, code := lockedWhenFree()
+	if held == nil {
+		return code
 	}
 	defer held.Close()
 	listed := strings.Join(names, ", ")
@@ -76,7 +85,7 @@ func changePackages(action string, names []string) int {
 		return 0
 	}
 	ui.Busy(pkgVerbs[action][0] + listed)
-	code := run.Status("env", append(append([]string{"DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none", "apt-get"}, aptOptions...), append([]string{action}, names...)...)...)
+	code = run.Status("env", append(append([]string{"DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none", "apt-get"}, aptOptions...), append([]string{action}, names...)...)...)
 	ui.Done()
 	if code != 0 {
 		ui.Fail(pkgVerbs[action][0] + listed + " failed; the log says why")
