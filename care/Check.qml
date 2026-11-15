@@ -37,7 +37,8 @@ FocusScope {
     target: Store.task
 
     function onQuestionChanged() {
-      if (page.fixAll && page.fixing)
+      const asked = Store.task.question;
+      if (page.fixAll && Store.job === "doctor" && asked && asked.kind === "choose")
         Qt.callLater(() => Store.task.answer("Yes"));
     }
   }
