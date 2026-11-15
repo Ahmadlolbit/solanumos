@@ -114,5 +114,6 @@ func buttons() []Row {
 		{Name: "open.update", Label: "Update now", Page: "updates", Section: "Updates", Help: "What's waiting, updated in Care with a snapshot taken first; Super+U opens it too", Keywords: []string{"update", "upgrade", "care"}, Command: []string{"solanum", "care", "updates"}},
 		{Name: "open.check", Label: "Check the system", Page: "updates", Section: "Updates", Help: "The system check in Care, and the safe fixes it offers", Keywords: []string{"doctor", "check", "health"}, Command: []string{"solanum", "care", "check"}},
 		{Name: "open.next", Label: "Next wallpaper", Page: "wallpaper", Section: "Changing", Help: "The next picture along; Super+Ctrl+B does it too", Keywords: []string{"next background"}, Command: []string{"solanum-background", "next"}},
+		{Name: "open.software", Label: "Add and remove software", Page: "apps", Section: "Software", Help: "Apps, any Debian package and web apps, in the Software window; Super+A opens it too", Keywords: []string{"software", "install", "remove", "package", "apt", "web app"}, Command: []string{"solanum", "software"}},
 	}
 }
