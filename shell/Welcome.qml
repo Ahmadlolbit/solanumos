@@ -19,7 +19,8 @@ Scope {
     tip = "";
     tipper.running = true;
     open = true;
-    settings.forceActiveFocus();
+    content.forceActiveFocus();
+    settle.restart();
   }
 
   function close() {
@@ -28,6 +29,8 @@ Scope {
   }
 
   function run(command) {
+    if (!open)
+      return;
     close();
     Quickshell.execDetached(["sh", "-c", command]);
   }
@@ -37,6 +40,18 @@ Scope {
     const next = from ? from.nextItemInFocusChain(forward) : null;
     if (next)
       next.forceActiveFocus(forward ? Qt.TabFocusReason : Qt.BacktabFocusReason);
+  }
+
+  function key(event) {
+    if (settle.running)
+      return true;
+    if (event.key === Qt.Key_Escape)
+      close();
+    else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+      step(event.key === Qt.Key_Right);
+    else
+      return false;
+    return true;
   }
 
   onOpenChanged: {
@@ -66,6 +81,16 @@ Scope {
 
     interval: 2500
     onTriggered: root.show()
+  }
+
+  Timer {
+    id: settle
+
+    interval: 500
+    onTriggered: {
+      if (root.open)
+        settings.forceActiveFocus();
+    }
   }
 
   IpcHandler {
@@ -103,15 +128,7 @@ Scope {
       color: Qt.alpha(Theme.base, 0.85)
       opacity: root.open ? 1 : 0
       focus: true
-      Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape)
-          root.close();
-        else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
-          root.step(event.key === Qt.Key_Right);
-        else
-          return;
-        event.accepted = true;
-      }
+      Keys.onPressed: event => event.accepted = root.key(event)
 
       Fade on opacity {}
 
