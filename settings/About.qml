@@ -1,19 +1,49 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Io
 import qs.common
 
 Rectangle {
   id: about
 
   property bool current: false
+  property int at: 0
+  readonly property var buttons: [
+    {
+      stop: "copy",
+      label: "Copy the details",
+      primary: true
+    }
+  ]
+  readonly property var stops: buttons.map(button => button.stop)
   readonly property var facts: Store.about.facts || []
+  readonly property string details: [[Store.about.name || "SolanumOS Chert", Store.about.version].filter(word => !!word).join(" "), "Debian " + (Store.about.debian || "13")].concat(facts.map(fact => fact.label + ": " + fact.value)).join("\n")
 
   function activate() {
-    return false;
+    press(stops[at]);
+    return true;
   }
 
   function step(direction) {
-    return false;
+    if (at + direction < 0 || at + direction >= stops.length)
+      return false;
+    at += direction;
+    return true;
+  }
+
+  function press(stop) {
+    at = stops.indexOf(stop);
+    if (stop === "copy")
+      copy();
+  }
+
+  function copy() {
+    if (Store.busy || copier.running)
+      return;
+    Store.said = [];
+    Store.result = "";
+    copier.command = ["wl-copy", "--", details];
+    copier.running = true;
   }
 
   implicitHeight: layout.implicitHeight + 48
@@ -21,6 +51,19 @@ Rectangle {
   color: "transparent"
   border.width: current ? 2 : 1
   border.color: current ? Theme.accent : Theme.overlay
+
+  Process {
+    id: copier
+
+    stderr: SplitParser {
+      onRead: line => Store.heard(line)
+    }
+    onExited: code => {
+      if (code === 0)
+        Store.said = ["Copied the details"];
+      Store.result = code === 0 ? "done" : "failed";
+    }
+  }
 
   ColumnLayout {
     id: layout
@@ -139,6 +182,49 @@ Rectangle {
             font.features: ({
                 "tnum": 1
               })
+          }
+        }
+      }
+    }
+
+    Flow {
+      Layout.fillWidth: true
+      spacing: 8
+
+      Repeater {
+        model: about.buttons
+
+        Rectangle {
+          id: button
+
+          required property var modelData
+          required property int index
+          readonly property bool chosen: about.current && about.at === index
+          readonly property bool filled: modelData.primary !== (chosen || pointer.containsMouse)
+          readonly property color ink: modelData.primary ? Theme.accent : Theme.text
+
+          implicitWidth: face.implicitWidth + 32
+          implicitHeight: Theme.size(30)
+          radius: Theme.radius
+          color: filled ? ink : "transparent"
+          border.width: 2
+          border.color: chosen ? Theme.accent : ink
+
+          Label {
+            id: face
+
+            anchors.centerIn: parent
+            text: button.modelData.label
+            color: button.filled ? Theme.base : button.ink
+          }
+
+          MouseArea {
+            id: pointer
+
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: about.press(button.modelData.stop)
           }
         }
       }
