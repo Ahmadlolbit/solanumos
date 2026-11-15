@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	version       = 3
+	version       = 4
 	versionKey    = "SOLANUM_CONFIG_VERSION"
 	keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
-	newApps       = "imv evince obsidian localsend calculator texteditor"
+	newApps       = "imv evince obsidian localsend calculator"
+	appsNewIn4    = "texteditor"
 )
 
 var renamedThemes = map[string]string{"lumon": "northern-sea", "vantablack": "pitch-black"}
@@ -222,11 +223,14 @@ func (current *Config) migrate(loaded string) {
 	}
 	if from < 2 {
 		current.note("info", "updating the configuration for version 2: apps_add_new_defaults")
-		current.addNewApps()
+		current.addNewApps(newApps)
 	}
 	if from < 3 {
 		current.note("info", "updating the configuration for version 3: theme_names_update")
 		current.renameThemes()
+	}
+	if from < 4 && current.addNewApps(appsNewIn4) {
+		current.note("info", "updating the configuration for version 4: apps_add_text_editor")
 	}
 }
 
@@ -241,16 +245,18 @@ func added(list, word string) string {
 	return list + " " + word
 }
 
-func (current *Config) addNewApps() {
+func (current *Config) addNewApps(ids string) bool {
 	index := slices.IndexFunc(current.options, func(option options.Option) bool { return option.Key == "APPS" })
 	defaults := current.options[index].DefaultFor(current.values["PROFILE"])
 	apps := current.values["APPS"]
-	for _, id := range strings.Fields(newApps) {
+	for _, id := range strings.Fields(ids) {
 		if listed(defaults, id) && !listed(apps, id) {
 			apps = added(apps, id)
 		}
 	}
+	changed := apps != current.values["APPS"]
 	current.values["APPS"] = apps
+	return changed
 }
 
 func (current *Config) renameThemes() {
