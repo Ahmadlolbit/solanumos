@@ -160,10 +160,6 @@ Rectangle {
         item.editing = false;
         Store.set(item.row, text);
       }
-      onActiveFocusChanged: {
-        if (!activeFocus)
-          item.editing = false;
-      }
 
       MouseArea {
         anchors.fill: parent

@@ -141,8 +141,8 @@ FocusScope {
   function key(event) {
     if (chooser.visible)
       return chooser.key(event);
-    if (editing)
-      return event.key === Qt.Key_Escape ? stopEditing() : event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab;
+    if (editing || list.activeFocus)
+      return event.key === Qt.Key_Escape ? takeKeys() : event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab;
     const keys = {
       [Qt.Key_Escape]: () => leave(),
       [Qt.Key_Tab]: () => flip(),
@@ -168,12 +168,19 @@ FocusScope {
     return true;
   }
 
-  function stopEditing() {
+  function takeKeys() {
     if (focused && "editing" in focused)
       focused.editing = false;
     editing = false;
+    list.focus = false;
     frame.forceActiveFocus();
     return true;
+  }
+
+  function point(at) {
+    if (at !== index && editing)
+      takeKeys();
+    index = at;
   }
 
   function choose(row) {
@@ -186,7 +193,7 @@ FocusScope {
   onIndexChanged: list.currentIndex = index
   onEditingChanged: {
     if (!editing)
-      frame.forceActiveFocus();
+      Qt.callLater(takeKeys);
   }
   Keys.onPressed: event => {
     if (frame.key(event))
@@ -223,7 +230,7 @@ FocusScope {
       Store.show(id);
       frame.zone = "rows";
       frame.index = 0;
-      frame.forceActiveFocus();
+      frame.takeKeys();
     }
   }
 
@@ -310,7 +317,7 @@ FocusScope {
             grouped: frame.everyone.some(row => row.name === holder.name)
             onChosen: frame.choose(row)
             onEditingChanged: frame.editing = editing
-            onPointed: frame.index = holder.index
+            onPointed: frame.point(holder.index)
           }
         }
 
@@ -365,7 +372,7 @@ FocusScope {
 
           ThemeGrid {
             current: holder.index === frame.index && frame.zone === "rows"
-            onPointed: frame.index = holder.index
+            onPointed: frame.point(holder.index)
           }
         }
 
@@ -375,7 +382,7 @@ FocusScope {
           Maker {
             current: holder.index === frame.index && frame.zone === "rows"
             onEditingChanged: frame.editing = editing
-            onPointed: frame.index = holder.index
+            onPointed: frame.point(holder.index)
           }
         }
 
@@ -385,7 +392,7 @@ FocusScope {
           Pictures {
             every: holder.entry.every
             current: holder.index === frame.index && frame.zone === "rows"
-            onPointed: frame.index = holder.index
+            onPointed: frame.point(holder.index)
           }
         }
       }
@@ -402,7 +409,7 @@ FocusScope {
       id: chooser
 
       anchors.fill: parent
-      onClosed: frame.forceActiveFocus()
+      onClosed: frame.takeKeys()
     }
   }
 
