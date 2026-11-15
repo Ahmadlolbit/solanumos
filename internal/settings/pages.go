@@ -54,7 +54,7 @@ type Listing struct {
 var pages = []Page{
 	{"about", "About", "\uf05a", []string{"version", "system", "hardware", "credits", "licences", "debian"}},
 	{"themes", "Appearance and themes", "\uf53f", []string{"theme", "colours", "colors", "accent", "dark", "light", "fonts", "style", "your own theme"}},
-	{"wallpaper", "Wallpaper and desktop", "\uf03e", []string{"wallpaper", "background", "pictures", "slideshow", "logo"}},
+	{"wallpaper", "Wallpaper and desktop", "\uf03e", []string{"wallpaper", "background", "pictures", "slideshow", "logo", "life"}},
 	{"display", "Display", "\uf108", []string{"screen", "scale", "brightness", "night light", "corners"}},
 	{"sound", "Sound", "\uf028", []string{"audio", "volume", "speakers", "microphone", "chime"}},
 	{"network", "Network", "\uf1eb", []string{"wi-fi", "wifi", "internet", "networkmanager"}},

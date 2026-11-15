@@ -122,7 +122,7 @@ func Set(name, value string) (int, error) {
 	case strings.HasPrefix(name, "bar."):
 		return setBar(strings.TrimPrefix(name, "bar."), value)
 	case name == "logo":
-		return Runner(run.Sibling("solanum-background"), map[string]string{"yes": "logo", "no": "next"}[value]), nil
+		return Runner(run.Sibling("solanum-background"), map[string]string{"off": "off", "animated": "logo", "life": "life"}[value]), nil
 	}
 	return Runner(run.Sibling("solanum-look"), lookArgs(name, value, look.Open().Get)...), nil
 }
