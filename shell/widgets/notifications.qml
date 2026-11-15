@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import qs.common
+import qs.common.panels
 
 Label {
   id: root
@@ -11,6 +12,16 @@ Label {
   readonly property bool quiet: Notifications.quiet
   readonly property var shownItems: Notifications.shownItems
   readonly property int unread: Notifications.unread
+
+  function remove(event, item) {
+    if (event.modifiers & Qt.ShiftModifier)
+      Notifications.clear();
+    else if (item)
+      Notifications.dismiss(item.id);
+    else
+      return false;
+    return true;
+  }
 
   text: (quiet ? "\u{f009b}" : "\u{f009a}") + (unread > 0 ? " " + unread : "")
   color: unread > 0 && !quiet ? Theme.accent : Theme.subtext
@@ -32,102 +43,113 @@ Label {
         Notifications.open();
     }
 
-    RowLayout {
+    ColumnLayout {
       Layout.fillWidth: true
-      Layout.preferredWidth: Theme.size(340)
       spacing: 10
+      Keys.onDeletePressed: event => event.accepted = root.remove(event, null)
 
-      Label {
+      RowLayout {
         Layout.fillWidth: true
-        text: "Notifications"
-        font.bold: true
+        Layout.preferredWidth: Theme.size(340)
+        spacing: 10
+
+        Label {
+          Layout.fillWidth: true
+          text: "Notifications"
+          font.bold: true
+        }
+
+        Label {
+          text: "Do not disturb"
+          color: Theme.subtext
+        }
+
+        Toggle {
+              checked: root.quiet
+          onToggled: Notifications.toggleQuiet()
+        }
       }
 
       Label {
-        text: "Do not disturb"
+        visible: root.shownItems.length === 0
+        text: "Nothing yet"
         color: Theme.subtext
       }
 
-      Toggle {
-        checked: root.quiet
-        onToggled: Notifications.toggleQuiet()
-      }
-    }
+      Rows {
+        id: list
 
-    Label {
-      visible: root.shownItems.length === 0
-      text: "Nothing yet"
-      color: Theme.subtext
-    }
-
-    ListView {
-      id: list
-
-      visible: count > 0
-      Layout.fillWidth: true
-      Layout.preferredHeight: Math.min(contentHeight, 360)
-      clip: true
-      spacing: 8
-      model: root.shownItems
-
-      delegate: ColumnLayout {
-        required property var modelData
-
-        width: list.width
-        spacing: 2
-
-        Label {
-          Layout.fillWidth: true
-          text: modelData.app
-          color: modelData.critical ? Theme.critical : Theme.subtext
-          elide: Text.ElideRight
+        Layout.fillWidth: true
+        Layout.preferredHeight: Math.min(contentHeight, 360)
+        model: ScriptModel {
+          values: root.shownItems
+          objectProp: "id"
         }
 
-        Label {
-          Layout.fillWidth: true
-          text: modelData.summary
-          font.bold: true
-          elide: Text.ElideRight
-        }
+        delegate: Rectangle {
+          id: item
 
-        Label {
-          Layout.fillWidth: true
-          visible: text !== ""
-          text: modelData.body
-          wrapMode: Text.WordWrap
-          maximumLineCount: 3
-          elide: Text.ElideRight
-        }
-      }
-    }
+          required property var modelData
 
-    RowLayout {
-      spacing: 16
+          width: list.width
+          height: lines.implicitHeight + 8
+          radius: Theme.radius
+          color: "transparent"
+          border.width: activeFocus ? Theme.focusBorder : 0
+          border.color: Theme.accent
+          Keys.onDeletePressed: event => event.accepted = root.remove(event, item.modelData)
 
-      Label {
-        visible: root.shownItems.length > 0
-        text: "Clear"
-        color: Theme.accent
+          ColumnLayout {
+            id: lines
 
-        MouseArea {
-          anchors.fill: parent
-          cursorShape: Qt.PointingHandCursor
-          onClicked: Notifications.clear()
-        }
-      }
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.margins: 8
+            spacing: 2
 
-      Label {
-        visible: root.history.length > 0
-        text: "Show the last one"
-        color: Theme.accent
+            Label {
+              Layout.fillWidth: true
+              text: item.modelData.app
+              color: item.modelData.critical ? Theme.critical : Theme.subtext
+              elide: Text.ElideRight
+            }
 
-        MouseArea {
-          anchors.fill: parent
-          cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            Popups.close(popup);
-            Quickshell.execDetached(["makoctl", "restore"]);
+            Label {
+              Layout.fillWidth: true
+              text: item.modelData.summary
+              font.bold: true
+              elide: Text.ElideRight
+            }
+
+            Label {
+              Layout.fillWidth: true
+              visible: text !== ""
+              text: item.modelData.body
+              wrapMode: Text.WordWrap
+              maximumLineCount: 3
+              elide: Text.ElideRight
+            }
           }
+        }
+      }
+
+      Choice {
+        Layout.fillWidth: true
+        visible: root.shownItems.length > 0
+        icon: "\u{f1f8}"
+        label: "Clear"
+        onClicked: Notifications.clear()
+      }
+
+      Choice {
+        Layout.fillWidth: true
+        visible: root.history.length > 0
+        icon: "\u{f1da}"
+        label: "Show the last one"
+        onClicked: {
+          Popups.close(popup);
+          Quickshell.execDetached(["makoctl", "restore"]);
         }
       }
     }

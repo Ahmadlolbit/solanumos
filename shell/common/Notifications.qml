@@ -13,8 +13,9 @@ Singleton {
   property bool quiet: false
   property int seen: 0
   property int cleared: 0
+  property var dismissed: []
   property real refreshed: 0
-  readonly property var shownItems: items.filter(item => item.id > cleared)
+  readonly property var shownItems: items.filter(item => item.id > cleared && !dismissed.includes(item.id))
   readonly property int newest: items.length ? Math.max(...items.map(item => item.id)) : 0
   readonly property int unread: items.filter(item => item.id > Math.max(seen, cleared)).length
   readonly property string runtime: Quickshell.env("XDG_RUNTIME_DIR") || ""
@@ -22,6 +23,7 @@ Singleton {
 
   onSeenChanged: keeper.restart()
   onClearedChanged: keeper.restart()
+  onDismissedChanged: keeper.restart()
   onNewestChanged: startedAgain()
   Component.onCompleted: refresh()
 
@@ -66,6 +68,7 @@ Singleton {
     if (newest > 0 && newest < Math.max(seen, cleared)) {
       seen = 0;
       cleared = 0;
+      dismissed = [];
     }
   }
 
@@ -74,6 +77,7 @@ Singleton {
       const state = JSON.parse(text);
       seen = Math.max(seen, state.seen || 0);
       cleared = Math.max(cleared, state.cleared || 0);
+      dismissed = dismissed.concat((state.dismissed || []).filter(id => !dismissed.includes(id)));
     } catch (error) {
       return;
     }
@@ -93,6 +97,11 @@ Singleton {
 
   function clear() {
     cleared = newest;
+    dismissed = [];
+  }
+
+  function dismiss(id) {
+    dismissed = dismissed.filter(known => known > cleared).concat([id]);
   }
 
   function heard() {
@@ -176,7 +185,8 @@ Singleton {
     interval: 100
     onTriggered: kept.setText(JSON.stringify({
         seen: root.seen,
-        cleared: root.cleared
+        cleared: root.cleared,
+        dismissed: root.dismissed
       }))
   }
 
