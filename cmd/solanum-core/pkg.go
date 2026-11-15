@@ -27,9 +27,15 @@ var (
 	aptOptions  = []string{"-y", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Use-Pty=0", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold"}
 )
 
+func aPackage(name string) bool {
+	return run.Quiet(run.Quick, "apt-cache", "show", "--no-all-versions", name) == 0
+}
+
 func packagesWanted() (string, []string, bool) {
 	action, names := env.Arg(2), os.Args[min(3, len(os.Args)):]
-	bad := func(name string) bool { return !packageName.MatchString(name) }
+	bad := func(name string) bool {
+		return !packageName.MatchString(name) || strings.ContainsAny(name[len(name)-1:], "+-") && !aPackage(name)
+	}
 	_, known := pkgVerbs[action]
 	return action, names, known && len(names) > 0 && !slices.ContainsFunc(names, bad)
 }
