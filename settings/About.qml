@@ -13,6 +13,16 @@ Rectangle {
       stop: "copy",
       label: "Copy the details",
       primary: true
+    },
+    {
+      stop: "changes",
+      label: "What changed",
+      primary: false
+    },
+    {
+      stop: "check",
+      label: "Check the system",
+      primary: false
     }
   ]
   readonly property var stops: buttons.map(button => button.stop)
@@ -35,6 +45,10 @@ Rectangle {
     at = stops.indexOf(stop);
     if (stop === "copy")
       copy();
+    else if (stop === "changes")
+      Store.launch(["solanum-terminal", "--wait", "solanum", "changes"]);
+    else if (stop === "check")
+      Store.launch(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
   }
 
   function copy() {
@@ -143,6 +157,18 @@ Rectangle {
           font.bold: true
           font.capitalization: Font.AllUppercase
           font.letterSpacing: Theme.size(11) * 0.08
+        }
+
+        Label {
+          anchors.right: parent.right
+          anchors.verticalCenter: parent.verticalCenter
+          width: Math.min(implicitWidth, parent.width * 0.6)
+          visible: about.current
+          text: "Left and right to move · Enter presses"
+          color: Theme.subtext
+          font.pixelSize: Theme.size(11)
+          elide: Text.ElideLeft
+          horizontalAlignment: Text.AlignRight
         }
       }
 
