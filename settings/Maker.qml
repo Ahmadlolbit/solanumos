@@ -99,17 +99,20 @@ Tile {
       wrapMode: Text.Wrap
     }
 
-    RowLayout {
+    Flow {
+      Layout.fillWidth: true
       visible: maker.open
       spacing: 8
 
       Choice {
+        width: Math.min(implicitWidth, parent.width)
         label: "From three colours"
         selected: maker.mode === "make"
         onClicked: maker.step(-1)
       }
 
       Choice {
+        width: Math.min(implicitWidth, parent.width)
         label: "Change " + (Store.current ? Store.currentLabel : "this theme") + "'s colours"
         selected: maker.mode === "change"
         onClicked: maker.step(1)
@@ -117,19 +120,24 @@ Tile {
     }
 
     GridLayout {
+      Layout.fillWidth: true
       visible: maker.open
       columns: 2
       columnSpacing: 14
       rowSpacing: 8
 
       Label {
+        Layout.maximumWidth: maker.width * 0.4
         text: maker.mode === "change" && maker.own ? "Name, or empty to change it" : "Name"
         color: Theme.subtext
+        wrapMode: Text.Wrap
       }
 
       Field {
         id: nameField
 
+        Layout.fillWidth: true
+        Layout.maximumWidth: Theme.size(240)
         placeholder: maker.mode === "make" ? "my-theme" : "my-" + Store.current
         onAccepted: maker.save()
       }
@@ -143,6 +151,8 @@ Tile {
       Field {
         id: background
 
+        Layout.fillWidth: true
+        Layout.maximumWidth: Theme.size(240)
         visible: maker.mode === "make"
         text: "#002941"
         onTextChanged: maker.refresh()
@@ -158,6 +168,8 @@ Tile {
       Field {
         id: foreground
 
+        Layout.fillWidth: true
+        Layout.maximumWidth: Theme.size(240)
         visible: maker.mode === "make"
         text: "#b6dfed"
         onTextChanged: maker.refresh()
@@ -173,6 +185,8 @@ Tile {
       Field {
         id: accent
 
+        Layout.fillWidth: true
+        Layout.maximumWidth: Theme.size(240)
         visible: maker.mode === "make"
         text: "#fd6e6e"
         onTextChanged: maker.refresh()
@@ -199,21 +213,25 @@ Tile {
         spacing: 6
 
         Text {
+          width: parent.width
           text: "Text in the foreground reads like this."
           color: maker.named.foreground || Theme.text
+          wrapMode: Text.Wrap
           font.family: Theme.font
           font.pixelSize: Theme.fontSize
         }
 
         Text {
+          width: parent.width
           text: "The accent marks what's chosen."
           color: maker.named.accent || Theme.accent
+          wrapMode: Text.Wrap
           font.family: Theme.font
           font.pixelSize: Theme.fontSize
         }
 
         Rectangle {
-          width: chosen.implicitWidth + 16
+          width: Math.min(chosen.implicitWidth + 16, parent.width)
           height: chosen.implicitHeight + 6
           color: maker.named.selection || Theme.overlay
 
@@ -221,6 +239,8 @@ Tile {
             id: chosen
 
             anchors.centerIn: parent
+            width: Math.min(implicitWidth, parent.width - 16)
+            elide: Text.ElideRight
             text: "Selected text stays readable."
             color: maker.named.foreground || Theme.text
             font.family: Theme.font
@@ -228,7 +248,8 @@ Tile {
           }
         }
 
-        Row {
+        Flow {
+          width: parent.width
           spacing: 4
 
           Repeater {
@@ -311,12 +332,15 @@ Tile {
     }
 
     RowLayout {
+      Layout.fillWidth: true
       visible: maker.open && maker.mode === "change"
       spacing: 10
 
       Label {
+        Layout.fillWidth: true
         text: picked.key ? "New " + picked.key.replace(/_/g, " ") : "Click a colour to change it"
         color: Theme.subtext
+        wrapMode: Text.Wrap
       }
 
       Field {
@@ -351,6 +375,7 @@ Tile {
     }
 
     Choice {
+      Layout.maximumWidth: parent.width
       visible: maker.open
       label: maker.mode === "make" ? "Save it as your own theme" : maker.own && !nameField.text.trim() ? "Save the changes" : "Save as your own copy"
       icon: "\uf0c7"
