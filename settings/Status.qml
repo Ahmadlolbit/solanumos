@@ -64,10 +64,13 @@ Rectangle {
     MouseArea {
       anchors.fill: parent
       cursorShape: Qt.PointingHandCursor
-      onClicked: {
-        Store.result = "";
-        Store.said = [];
-      }
+      onClicked: Store.dismiss()
     }
+  }
+
+  Timer {
+    interval: 4000
+    running: Store.result === "done" && !Store.busy
+    onTriggered: Store.dismiss()
   }
 }

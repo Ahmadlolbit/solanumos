@@ -114,6 +114,11 @@ Singleton {
     Quickshell.execDetached(command);
   }
 
+  function dismiss() {
+    result = "";
+    said = [];
+  }
+
   function heard(line) {
     if (line.trim() !== "")
       said = said.concat([line]);
