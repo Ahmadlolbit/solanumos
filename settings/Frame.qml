@@ -376,6 +376,8 @@ FocusScope {
       text: Store.search ? "" : Store.pageNow.help || ""
       color: Theme.subtext
       wrapMode: Text.Wrap
+      maximumLineCount: 2
+      elide: Text.ElideRight
     }
 
     ListView {
@@ -514,7 +516,7 @@ FocusScope {
       }
     }
 
-    Hints {
+    Item {
       id: keys
 
       anchors.left: parent.left
@@ -522,7 +524,17 @@ FocusScope {
       anchors.leftMargin: 46
       anchors.bottomMargin: 16
       width: content.column - 28
-      pairs: frame.hints
+      height: Math.min(legend.implicitHeight, legend.line * 2 + legend.spacing)
+      clip: true
+
+      Hints {
+        id: legend
+
+        readonly property real line: Math.max(0, ...Array.from(children).map(child => child.height))
+
+        width: parent.width
+        pairs: frame.hints
+      }
     }
 
     Label {
