@@ -5,6 +5,7 @@ Item {
   id: sidebar
 
   property bool active: false
+  property bool seeking: false
   readonly property var entries: Store.pages.reduce((found, page, at) => found.concat(page.group && (at === 0 || Store.pages[at - 1].group !== page.group) ? [
         {
           heading: page.group
@@ -29,8 +30,8 @@ Item {
     height: Theme.size(32)
     radius: Theme.radius
     color: Theme.base
-    border.width: Store.search ? 2 : 1
-    border.color: Store.search ? Theme.accent : Theme.overlay
+    border.width: Store.search || sidebar.seeking ? 2 : 1
+    border.color: Store.search || sidebar.seeking ? Theme.accent : Theme.overlay
 
     Label {
       anchors.fill: parent

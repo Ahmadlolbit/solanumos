@@ -10,6 +10,7 @@ FocusScope {
   property string zone: "rows"
   property int index: 0
   property bool editing: false
+  property bool seeking: false
   readonly property int pageIndex: Math.max(0, Store.pages.findIndex(item => item.id === Store.page))
   readonly property var headers: Store.search ? [] : ({
       about: [
@@ -132,6 +133,14 @@ FocusScope {
     return true;
   }
 
+  function seek() {
+    Store.search = "";
+    seeking = true;
+    zone = "rows";
+    index = 0;
+    return true;
+  }
+
   function typed(event) {
     if (event.key === Qt.Key_Backspace && Store.search) {
       Store.search = Store.search.slice(0, -1);
@@ -146,8 +155,9 @@ FocusScope {
   }
 
   function leave() {
-    if (Store.search) {
+    if (Store.search || seeking) {
       Store.search = "";
+      seeking = false;
       index = 0;
     } else {
       done();
@@ -182,6 +192,8 @@ FocusScope {
       return chooser.key(event);
     if (editing || list.activeFocus)
       return fieldKey(event);
+    if (event.key === Qt.Key_Slash || event.key === Qt.Key_L && event.modifiers & Qt.ControlModifier)
+      return seek();
     const keys = {
       [Qt.Key_Escape]: () => leave(),
       [Qt.Key_Tab]: () => flip(),
@@ -200,6 +212,7 @@ FocusScope {
       [Qt.Key_End]: () => ends(1)
     };
     if (keys[event.key]) {
+      seeking = seeking && event.key === Qt.Key_Escape;
       keys[event.key]();
       return true;
     }
@@ -282,6 +295,7 @@ FocusScope {
     anchors.bottom: parent.bottom
     width: Theme.size(280)
     active: frame.zone === "pages"
+    seeking: frame.seeking
     onPicked: id => {
       Store.show(id);
       frame.zone = "rows";
