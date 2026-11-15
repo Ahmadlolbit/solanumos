@@ -47,9 +47,9 @@ Rectangle {
     if (stop === "copy")
       copy();
     else if (stop === "changes")
-      Store.launch(["solanum-terminal", "--wait", "solanum", "changes"]);
+      Store.launch(["solanum", "care", "changes"]);
     else if (stop === "check")
-      Store.launch(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
+      Store.launch(["solanum", "care", "check"]);
     else
       credits = !credits;
   }
