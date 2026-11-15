@@ -79,7 +79,11 @@ QtObject {
     if (!question || !child.running)
       return;
     question = null;
-    child.write("answer " + JSON.stringify(String(text)) + "\n");
+    child.write("answer " + JSON.stringify(mended(String(text))) + "\n");
+  }
+
+  function mended(text) {
+    return text.replace(/[\ud800-\udbff][\udc00-\udfff]|[\ud800-\udfff]/g, pair => pair.length === 2 ? pair : "\ufffd");
   }
 
   function stop() {
