@@ -35,6 +35,7 @@ Singleton {
     }
   ]
   readonly property int most: 200
+  readonly property int perJob: 100
   readonly property string helper: (Quickshell.env("SOLANUM_BIN_DIR") || "/usr/local/bin") + "/solanum-task-helper"
   property string page: pages.some(each => each.id === Quickshell.env("SOLANUM_SOFTWARE_PAGE")) ? Quickshell.env("SOLANUM_SOFTWARE_PAGE") : "apps"
   property string wanted: Quickshell.env("SOLANUM_SOFTWARE_ITEM") || ""
@@ -145,6 +146,13 @@ Singleton {
     return apps.filter(app => list.every(word => (app.name + " " + app.id + " " + app.group).toLowerCase().includes(word)));
   }
 
+  function chunked(list) {
+    const found = [];
+    for (let at = 0; at < list.length; at += perJob)
+      found.push(list.slice(at, at + perJob));
+    return found;
+  }
+
   function changes() {
     const all = Object.values(marks);
     const apps = all.filter(each => each.kind === "app").map(each => ({
@@ -152,7 +160,7 @@ Singleton {
           args: [each.id],
           label: (each.install ? "Install " : "Remove ") + each.name
         }));
-    const packages = [true, false].map(install => all.filter(each => each.kind === "pkg" && each.install === install)).filter(group => group.length > 0).map(group => ({
+    const packages = [].concat(...[true, false].map(install => chunked(all.filter(each => each.kind === "pkg" && each.install === install)))).map(group => ({
           job: group[0].install ? "pkg-install" : "pkg-remove",
           args: group.map(each => each.id),
           label: (group[0].install ? "Install " : "Remove ") + group.map(each => each.id).join(", ")
