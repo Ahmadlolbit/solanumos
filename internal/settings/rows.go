@@ -150,11 +150,11 @@ func yourRow(row yours, settings *look.Store) Row {
 func List() Listing {
 	settings := look.Open()
 	var rows []Row
-	for _, row := range yourRows {
-		rows = append(rows, yourRow(row, settings))
-	}
 	for _, row := range barRows {
 		rows = append(rows, Row{Name: "bar." + row.key, Label: row.label, Page: row.page, Section: row.section, Kind: row.kind, Value: barValue(row.key, row.fallback), Whose: Yours, Help: row.help, Choices: choicesOf(row.choices)})
+	}
+	for _, row := range yourRows {
+		rows = append(rows, yourRow(row, settings))
 	}
 	current := config.Read(config.Path())
 	facts := current.Facts(detect.NvidiaOnBus())
