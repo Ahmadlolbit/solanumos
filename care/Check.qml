@@ -33,13 +33,25 @@ FocusScope {
 
   onWorkingChanged: Qt.callLater(enter)
 
+  function settle() {
+    const asked = Store.task.question;
+    if (page.fixAll && !Store.holding && Store.job === "doctor" && asked && asked.kind === "choose")
+      Store.task.answer("Yes");
+  }
+
   Connections {
     target: Store.task
 
     function onQuestionChanged() {
-      const asked = Store.task.question;
-      if (page.fixAll && Store.job === "doctor" && asked && asked.kind === "choose")
-        Qt.callLater(() => Store.task.answer("Yes"));
+      Qt.callLater(page.settle);
+    }
+  }
+
+  Connections {
+    target: Store
+
+    function onHoldingChanged() {
+      Qt.callLater(page.settle);
     }
   }
 

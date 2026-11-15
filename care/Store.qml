@@ -37,6 +37,7 @@ Singleton {
   property var notes: null
   property string job: ""
   property string part: ""
+  property bool holding: false
   readonly property string helper: Quickshell.env("SOLANUM_TASK_HELPER") || "/usr/local/bin/solanum-task-helper"
   property alias task: work
   readonly property bool running: work.running

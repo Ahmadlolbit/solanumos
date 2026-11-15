@@ -32,6 +32,7 @@ FocusScope {
 
   function ask() {
     asking = true;
+    Store.holding = true;
     takeKeys();
   }
 
@@ -39,6 +40,7 @@ FocusScope {
     asking = false;
     if (stop)
       Store.task.stop();
+    Store.holding = false;
     return takeKeys();
   }
 
