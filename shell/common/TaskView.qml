@@ -77,7 +77,10 @@ FocusScope {
   }
 
   Keys.onPressed: event => event.accepted = root.pressed(event)
-  onQuestionChanged: Qt.callLater(settle)
+  onQuestionChanged: {
+    field.text = "";
+    Qt.callLater(settle);
+  }
   onRunningChanged: Qt.callLater(settle)
   onCodeChanged: Qt.callLater(settle)
 
