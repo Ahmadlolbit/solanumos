@@ -117,12 +117,27 @@ func Changed(text string, changes map[string]string) string {
 	if background == "" || strings.EqualFold(background, colors["background"]) {
 		return WithColours(text, changes)
 	}
+	flipped := Dark(background) != Dark(colors["background"])
 	maps.Copy(colors, changes)
-	colors.fallback("foreground", "", defaultLooks[Dark(background)]["foreground"])
+	if (flipped && changes["foreground"] == "") || colors["foreground"] == "" {
+		colors["foreground"] = defaultLooks[Dark(background)]["foreground"]
+	}
 	colors.fallback("accent", "blue", "")
+	colors.carry("foreground", changes)
+	colors.carry("accent", changes)
 	made := Make(background, colors["foreground"], colors["accent"])
 	maps.Copy(made, changes)
 	return made.File()
+}
+
+func (colors Colors) carry(key string, changes map[string]string) {
+	ratio := TextRatio
+	if key == "accent" && NearestHue(colors[key]) == "" {
+		ratio = AccentRatio
+	}
+	if changes[key] == "" {
+		colors.lift(key, ratio)
+	}
 }
 
 func WithColours(text string, changes map[string]string) string {
