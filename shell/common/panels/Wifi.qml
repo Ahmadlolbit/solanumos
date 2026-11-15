@@ -84,6 +84,11 @@ ColumnLayout {
     return "could not connect";
   }
 
+  function leave(command) {
+    done();
+    Quickshell.execDetached(command);
+  }
+
   spacing: 10
   onActiveChanged: {
     asking = null;
@@ -215,10 +220,14 @@ ColumnLayout {
     Layout.fillWidth: true
     icon: "\u{f013}"
     label: "More settings"
-    onClicked: {
-      root.done();
-      Quickshell.execDetached(["kitty", "--class", "nmtui", "-e", "nmtui-connect"]);
-    }
+    onClicked: root.leave(["solanum", "settings", "network"])
+  }
+
+  Choice {
+    Layout.fillWidth: true
+    icon: "\u{f120}"
+    label: "Connections in a terminal"
+    onClicked: root.leave(["solanum-terminal", "nmtui-connect"])
   }
 
   Process {
