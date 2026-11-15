@@ -16,7 +16,7 @@ Scope {
   readonly property int rowHeight: Theme.size(28)
   readonly property var shown: binds.filter(item => (item.keys + " " + item.text).toLowerCase().includes(filter.toLowerCase()))
   readonly property var order: ["Apps", "Windows", "Workspaces", "Look", "Capture", "Media and hardware", "Yours"]
-  readonly property var groups: [["Capture", /screenshot|record/], ["Media and hardware", /wpctl|playerctl|brightnessctl|volume|mute|brightness|track/], ["Look", /picker|background|solanum-look|theme|reader/], ["Apps", /kitty|xdg-open|gtk-launch|walker|hyprlock|ipc call (menu|keys)|solanum settings|terminal|files|browser|launcher|menu|settings|lock/], ["Workspaces", /workspace|scratchpad|special/], ["Windows", /window|focus|full ?screen|float|pseudo|split|resize|cycle|killactive/]]
+  readonly property var groups: [["Capture", /screenshot|record/], ["Media and hardware", /wpctl|playerctl|brightnessctl|volume|mute|brightness|track|play|pause/], ["Look", /picker|background|solanum-look|theme|reader/], ["Apps", /kitty|xdg-open|gtk-launch|walker|hyprlock|ipc call (menu|keys)|solanum settings|terminal|files|browser|launcher|menu|settings|lock|key bindings/], ["Workspaces", /workspace|scratchpad|special/], ["Windows", /window|focus|full ?screen|float|pseudo|split|resize|cycle|killactive/]]
   readonly property var sections: order.map(name => ({
         name: name,
         binds: shown.filter(item => item.group === name)
