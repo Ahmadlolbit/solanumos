@@ -6,6 +6,8 @@ import qs.common
 ShellRoot {
   id: root
 
+  settings.watchFiles: false
+
   IpcHandler {
     target: "care"
 
