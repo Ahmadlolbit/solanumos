@@ -741,16 +741,17 @@
   "install": {
     "glyph": "\udb80\ude49",
     "label": "Install",
-    "list": "install",
+    "action": "solanum software apps",
     "keywords": [
       "install",
-      "add"
+      "add",
+      "software"
     ]
   },
   "install.package": {
     "glyph": "\udb80\udfd7",
     "label": "Any Debian package",
-    "action": "solanum-terminal --wait solanum-pkg install",
+    "action": "solanum software packages",
     "keywords": [
       "install",
       "package",
@@ -760,7 +761,7 @@
   "install.webapp": {
     "glyph": "\uf0ac",
     "label": "A website as an app",
-    "action": "solanum-terminal --wait solanum-webapp add",
+    "action": "solanum software webapps",
     "keywords": [
       "web",
       "app",
@@ -771,16 +772,17 @@
   "remove": {
     "glyph": "\udb82\udf4c",
     "label": "Remove",
-    "list": "remove",
+    "action": "solanum software apps",
     "keywords": [
       "remove",
-      "uninstall"
+      "uninstall",
+      "software"
     ]
   },
   "remove.package": {
     "glyph": "\udb80\udfd7",
     "label": "Any package",
-    "action": "solanum-terminal --wait solanum-pkg remove",
+    "action": "solanum software packages",
     "keywords": [
       "remove",
       "uninstall",
@@ -791,7 +793,7 @@
   "remove.webapp": {
     "glyph": "\uf0ac",
     "label": "A web app",
-    "action": "solanum-terminal --wait solanum-webapp remove",
+    "action": "solanum software webapps",
     "keywords": [
       "web",
       "app"
