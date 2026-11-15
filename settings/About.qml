@@ -223,38 +223,14 @@ Rectangle {
       Repeater {
         model: about.buttons
 
-        Rectangle {
-          id: button
-
+        Button {
           required property var modelData
           required property int index
-          readonly property bool chosen: about.current && about.at === index
-          readonly property bool filled: modelData.primary !== (chosen || pointer.containsMouse)
-          readonly property color ink: modelData.primary ? Theme.accent : Theme.text
 
-          implicitWidth: face.implicitWidth + 32
-          implicitHeight: Theme.size(30)
-          radius: Theme.radius
-          color: filled ? ink : "transparent"
-          border.width: 2
-          border.color: chosen ? Theme.accent : ink
-
-          Label {
-            id: face
-
-            anchors.centerIn: parent
-            text: button.modelData.label
-            color: button.filled ? Theme.base : button.ink
-          }
-
-          MouseArea {
-            id: pointer
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: about.press(button.modelData.stop)
-          }
+          label: modelData.label
+          primary: modelData.primary
+          chosen: about.current && about.at === index
+          onClicked: about.press(modelData.stop)
         }
       }
     }
