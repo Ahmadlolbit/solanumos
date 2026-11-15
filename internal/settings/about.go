@@ -25,7 +25,8 @@ const (
 )
 
 var (
-	placeholders = []string{"", "none", "default string", "not applicable", "not specified", "o.e.m.", "oem", "system product name", "system version", "to be filled by o.e.m.", "type1productconfigid", "unknown"}
+	placeholders = []string{"", "all series", "default string", "invalid", "n/a", "none", "not applicable", "not available", "not defined", "not specified", "o.e.m.", "oem",
+		"system product name", "system version", "to be filled by o.e.m.", "type1productconfigid", "undefined", "unknown"}
 	makers       = map[string]string{"Intel Corporation": "Intel", "Advanced Micro Devices, Inc. [AMD/ATI]": "AMD", "NVIDIA Corporation": "NVIDIA"}
 	graphicsKind = []string{"VGA compatible controller", "3D controller", "Display controller"}
 )
