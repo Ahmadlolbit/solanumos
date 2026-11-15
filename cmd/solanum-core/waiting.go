@@ -29,13 +29,14 @@ type waiting struct {
 	Last     string    `json:"last"`
 	Restart  bool      `json:"restart"`
 	Busy     bool      `json:"busy"`
+	Unread   []string  `json:"unread"`
 }
 
-func debianWaiting() []pending {
+func debianWaiting() ([]pending, bool) {
 	list := []pending{}
 	output, err := run.CaptureInEnglish(run.Minute, "apt", "list", "--upgradable")
 	if err != nil {
-		return list
+		return list, false
 	}
 	for _, line := range run.Lines(output) {
 		name, rest, found := strings.Cut(line, "/")
@@ -45,7 +46,7 @@ func debianWaiting() []pending {
 			list = append(list, pending{name, strings.TrimSuffix(from, "]"), fields[1]})
 		}
 	}
-	return list
+	return list, true
 }
 
 func appsWaiting() ([]pending, []string) {
@@ -127,8 +128,13 @@ func listUpdates() int {
 		return fail(updateUsage)
 	}
 	apps, tools := appsWaiting()
+	debian, read := debianWaiting()
+	unread := []string{}
+	if !read {
+		unread = append(unread, "debian")
+	}
 	return printed(waiting{
-		Debian:   debianWaiting(),
+		Debian:   debian,
 		Apps:     apps,
 		Tools:    tools,
 		Solanum:  solanumWaiting(),
@@ -136,6 +142,7 @@ func listUpdates() int {
 		Last:     lastUpgrade(),
 		Restart:  restartPending(),
 		Busy:     lock.Busy(),
+		Unread:   unread,
 	})
 }
 

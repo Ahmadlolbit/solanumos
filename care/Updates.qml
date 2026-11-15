@@ -23,7 +23,7 @@ FocusScope {
     {
       label: "Debian",
       list: waiting.debian,
-      empty: "Up to date"
+      empty: (waiting.unread || []).includes("debian") ? "Couldn't read what's waiting" : "Up to date"
     },
     {
       label: "Apps",
