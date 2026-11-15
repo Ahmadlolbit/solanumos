@@ -22,6 +22,7 @@ const (
 	suffix      = ".desktop"
 	addressKey  = "X-Solanum-Address="
 	nameKey     = "Name="
+	iconKey     = "Icon="
 	slugLength  = 12
 	GenericIcon = "applications-internet"
 )
@@ -92,7 +93,7 @@ func Favicon(address string) string {
 
 func Entry(name, address, icon string) string {
 	return "[Desktop Entry]\nType=Application\n" + nameKey + name + "\nComment=" + address + " in its own window\nExec=solanum-webapp open " + Slug(name) +
-		"\nIcon=" + icon + "\nCategories=Network;\nStartupNotify=true\nTerminal=false\n" + addressKey + address + "\n"
+		"\n" + iconKey + icon + "\nCategories=Network;\nStartupNotify=true\nTerminal=false\n" + addressKey + address + "\n"
 }
 
 func field(text, key string) string {
@@ -123,14 +124,30 @@ func Taken(name string) string {
 	return ""
 }
 
+type Made struct {
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Icon    string `json:"icon"`
+}
+
+func List() []Made {
+	var made []Made
+	for _, entry := range fsutil.Entries(Folder()) {
+		if !strings.HasPrefix(entry.Name(), prefix) || !strings.HasSuffix(entry.Name(), suffix) {
+			continue
+		}
+		text := fsutil.Optional(filepath.Join(Folder(), entry.Name()))
+		if name := field(text, nameKey); name != "" {
+			made = append(made, Made{name, cmp.Or(field(text, addressKey), field(text, oldname.AddressKey)), field(text, iconKey)})
+		}
+	}
+	return made
+}
+
 func Names() []string {
 	var names []string
-	for _, entry := range fsutil.Entries(Folder()) {
-		if strings.HasPrefix(entry.Name(), prefix) && strings.HasSuffix(entry.Name(), suffix) {
-			if name := field(fsutil.Optional(filepath.Join(Folder(), entry.Name())), nameKey); name != "" {
-				names = append(names, name)
-			}
-		}
+	for _, each := range List() {
+		names = append(names, each.Name)
 	}
 	return names
 }

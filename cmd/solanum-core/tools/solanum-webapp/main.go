@@ -2,9 +2,12 @@ package webapp
 
 import (
 	"bufio"
+	"cmp"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
@@ -16,7 +19,7 @@ import (
 
 const usage = `Usage: solanum-webapp add [NAME URL [ICON]]
        solanum-webapp remove [NAME]
-       solanum-webapp list
+       solanum-webapp list [--json]
        solanum-webapp open SLUG
 
 add makes a website an app of its own: it shows in the launcher with the
@@ -146,10 +149,21 @@ func remove(args []string) int {
 	return 0
 }
 
-func list() int {
-	for _, name := range run.Sorted(webapp.Names()) {
-		fmt.Println(name)
+func list(asJSON bool) int {
+	if !asJSON {
+		for _, name := range run.Sorted(webapp.Names()) {
+			fmt.Println(name)
+		}
+		return 0
 	}
+	made := append([]webapp.Made{}, webapp.List()...)
+	slices.SortFunc(made, func(a, b webapp.Made) int { return cmp.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name)) })
+	data, err := json.Marshal(made)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	fmt.Println(string(data))
 	return 0
 }
 
@@ -160,7 +174,7 @@ func Main() {
 	case "remove":
 		os.Exit(remove(os.Args[2:]))
 	case "list":
-		os.Exit(list())
+		os.Exit(list(env.Arg(2) == "--json"))
 	case "open":
 		os.Exit(open(env.Arg(2)))
 	case "-h", "--help", "help":
