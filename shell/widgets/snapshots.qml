@@ -46,18 +46,14 @@ Label {
       color: Theme.critical
     }
 
-    Label {
+    Choice {
+      Layout.fillWidth: true
       visible: root.stale
-      text: "Check the system"
-      color: Theme.accent
-
-      MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: {
-          Popups.close(popup);
-          Quickshell.execDetached(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
-        }
+      icon: "\u{f0f1}"
+      label: "Check the system"
+      onClicked: {
+        Popups.close(popup);
+        Quickshell.execDetached(["solanum-terminal", "--wait", "sudo", "solanum", "doctor"]);
       }
     }
   }
