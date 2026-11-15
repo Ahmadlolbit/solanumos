@@ -29,6 +29,7 @@ const (
 var (
 	webTypes     = []string{"x-scheme-handler/http", "x-scheme-handler/https", "text/html", "application/xhtml+xml"}
 	imageTypes   = []string{"image/png", "image/jpeg", "image/gif", "image/webp", "image/bmp", "image/tiff", "image/svg+xml", "image/avif", "image/heif"}
+	textTypes    = []string{"text/plain"}
 	videoTypes   = []string{"video/mp4", "video/x-matroska", "video/webm", "video/quicktime", "video/x-msvideo", "video/mpeg", "video/ogg", "audio/mpeg", "audio/ogg", "audio/flac", "audio/x-wav", "audio/mp4", "audio/aac", "audio/opus"}
 	archiveTypes = []string{
 		"application/zip", "application/x-tar", "application/gzip", "application/x-compressed-tar", "application/x-7z-compressed",
@@ -224,7 +225,7 @@ func (context *Context) appConfig(app apps.App) {
 func AddApp(context *Context, app apps.App) {
 	context.Run.Step("Install "+app.Name, func(log *runlog.Log) error { return context.appInstall(log, app) })
 	context.appConfig(app)
-	context.Run.Step("Choose the apps that open images, PDFs, videos and archives", context.defaultApps)
+	context.Run.Step("Choose the apps that open images, PDFs, videos, archives and text files", context.defaultApps)
 }
 
 func RemoveApp(context *Context, app apps.App) {
@@ -285,6 +286,7 @@ func (context *Context) defaultApps(log *runlog.Log) error {
 		{"pdf", viewer, []string{"application/pdf"}},
 		{"videos", "vlc.desktop", videoTypes},
 		{"archives", "org.kde.ark.desktop", archiveTypes},
+		{"text", "org.gnome.TextEditor.desktop", textTypes},
 	} {
 		if err := context.defaultApp(log, choice.name, choice.entry, choice.types); err != nil {
 			return err
@@ -352,7 +354,7 @@ func appSteps(context *Context) {
 	if context.Config.Enabled("APPS", "helium") {
 		context.heliumDefault()
 	}
-	context.Run.Step("Choose the apps that open images, PDFs, videos and archives", context.defaultApps)
+	context.Run.Step("Choose the apps that open images, PDFs, videos, archives and text files", context.defaultApps)
 	chezmoiSteps(context)
 	extrasSteps(context)
 }
