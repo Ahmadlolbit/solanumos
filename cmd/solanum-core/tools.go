@@ -18,6 +18,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-sensors"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-settings-helper"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-start"
+	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-task-helper"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-terminal"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-tip"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-weather"
@@ -39,6 +40,7 @@ var tools = map[string]func(){
 	"solanum-sensors":         sensors.Main,
 	"solanum-settings-helper": helper.Main,
 	"solanum-start":           start.Main,
+	"solanum-task-helper":     task.Main,
 	"solanum-terminal":        terminal.Main,
 	"solanum-tip":             tip.Main,
 	"solanum-weather":         weather.Main,

@@ -44,8 +44,12 @@ func appsByCategory(catalogue []apps.App, present func(apps.App) bool) string {
 	return list.String() + "\n* installed\n"
 }
 
-func appChange(action string, change func(apps.App) int) int {
+func appChange(action string, change func(apps.App, engine.Options) int) int {
+	options := engine.Options{Events: env.Arg(3) == "--events"}
 	id := env.Arg(3)
+	if options.Events {
+		id = env.Arg(4)
+	}
 	if id == "" {
 		return fail("usage: sudo solanum app %s APP (see: solanum app list)", action)
 	}
@@ -56,7 +60,7 @@ func appChange(action string, change func(apps.App) int) int {
 	if os.Getenv("SOLANUM_ENGINE") == "" {
 		return throughScript()
 	}
-	return asRoot("app "+action+" "+id, func() int { return change(app) })
+	return asRoot("app "+action+" "+id, func() int { return change(app, options) })
 }
 
 func appCommand() int {

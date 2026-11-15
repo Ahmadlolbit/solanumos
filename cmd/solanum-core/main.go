@@ -8,12 +8,15 @@ import (
 	"path/filepath"
 	"slices"
 
+	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/events"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const usage = `solanum %s - Hyprland on Debian, set up properly
@@ -132,6 +135,21 @@ func asRoot(mode string, command func() int) int {
 	return command()
 }
 
+func onBehalf() (account.Account, bool) {
+	caller := os.Getenv("PKEXEC_UID")
+	if os.Geteuid() != 0 || caller == "" {
+		return account.Account{}, false
+	}
+	person, found := account.Target()
+	human := slices.ContainsFunc(account.Humans(), func(each account.Account) bool { return each.UID == caller })
+	return person, found && human && person.UID == caller
+}
+
+func forAPerson() bool {
+	_, helped := onBehalf()
+	return os.Geteuid() != 0 || helped
+}
+
 func nothingAfter(name string, command func() int) func() int {
 	return func() int {
 		if env.Arg(2) != "" {
@@ -153,11 +171,8 @@ func alone(command func() int) func() int {
 }
 
 func say(text string) int {
-	if _, err := os.Stdout.WriteString(text); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return 1
-	}
-	return 0
+	ui.Print(text)
+	return ui.ExitCode()
 }
 
 func remove(path string) int {
@@ -188,6 +203,22 @@ func throughScript() int {
 	return run.Report(run.Exec("bash", append([]string{script()}, os.Args[1:]...)...))
 }
 
+var (
+	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo"}
+	streamed      bool
+)
+
+func takeEvents() {
+	if !slices.Contains(eventCommands, env.Arg(1)) || env.Arg(2) != "--events" {
+		return
+	}
+	os.Args = slices.Delete(os.Args, 2, 3)
+	streamed = true
+	cleanup.OwnGroup()
+	ui.Attach(events.Open(os.Stdin, os.Stdout, cleanup.StopGroup))
+	run.Mirror(ui.Mirror)
+}
+
 var beforeTheMove = []string{"install", "update", "app", "changes", "collect", "restore", "guide", "credits", "help", "-h", "--help", "version", "--version", "first-start", "install-os"}
 
 func command(name string) (func() int, bool) {
@@ -212,6 +243,7 @@ func main() {
 		os.Exit(run.Report(run.Exec("solanum", os.Args[1:]...)))
 	}
 	if command, ok := command(env.Arg(1)); ok {
+		takeEvents()
 		os.Exit(command())
 	}
 	os.Exit(fail("unknown command: %s (see: solanum help)", env.Arg(1)))

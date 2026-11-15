@@ -14,17 +14,19 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/deployed"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
 	releaseSigners = "manifests/release-signers"
 	writeAccess    = 2
+	signersMode    = 0o755
 )
 
 var errNoReleaseKey = errors.New("no release key")
 
 func trustedSigners() (string, func(), error) {
-	keys, _ := run.CaptureQuiet(run.Quick, "git", "-C", root(), "show", "HEAD:"+releaseSigners)
+	keys, _ := gitOutput(run.Quick, "show", "HEAD:"+releaseSigners)
 	if strings.TrimSpace(keys) == "" {
 		return "", func() {}, errNoReleaseKey
 	}
@@ -34,6 +36,10 @@ func trustedSigners() (string, func(), error) {
 	}
 	done := func() { os.RemoveAll(folder) }
 	path := filepath.Join(folder, "allowed_signers")
+	if err := os.Chmod(folder, signersMode); err != nil {
+		done()
+		return "", func() {}, err
+	}
 	if err := atomic.Write(path, []byte(keys+"\n"), 0o644); err != nil {
 		done()
 		return "", func() {}, err
@@ -42,17 +48,17 @@ func trustedSigners() (string, func(), error) {
 }
 
 func signedByRelease(signers, tag string) bool {
-	verify := []string{"-C", root(), "-c", "gpg.ssh.allowedSignersFile=" + signers, "-c", "gpg.ssh.program=ssh-keygen", "-c", "gpg.openpgp.program=false", "-c", "gpg.x509.program=false", "verify-tag", tag}
-	if run.Quiet(run.Quick, "git", verify...) != 0 {
+	verify := []string{"-c", "gpg.ssh.allowedSignersFile=" + signers, "-c", "gpg.ssh.program=ssh-keygen", "-c", "gpg.openpgp.program=false", "-c", "gpg.x509.program=false", "verify-tag", tag}
+	if gitQuiet(run.Quick, verify...) != 0 {
 		return false
 	}
-	object, _ := run.CaptureQuiet(run.Quick, "git", "-C", root(), "cat-file", "tag", tag)
+	object, _ := gitOutput(run.Quick, "cat-file", "tag", tag)
 	header, _, _ := strings.Cut(object, "\n\n")
 	return slices.Contains(run.Lines(header), "tag "+tag)
 }
 
 func related(older, newer string) bool {
-	return run.Quiet(run.Quick, "git", "-C", root(), "merge-base", "--is-ancestor", older, newer) == 0
+	return gitQuiet(run.Quick, "merge-base", "--is-ancestor", older, newer) == 0
 }
 
 func newestSigned(signers string) (string, []string) {
@@ -87,7 +93,7 @@ func releaseTarget() (string, string, error) {
 	}
 	tag, skipped := newestSigned(signers)
 	for _, line := range skipped {
-		fmt.Println(line)
+		ui.Print(line + "\n")
 	}
 	if tag == "" {
 		return "", "", errors.New("no release tag is signed with the release key yet")
@@ -97,18 +103,21 @@ func releaseTarget() (string, string, error) {
 
 func afterUpdate(from, to string) int {
 	args := []string{script(), "install"}
+	if streamed {
+		args = append(args, "--events")
+	}
 	if text := changesBetween(from, to); text != "" {
-		dir := changesDir()
-		err := writeChanges(dir, text)
+		path, err := saveChanges(text)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "cannot save the update notes:", err)
 		}
-		fmt.Printf("\nWhat changed:\n%s\n", text)
+		ui.Print("\nWhat changed:\n" + text + "\n")
 		if err == nil {
-			args = append(args, "--changes", filepath.Join(dir, "changes.txt"))
+			args = append(args, "--changes", path)
 		}
 	}
-	return run.Report(run.Exec("sudo", args...))
+	setup := admin(args...)
+	return run.Report(run.Exec(setup[0], setup[1:]...))
 }
 
 func setupBehind(head string) (string, bool) {
@@ -122,7 +131,7 @@ func setupBehind(head string) (string, bool) {
 	if from == "" {
 		return "", false
 	}
-	if run.Quiet(run.Quick, "git", "-C", root(), "cat-file", "-e", from+"^{commit}") != 0 {
+	if gitQuiet(run.Quick, "cat-file", "-e", from+"^{commit}") != 0 {
 		from = head
 	}
 	return from, true
@@ -134,7 +143,7 @@ func finishSetup(upToDate string) int {
 	if !behind {
 		return say(upToDate)
 	}
-	fmt.Println("The setup hasn't finished at this version yet, so it runs now.")
+	ui.Print("The setup hasn't finished at this version yet, so it runs now.\n")
 	if status := snapshotFirst(); status != 0 {
 		return status
 	}
@@ -146,15 +155,15 @@ func writable() bool {
 }
 
 func gitWrite(args ...string) int {
-	command := append([]string{"git", "-C", root()}, args...)
+	command := gitCommand(args...)
 	if !writable() {
-		return run.Status("sudo", command...)
+		command = append([]string{"sudo"}, command...)
 	}
 	return run.Status(command[0], command[1:]...)
 }
 
 func gitPaths(args ...string) ([]string, bool) {
-	output, err := run.CaptureQuiet(run.Slow, "git", append([]string{"-C", root()}, args...)...)
+	output, err := gitOutput(run.Slow, args...)
 	if output == "" {
 		return nil, err == nil
 	}
@@ -192,7 +201,7 @@ func addedAlready(target string, paths []string) []string {
 	if len(paths) == 0 {
 		return nil
 	}
-	hashes, err := run.CaptureQuiet(run.Slow, "git", append([]string{"-C", root(), "hash-object", "--"}, paths...)...)
+	hashes, err := gitOutput(run.Slow, append([]string{"hash-object", "--"}, paths...)...)
 	listed, ok := gitPaths(append([]string{"ls-tree", "-z", target, "--"}, paths...)...)
 	if err != nil || !ok {
 		return nil
@@ -208,7 +217,7 @@ func addedAlready(target string, paths []string) []string {
 }
 
 func undoHalfMove(target string) {
-	if run.Quiet(run.Quick, "git", "-C", root(), "merge-base", "--is-ancestor", "HEAD", target) != 0 {
+	if gitQuiet(run.Quick, "merge-base", "--is-ancestor", "HEAD", target) != 0 {
 		return
 	}
 	moving, ok := gitPaths("diff", "--no-renames", "--name-only", "-z", "HEAD", target)
@@ -219,7 +228,7 @@ func undoHalfMove(target string) {
 	}
 	tracked, untracked := movedAlready(target, inMove(changed, moving)), addedAlready(target, inMove(others, moving))
 	if len(tracked)+len(untracked) > 0 {
-		fmt.Println("An earlier update stopped halfway, so the files it moved go back first.")
+		ui.Print("An earlier update stopped halfway, so the files it moved go back first.\n")
 	}
 	if len(tracked) > 0 {
 		gitWrite(append([]string{"checkout", "-q", "HEAD", "--"}, tracked...)...)
@@ -230,18 +239,18 @@ func undoHalfMove(target string) {
 }
 
 func updateSolanum() int {
-	fmt.Printf("Updating %s\n", root())
+	ui.Print("Updating " + root() + "\n")
 	tag, target, err := releaseTarget()
 	if lock.Busy() {
 		return fail("a Solanum run is going, so Solanum itself wasn't updated: run solanum update solanum once it ends")
 	}
 	switch {
 	case errors.Is(err, errNoReleaseKey):
-		fmt.Print("Solanum itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
+		ui.Print("Solanum itself only updates to signed releases, and this copy has no release key yet, so it stays as it is.\n")
 		return finishSetup("")
 	case err != nil:
 		return fail("%v", err)
-	case run.Quiet(run.Quick, "git", "-C", root(), "merge-base", "--is-ancestor", target, "HEAD") == 0:
+	case gitQuiet(run.Quick, "merge-base", "--is-ancestor", target, "HEAD") == 0:
 		return finishSetup("Solanum is up to date (" + tag + ").\n")
 	}
 	from := git("rev-parse", "HEAD")

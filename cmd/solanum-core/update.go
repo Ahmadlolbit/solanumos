@@ -2,13 +2,16 @@ package main
 
 import (
 	"cmp"
-	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"slices"
 	"strings"
+	"syscall"
+	"time"
 
+	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
@@ -17,6 +20,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 func installed(name string) bool {
@@ -24,9 +28,60 @@ func installed(name string) bool {
 	return err == nil
 }
 
+func admin(args ...string) []string {
+	if _, helped := onBehalf(); helped {
+		return args
+	}
+	return append([]string{"sudo"}, args...)
+}
+
+func asThePerson(args ...string) []string {
+	if person, helped := onBehalf(); helped {
+		return append([]string{"runuser"}, person.RunuserArgs(args...)...)
+	}
+	return args
+}
+
+func rootsOnly(path string) bool {
+	if !filepath.IsAbs(path) {
+		return false
+	}
+	for path = filepath.Join(path, ".git"); ; path = filepath.Dir(path) {
+		info, err := os.Lstat(path)
+		if err != nil || !info.IsDir() || info.Mode().Perm()&0o022 != 0 {
+			return false
+		}
+		if stat, ok := info.Sys().(*syscall.Stat_t); !ok || stat.Uid != 0 {
+			return false
+		}
+		if path == filepath.Dir(path) {
+			return true
+		}
+	}
+}
+
+func gitCommand(args ...string) []string {
+	command := append([]string{"git", "-C", root()}, args...)
+	if rootsOnly(root()) {
+		return command
+	}
+	return asThePerson(command...)
+}
+
 func git(args ...string) string {
-	output, _ := run.Capture(run.Slow, "git", append([]string{"-C", root()}, args...)...)
+	command := gitCommand(args...)
+	output, _ := run.Capture(run.Slow, command[0], command[1:]...)
 	return output
+}
+
+func gitQuiet(limit time.Duration, args ...string) int {
+	command := gitCommand(args...)
+	return run.Quiet(limit, command[0], command[1:]...)
+}
+
+func gitOutput(limit time.Duration, args ...string) (string, error) {
+	command := gitCommand(args...)
+	return run.CaptureQuiet(limit, command[0], command[1:]...)
 }
 
 func gitLog(args ...string) string {
@@ -39,7 +94,7 @@ func snapshotsOff() bool {
 	if config.Read(config.Path()).Get("SNAPSHOTS") == "yes" {
 		return false
 	}
-	fmt.Println("Snapshots are off, so there's no restore point before this")
+	ui.Print("Snapshots are off, so there's no restore point before this\n")
 	return true
 }
 
@@ -52,12 +107,12 @@ func snapshotFirst() int {
 		return 0
 	}
 	if !installed("snapper") || !fsutil.IsFile(env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
-		fmt.Println("Snapshots aren't set up, so there's no restore point.")
+		ui.Print("Snapshots aren't set up, so there's no restore point.\n")
 		snapshotTaken = true
 		return 0
 	}
-	fmt.Println("Taking a snapshot first")
-	if run.Status("sudo", "snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number") != 0 {
+	ui.Print("Taking a snapshot first\n")
+	if snapshot := admin("snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number"); run.Status(snapshot[0], snapshot[1:]...) != 0 {
 		return fail("the snapshot failed, so nothing was updated")
 	}
 	snapshotTaken = true
@@ -69,34 +124,46 @@ func updateSystem() int {
 		return status
 	}
 	if apt.Interrupted() {
-		fmt.Println("dpkg was interrupted, finishing what it left")
-		if run.Status("sudo", "dpkg", "--force-confdef", "--force-confold", "--configure", "-a") != 0 {
+		ui.Print("dpkg was interrupted, finishing what it left\n")
+		if finish := admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"); run.Status(finish[0], finish[1:]...) != 0 {
 			return fail("finishing what dpkg left failed, so nothing was updated")
 		}
 	}
-	fmt.Println("Updating Debian")
-	if run.Status("sudo", "apt", "update") != 0 {
-		fmt.Println("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.")
+	ui.Print("Updating Debian\n")
+	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 {
+		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
 	}
-	if run.Status("sudo", "apt", "full-upgrade") != 0 {
+	if upgrade := fullUpgrade(); run.Status(upgrade[0], upgrade[1:]...) != 0 {
 		return fail("updating Debian failed")
 	}
 	return 0
 }
 
+func fullUpgrade() []string {
+	if !streamed {
+		return admin("apt", "full-upgrade")
+	}
+	return admin("env", "DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none",
+		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade")
+}
+
 func updateApps() int {
 	for _, tool := range []struct {
-		name, what, action string
+		name, what, action, unasked string
 	}{
-		{"flatpak", "Flatpak apps", "update"},
-		{"mise", "mise's tools", "upgrade"},
-		{"rustup", "Rust", "update"},
+		{"flatpak", "Flatpak apps", "update", "--noninteractive"},
+		{"mise", "mise's tools", "upgrade", "--yes"},
+		{"rustup", "Rust", "update", ""},
 	} {
 		if !installed(tool.name) {
 			continue
 		}
-		fmt.Printf("Updating %s\n", tool.what)
-		if run.Status(tool.name, tool.action) != 0 {
+		ui.Print("Updating " + tool.what + "\n")
+		command := asThePerson(tool.name, tool.action)
+		if streamed && tool.unasked != "" {
+			command = append(command, tool.unasked)
+		}
+		if run.Status(command[0], command[1:]...) != 0 {
 			return fail("updating %s failed", tool.what)
 		}
 	}
@@ -151,6 +218,33 @@ func writeChanges(dir, text string) error {
 	return atomic.Write(filepath.Join(dir, "changes-unseen"), nil, 0o666)
 }
 
+func notesFor(person account.Account, text string) error {
+	dir := oldname.Prefer(person.Path(filepath.Join(".local", "state", "solanum")))
+	if err := person.Run(io.Discard, "mkdir", "-p", dir); err != nil {
+		return err
+	}
+	if err := person.Write(io.Discard, filepath.Join(dir, "changes.txt"), text); err != nil {
+		return err
+	}
+	return person.Write(io.Discard, filepath.Join(dir, "changes-unseen"), "")
+}
+
+func saveChanges(text string) (string, error) {
+	person, helped := onBehalf()
+	if !helped {
+		dir := changesDir()
+		return filepath.Join(dir, "changes.txt"), writeChanges(dir, text)
+	}
+	if err := notesFor(person, text); err != nil {
+		return "", err
+	}
+	if err := os.MkdirAll(env.StateDir(), 0o755); err != nil {
+		return "", err
+	}
+	path := filepath.Join(env.StateDir(), "update-notes.txt")
+	return path, atomic.Write(path, []byte(text), 0o644)
+}
+
 func updatePart() string {
 	part := cmp.Or(env.Arg(2), "all")
 	if part == oldname.UpdatePart {
@@ -164,14 +258,14 @@ func update() int {
 	if !slices.Contains([]string{"all", "system", "apps", "solanum"}, part) || env.Arg(3) != "" {
 		return fail("usage: solanum update [system | apps | solanum]")
 	}
-	if os.Geteuid() == 0 {
+	if !forAPerson() {
 		return fail("run it as yourself, without sudo: solanum update")
 	}
 	if lock.Busy() {
 		return fail("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
 	}
 	wanted := func(name string) bool { return part == "all" || part == name }
-	if wanted("solanum") && run.Quiet(run.Quick, "git", "-C", root(), "rev-parse", "--git-dir") != 0 {
+	if wanted("solanum") && gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
 		return fail("%s is not a git clone, so it can't update itself", root())
 	}
 	for _, step := range []struct {

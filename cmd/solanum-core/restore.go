@@ -15,12 +15,14 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
 const (
-	kernelFile = "vmlinuz-"
-	initrdFile = "initrd.img-"
-	mountField = 4
+	kernelFile  = "vmlinuz-"
+	initrdFile  = "initrd.img-"
+	mountField  = 4
+	confirmWord = "CONFIRM\n"
 )
 
 func restoreRows(points []snapshots.Snapshot, format string) string {
@@ -159,15 +161,27 @@ func kernelAdvice(snapshotModules, boot, root string) string {
 		"open Advanced options and pick " + pick + ". Do that at every restart until the next update brings " + newest + " back.\n"
 }
 
+func comparing(number string) int {
+	text := "Comparing snapshot " + number + " with today, this can take a minute"
+	if !streamed {
+		return say(text + "...\n")
+	}
+	ui.Busy(text)
+	return 0
+}
+
 func goBack(number string) int {
 	defer cleanup.IgnoreQuit()()
 	if lock.Busy() {
 		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
-	if code := say("Comparing snapshot " + number + " with today, this can take a minute...\n"); code != 0 {
+	if code := comparing(number); code != 0 {
 		return code
 	}
 	status, err := run.Capture(run.Slow, "snapper", "-c", "root", "status", number+"..0")
+	if streamed {
+		ui.Done()
+	}
 	if err != nil {
 		return fail("snapshot %s can't be read: see solanum restore", number)
 	}
@@ -177,11 +191,22 @@ func goBack(number string) int {
 	if code := say(snapshots.Changes(status) + "\n" + kept + advice + "\n"); code != 0 {
 		return code
 	}
-	code := run.Status("sudo", "snapper-rollback", number)
+	code := rollBack(number)
 	if code == 0 && advice != "" {
 		return say("\n" + advice)
 	}
 	return code
+}
+
+func rollBack(number string) int {
+	command := admin("snapper-rollback", number)
+	if !streamed {
+		return run.Status(command[0], command[1:]...)
+	}
+	if !ui.Confirm("Go back to snapshot " + number + "?") {
+		return fail("nothing changed")
+	}
+	return run.Typed(confirmWord, command[0], command[1:]...)
 }
 
 func showPoints(target string) int {
@@ -202,7 +227,7 @@ func restore() int {
 	if env.Arg(3) != "" || (target != "" && target != "list" && !snapshots.IsNumber(target)) {
 		return fail("usage: solanum restore [list | NUMBER]")
 	}
-	if os.Geteuid() == 0 {
+	if !forAPerson() {
 		return fail("run it as yourself, without sudo: solanum restore")
 	}
 	if !installed("snapper") {

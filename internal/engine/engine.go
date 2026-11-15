@@ -643,15 +643,15 @@ func (work *session) followed(app apps.App, code int) int {
 	return code
 }
 
-func AddApp(app apps.App) int {
+func AddApp(app apps.App, options Options) int {
 	tick := func(settings *config.Config) { settings.Tick("APPS", app.ID) }
-	return entered(appMode+"install", Options{}, []string{app.ID}, func(work *session) int {
+	return entered(appMode+"install", options, []string{app.ID}, func(work *session) int {
 		return work.followed(app, work.changeApp(app, tick, setup.AddApp))
 	})
 }
 
-func RemoveApp(app apps.App) int {
-	return entered(appMode+"remove", Options{}, []string{app.ID}, func(work *session) int {
+func RemoveApp(app apps.App, options Options) int {
+	return entered(appMode+"remove", options, []string{app.ID}, func(work *session) int {
 		return work.followed(app, work.removeApp(app))
 	})
 }

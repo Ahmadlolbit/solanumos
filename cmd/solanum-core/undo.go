@@ -128,10 +128,10 @@ func snapshotBefore(description string) (bool, error) {
 		return false, nil
 	}
 	if !installed("snapper") || !fsutil.IsFile(env.Or("SOLANUM_SNAPPER_CONFIG", "/etc/snapper/configs/root")) {
-		fmt.Println("Snapshots aren't set up, so there's no restore point.")
+		ui.Print("Snapshots aren't set up, so there's no restore point.\n")
 		return false, nil
 	}
-	fmt.Println("Taking a restore point first")
+	ui.Print("Taking a restore point first\n")
 	if run.Status("snapper", "--no-dbus", "-c", "root", "create", "--description", description, "--cleanup-algorithm", "number") != 0 {
 		return false, errors.New("the restore point failed, so nothing was changed")
 	}
@@ -233,7 +233,7 @@ func takeBack(id string, yes bool, log *runlog.Log) int {
 	}
 	description := plan.describe()
 	fmt.Fprint(log, description)
-	fmt.Print(description)
+	ui.Print(description)
 	if !yes && !ui.Confirm("Undo module "+id+"?") {
 		return undoFailed(log, "Nothing was changed.")
 	}
@@ -241,7 +241,7 @@ func takeBack(id string, yes bool, log *runlog.Log) int {
 	if err != nil {
 		return undoFailed(log, "%v", err)
 	}
-	log.Mirror(func(data []byte) { os.Stdout.Write(data) })
+	log.Mirror(ui.Mirror)
 	err = plan.run(log)
 	log.Mirror(nil)
 	if err != nil && taken {
@@ -250,7 +250,7 @@ func takeBack(id string, yes bool, log *runlog.Log) int {
 		return undoFailed(log, "Undoing module %s stopped: %v. Run it again once that's fixed: it picks up where it stopped.", id, err)
 	}
 	log.Line("info", "module "+id+" undone")
-	fmt.Printf("Module %s is undone. The setup leaves it out until you run it again: sudo solanum install --only %s\n", id, id)
+	ui.Print(fmt.Sprintf("Module %s is undone. The setup leaves it out until you run it again: sudo solanum install --only %s\n", id, id))
 	return 0
 }
 
