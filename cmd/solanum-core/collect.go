@@ -30,7 +30,10 @@ const (
 	privateMode = 0o600
 )
 
-var details = regexp.MustCompile(`(?m)^(\s*(?:title|initialTitle|lastwindowtitle|serial|description):|Window [0-9a-f]+ ->).*$`)
+var (
+	details = regexp.MustCompile(`(?m)^(\s*(?:serial|description):|.*?Window [0-9a-f]+ ->|.*?(?i:title)\s*[:=]|.*?\b(?:activewindow|openwindow|windowtitlev2)>>).*$`)
+	inet6   = regexp.MustCompile(`(?i)\b[0-9a-f]{1,4}(?::[0-9a-f]{0,4}){2,7}`)
+)
 
 var hyprRequests = [][]string{{"version"}, {"monitors"}, {"workspaces"}, {"clients"}, {"layers"}, {"configerrors"}, {"hyprpaper", "listactive"}}
 
@@ -179,8 +182,19 @@ func (out *report) addresses() {
 	}
 }
 
+func maskIPv6(text string) string {
+	return inet6.ReplaceAllStringFunc(text, func(found string) string {
+		for _, candidate := range []string{found, strings.TrimRight(found, ":")} {
+			if address, err := netip.ParseAddr(candidate); err == nil && address.Is6() && public(address) {
+				return "(public)" + found[len(candidate):]
+			}
+		}
+		return found
+	})
+}
+
 func hideDetails(text string) string {
-	return details.ReplaceAllString(runlog.Redact(text), "$1 (hidden)")
+	return maskIPv6(details.ReplaceAllString(runlog.Redact(text), "$1 (hidden)"))
 }
 
 func privatize(folder string) error {
