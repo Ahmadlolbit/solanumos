@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+	"os/signal"
 	"regexp"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -41,6 +43,9 @@ func packagesWanted() (string, []string, bool) {
 }
 
 func lockedWhenFree() (*lock.Held, int) {
+	stop := make(chan os.Signal, 1)
+	cleanup.NotifyInterrupt(stop)
+	defer signal.Stop(stop)
 	for waited := time.Duration(0); ; waited += othersPause {
 		if !apt.Busy() {
 			if held, err := lock.Take(); err == nil {
@@ -50,15 +55,16 @@ func lockedWhenFree() (*lock.Held, int) {
 		if waited == 0 {
 			ui.Busy("Waiting for another install or update to finish, perhaps the daily update")
 		}
-		if run.Stopped() {
-			ui.Done()
-			ui.Skip("Stopped, nothing changed")
-			return nil, stoppedCode
-		}
 		if waited >= othersLimit {
 			return nil, fail("another install or update went on for 10 minutes, so nothing changed: try again once it ends")
 		}
-		time.Sleep(othersPause)
+		select {
+		case <-stop:
+			ui.Done()
+			ui.Skip("Stopped, nothing changed")
+			return nil, stoppedCode
+		case <-time.After(othersPause):
+		}
 	}
 }
 
