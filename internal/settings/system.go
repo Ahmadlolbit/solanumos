@@ -27,9 +27,9 @@ var (
 		"bar.preset": "BAR_PRESET", "bar.position": "BAR_POSITION", "bar.clock": "CLOCK_FORMAT",
 	}
 
-	afterRestart = []string{"KERNEL", "GRAPHICS", "WEBCAM", "GREETER", "HIBERNATE", "BOOT_SPLASH", "BOOT_PROMPT", "BOOT_MENU_THEME", "CONSOLE_THEME"}
+	afterRestart = []string{"KERNEL", "KEPT_KERNEL", "GRAPHICS", "WEBCAM", "GREETER", "HIBERNATE", "BOOT_SPLASH", "BOOT_PROMPT", "BOOT_MENU_THEME", "CONSOLE_THEME"}
 	systemRows   = map[string]placed{
-		"PROFILE": {"apps", ""}, "FAILURE_MODE": {"updates", ""}, "DEBIAN_MIRROR": {"updates", "02"}, "KERNEL": {"hardware", "03"},
+		"PROFILE": {"apps", ""}, "FAILURE_MODE": {"updates", ""}, "DEBIAN_MIRROR": {"updates", "02"}, "KERNEL": {"hardware", "03"}, "KEPT_KERNEL": {"hardware", "03"},
 		"SYSTEM_NAME": {"startup", "02"}, "WEBCAM": {"hardware", "03"}, "GRAPHICS": {"hardware", "03,12"}, "SWAPFILE_GB": {"storage", "04"},
 		"ZRAM_PERCENT": {"storage", "04"}, "SWAPPINESS": {"storage", "04"}, "HIBERNATE": {"power", "04"}, "SNAPSHOTS": {"updates", "05"},
 		"SNAPSHOT_DAILY": {"updates", "05"}, "SNAPSHOT_WEEKLY": {"updates", "05"}, "SNAPSHOT_MONTHLY": {"updates", "05"}, "GREETER": {"lock", "07"},

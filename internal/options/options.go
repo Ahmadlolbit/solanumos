@@ -51,8 +51,9 @@ type format struct {
 
 var (
 	sources       = map[string]string{"teams": "TEAMS_SOURCE"}
-	formats       = map[string]format{"DEBIAN_MIRROR": {mirrors, "the mirror's address, such as https://deb.debian.org/debian"}}
+	formats       = map[string]format{"DEBIAN_MIRROR": {mirrors, "the mirror's address, such as https://deb.debian.org/debian"}, "KEPT_KERNEL": {keptRelease.MatchString, "a kernel's version as solanum kernel lists it, such as 7.2.11+deb13-amd64, or nothing for the newest"}}
 	mirrorAddress = regexp.MustCompile(`^(mirror\+)?(https?://[^/]|file:(/|///)[^/])`)
+	keptRelease   = regexp.MustCompile(`^([0-9][0-9A-Za-z.+~_-]*)?$`)
 )
 
 var table = []Option{
@@ -60,6 +61,7 @@ var table = []Option{
 	{"FAILURE_MODE", "When a step fails", Choice, "ask", "ask halt continue", "run", "Ask what to do, stop the run, or note the failure and carry on", nil},
 	{"DEBIAN_MIRROR", "Debian mirror", Text, "https://deb.debian.org/debian", "", "system", "Where Debian packages download from; the default picks a nearby server", nil},
 	{"KERNEL", "Kernel", Choice, "backports", "backports stable", "system", "Backports has a newer kernel for recent laptops; stable is Debian's own", nil},
+	{"KEPT_KERNEL", "Kept kernel", Text, "", "", "system", "The kernel the computer keeps starting, until you choose the newest again; empty starts the newest. sudo solanum kernel keep keeps the one running", kernelKept},
 	{"SYSTEM_NAME", "The system's name", Choice, "solanumos", "solanumos debian", "system", "What the boot menu, the text consoles, fastfetch and About call the system; programs that check which system this is still find Debian 13", nil},
 	{"WEBCAM", "IPU6 webcam", Choice, "auto", "auto off", "system", "For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and solanum webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found", nil},
 	{"GRAPHICS", "NVIDIA driver", Choice, "proprietary", "proprietary nouveau", "system", "NVIDIA's own driver is faster; nouveau is open source and slower", nvidiaPresent},
@@ -143,6 +145,10 @@ func ticked(facts Facts, key, item string) bool {
 
 func nvidiaPresent(facts Facts) bool {
 	return facts.Nvidia
+}
+
+func kernelKept(facts Facts) bool {
+	return facts.Value("KEPT_KERNEL") != ""
 }
 
 func swapfileOn(facts Facts) bool {

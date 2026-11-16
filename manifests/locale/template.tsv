@@ -243,6 +243,7 @@ Keep container storage out of snapshots
 Keep the SSH server off	
 Keep the firmware list fresh	
 Keep these choices without installing	
+Kept kernel	
 Kernel	
 Kernel and drivers	
 Keyboard	
@@ -352,6 +353,7 @@ Security and network
 Security updates install automatically	
 See-through terminals and panels, with the wallpaper blurred behind them	
 Session packages are installed	
+Set the kernel the computer starts	
 Set the time zone, keyboard and language	
 Set this computer up with these choices	
 Set up %s	
@@ -446,6 +448,7 @@ The floating terminal is installed
 The folder of pictures, or a file that lists them one per line, for the wallpaper of the day	
 The install stopped at the step that failed, and nothing after it ran.	
 The kernel comes from backports	
+The kernel the computer keeps starting, until you choose the newest again; empty starts the newest. sudo solanum kernel keep keeps the one running	
 The keyboard stays as it is: %s	
 The keyboard stays as it is: this terminal can't reach the desktop. Open Install SolanumOS from the launcher to change it	
 The lock screen is configured	

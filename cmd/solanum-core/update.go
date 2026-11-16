@@ -136,6 +136,7 @@ func updateSystem() int {
 	if upgrade := fullUpgrade(); run.Status(upgrade[0], upgrade[1:]...) != 0 {
 		return fail("updating Debian failed")
 	}
+	keptKernelNews()
 	return 0
 }
 

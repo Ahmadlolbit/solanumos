@@ -548,6 +548,7 @@ func examine() int {
 	checkBatteries()
 	visit.firmware()
 	visit.updates()
+	keptKernelCheck()
 	ui.Rule("Solanum")
 	visit.files()
 	checkInstaller()

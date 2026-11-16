@@ -4,15 +4,19 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
 	"github.com/Ahmadlolbit/solanumos/internal/bootimage"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/detect"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/grub"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/service"
@@ -20,6 +24,7 @@ import (
 
 const (
 	kernelPackage  = "linux-image-amd64"
+	keptOption     = "KEPT_KERNEL"
 	kernelSpec     = kernelPackage + "/backports"
 	packageFiles   = "/var/lib/dpkg/info/linux-image-"
 	nvidiaSettings = "/etc/modprobe.d/solanum-nvidia.conf"
@@ -83,15 +88,46 @@ func bootedAt() int64 {
 	return time.Now().Unix() - seconds
 }
 
-func installedSinceBoot(kernel string) bool {
-	info, err := os.Stat(packageFiles + kernel + ".list")
+func changedSinceBoot(path string) bool {
+	info, err := os.Stat(path)
 	return err == nil && info.Mode().IsRegular() && info.ModTime().Unix() > bootedAt()
 }
 
-func kernelBooted(log *runlog.Log) error {
+func installedSinceBoot(kernel string) bool {
+	return changedSinceBoot(packageFiles+kernel+".list") || changedSinceBoot(grub.Menu())
+}
+
+func kernelThere(kernel string) bool {
+	return fsutil.IsFile(filepath.Join(bootimage.Folder(), "vmlinuz-"+kernel))
+}
+
+func keptGone(kept string) error {
+	return fmt.Errorf("the kept kernel, %s, isn't installed: keep another with sudo solanum kernel keep, or start the newest with sudo solanum kernel newest", kept)
+}
+
+func keptBooted(log io.Writer, kept, newest, running string) error {
+	switch {
+	case running == kept && newest != kept:
+		fmt.Fprintf(log, "this is the kept kernel; %s is newer, and sudo solanum kernel newest starts it\n", newest)
+	case running == kept:
+		fmt.Fprintln(log, "this is the kept kernel")
+	case !kernelThere(kept):
+		return keptGone(kept)
+	case changedSinceBoot(grub.Menu()):
+		fmt.Fprintf(log, "reboot to start the kept kernel, %s\n", kept)
+	default:
+		return errors.New("this boot did not use the kept kernel, " + kept + "; check the default GRUB entry")
+	}
+	return nil
+}
+
+func (context *Context) kernelBooted(log *runlog.Log) error {
 	newest := newestKernel()
 	running, _ := run.CaptureQuiet(run.Minute, "uname", "-r")
 	fmt.Fprintf(log, "newest installed: %s, running: %s\n", cmp.Or(newest, "none"), running)
+	if kept := cmp.Or(context.Config.Get(keptOption), grub.HandMade()); kept != "" {
+		return keptBooted(log, kept, newest, running)
+	}
 	if newest == "" || newest == running {
 		return nil
 	}
@@ -100,6 +136,39 @@ func kernelBooted(log *runlog.Log) error {
 	}
 	fmt.Fprintf(log, "reboot to start %s\n", newest)
 	return nil
+}
+
+func (context *Context) kernelChosen() bool {
+	return context.Config.Get(keptOption) != "" || grub.HandMade() != "" || grub.Kept() != ""
+}
+
+func (context *Context) takeOverKept(log *runlog.Log) error {
+	byHand := grub.HandMade()
+	if byHand == "" || context.Config.Get(keptOption) != "" {
+		return nil
+	}
+	saved := config.Read(config.Path())
+	saved.Set(keptOption, byHand)
+	if err := saved.Save(config.Path()); err != nil {
+		return err
+	}
+	context.Config.Set(keptOption, byHand)
+	log.Line("info", "the kernel kept by hand, "+byHand+", is the Kept kernel setting now")
+	return nil
+}
+
+func (context *Context) kernelStart(log *runlog.Log) error {
+	if err := context.takeOverKept(log); err != nil {
+		return err
+	}
+	kept := context.Config.Get(keptOption)
+	switch {
+	case kept == "":
+		return grub.Newest(log)
+	case !kernelThere(kept):
+		return keptGone(kept)
+	}
+	return grub.Keep(log, kept)
 }
 
 func kernelFromBackports(*runlog.Log) error {
@@ -168,6 +237,9 @@ func webcamReady(*runlog.Log) error {
 func kernelSteps(context *Context) {
 	driver := nvidiaDriver{Context: context, hardware: context.hardware(), initramfs: followUp{name: "nvidia-initramfs"}}
 	context.Run.Step("Install the "+context.Config.Get("KERNEL")+" kernel", context.kernelInstall)
+	if context.kernelChosen() {
+		context.Run.Step("Set the kernel the computer starts", context.kernelStart)
+	}
 	for _, note := range context.kernelNotes() {
 		context.Run.Note(note)
 	}
@@ -188,7 +260,7 @@ func kernelChecks(context *Context) {
 	if context.Config.Get("KERNEL") == "backports" {
 		context.Run.Check("The kernel comes from backports", kernelFromBackports)
 	}
-	context.Run.Check("The newest kernel is running (or starts after a reboot)", kernelBooted)
+	context.Run.Check("The newest kernel is running (or starts after a reboot)", context.kernelBooted)
 	if driver.wanted() {
 		context.Run.Check("The NVIDIA module is built for the newest kernel", nvidiaBuilt)
 	}
