@@ -19,9 +19,11 @@ built="${2:-$root/build/iso/live-image-amd64.hybrid.iso}"
 }
 record="$(dirname "$built")/commit"
 if [[ ! -f $record ]]; then
-  echo "There's no record of the commit $built was built from ($record), so it can't be tied to v$version." >&2
+  echo "There's no record of the commit $built was built from ($record), so it can't be tied to v$version. Nothing was signed or uploaded." >&2
+  exit 1
 elif ! grep -qx "tag v$version" "$record"; then
-  echo "$built was built from $(sed -n 's/^commit //p' "$record"), which has no tag v$version signed with the release key." >&2
+  echo "$built was built from $(sed -n 's/^commit //p' "$record"), which has no tag v$version signed with the release key. Nothing was signed or uploaded." >&2
+  exit 1
 fi
 out="$(dirname "$built")/$version"
 name="solanumos-chert-$version-amd64.iso"
