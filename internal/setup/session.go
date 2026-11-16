@@ -1,11 +1,9 @@
 package setup
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -14,6 +12,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fetch"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
 	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
@@ -22,26 +21,24 @@ import (
 )
 
 const (
-	hyprSystem   = "/etc/xdg/hypr/"
-	hyprUser     = ".config/hypr/hyprland.lua"
-	appsMenu     = "/etc/xdg/menus/solanum-applications.menu"
-	makoUser     = ".config/mako/config"
-	elephantLib  = "/usr/local/lib/elephant"
-	tipTimer     = "solanum-tip.timer"
-	tipService   = "solanum-tip.service"
-	careTimer    = "solanum-care.timer"
-	careService  = "solanum-care.service"
-	fwupdTimer   = "fwupd-refresh.timer"
-	userUnits    = "/etc/systemd/user/"
-	verdictLine  = "Config parsing result:"
-	verdictShown = 20
-	screensCall  = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
-	dpmsOn       = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
-	dpmsOff      = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
-	secondsAMin  = 60
-	dimAhead     = 30
-	screenOff    = 10 * secondsAMin
-	saverStop    = "solanum-screensaver stop; "
+	hyprSystem  = "/etc/xdg/hypr/"
+	hyprUser    = ".config/hypr/hyprland.lua"
+	appsMenu    = "/etc/xdg/menus/solanum-applications.menu"
+	makoUser    = ".config/mako/config"
+	elephantLib = "/usr/local/lib/elephant"
+	tipTimer    = "solanum-tip.timer"
+	tipService  = "solanum-tip.service"
+	careTimer   = "solanum-care.timer"
+	careService = "solanum-care.service"
+	fwupdTimer  = "fwupd-refresh.timer"
+	userUnits   = "/etc/systemd/user/"
+	screensCall = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
+	dpmsOn      = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
+	dpmsOff     = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
+	secondsAMin = 60
+	dimAhead    = 30
+	screenOff   = 10 * secondsAMin
+	saverStop   = "solanum-screensaver stop; "
 )
 
 var elephantProviders = []string{"desktopapplications", "calc", "runner", "files", "symbols", "websearch", "clipboard", "providerlist", "unicode"}
@@ -108,42 +105,9 @@ func (context *Context) hyprlandUserReady(*runlog.Log) error {
 	return holds(mentions(context.Person.Path(hyprUser), filepath.Join(hyprShare(), "solanum.lua")))
 }
 
-func hyprlandAccepted(lines []string) bool {
-	start := slices.IndexFunc(lines, func(line string) bool { return strings.Contains(line, verdictLine) })
-	if start < 0 {
-		return false
-	}
-	verdict := slices.IndexFunc(lines[start:], func(line string) bool {
-		return !strings.Contains(line, verdictLine) && strings.Trim(line, " \t") != ""
-	})
-	return verdict >= 0 && lines[start+verdict] == "config ok"
-}
-
-func hyprlandComplaint(lines []string) string {
-	start := slices.IndexFunc(lines, func(line string) bool { return strings.Contains(line, verdictLine) })
-	if start < 0 {
-		return ""
-	}
-	shown := lines[start:]
-	return strings.Join(shown[:min(verdictShown, len(shown))], "\n") + "\n"
-}
-
 func (context *Context) hyprlandConfigOK(log *runlog.Log) error {
-	runtime, err := os.MkdirTemp("", "solanum")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(runtime)
-	if err := run.Logged(log, "chown", context.Person.Name+":", runtime); err != nil {
-		return err
-	}
-	var output bytes.Buffer
-	context.Person.RunWithin(run.Minute, &output, "env", "XDG_RUNTIME_DIR="+runtime, "Hyprland", "--verify-config")
-	lines := strings.Split(strings.TrimRight(output.String(), "\n"), "\n")
-	accepted := hyprlandAccepted(lines)
-	if !accepted {
-		fmt.Fprint(log, hyprlandComplaint(lines))
-	}
+	accepted, complaint := hypr.Accepts(log, context.Person)
+	fmt.Fprint(log, complaint)
 	return holds(accepted)
 }
 
