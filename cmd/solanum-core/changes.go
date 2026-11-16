@@ -88,11 +88,16 @@ func changesJSON(dir string) int {
 
 func changes() int {
 	dir := changesDir()
-	switch env.Arg(2) {
-	case "--notify":
-		return notifyChanges(dir)
-	case "--json":
-		return changesJSON(dir)
+	if env.Arg(3) == "" {
+		switch env.Arg(2) {
+		case "--notify":
+			return notifyChanges(dir)
+		case "--json":
+			return changesJSON(dir)
+		}
+	}
+	if env.Arg(2) != "" {
+		return fail("usage: solanum changes")
 	}
 	if text := fsutil.Optional(filepath.Join(dir, "changes.txt")); text != "" {
 		say(text + "\n")
