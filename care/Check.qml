@@ -35,7 +35,7 @@ FocusScope {
 
   function settle() {
     const asked = Store.task.question;
-    if (page.fixAll && !Store.holding && Store.job === "doctor" && asked && asked.kind === "choose")
+    if (page.fixAll && !Store.holding && !view.halting && Store.job === "doctor" && asked && asked.kind === "choose")
       Store.task.answer("Yes");
   }
 
@@ -97,8 +97,10 @@ FocusScope {
       Layout.fillWidth: true
       Layout.fillHeight: true
       task: Store.task
+      stopQuestion: "Stop the check?"
       title: "System check"
       onClosed: Store.finish()
+      onHaltingChanged: Qt.callLater(page.settle)
     }
 
     RowLayout {
