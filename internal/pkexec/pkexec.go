@@ -19,7 +19,14 @@ const (
 )
 
 func Caller() (account.Account, bool) {
-	uid := os.Getenv("PKEXEC_UID")
+	return human(os.Getenv("PKEXEC_UID"))
+}
+
+func SudoCaller() (account.Account, bool) {
+	return human(os.Getenv("SUDO_UID"))
+}
+
+func human(uid string) (account.Account, bool) {
 	for _, person := range account.Humans() {
 		if person.UID == uid {
 			return person, true
@@ -56,6 +63,10 @@ func trusted(path string, person account.Account) error {
 			return nil
 		}
 	}
+}
+
+func Clone(root string, person account.Account) error {
+	return trusted(filepath.Join(root, "solanum"), person)
 }
 
 func Launcher(person account.Account) (string, error) {
