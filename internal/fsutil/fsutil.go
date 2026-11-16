@@ -149,22 +149,43 @@ func plain(path string, info fs.FileInfo, owners []int) error {
 	return nil
 }
 
-func ReadPlain(path string, limit int64, owners ...int) ([]byte, error) {
+func openPlain(path string, owners []int) (*os.File, fs.FileInfo, error) {
 	file, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if errors.Is(err, syscall.ELOOP) {
-		return nil, fmt.Errorf("%s is a link, so it isn't read", path)
+		return nil, nil, fmt.Errorf("%s is a link, so it isn't read", path)
 	}
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	defer file.Close()
 	info, err := file.Stat()
 	if err == nil {
 		err = plain(path, info, owners)
 	}
 	if err != nil {
+		file.Close()
+		return nil, nil, err
+	}
+	return file, info, nil
+}
+
+func ReadTail(path string, limit int64, owners ...int) ([]byte, error) {
+	file, info, err := openPlain(path, owners)
+	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+	if _, err := file.Seek(max(info.Size()-limit, 0), io.SeekStart); err != nil {
+		return nil, err
+	}
+	return io.ReadAll(io.LimitReader(file, limit))
+}
+
+func ReadPlain(path string, limit int64, owners ...int) ([]byte, error) {
+	file, _, err := openPlain(path, owners)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 	data, err := io.ReadAll(io.LimitReader(file, limit+1))
 	if err == nil && int64(len(data)) > limit {
 		err = fmt.Errorf("%s is bigger than %d bytes, so it isn't read", path, limit)

@@ -19,6 +19,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/session"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
 
@@ -61,9 +62,11 @@ type fix struct {
 }
 
 type checkup struct {
-	person account.Account
-	limit  time.Duration
-	fixes  []fix
+	person  account.Account
+	limit   time.Duration
+	fixes   []fix
+	ending  *session.Ending
+	advised bool
 }
 
 func tooLong(check string) {
@@ -106,10 +109,35 @@ func succeeded(name string, args ...string) bool {
 	return run.Within(run.Slow, name, args...) == 0
 }
 
+func (visit *checkup) lastEnding() session.Ending {
+	if visit.ending == nil {
+		ending := session.Last(visit.person, visit.limit)
+		visit.ending = &ending
+	}
+	return *visit.ending
+}
+
+func (visit *checkup) wayOut() {
+	if visit.advised {
+		return
+	}
+	visit.advised = true
+	ending := visit.lastEnding()
+	heading := "If logging in brings you back to the login screen:"
+	if ending.Crashed {
+		heading = "Hyprland crashed at the last login. What to do:"
+	}
+	ui.Print("\n" + heading + "\n")
+	for index, text := range ending.Advice(session.FindWayOut(visit.limit)) {
+		ui.Print(fmt.Sprintf("  %d. %s\n", index+1, text))
+	}
+}
+
 func (visit *checkup) restart(name string) bool {
 	instance := hyprInstance(visit.person)
 	if instance == "" {
-		ui.Print("Hyprland is not running\n")
+		ui.Print("Hyprland isn't running any more, so " + name + " can't start again.\n")
+		visit.wayOut()
 		return false
 	}
 	return succeeded("runuser", hyprCommand(visit.person, instance, "hyprctl", "dispatch", "hl.dsp.exec_cmd([[solanum-start "+name+"]])")...)
@@ -129,10 +157,38 @@ func (visit *checkup) missingPrograms() ([]string, error) {
 	return missing, nil
 }
 
+func (visit *checkup) withoutDesktop() {
+	ui.Skip("The desktop isn't running for " + visit.person.Name + ", so the doctor checks what it can without it")
+	ending := visit.lastEnding()
+	switch {
+	case ending.Crashed:
+		said := "The last login ended when Hyprland crashed"
+		if ending.Graphics {
+			said += " while starting the graphics"
+		}
+		if ending.Frame != "" {
+			said += ", in " + ending.Frame
+		}
+		ui.Fail(said)
+	case len(ending.Lines) > 0:
+		ui.Warn("The last login's own log names an error")
+	default:
+		ui.Skip("Nothing tells why the last login ended: no crash, and no error in its log")
+	}
+	from := ""
+	for _, line := range ending.Lines {
+		if line.From != from {
+			from = line.From
+			ui.Note(from + ":")
+		}
+		ui.Note("  " + line.Text)
+	}
+}
+
 func (visit *checkup) desktop() {
 	up, err := visit.running("-x", "Hyprland")
 	if err == nil && !up {
-		ui.Skip("Desktop programs: Hyprland isn't running for " + visit.person.Name)
+		visit.withoutDesktop()
 		return
 	}
 	var missing []string
@@ -553,6 +609,9 @@ func examine() int {
 	visit.files()
 	checkInstaller()
 	visit.offerFixes()
+	if visit.ending != nil {
+		visit.wayOut()
+	}
 	return ui.ExitCode()
 }
 
