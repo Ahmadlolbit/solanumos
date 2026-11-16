@@ -31,13 +31,14 @@ Rectangle {
 
     Label {
       width: parent.width
-      text: Store.busy ? "\uf110  Working on it" : Store.result === "done" ? "\uf00c  Done" : "\uf071  It didn't change"
+      text: Store.busy ? "\uf110  Working on it" : Store.result === "done" ? "\uf00c  " + (Store.word || "Done") : "\uf071  That didn't change" + (status.last ? ": " + status.last : "")
       color: Store.busy ? Theme.accent : Store.result === "done" ? Theme.good : Theme.critical
       font.bold: true
+      wrapMode: Text.Wrap
     }
 
     Repeater {
-      model: Store.said.slice(-4)
+      model: Store.result === "failed" ? Store.said.slice(-4, -1) : Store.said.slice(-4)
 
       Label {
         required property string modelData
@@ -64,10 +65,13 @@ Rectangle {
     MouseArea {
       anchors.fill: parent
       cursorShape: Qt.PointingHandCursor
-      onClicked: {
-        Store.result = "";
-        Store.said = [];
-      }
+      onClicked: Store.dismiss()
     }
+  }
+
+  Timer {
+    interval: 4000
+    running: Store.result === "done" && !Store.busy
+    onTriggered: Store.dismiss()
   }
 }

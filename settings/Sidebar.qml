@@ -5,6 +5,13 @@ Item {
   id: sidebar
 
   property bool active: false
+  property bool seeking: false
+  readonly property var entries: Store.pages.reduce((found, page, at) => found.concat(page.group && (at === 0 || Store.pages[at - 1].group !== page.group) ? [
+        {
+          heading: page.group
+        },
+        page
+      ] : [page]), [])
 
   signal picked(string id)
 
@@ -23,8 +30,8 @@ Item {
     height: Theme.size(32)
     radius: Theme.radius
     color: Theme.base
-    border.width: Store.search ? 2 : 1
-    border.color: Store.search ? Theme.accent : Theme.overlay
+    border.width: Store.search || sidebar.seeking ? 2 : 1
+    border.color: Store.search || sidebar.seeking ? Theme.accent : Theme.overlay
 
     Label {
       anchors.fill: parent
@@ -47,22 +54,50 @@ Item {
     anchors.topMargin: 12
     clip: true
     spacing: 2
-    model: Store.pages
-    currentIndex: Math.max(0, Store.pages.findIndex(item => item.id === Store.page))
+    model: sidebar.entries
+    currentIndex: Math.max(0, sidebar.entries.findIndex(item => item.id === Store.page))
     highlightMoveDuration: 0
     boundsBehavior: Flickable.StopAtBounds
     onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
-    delegate: Choice {
+    delegate: Loader {
+      id: entry
+
       required property var modelData
 
       width: ListView.view.width
-      icon: modelData.glyph
-      label: modelData.label
-      selected: modelData.id === Store.page && !Store.search
-      border.width: selected && sidebar.active ? 2 : 0
-      border.color: Theme.accent
-      onClicked: sidebar.picked(modelData.id)
+      sourceComponent: modelData.heading ? headingPart : pagePart
+
+      Component {
+        id: headingPart
+
+        Item {
+          implicitHeight: title.implicitHeight + 12
+
+          Heading {
+            id: title
+
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.leftMargin: 8
+            text: entry.modelData.heading
+          }
+        }
+      }
+
+      Component {
+        id: pagePart
+
+        Choice {
+          icon: entry.modelData.glyph
+          label: entry.modelData.label
+          selected: entry.modelData.id === Store.page && !Store.search
+          border.width: selected && sidebar.active ? 2 : 0
+          border.color: Theme.accent
+          onClicked: sidebar.picked(entry.modelData.id)
+        }
+      }
     }
   }
 }

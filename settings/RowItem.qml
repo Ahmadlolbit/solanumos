@@ -46,6 +46,12 @@ Rectangle {
     return true;
   }
 
+  function amount(value) {
+    if (row.unit === "min" && Number(value) === 0)
+      return "Never";
+    return row.unit ? value + " " + row.unit : String(value);
+  }
+
   function edit() {
     editor.text = row.value;
     editing = true;
@@ -104,7 +110,7 @@ Rectangle {
         visible: item.marks.length > 0
         text: item.marks.join("   ")
         color: item.computer && !item.grouped ? Theme.warning : Theme.subtext
-        font.pixelSize: Theme.size(11)
+        font.pixelSize: Theme.size(12)
       }
     }
 
@@ -116,6 +122,7 @@ Rectangle {
 
     Toggle {
       visible: item.row.kind === "toggle"
+      worded: true
       checked: item.row.value === "yes"
       onToggled: {
         item.pointed();
@@ -143,26 +150,52 @@ Rectangle {
       }
 
       Label {
-        Layout.preferredWidth: Theme.size(56)
-        text: item.row.value
+        id: reading
+
+        Layout.preferredWidth: Math.ceil(Math.max(digits.advanceWidth(item.amount(item.row.min)), digits.advanceWidth(item.amount(item.row.max))))
+        text: item.amount(item.row.value)
         horizontalAlignment: Text.AlignRight
+        font.features: ({
+            "tnum": 1
+          })
+
+        FontMetrics {
+          id: digits
+
+          font: reading.font
+        }
       }
     }
 
     Field {
       id: editor
 
+      readonly property string empty: item.row.kind === "time" ? "07:00" : "The default"
+
       visible: item.row.kind === "text" || item.row.kind === "time"
-      implicitWidth: item.row.kind === "time" ? Theme.size(90) : Theme.size(280)
-      placeholder: item.row.kind === "time" ? "07:00" : ""
+      implicitWidth: item.row.kind === "time" ? Theme.size(90) : Math.min(Theme.size(360), item.width / 2)
+      placeholder: item.editing ? empty : ""
       text: item.row.value
       onAccepted: {
         item.editing = false;
         Store.set(item.row, text);
       }
-      onActiveFocusChanged: {
-        if (!activeFocus)
-          item.editing = false;
+
+      Rectangle {
+        anchors.fill: parent
+        anchors.margins: 1
+        visible: !item.editing
+        radius: Math.max(0, Theme.radius - 1)
+        color: Theme.surface
+
+        Label {
+          anchors.fill: parent
+          anchors.leftMargin: 7
+          anchors.rightMargin: 7
+          text: item.row.value || editor.empty
+          color: item.row.value ? Theme.text : Theme.subtext
+          elide: Text.ElideRight
+        }
       }
 
       MouseArea {

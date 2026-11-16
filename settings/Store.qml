@@ -25,6 +25,7 @@ Singleton {
   property string busy: ""
   property var said: []
   property string result: ""
+  property string word: ""
   readonly property string yours: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/backgrounds/"
   readonly property var pageNow: pages.find(item => item.id === page) || {
     id: page,
@@ -33,6 +34,7 @@ Singleton {
   }
   readonly property var shown: search ? found(search) : rows.filter(row => row.page === page && !row.hidden)
   readonly property string currentLabel: pretty(current)
+  readonly property bool sectioned: !search && rows.filter(row => row.page === page && !(row.whose === "computer" && row.twin)).length > 4
 
   function pretty(name) {
     const listed = themes.find(item => item.name === name);
@@ -42,6 +44,17 @@ Singleton {
   function words(row) {
     const owner = pages.find(item => item.id === row.page);
     return [row.label, row.help || "", (row.keywords || []).join(" "), owner ? owner.label + " " + (owner.keywords || []).join(" ") : ""].join(" ").toLowerCase();
+  }
+
+  function headed(list) {
+    return !sectioned ? list : list.reduce((found, row, at) => found.concat(row.section && (at === 0 || list[at - 1].section !== row.section) ? [
+          {
+            kind: "section",
+            name: "section." + row.section,
+            label: row.section
+          },
+          row
+        ] : [row]), []);
   }
 
   function found(text) {
@@ -67,8 +80,6 @@ Singleton {
   function loadThemes() {
     themeList.running = true;
     shownTheme.reload();
-    current = shownTheme.text().trim();
-    pictureList.running = true;
   }
 
   function show(id) {
@@ -82,6 +93,7 @@ Singleton {
     busy = row.name;
     said = [];
     result = "";
+    word = "";
     setter.command = ["solanum", "settings", "set", row.name, String(value)];
     setter.running = true;
   }
@@ -92,6 +104,7 @@ Singleton {
     busy = name;
     said = [];
     result = "";
+    word = "";
     actor.then = then || "";
     actor.command = command;
     actor.running = true;
@@ -99,6 +112,11 @@ Singleton {
 
   function launch(command) {
     Quickshell.execDetached(command);
+  }
+
+  function dismiss() {
+    result = "";
+    said = [];
   }
 
   function heard(line) {
@@ -121,10 +139,11 @@ Singleton {
     blockLoading: true
     printErrors: false
     watchChanges: true
-    onFileChanged: {
-      reload();
+    onFileChanged: reload()
+    onLoaded: {
       state.current = text().trim();
       pictureList.running = true;
+      facts.running = true;
     }
   }
 

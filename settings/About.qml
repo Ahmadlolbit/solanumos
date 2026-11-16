@@ -59,6 +59,7 @@ Rectangle {
       return;
     Store.said = [];
     Store.result = "";
+    Store.word = "";
     copier.command = ["wl-copy", "--", details];
     copier.running = true;
   }
@@ -76,8 +77,7 @@ Rectangle {
       onRead: line => Store.heard(line)
     }
     onExited: code => {
-      if (code === 0)
-        Store.said = ["Copied the details"];
+      Store.word = code === 0 ? "Copied" : "";
       Store.result = code === 0 ? "done" : "failed";
     }
   }
@@ -95,12 +95,13 @@ Rectangle {
       spacing: 24
 
       Item {
-        Layout.preferredWidth: Theme.size(176)
-        Layout.preferredHeight: Theme.size(176)
+        Layout.preferredWidth: logo.width * logo.scale
+        Layout.preferredHeight: logo.height * logo.scale
 
         LogoCanvas {
-          anchors.centerIn: parent
-          cell: parent.width / Logo.cells
+          id: logo
+
+          cell: Theme.size(176) / Logo.cells
           resting: true
         }
       }
@@ -223,38 +224,14 @@ Rectangle {
       Repeater {
         model: about.buttons
 
-        Rectangle {
-          id: button
-
+        Button {
           required property var modelData
           required property int index
-          readonly property bool chosen: about.current && about.at === index
-          readonly property bool filled: modelData.primary !== (chosen || pointer.containsMouse)
-          readonly property color ink: modelData.primary ? Theme.accent : Theme.text
 
-          implicitWidth: face.implicitWidth + 32
-          implicitHeight: Theme.size(30)
-          radius: Theme.radius
-          color: filled ? ink : "transparent"
-          border.width: 2
-          border.color: chosen ? Theme.accent : ink
-
-          Label {
-            id: face
-
-            anchors.centerIn: parent
-            text: button.modelData.label
-            color: button.filled ? Theme.base : button.ink
-          }
-
-          MouseArea {
-            id: pointer
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: about.press(button.modelData.stop)
-          }
+          label: modelData.label
+          primary: modelData.primary
+          chosen: about.current && about.at === index
+          onClicked: about.press(modelData.stop)
         }
       }
     }

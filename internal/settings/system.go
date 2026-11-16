@@ -83,10 +83,10 @@ func systemKind(option options.Option) (string, float64, float64) {
 
 func systemRow(option options.Option, facts options.Facts) Row {
 	kind, low, high := systemKind(option)
-	row := Row{Name: option.Key, Label: option.Label, Page: systemRows[option.Key].page, Kind: kind, Value: facts.Value(option.Key), Whose: Computer,
+	row := Row{Name: option.Key, Label: option.Label, Page: systemRows[option.Key].page, Section: systemSections[option.Key], Kind: kind, Value: facts.Value(option.Key), Whose: Computer,
 		Help: option.Help, Hidden: !option.Shows(facts), Min: low, Max: high, Multiple: option.Kind == options.Multi}
 	if kind == Slide {
-		row.Step = 1
+		row.Step, row.Unit = 1, unitOf(option.Key)
 	}
 	if kind == Pick {
 		row.Choices = systemChoices(option)
@@ -95,6 +95,16 @@ func systemRow(option options.Option, facts options.Facts) Row {
 		row.After = "restart"
 	}
 	return row
+}
+
+func unitOf(key string) string {
+	switch {
+	case strings.HasSuffix(key, "_MINUTES"):
+		return "min"
+	case strings.HasSuffix(key, "_PERCENT"):
+		return "%"
+	}
+	return ""
 }
 
 func systemChoices(option options.Option) []Choice {
@@ -136,7 +146,19 @@ func paired(rows []Row) []Row {
 		case yoursOf[row.Name] != "":
 			rows[index].Twin = yoursOf[row.Name]
 			rows[index].Help = strings.TrimSuffix(forOthers+". "+row.Help, ". ")
+			if twin, found := Find(rows, yoursOf[row.Name]); found {
+				rows[index].Choices = inYourWords(row.Choices, twin.Choices)
+			}
 		}
 	}
 	return rows
+}
+
+func inYourWords(choices, yours []Choice) []Choice {
+	for index, choice := range choices {
+		if at := slices.IndexFunc(yours, func(word Choice) bool { return word.Value == choice.Value }); at >= 0 {
+			choices[index].Label = yours[at].Label
+		}
+	}
+	return choices
 }

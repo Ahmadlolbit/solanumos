@@ -13,7 +13,7 @@ ShellRoot {
       if (page)
         Store.show(page);
       Store.load();
-      frame.forceActiveFocus();
+      frame.takeKeys();
     }
 
     function close(): void {

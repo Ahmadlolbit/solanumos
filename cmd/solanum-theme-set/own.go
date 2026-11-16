@@ -84,6 +84,11 @@ func iconsFor(colors theme.Colors) string {
 	return "Yaru-dark"
 }
 
+func turnedLight(before string, after theme.Colors, light bool) bool {
+	was, _, err := theme.Checked(before, light)
+	return err == nil && was["mode"] == "dark" && after["mode"] == "light"
+}
+
 func contoursOf(name string, colors theme.Colors, width, height int) ([]byte, error) {
 	return wallpaper.JPEG(wallpaper.Contours(colors, wallpaper.Seed(name), width, height))
 }
@@ -107,7 +112,7 @@ func drawPictures(dir, name string, colors theme.Colors) error {
 	return err
 }
 
-func writeOwn(name, text string, light, draw bool) error {
+func writeOwn(name, before, text string, light, draw bool) error {
 	dir := filepath.Join(userThemes(), name)
 	colors, _, err := theme.Checked(text, light)
 	if err == nil {
@@ -116,7 +121,7 @@ func writeOwn(name, text string, light, draw bool) error {
 	if err == nil {
 		err = atomic.Write(filepath.Join(dir, "colors.toml"), []byte(text), 0o644)
 	}
-	if err == nil && !fsutil.IsFile(filepath.Join(dir, "icons.theme")) {
+	if err == nil && (!fsutil.IsFile(filepath.Join(dir, "icons.theme")) || turnedLight(before, colors, light)) {
 		err = atomic.Write(filepath.Join(dir, "icons.theme"), []byte(iconsFor(colors)+"\n"), 0o644)
 	}
 	if err != nil || !draw {
@@ -141,7 +146,7 @@ func makeTheme(args []string) int {
 	}
 	name, err := ownName(args[0])
 	if err == nil {
-		err = writeOwn(name, theme.Make(picked[0], picked[1], picked[2]).File(), false, true)
+		err = writeOwn(name, "", theme.Make(picked[0], picked[1], picked[2]).File(), false, true)
 	}
 	return made(name, err)
 }
@@ -207,7 +212,7 @@ func copyTheme(args []string) int {
 		err = writeIcons(name, icons)
 	}
 	if err == nil {
-		err = writeOwn(name, theme.Changed(text, changes), light, true)
+		err = writeOwn(name, text, theme.Changed(text, changes), light, true)
 	}
 	if err == nil {
 		err = linkPictures(from, name)
@@ -239,7 +244,7 @@ func changeTheme(args []string) int {
 	}
 	text, light, readErr := themeText(name)
 	if err = errors.Join(err, readErr); err == nil {
-		err = writeOwn(name, theme.Changed(text, changes), light, fsutil.IsFile(filepath.Join(own, "backgrounds", firstPicture)))
+		err = writeOwn(name, text, theme.Changed(text, changes), light, fsutil.IsFile(filepath.Join(own, "backgrounds", firstPicture)))
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
