@@ -24,15 +24,23 @@ func Folder() string {
 	return env.Or("SOLANUM_BOOT", "/boot")
 }
 
-func Newest() string {
+func Kernels() []string {
 	output, _ := run.CaptureQuiet(run.Minute, "ls", "-v", "--quoting-style=literal", Folder())
-	newest := ""
+	var kernels []string
 	for _, name := range run.Lines(output) {
 		if version, ok := strings.CutPrefix(name, kernelPrefix); ok && !strings.Contains(version, ".dpkg-") {
-			newest = version
+			kernels = append(kernels, version)
 		}
 	}
-	return newest
+	return kernels
+}
+
+func Newest() string {
+	kernels := Kernels()
+	if len(kernels) == 0 {
+		return ""
+	}
+	return kernels[len(kernels)-1]
 }
 
 func Image(kernel string) string {
