@@ -45,6 +45,7 @@ type Stream struct {
 	mutex   sync.Mutex
 	output  io.Writer
 	replies chan string
+	asking  bool
 }
 
 func Open(input io.Reader, output io.Writer, stop func()) *Stream {
@@ -74,10 +75,18 @@ func (stream *Stream) listen(input io.Reader, stop func()) {
 		line = strings.TrimSuffix(line, "\n")
 		if line == stopped {
 			stop()
-		} else if answered, known := parsed(line); known {
+		} else if answered, known := parsed(line); known && stream.answerable() {
 			stream.replies <- answered
 		}
 	}
+}
+
+func (stream *Stream) answerable() bool {
+	stream.mutex.Lock()
+	defer stream.mutex.Unlock()
+	asked := stream.asking
+	stream.asking = false
+	return asked
 }
 
 func encoded(event Event) string {
@@ -95,6 +104,9 @@ func (stream *Stream) Send(event Event) {
 }
 
 func (stream *Stream) Ask(event Event) (string, bool) {
+	stream.mutex.Lock()
+	stream.asking = true
+	stream.mutex.Unlock()
 	stream.Send(event)
 	text, open := <-stream.replies
 	return text, open
