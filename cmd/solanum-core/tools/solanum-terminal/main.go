@@ -3,7 +3,9 @@ package terminal
 import (
 	"fmt"
 	"os"
+	"os/signal"
 
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/term"
 )
@@ -14,15 +16,23 @@ Runs COMMAND in a floating terminal in the middle of the screen.
 --wait keeps the terminal open when COMMAND ends, until a key is pressed.
 `
 
+const stoppedCode = 130
+
 func inside(wait string, command []string) int {
-	status := run.Status(command[0], command[1:]...)
 	if wait != "1" {
-		return status
+		return run.Status(command[0], command[1:]...)
 	}
+	interrupted := make(chan os.Signal, 1)
+	cleanup.NotifyInterrupt(interrupted)
+	status := run.Status(command[0], command[1:]...)
+	signal.Stop(interrupted)
 	fmt.Println()
-	if status == 0 {
+	switch status {
+	case 0:
 		fmt.Print("Done. Press any key to close.")
-	} else {
+	case stoppedCode:
+		fmt.Print("Stopped. Press any key to close.")
+	default:
 		fmt.Printf("It ended with an error (exit %d). Press any key to close.", status)
 	}
 	term.ReadKey()
