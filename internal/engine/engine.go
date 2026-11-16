@@ -480,9 +480,20 @@ func (work *session) install() int {
 		return work.runner.ExitCode()
 	}
 	work.applyOverrides()
+	work.mendAptHook()
 	work.walk(stepsAndChecks)
 	work.noteFinished()
 	return work.outcome()
+}
+
+func (work *session) mendAptHook() {
+	context, err := work.context()
+	if err == nil {
+		err = setup.MendReleaseHook(context)
+	}
+	if err != nil {
+		work.log.Line("warn", "cannot mend apt's os-release hook: "+err.Error())
+	}
 }
 
 func (work *session) noteFinished() {

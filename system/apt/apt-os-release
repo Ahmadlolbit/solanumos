@@ -1,0 +1,23 @@
+#!/bin/sh
+release='{{ ROOT }}/etc/os-release'
+debian='{{ ROOT }}/usr/lib/os-release'
+part="$release.solanum-part"
+[ -e "$release.debian" ] || exit 0
+[ -f "$debian" ] || exit 0
+complain() {
+  logger -p user.warning -t solanum "apt's os-release hook $1" 2>/dev/null
+  rm -f "$part" 2>/dev/null
+  exit 0
+}
+umask 022
+(
+  while IFS= read -r line || [ -n "$line" ]; do
+    case $line in
+      PRETTY_NAME=*) line='{{ PRETTY_NAME }}' ;;
+      NAME=*) line='{{ NAME }}' ;;
+    esac
+    printf '%s\n' "$line" || exit 1
+  done
+) <"$debian" >"$part" || complain "cannot write $part"
+cmp -s "$part" "$release" || mv -f "$part" "$release" || complain "cannot replace $release"
+rm -f "$part"

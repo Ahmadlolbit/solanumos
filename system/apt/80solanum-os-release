@@ -1,1 +1,1 @@
-DPkg::Post-Invoke { "if [ -e /etc/os-release.debian ] && [ -f /usr/lib/os-release ]; then sed -e 's/^NAME=.*/NAME=\"SolanumOS\"/' -e 's/^PRETTY_NAME=.*/PRETTY_NAME=\"SolanumOS Chert\"/' /usr/lib/os-release >/etc/os-release.solanum-part && { cmp -s /etc/os-release.solanum-part /etc/os-release || mv -f /etc/os-release.solanum-part /etc/os-release; }; rm -f /etc/os-release.solanum-part; fi"; };
+DPkg::Post-Invoke { "if [ -f {{ SCRIPT }} ]; then sh {{ SCRIPT }} || true; fi"; };
