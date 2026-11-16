@@ -34,6 +34,7 @@ FocusScope {
     visible: !!Store.job
     focus: true
     task: Store.task
+    stopQuestion: "Stop the change?"
     title: Store.job ? Store.job.label + (Store.queue.length > 0 ? ", then " + Store.queue.length + " more" : "") : ""
     onClosed: running.closed()
   }

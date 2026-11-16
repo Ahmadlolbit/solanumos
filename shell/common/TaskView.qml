@@ -6,6 +6,7 @@ FocusScope {
 
   property Task task: null
   property string title: ""
+  property string stopQuestion: "Stop it?"
   property bool logShown: false
   property var halting: null
   property bool rowsFollow: true
@@ -483,7 +484,7 @@ FocusScope {
         label: root.running ? (root.task.stopping ? "Stopping" : "Stop") : "Close"
         onClicked: {
           if (root.running)
-            root.task.stop();
+            root.askStop(root.stopQuestion, ["Yes", "No"], "Yes");
           else
             root.closed();
         }
