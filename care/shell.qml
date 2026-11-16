@@ -34,12 +34,13 @@ ShellRoot {
     minimumSize: Qt.size(800, 560)
     color: Theme.base
     onVisibleChanged: {
-      if (visible)
-        return;
-      if (!Store.running)
+      if (!visible && !Store.running)
         Qt.quit();
-      else
+    }
+    onClosed: {
+      if (Store.running)
         Qt.callLater(() => {
+          visible = false;
           visible = true;
           frame.ask();
         });
