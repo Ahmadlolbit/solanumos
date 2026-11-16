@@ -5,6 +5,7 @@
 %s · %d of %d	
 24-hour or 12-hour time in the bar and on the lock screen	
 64-bit PC (amd64)	
+A browser is the default	
 A layout takes only small letters, digits, - and _, such as us or de	
 A light theme by day and a dark one at night: by the sun or at set times	
 A new wallpaper every day: drawn in the theme's colours, NASA's picture of the day (needs the internet), or one from your folder	
@@ -150,7 +151,6 @@ Give the editors the theme's colours
 Glass mode	
 Hand the network over to NetworkManager	
 Hand the rest of the setup to the first start	
-Helium is the default browser	
 Hibernate	
 How full the battery is, in a corner; nothing on a computer without one	
 How it shows on the network: small letters, digits and -	
