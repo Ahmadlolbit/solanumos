@@ -80,6 +80,7 @@ PanelWindow {
   onVisibleChanged: {
     if (!visible)
       return;
+    Keyboard.used = false;
     place();
     first();
   }

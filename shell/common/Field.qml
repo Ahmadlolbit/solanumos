@@ -38,6 +38,7 @@ Rectangle {
     font.family: Theme.font
     font.pixelSize: Theme.fontSize
     echoMode: root.secret ? TextInput.Password : TextInput.Normal
+    Keys.onPressed: Keyboard.used = true
     onAccepted: root.accepted()
   }
 

@@ -12,6 +12,7 @@ Item {
   implicitHeight: 20
   activeFocusOnTab: true
   Keys.onPressed: event => {
+    Keyboard.used = true;
     const pressed = [Qt.Key_Space, Qt.Key_Return, Qt.Key_Enter].includes(event.key);
     if (pressed && !event.isAutoRepeat)
       root.toggled();
@@ -69,7 +70,7 @@ Item {
   Rectangle {
     anchors.fill: track
     anchors.margins: -2 * Theme.focusBorder
-    visible: root.activeFocus
+    visible: root.activeFocus && Keyboard.used
     radius: Theme.radius ? height / 2 : 0
     color: "transparent"
     border.width: Theme.focusBorder

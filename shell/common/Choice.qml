@@ -9,12 +9,14 @@ Rectangle {
   property string detail: ""
   property string action: ""
   property bool selected: false
-  readonly property bool offered: action !== "" && (area.containsMouse || activeFocus)
+  readonly property bool framed: activeFocus && Keyboard.used
+  readonly property bool offered: action !== "" && (area.containsMouse || framed)
 
   signal clicked
   signal actionClicked
 
   function key(event) {
+    Keyboard.used = true;
     const pressed = [Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space].includes(event.key);
     const acted = event.key === Qt.Key_Delete && root.action !== "";
     if (pressed && !event.isAutoRepeat)
@@ -28,7 +30,7 @@ Rectangle {
   implicitHeight: Theme.size(30)
   radius: Theme.radius
   color: selected ? Theme.overlay : area.containsMouse ? Theme.surface : "transparent"
-  border.width: activeFocus ? Theme.focusBorder : 0
+  border.width: framed ? Theme.focusBorder : 0
   border.color: Theme.accent
   activeFocusOnTab: true
   Keys.onPressed: event => event.accepted = root.key(event)

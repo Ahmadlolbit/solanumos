@@ -6,7 +6,8 @@ Rectangle {
   property string label: ""
   property string glyph: ""
   property bool primary: false
-  readonly property bool filled: primary !== (area.containsMouse || activeFocus)
+  readonly property bool framed: activeFocus && Keyboard.used
+  readonly property bool filled: primary !== (area.containsMouse || framed)
   readonly property color ink: primary ? Theme.accent : Theme.text
 
   signal clicked
@@ -16,9 +17,10 @@ Rectangle {
   radius: Theme.radius
   color: filled ? ink : "transparent"
   border.width: Theme.focusBorder
-  border.color: activeFocus ? Theme.accent : ink
+  border.color: framed ? Theme.accent : ink
   activeFocusOnTab: true
   Keys.onPressed: event => {
+    Keyboard.used = true;
     const pressed = [Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space].includes(event.key);
     if (pressed && !event.isAutoRepeat)
       root.clicked();

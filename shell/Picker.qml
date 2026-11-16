@@ -27,7 +27,8 @@ Scope {
   readonly property bool open: mode !== ""
   readonly property string yours: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/solanum/backgrounds/"
   readonly property var current: shown[index] || null
-  readonly property string hint: failed ? why || "Couldn't apply " + failed : said.length ? "Applied, with what was fixed below · Esc to close" : filter ? "Filter: " + filter : current && current.value === "keep" ? "Enter keeps this drawing in the theme's own wallpapers · Esc to close" : current && current.yours ? "Enter to show it · Delete moves it to the Trash · Esc to close" : "Type to filter · arrows or wheel to move · Enter to apply · Esc to close"
+  readonly property string hint: failed ? why || "Couldn't apply " + failed : said.length ? "Applied, with what was fixed below" : filter ? "Filter: " + filter : ""
+  readonly property var hints: [[["Left", "Right"], "move"], ["Enter", current && current.value === "keep" ? "keep it in the theme's own wallpapers" : current && current.yours ? "show it" : "apply"]].concat(current && current.yours ? [["Delete", "to the Trash"]] : [], [["", "type to filter"], ["Esc", "close"]])
   readonly property var shown: items.filter(item => item.label.toLowerCase().includes(filter.toLowerCase()))
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
   readonly property var drawn: [
@@ -109,6 +110,34 @@ Scope {
     said = [];
     if (shown.length)
       index = Math.max(0, Math.min(shown.length - 1, index + step));
+  }
+
+  function key(event) {
+    const steps = {
+      [Qt.Key_Left]: -1,
+      [Qt.Key_Up]: -1,
+      [Qt.Key_Right]: 1,
+      [Qt.Key_Down]: 1,
+      [Qt.Key_PageUp]: -5,
+      [Qt.Key_PageDown]: 5,
+      [Qt.Key_Home]: -shown.length,
+      [Qt.Key_End]: shown.length
+    };
+    if (steps[event.key] !== undefined)
+      move(steps[event.key]);
+    else if (event.key === Qt.Key_Escape)
+      close();
+    else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+      apply();
+    else if (event.key === Qt.Key_Delete)
+      remove();
+    else if (event.key === Qt.Key_Backspace)
+      filter = filter.slice(0, -1);
+    else if (/^[\w .-]$/.test(event.text))
+      filter += event.text;
+    else
+      return false;
+    return true;
   }
 
   function run(item, command) {
@@ -318,32 +347,9 @@ Scope {
       color: Qt.alpha(Theme.base, 0.85)
       opacity: root.open ? 1 : 0
       focus: true
-      Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape)
-          root.close();
-        else if (event.key === Qt.Key_Left)
-          root.move(-1);
-        else if (event.key === Qt.Key_Right)
-          root.move(1);
-        else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
-          root.apply();
-        else if (event.key === Qt.Key_Delete)
-          root.remove();
-        else if (event.key === Qt.Key_Backspace)
-          root.filter = root.filter.slice(0, -1);
-        else if (/^[\w .-]$/.test(event.text))
-          root.filter += event.text;
-        else
-          return;
-        event.accepted = true;
-      }
+      Keys.onPressed: event => event.accepted = root.key(event)
 
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.OutCubic
-        }
-      }
+      Fade on opacity {}
 
       MouseArea {
         anchors.fill: parent
@@ -490,21 +496,40 @@ Scope {
       }
 
       Label {
+        anchors.left: title.right
+        anchors.leftMargin: 12
+        anchors.baseline: title.baseline
+        visible: root.shown.length > 0
+        text: (root.index + 1) + " of " + root.shown.length
+        color: Theme.subtext
+      }
+
+      Label {
         id: hintLine
 
         anchors.top: title.bottom
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         width: Math.min(implicitWidth, parent.width - 80)
+        height: text ? implicitHeight : 0
         text: root.hint
         color: root.failed ? Theme.critical : Theme.subtext
         elide: Text.ElideRight
       }
 
+      Hints {
+        id: keyLine
+
+        anchors.top: hintLine.bottom
+        anchors.topMargin: 12
+        anchors.horizontalCenter: parent.horizontalCenter
+        pairs: root.hints
+      }
+
       Label {
         id: trash
 
-        anchors.top: hintLine.bottom
+        anchors.top: keyLine.bottom
         anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         visible: !!root.current && !!root.current.yours && !root.busy && !root.failed
@@ -522,7 +547,7 @@ Scope {
       }
 
       Column {
-        anchors.top: trash.visible ? trash.bottom : hintLine.bottom
+        anchors.top: trash.visible ? trash.bottom : keyLine.bottom
         anchors.topMargin: 14
         anchors.horizontalCenter: parent.horizontalCenter
         width: Math.min(900, parent.width - 80)

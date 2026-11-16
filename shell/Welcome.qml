@@ -20,6 +20,7 @@ Scope {
     tipper.running = true;
     open = true;
     content.forceActiveFocus();
+    settle.restart();
   }
 
   function close() {
@@ -28,38 +29,34 @@ Scope {
   }
 
   function run(command) {
+    if (!open)
+      return;
     close();
     Quickshell.execDetached(["sh", "-c", command]);
   }
 
-  component Action: Rectangle {
-    id: action
+  function step(forward) {
+    const from = content.Window.activeFocusItem;
+    const next = from ? from.nextItemInFocusChain(forward) : null;
+    if (next)
+      next.forceActiveFocus(forward ? Qt.TabFocusReason : Qt.BacktabFocusReason);
+  }
 
-    required property string label
-    required property string command
+  function key(event) {
+    if (settle.running)
+      return true;
+    if (event.key === Qt.Key_Escape)
+      close();
+    else if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+      step(event.key === Qt.Key_Right);
+    else
+      return false;
+    return true;
+  }
 
-    implicitWidth: text.implicitWidth + 32
-    implicitHeight: Theme.size(36)
-    radius: Theme.radius
-    color: hover.containsMouse ? Theme.overlay : Theme.surface
-    border.color: hover.containsMouse ? Theme.accent : "transparent"
-    border.width: 1
-
-    Label {
-      id: text
-
-      anchors.centerIn: parent
-      text: action.label
-    }
-
-    MouseArea {
-      id: hover
-
-      anchors.fill: parent
-      hoverEnabled: true
-      cursorShape: Qt.PointingHandCursor
-      onClicked: action.command ? root.run(action.command) : root.close()
-    }
+  onOpenChanged: {
+    if (open)
+      Keyboard.used = false;
   }
 
   FileView {
@@ -84,6 +81,16 @@ Scope {
 
     interval: 2500
     onTriggered: root.show()
+  }
+
+  Timer {
+    id: settle
+
+    interval: 500
+    onTriggered: {
+      if (root.open)
+        settings.forceActiveFocus();
+    }
   }
 
   IpcHandler {
@@ -121,19 +128,9 @@ Scope {
       color: Qt.alpha(Theme.base, 0.85)
       opacity: root.open ? 1 : 0
       focus: true
-      Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-          root.close();
-          event.accepted = true;
-        }
-      }
+      Keys.onPressed: event => event.accepted = root.key(event)
 
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.OutCubic
-        }
-      }
+      Fade on opacity {}
 
       Rectangle {
         anchors.centerIn: parent
@@ -151,33 +148,16 @@ Scope {
           spacing: 18
 
           Item {
-            id: burst
-
-            readonly property int cell: 4
-            readonly property var rows: [0x00000000, 0x00080000, 0x00080200, 0x00040200, 0x01040400, 0x00820400, 0x00820400, 0x00430808, 0x00430830, 0x002f1040, 0x00292180, 0x0011c300, 0x00083600, 0x00081900, 0x00100906, 0x00d00ff8, 0x1ff00b80, 0x60500800, 0x00480000, 0x004c0800, 0x00531800, 0x00616600, 0x00c31300, 0x01831180, 0x02031080, 0x04020840, 0x00020820, 0x00040410, 0x00040008, 0x00080000, 0x00080000, 0x00000000]
-
             Layout.alignment: Qt.AlignHCenter
-            implicitWidth: 32 * cell
-            implicitHeight: 32 * cell
+            Layout.preferredWidth: Theme.size(176)
+            Layout.preferredHeight: Theme.size(176)
 
-            Repeater {
-              model: {
-                const lit = [];
-                for (let y = 0; y < 32; y++)
-                  for (let x = 0; x < 32; x++)
-                    if ((burst.rows[y] >>> (31 - x)) & 1)
-                      lit.push(Qt.point(x, y));
-                return lit;
-              }
+            Loader {
+              active: root.open || content.opacity > 0
 
-              Rectangle {
-                required property point modelData
-
-                x: modelData.x * burst.cell
-                y: modelData.y * burst.cell
-                width: burst.cell
-                height: burst.cell
-                color: Theme.accent
+              sourceComponent: LogoCanvas {
+                cell: Theme.size(176) / Logo.cells
+                resting: true
               }
             }
           }
@@ -188,22 +168,35 @@ Scope {
             color: Theme.subtext
           }
 
-          GridLayout {
+          ColumnLayout {
             Layout.alignment: Qt.AlignHCenter
-            columns: 2
-            columnSpacing: 24
-            rowSpacing: 8
+            spacing: 8
 
             Repeater {
-              model: root.keys.length * 2
+              model: root.keys
 
-              Label {
-                required property int index
+              RowLayout {
+                id: shortcut
 
-                Layout.alignment: index % 2 ? Qt.AlignLeft : Qt.AlignRight
-                text: root.keys[Math.floor(index / 2)][index % 2]
-                color: index % 2 ? Theme.text : Theme.accent
-                font.bold: index % 2 === 0
+                required property var modelData
+
+                spacing: 24
+
+                Item {
+                  Layout.preferredWidth: Theme.size(200)
+                  Layout.preferredHeight: chord.implicitHeight
+
+                  Chord {
+                    id: chord
+
+                    anchors.right: parent.right
+                    keys: shortcut.modelData[0]
+                  }
+                }
+
+                Label {
+                  text: shortcut.modelData[1]
+                }
               }
             }
           }
@@ -211,26 +204,34 @@ Scope {
           RowLayout {
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 6
-            spacing: 10
+            spacing: 8
 
-            Action {
+            Button {
+              id: settings
+
+              primary: true
+              label: "Open Settings"
+              onClicked: root.run("solanum settings")
+            }
+
+            Button {
               label: "Pick a theme"
-              command: "qs -p /usr/share/solanum/shell ipc call picker themes"
+              onClicked: root.run("qs -p /usr/share/solanum/shell ipc call picker themes")
             }
 
-            Action {
+            Button {
               label: "Pick a background"
-              command: "qs -p /usr/share/solanum/shell ipc call picker backgrounds"
+              onClicked: root.run("qs -p /usr/share/solanum/shell ipc call picker backgrounds")
             }
 
-            Action {
+            Button {
               label: "Project page"
-              command: "xdg-open https://github.com/Ahmadlolbit/solanumos"
+              onClicked: root.run("xdg-open https://github.com/Ahmadlolbit/solanumos")
             }
 
-            Action {
+            Button {
               label: "Close"
-              command: ""
+              onClicked: root.close()
             }
           }
 

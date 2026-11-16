@@ -13,7 +13,14 @@ Scope {
   property bool loaded: false
   property var binds: []
   property string filter: ""
+  readonly property int rowHeight: Theme.size(28)
   readonly property var shown: binds.filter(item => (item.keys + " " + item.text).toLowerCase().includes(filter.toLowerCase()))
+  readonly property var order: ["Apps", "Windows", "Workspaces", "Look", "Capture", "Media and hardware", "Yours"]
+  readonly property var groups: [["Capture", /screenshot|record/], ["Media and hardware", /wpctl|playerctl|brightnessctl|volume|mute|brightness|track|play|pause/], ["Look", /picker|background|solanum-look|theme|reader/], ["Apps", /kitty|xdg-open|gtk-launch|walker|hyprlock|ipc call (menu|keys)|solanum settings|terminal|files|browser|launcher|menu|settings|lock|key bindings/], ["Workspaces", /workspace|scratchpad|special/], ["Windows", /window|focus|full ?screen|float|pseudo|split|resize|cycle|killactive/]]
+  readonly property var sections: order.map(name => ({
+        name: name,
+        binds: shown.filter(item => item.group === name)
+      })).filter(section => section.binds.length > 0)
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
   readonly property var names: ({
       "return": "Enter",
@@ -47,6 +54,7 @@ Scope {
     loaded = false;
     open = true;
     reader.running = true;
+    list.contentY = 0;
     content.forceActiveFocus();
   }
 
@@ -84,6 +92,12 @@ Scope {
     return parts.join(" + ");
   }
 
+  function groupOf(bind) {
+    const said = [bind.dispatcher, bind.arg, bind.description].join(" ").toLowerCase();
+    const found = groups.find(group => group[1].test(said));
+    return found ? found[0] : "Yours";
+  }
+
   function parse(text) {
     let list = [];
     try {
@@ -93,9 +107,39 @@ Scope {
     }
     return list.filter(bind => bind.has_description && bind.description && !bind.mouse && !bind.submap).map(bind => ({
           keys: keysOf(bind),
-          text: bind.description
+          text: bind.description,
+          group: groupOf(bind)
         })).filter((item, index, all) => all.findIndex(other => other.keys === item.keys) === index);
   }
+
+  function scroll(by) {
+    list.contentY = Math.max(0, Math.min(list.contentHeight - list.height, list.contentY + by));
+  }
+
+  function key(event) {
+    const page = list.height - rowHeight;
+    const steps = {
+      [Qt.Key_Up]: -rowHeight,
+      [Qt.Key_Down]: rowHeight,
+      [Qt.Key_PageUp]: -page,
+      [Qt.Key_PageDown]: page,
+      [Qt.Key_Home]: -list.contentHeight,
+      [Qt.Key_End]: list.contentHeight
+    };
+    if (steps[event.key] !== undefined)
+      scroll(steps[event.key]);
+    else if (event.key === Qt.Key_Escape)
+      close();
+    else if (event.key === Qt.Key_Backspace)
+      filter = filter.slice(0, -1);
+    else if (/^[\w .+-]$/.test(event.text))
+      filter += event.text;
+    else
+      return false;
+    return true;
+  }
+
+  onFilterChanged: list.contentY = 0
 
   Process {
     id: reader
@@ -151,24 +195,9 @@ Scope {
       color: Qt.alpha(Theme.base, 0.85)
       opacity: root.open ? 1 : 0
       focus: true
-      Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape)
-          root.close();
-        else if (event.key === Qt.Key_Backspace)
-          root.filter = root.filter.slice(0, -1);
-        else if (/^[\w .+-]$/.test(event.text))
-          root.filter += event.text;
-        else
-          return;
-        event.accepted = true;
-      }
+      Keys.onPressed: event => event.accepted = root.key(event)
 
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 200
-          easing.type: Easing.OutCubic
-        }
-      }
+      Fade on opacity {}
 
       MouseArea {
         anchors.fill: parent
@@ -180,7 +209,7 @@ Scope {
 
         anchors.centerIn: parent
         width: Math.min(parent.width - 80, 1180)
-        height: Math.min(parent.height - 120, header.implicitHeight + list.contentHeight + 72)
+        height: Math.min(parent.height - 120, header.implicitHeight + list.contentHeight + hints.implicitHeight + 84)
         color: Theme.panel
         border.color: Theme.accent
         border.width: 2
@@ -211,8 +240,8 @@ Scope {
             }
 
             Label {
-              text: root.filter ? "Filter: " + root.filter : "Type to filter · Esc to close"
-              color: Theme.subtext
+              visible: root.filter !== ""
+              text: "Filter: " + root.filter
             }
           }
 
@@ -221,40 +250,65 @@ Scope {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
-            contentHeight: Math.max(grid.implicitHeight, empty.implicitHeight)
+            contentHeight: Math.max(sheet.implicitHeight, empty.implicitHeight)
             clip: true
             boundsBehavior: Flickable.StopAtBounds
 
-            GridLayout {
-              id: grid
+            ColumnLayout {
+              id: sheet
 
               width: list.width
-              columns: width > 900 ? 2 : 1
-              columnSpacing: 32
-              rowSpacing: 7
+              spacing: 24
 
               Repeater {
-                model: root.shown
+                model: root.sections
 
-                RowLayout {
+                ColumnLayout {
+                  id: section
+
                   required property var modelData
 
                   Layout.fillWidth: true
-                  Layout.preferredWidth: grid.width / grid.columns
-                  spacing: 14
+                  spacing: 8
 
-                  Label {
-                    Layout.preferredWidth: Theme.size(230)
-                    text: modelData.keys
-                    color: Theme.accent
-                    font.bold: true
-                    elide: Text.ElideRight
+                  Heading {
+                    Layout.fillWidth: true
+                    text: section.modelData.name
                   }
 
-                  Label {
+                  GridLayout {
+                    id: grid
+
                     Layout.fillWidth: true
-                    text: modelData.text
-                    elide: Text.ElideRight
+                    columns: sheet.width > 900 ? 2 : 1
+                    columnSpacing: 32
+                    rowSpacing: 0
+
+                    Repeater {
+                      model: section.modelData.binds
+
+                      RowLayout {
+                        id: row
+
+                        required property var modelData
+
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: (sheet.width - grid.columnSpacing * (grid.columns - 1)) / grid.columns
+                        Layout.preferredHeight: root.rowHeight
+                        spacing: 16
+
+                        Chord {
+                          Layout.preferredWidth: Theme.size(260)
+                          keys: row.modelData.keys
+                        }
+
+                        Label {
+                          Layout.fillWidth: true
+                          text: row.modelData.text
+                          elide: Text.ElideRight
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -267,6 +321,13 @@ Scope {
               text: !root.loaded ? "Reading the keys…" : root.filter ? "No keys match " + root.filter : "No keys with a description"
               color: Theme.subtext
             }
+          }
+
+          Hints {
+            id: hints
+
+            Layout.fillWidth: true
+            pairs: [[["Up", "Down"], "scroll"], [["Page Up", "Page Down"], "a page"], [["Home", "End"], "top and bottom"], ["", "type to filter"], ["Esc", "close"]]
           }
         }
       }

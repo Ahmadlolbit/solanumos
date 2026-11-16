@@ -37,6 +37,7 @@ Label {
   }
 
   function key(event) {
+    Keyboard.used = true;
     if (moves[event.key] !== undefined)
       move(moves[event.key]);
     else if (event.key === Qt.Key_PageUp || event.key === Qt.Key_PageDown)
@@ -158,7 +159,7 @@ Label {
           Rectangle {
             anchors.fill: parent
             anchors.margins: -2 * Theme.focusBorder
-            visible: grid.activeFocus && cell.modelData.toDateString() === root.day.toDateString()
+            visible: grid.activeFocus && Keyboard.used && cell.modelData.toDateString() === root.day.toDateString()
             radius: Theme.radius ? Theme.radius + 2 * Theme.focusBorder : 0
             color: "transparent"
             border.width: Theme.focusBorder
