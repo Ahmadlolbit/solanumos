@@ -19,7 +19,9 @@ ShellRoot {
     }
 
     function close(): void {
-      if (!Store.working)
+      if (Store.working)
+        frame.askStop();
+      else
         Qt.quit();
     }
   }
@@ -34,8 +36,16 @@ ShellRoot {
     minimumSize: Qt.size(800, 560)
     color: Theme.base
     onVisibleChanged: {
-      if (!visible)
+      if (!visible && !Store.working)
         Qt.quit();
+    }
+    onClosed: {
+      if (Store.working)
+        Qt.callLater(() => {
+          visible = false;
+          visible = true;
+          frame.askStop();
+        });
     }
 
     Frame {

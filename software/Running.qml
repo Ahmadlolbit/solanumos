@@ -6,6 +6,10 @@ FocusScope {
 
   signal closed
 
+  function askStop() {
+    view.askStop("Stop the change? If you keep it running, this window stays open on it.", ["Keep it running", "Stop"], "Stop");
+  }
+
   Label {
     id: none
 

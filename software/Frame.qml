@@ -212,6 +212,15 @@ FocusScope {
     return true;
   }
 
+  function askStop() {
+    asking = null;
+    adding = false;
+    Store.search = "";
+    Store.show("running");
+    zone = "rows";
+    view.askStop();
+  }
+
   function leave() {
     if (asking)
       return answer(false);

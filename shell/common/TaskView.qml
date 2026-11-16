@@ -7,14 +7,15 @@ FocusScope {
   property Task task: null
   property string title: ""
   property bool logShown: false
+  property var halting: null
   property bool rowsFollow: true
   property bool logFollow: true
   property int phase: 0
   readonly property bool running: task !== null && task.running
   readonly property int code: task ? task.code : -1
-  readonly property var question: task ? task.question : null
+  readonly property var question: halting || (task ? task.question : null)
   readonly property bool choosing: question !== null && question.kind === "choose"
-  readonly property string condition: running ? (task.stopping ? "Stopping" : question ? "Waiting for an answer" : "Running") : code === -1 ? "" : ({
+  readonly property string condition: running ? (task.stopping ? "Stopping" : task.question ? "Waiting for an answer" : "Running") : code === -1 ? "" : ({
         0: "Done",
         126: "Cancelled",
         130: "Stopped"
@@ -33,6 +34,25 @@ FocusScope {
         return "";
     }
     return line;
+  }
+
+  function askStop(text, items, word) {
+    if (running && !task.stopping)
+      halting = {
+        kind: "choose",
+        text: text,
+        items: items,
+        word: word
+      };
+  }
+
+  function answered(text) {
+    const asking = halting;
+    halting = null;
+    if (!asking)
+      task.answer(text);
+    else if (text === asking.word)
+      task.stop();
   }
 
   function settle() {
@@ -63,6 +83,10 @@ FocusScope {
   function pressed(event) {
     if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
       return false;
+    if (halting && event.key === Qt.Key_Escape) {
+      halting = null;
+      return true;
+    }
     if (event.key === Qt.Key_L) {
       logShown = !logShown;
       return true;
@@ -91,7 +115,10 @@ FocusScope {
     field.text = "";
     Qt.callLater(settle);
   }
-  onRunningChanged: Qt.callLater(settle)
+  onRunningChanged: {
+    halting = null;
+    Qt.callLater(settle);
+  }
   onCodeChanged: Qt.callLater(settle)
 
   component Mark: Canvas {
@@ -363,7 +390,7 @@ FocusScope {
               required property string modelData
 
               label: modelData
-              onClicked: root.task.answer(modelData)
+              onClicked: root.answered(modelData)
             }
           }
         }
