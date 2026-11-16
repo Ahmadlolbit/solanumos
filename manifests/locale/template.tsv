@@ -507,7 +507,7 @@ Turn off the firewall
 Turn on printing and finding printers on the network	
 Turn on the firewall	
 Turn on the snapshot timers	
-Turn the swapfile off	
+Turn the swapfile off and remove it	
 Turn the swapfile on	
 Type a number from %d to %d, such as %s	
 Type to change · Arrows move · Enter goes on · Esc back	

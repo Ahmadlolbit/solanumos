@@ -137,7 +137,10 @@ func swapFileDisable(log *runlog.Log) error {
 	if err := swapOff(log); err != nil {
 		return err
 	}
-	return btrfs.FstabDrop(swapFile(), "none")
+	if err := btrfs.FstabDrop(swapFile(), "none"); err != nil {
+		return err
+	}
+	return removeFiles(swapFile())
 }
 
 type zramSetup struct {
@@ -219,7 +222,7 @@ func swapSteps(context *Context) {
 		context.Run.Step("Create a "+strconv.Itoa(context.swapGiB())+" GiB swapfile", context.swapFileCreate)
 		context.Run.Step("Turn the swapfile on", swapFileEnable)
 	} else {
-		context.Run.Step("Turn the swapfile off", swapFileDisable)
+		context.Run.Step("Turn the swapfile off and remove it", swapFileDisable)
 	}
 	hibernateSteps(context)
 	zram := zramSetup{Context: context, restart: followUp{name: "zram-restart"}}
