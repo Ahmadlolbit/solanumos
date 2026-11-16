@@ -22,6 +22,7 @@ const (
 	releaseFile   = "/etc/os-release"
 	debianRelease = "/usr/lib/os-release"
 	releaseHook   = "/etc/apt/apt.conf.d/80solanum-os-release"
+	releaseScript = "/usr/local/lib/solanum/apt-os-release"
 	grubNameFile  = "/etc/default/grub.d/solanum-name.cfg"
 	fastfetchFile = "/etc/xdg/fastfetch/config.jsonc"
 	issueFile     = "/etc/issue"
@@ -29,7 +30,10 @@ const (
 	debianLink    = "../usr/lib/os-release"
 )
 
-var grubName = "case ${0##*/} in\ngrub-mkconfig) GRUB_DISTRIBUTOR=" + brandName + " ;;\n*) GRUB_DISTRIBUTOR=Debian ;;\nesac\n"
+var (
+	grubName = "case ${0##*/} in\ngrub-mkconfig) GRUB_DISTRIBUTOR=" + brandName + " ;;\n*) GRUB_DISTRIBUTOR=Debian ;;\nesac\n"
+	ourLines = map[string]string{"PRETTY_NAME": `PRETTY_NAME="` + brandRelease + `"`, "NAME": `NAME="` + brandName + `"`}
+)
 
 func namedPath(path string) string {
 	return filepath.Join(env.Or("SOLANUM_NAME_ROOT", "/"), path)
@@ -38,15 +42,32 @@ func namedPath(path string) string {
 func ourRelease(debian string) string {
 	var lines []string
 	for _, line := range strings.Split(strings.TrimSuffix(debian, "\n"), "\n") {
-		switch {
-		case strings.HasPrefix(line, "PRETTY_NAME="):
-			line = `PRETTY_NAME="` + brandRelease + `"`
-		case strings.HasPrefix(line, "NAME="):
-			line = `NAME="` + brandName + `"`
+		key, _, assigned := strings.Cut(line, "=")
+		if own, ok := ourLines[key]; ok && assigned {
+			line = own
 		}
 		lines = append(lines, line)
 	}
 	return strings.Join(lines, "\n") + "\n"
+}
+
+func (context *Context) releaseHookInstall() error {
+	pairs := []string{"ROOT=" + strings.TrimSuffix(namedPath("/"), "/")}
+	for key, line := range ourLines {
+		pairs = append(pairs, key+"="+line)
+	}
+	script := namedPath(releaseScript)
+	if err := context.Deploy.File("system/apt/apt-os-release", script, pairs...); err != nil {
+		return err
+	}
+	return context.Deploy.File("system/apt/80solanum-os-release", namedPath(releaseHook), "SCRIPT="+script)
+}
+
+func MendReleaseHook(context *Context) error {
+	if !fsutil.Exists(namedPath(releaseHook)) {
+		return nil
+	}
+	return context.releaseHookInstall()
 }
 
 func diverted(path string) bool {
@@ -117,10 +138,11 @@ func (context *Context) nameInstall(log *runlog.Log) error {
 			return err
 		}
 	}
-	for _, pair := range [][2]string{{"system/apt/80solanum-os-release", releaseHook}, {"system/fastfetch.jsonc", fastfetchFile}} {
-		if err := context.Deploy.File(pair[0], namedPath(pair[1])); err != nil {
-			return err
-		}
+	if err := context.releaseHookInstall(); err != nil {
+		return err
+	}
+	if err := context.Deploy.File("system/fastfetch.jsonc", namedPath(fastfetchFile)); err != nil {
+		return err
 	}
 	menu := &followUp{name: "grub-name"}
 	changed, err := context.Deploy.Content([]byte(grubName), namedPath(grubNameFile))
@@ -135,7 +157,7 @@ func (context *Context) nameRemove(log *runlog.Log) error {
 	if err := releaseBack(log); err != nil {
 		return err
 	}
-	for _, path := range []string{issueFile, issueNetFile, releaseHook, fastfetchFile, grubNameFile} {
+	for _, path := range []string{issueFile, issueNetFile, releaseHook, releaseScript, fastfetchFile, grubNameFile} {
 		if _, err := context.Deploy.Undeploy(namedPath(path)); err != nil {
 			return err
 		}
