@@ -56,6 +56,8 @@ func Image(kernel string) string {
 
 func Rebuild(all bool) []string {
 	switch {
+	case Dracut() && all:
+		return []string{"dracut", "--regenerate-all", "--force"}
 	case Dracut():
 		if kernel := Newest(); kernel != "" {
 			return []string{"dracut", "--force", Image(kernel), kernel}
