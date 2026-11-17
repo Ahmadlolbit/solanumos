@@ -111,17 +111,28 @@ func stateOnOurs(text string) (string, bool) {
 	return strings.Join(lines, "\n"), true
 }
 
+func sessionSwitched() string {
+	return filepath.Join(env.StateDir(), "session-switched")
+}
+
 func (context *Context) sessionOffer(log *runlog.Log) error {
 	if err := context.Deploy.File("system/sddm/"+ourEntry, filepath.Join(sessionsDir(), ourEntry), "BIN="+env.BinDir()); err != nil {
 		return err
 	}
 	text, err := fsutil.Text(sddmState())
-	switched, changed := stateOnOurs(text)
-	if err != nil || !changed {
+	if err != nil || fsutil.Exists(sessionSwitched()) {
 		return nil
 	}
-	log.Line("info", "the login screen starts the Solanum session from now on")
-	return atomic.Write(sddmState(), []byte(switched+"\n"), plainMode)
+	if switched, changed := stateOnOurs(text); changed {
+		log.Line("info", "the login screen starts the Solanum session from now on")
+		if err := atomic.Write(sddmState(), []byte(switched+"\n"), plainMode); err != nil {
+			return err
+		}
+	}
+	if err := os.MkdirAll(env.StateDir(), programMode); err != nil {
+		return err
+	}
+	return atomic.Write(sessionSwitched(), nil, plainMode)
 }
 
 func displayManager() string {
