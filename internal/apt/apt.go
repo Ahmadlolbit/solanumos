@@ -190,7 +190,7 @@ func noteUpdate() error {
 }
 
 func packageStates() (map[string]bool, map[string]bool, error) {
-	stamp := dpkgStamp()
+	stamp := DpkgStamp()
 	if installed, held, kept := keptStates(stamp); kept {
 		return installed, held, nil
 	}

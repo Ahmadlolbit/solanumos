@@ -27,6 +27,8 @@ var (
 	othersLimit = 10 * time.Minute
 	pkgVerbs    = map[string][2]string{"install": {"Installing ", " is installed"}, "remove": {"Removing ", " is removed"}}
 	aptOptions  = []string{"-y", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Use-Pty=0", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold"}
+	dpkgLeft    = apt.Interrupted
+	dpkgState   = apt.DpkgStamp
 )
 
 func aPackage(name string) bool {
@@ -85,26 +87,84 @@ func agreed(action string, names []string) bool {
 	return len(others) == 0 || ui.Confirm("This also removes "+strings.Join(others, ", ")+". Go ahead?")
 }
 
-func changePackages(action string, names []string) int {
-	held, code := lockedWhenFree()
-	if held == nil {
-		return code
+func agreedUnlessStopped(stop <-chan os.Signal, action string, names []string) (bool, bool) {
+	if len(stop) > 0 {
+		return false, true
 	}
-	defer held.Close()
-	listed := strings.Join(names, ", ")
-	if !agreed(action, names) {
-		ui.Skip("Nothing changed")
+	answer := make(chan bool, 1)
+	go func() { answer <- agreed(action, names) }()
+	select {
+	case yes := <-answer:
+		return yes, len(stop) > 0
+	case <-stop:
+		return false, true
+	}
+}
+
+func unasked(args ...string) []string {
+	return append([]string{"DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none"}, args...)
+}
+
+func finishDpkg() int {
+	if !dpkgLeft() {
 		return 0
 	}
-	ui.Busy(pkgVerbs[action][0] + listed)
-	code = run.Status("env", append(append([]string{"DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none", "apt-get"}, aptOptions...), append([]string{action}, names...)...)...)
+	ui.Busy("dpkg was interrupted, finishing what it left")
+	code, _ := run.Shielded(nil, "env", unasked("dpkg", "--force-confdef", "--force-confold", "--configure", "-a")...)
 	ui.Done()
+	if code != 0 {
+		ui.Fail("Finishing what dpkg left failed, so nothing else changed; the log says why")
+	}
+	return code
+}
+
+func sayStopped(before string) int {
+	if dpkgState() == before {
+		ui.Skip("Stopped, nothing changed")
+	} else {
+		ui.Skip("Stopped after some packages changed; the log says which")
+	}
+	return stoppedCode
+}
+
+func applied(stop <-chan os.Signal, before, action string, names []string) int {
+	listed := strings.Join(names, ", ")
+	ui.Busy(pkgVerbs[action][0] + listed)
+	code, halted := run.Shielded(stop, "env", unasked(slices.Concat([]string{"apt-get"}, aptOptions, []string{action}, names)...)...)
+	ui.Done()
+	if halted {
+		return sayStopped(before)
+	}
 	if code != 0 {
 		ui.Fail(pkgVerbs[action][0] + listed + " failed; the log says why")
 		return code
 	}
 	ui.OK(listed + pkgVerbs[action][1])
 	return 0
+}
+
+func changePackages(action string, names []string) int {
+	held, code := lockedWhenFree()
+	if held == nil {
+		return code
+	}
+	defer held.Close()
+	stop := make(chan os.Signal, 1)
+	cleanup.NotifyInterrupt(stop)
+	defer signal.Stop(stop)
+	before := dpkgState()
+	if code := finishDpkg(); code != 0 {
+		return code
+	}
+	yes, halted := agreedUnlessStopped(stop, action, names)
+	if halted {
+		return sayStopped(before)
+	}
+	if !yes {
+		ui.Skip("Nothing changed")
+		return 0
+	}
+	return applied(stop, before, action, names)
 }
 
 func pkgCommand() int {
