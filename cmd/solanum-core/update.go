@@ -271,15 +271,23 @@ func update() int {
 	if wanted("solanum") && gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
 		return fail("%s is not a git clone, so it can't update itself", root())
 	}
+	return updateParts(wanted)
+}
+
+func updateParts(wanted func(string) bool) int {
+	failed := 0
 	for _, step := range []struct {
 		name string
 		work func() int
 	}{{"system", updateSystem}, {"apps", updateApps}, {"solanum", updateSolanum}} {
-		if wanted(step.name) {
-			if status := step.work(); status != 0 {
-				return status
-			}
+		if !wanted(step.name) {
+			continue
 		}
+		status := step.work()
+		if status != 0 && step.name != "system" {
+			return status
+		}
+		failed = max(failed, status)
 	}
-	return 0
+	return failed
 }
