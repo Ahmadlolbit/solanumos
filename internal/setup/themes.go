@@ -661,11 +661,15 @@ func (theme *themeRun) consoleFontApply(log *runlog.Log) error {
 		if err := run.Logged(log, "setupcon", "--save-only"); err != nil {
 			return err
 		}
-		rebuild := bootimage.Rebuild(false)
-		if apt.Commands(rebuild[0]) != nil {
-			return nil
+		for _, rebuild := range bootimage.Rebuild(false) {
+			if apt.Commands(rebuild[0]) != nil {
+				return nil
+			}
+			if err := run.Logged(log, rebuild[0], rebuild[1:]...); err != nil {
+				return err
+			}
 		}
-		return run.Logged(log, rebuild[0], rebuild[1:]...)
+		return nil
 	})
 }
 

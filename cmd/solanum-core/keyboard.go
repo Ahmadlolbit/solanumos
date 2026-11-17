@@ -34,9 +34,10 @@ func setLayout(id string) int {
 	run.Quiet(run.Slow, "setupcon", "--save-only")
 	if detect.RootEncrypted() {
 		fmt.Println("Updating the boot files, so the disk password prompt uses it too")
-		rebuild := bootimage.Rebuild(true)
-		if run.Logged(os.Stdout, rebuild[0], rebuild[1:]...) != nil {
-			return fail("the boot files weren't updated, so the disk password prompt keeps the old layout: run sudo %s", strings.Join(rebuild, " "))
+		for _, rebuild := range bootimage.Rebuild(true) {
+			if run.Logged(os.Stdout, rebuild[0], rebuild[1:]...) != nil {
+				return fail("the boot files weren't updated, so the disk password prompt keeps the old layout: run sudo %s", strings.Join(rebuild, " "))
+			}
 		}
 	}
 	return say("The keyboard layout is " + id + ". The console and the login screen use it after a restart.\n")

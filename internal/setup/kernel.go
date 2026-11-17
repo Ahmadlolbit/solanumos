@@ -213,8 +213,7 @@ func (driver *nvidiaDriver) configure(log *runlog.Log) error {
 	if err := service.Enable(log, nvidiaUnits...); err != nil {
 		return err
 	}
-	rebuild := bootimage.Rebuild(true)
-	return driver.initramfs.do(func() error { return run.Logged(log, rebuild[0], rebuild[1:]...) })
+	return driver.initramfs.do(func() error { return bootimage.Make(log, true) })
 }
 
 func (context *Context) webcamWanted() bool {

@@ -112,8 +112,7 @@ type hibernation struct {
 
 func (rest *hibernation) rebuild(log *runlog.Log) error {
 	return rest.boot.do(func() error {
-		rebuild := bootimage.Rebuild(false)
-		if err := run.Logged(log, rebuild[0], rebuild[1:]...); err != nil {
+		if err := bootimage.Make(log, false); err != nil {
 			return err
 		}
 		if apt.Commands("update-grub") != nil {

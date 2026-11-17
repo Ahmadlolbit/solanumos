@@ -104,9 +104,10 @@ func splash(current theme, initramfs bool) bool {
 	if !initramfs && !fsutil.Exists(owedImage) {
 		return true
 	}
-	rebuild := bootimage.Rebuild(false)
-	if run.Within(initramfsLimit, rebuild[0], rebuild[1:]...) != 0 {
-		return false
+	for _, rebuild := range bootimage.Rebuild(false) {
+		if run.Within(initramfsLimit, rebuild[0], rebuild[1:]...) != 0 {
+			return false
+		}
 	}
 	if err := os.Remove(owedImage); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		fmt.Fprintln(os.Stderr, err)

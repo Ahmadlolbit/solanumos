@@ -200,8 +200,7 @@ func Settle(out io.Writer) error {
 	if !Due() {
 		return nil
 	}
-	rebuild := bootimage.Rebuild(true)
-	if err := run.Logged(out, rebuild[0], rebuild[1:]...); err != nil {
+	if err := bootimage.Make(out, true); err != nil {
 		return err
 	}
 	if apt.Commands("update-grub") == nil {
