@@ -25,6 +25,7 @@ const (
 	reportBytes  = 1 << 20
 	shownLines   = 3
 	longestLine  = 160
+	headBytes    = 256
 )
 
 var errorLine = regexp.MustCompile(`(?i)\[err\]|error|critical|fatal|fail|abort|assert|segmentation|terminate called|cannot|couldn't|can't|unable`)
@@ -161,6 +162,12 @@ func (ending *Ending) fromLog(home string, uid int) {
 	}
 }
 
+func (ending *Ending) fromOwnLog(home string, uid int) {
+	if data, err := fsutil.ReadTail(filepath.Join(home, OwnLog), logBytes, uid); err == nil {
+		ending.note("~/"+OwnLog, errorLines(string(data), shownLines)...)
+	}
+}
+
 func loggedIn(home string) time.Time {
 	info, err := os.Lstat(filepath.Join(home, sessionLog))
 	if err != nil {
@@ -169,18 +176,38 @@ func loggedIn(home string) time.Time {
 	return info.ModTime()
 }
 
+func ownStart(home string, uid int) time.Time {
+	head, err := fsutil.ReadHead(filepath.Join(home, OwnLog), headBytes, uid)
+	stamp, found := strings.CutPrefix(string(head), logStamp)
+	if err != nil || !found || len(stamp) < len(time.DateTime) {
+		return time.Time{}
+	}
+	when, err := time.ParseInLocation(time.DateTime, stamp[:len(time.DateTime)], time.Local)
+	if err != nil {
+		return time.Time{}
+	}
+	return when
+}
+
 func Last(person account.Account, limit time.Duration) Ending {
 	var ending Ending
 	uid, err := strconv.Atoi(person.UID)
 	if err != nil || !filepath.IsAbs(person.Home) {
 		return ending
 	}
+	own := ownStart(person.Home, uid)
 	since := loggedIn(person.Home)
+	if own.After(since) {
+		since = own
+	}
 	if !since.IsZero() {
 		since = since.Add(-slack)
 	}
 	ending.fromDump(person.UID, since, limit)
 	ending.fromReport(person.Home, uid, since)
 	ending.fromLog(person.Home, uid)
+	if !own.IsZero() && !own.Before(since) {
+		ending.fromOwnLog(person.Home, uid)
+	}
 	return ending
 }
