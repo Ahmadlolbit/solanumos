@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -24,13 +25,17 @@ const (
 	logStamp  = "==== "
 )
 
-var upAfter = time.Minute
+var (
+	upAfter      = time.Minute
+	desktopNames = []string{"WAYLAND_DISPLAY", "DISPLAY", "HYPRLAND_INSTANCE_SIGNATURE", "DBUS_SESSION_BUS_ADDRESS"}
+)
 
 type Outcome int
 
 const (
 	NeverStarted Outcome = iota
 	Up
+	Signalled
 )
 
 func opened(log string) *os.File {
@@ -42,33 +47,58 @@ func opened(log string) *os.File {
 	return os.Stderr
 }
 
-func Start(command []string, marker, log string) Outcome {
+func Start(command []string, marker, log string, atMinute func()) Outcome {
 	if err := os.Remove(marker); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	output := opened(log)
-	began := time.Now()
-	fmt.Fprintf(output, "%s%s %s\n", logStamp, began.Format(time.DateTime), strings.Join(command, " "))
-	code := run.Attached(output, command[0], command[1:]...)
+	fmt.Fprintf(output, "%s%s %s\n", logStamp, time.Now().Format(time.DateTime), strings.Join(command, " "))
+	minute := time.AfterFunc(upAfter, atMinute)
+	code, signalled := run.Attached(output, command[0], command[1:]...)
+	ranAMinute := !minute.Stop()
 	fmt.Fprintf(output, "%s%s %s ended (exit %d)\n", logStamp, time.Now().Format(time.DateTime), filepath.Base(command[0]), code)
 	if output != os.Stderr {
 		output.Close()
 	}
-	if fsutil.Exists(marker) || time.Since(began) >= upAfter {
+	switch {
+	case signalled:
+		return Signalled
+	case ranAMinute || code == 0 && fsutil.Exists(marker):
 		return Up
 	}
 	return NeverStarted
 }
 
-func MarkUp(marker, good string) (string, error) {
+func MarkUp(marker string) error {
+	var lines strings.Builder
+	for _, name := range desktopNames {
+		if value, set := os.LookupEnv(name); set {
+			lines.WriteString(name + "=" + value + "\n")
+		}
+	}
+	return atomic.Write(marker, []byte(lines.String()), logMode)
+}
+
+func Desktop(marker string) []string {
+	data, err := fsutil.ReadPlain(marker, logBytes)
+	if err != nil {
+		return nil
+	}
+	lines := []string{}
+	for _, line := range strings.Split(string(data), "\n") {
+		if name, _, found := strings.Cut(line, "="); found && slices.Contains(desktopNames, name) {
+			lines = append(lines, line)
+		}
+	}
+	return lines
+}
+
+func MarkGood(good string) (string, error) {
 	kernel, _ := run.CaptureQuiet(run.Quick, "uname", "-r")
 	if err := os.MkdirAll(filepath.Dir(good), ownMode); err != nil {
 		return kernel, err
 	}
-	if err := atomic.Write(good, []byte(kernel+"\n"), logMode); err != nil {
-		return kernel, err
-	}
-	return kernel, atomic.Write(marker, []byte(kernel+"\n"), logMode)
+	return kernel, atomic.Write(good, []byte(kernel+"\n"), logMode)
 }
 
 func NoteTried(home, kernel string) error {
@@ -77,6 +107,10 @@ func NoteTried(home, kernel string) error {
 		return err
 	}
 	return atomic.Write(path, []byte(kernel+"\n"), logMode)
+}
+
+func Tried(home string) string {
+	return strings.TrimSpace(fsutil.Optional(filepath.Join(home, TriedNote)))
 }
 
 func TakeTried(home string) string {

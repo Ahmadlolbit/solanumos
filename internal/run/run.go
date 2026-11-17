@@ -144,31 +144,36 @@ func Record(limit time.Duration, output *os.File, name string, args ...string) i
 	return Code(err)
 }
 
-func Attached(output *os.File, name string, args ...string) int {
+func Attached(output *os.File, name string, args ...string) (int, bool) {
 	trace(name, args)
 	command := exec.Command(name, args...)
 	command.Stdin = os.Stdin
 	command.Stdout = output
 	command.Stderr = output
-	if err := command.Start(); err != nil {
-		Explain(output, err)
-		return Code(err)
-	}
 	caught := make(chan os.Signal, 1)
 	signal.Notify(caught, syscall.SIGTERM, syscall.SIGHUP)
-	go forward(caught, command.Process)
+	if err := command.Start(); err != nil {
+		signal.Stop(caught)
+		Explain(output, err)
+		return Code(err), false
+	}
+	came := make(chan bool, 1)
+	go forward(caught, command.Process, came)
 	err := command.Wait()
 	signal.Stop(caught)
 	close(caught)
-	return Code(err)
+	return Code(err), <-came
 }
 
-func forward(caught <-chan os.Signal, process *os.Process) {
+func forward(caught <-chan os.Signal, process *os.Process, came chan<- bool) {
+	passed := false
 	for each := range caught {
+		passed = true
 		if err := process.Signal(each); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
+	came <- passed
 }
 
 func Stop() {

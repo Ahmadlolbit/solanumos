@@ -25,9 +25,9 @@ The desktop session the login screen starts. It runs start-hyprland and
 keeps what it says in ~/.local/state/solanum/session.log, and the last
 login's in session.log.1. When Hyprland stops before it finishes starting,
 it shows what happened and the ways out on the console, unless the setting
-Recovery screen is off. up is what the desktop runs once it has come up: it
-marks this login as one that worked, with the kernel it runs, and offers to
-keep a kernel picked on the recovery screen.
+Recovery screen is off. up is what the desktop runs once it has come up. A
+desktop that runs for a minute counts as a login that worked: its kernel is
+noted, and a kernel picked on the recovery screen is offered to keep.
 `
 
 const clearScreen = "\033[H\033[2J"
@@ -105,7 +105,7 @@ func desktop() int {
 	off := config.Read(config.Path()).Get("SESSION_RECOVERY") == "off"
 	input := bufio.NewReader(os.Stdin)
 	for {
-		if session.Start([]string{"start-hyprland"}, marker(), filepath.Join(env.Home(), session.OwnLog)) == session.Up || off {
+		if session.Start([]string{"start-hyprland"}, marker(), filepath.Join(env.Home(), session.OwnLog), minute) != session.NeverStarted || off {
 			return 0
 		}
 		attach()
@@ -116,22 +116,47 @@ func desktop() int {
 }
 
 func up() int {
-	running, err := session.MarkUp(marker(), filepath.Join(env.Home(), session.GoodLogin))
-	if err != nil {
+	if err := session.MarkUp(marker()); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	tried := session.TakeTried(env.Home())
-	if tried == "" || tried != running {
-		return 0
+	return 0
+}
+
+func minute() {
+	running, err := session.MarkGood(filepath.Join(env.Home(), session.GoodLogin))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	switch tried := session.Tried(env.Home()); {
+	case tried == "":
+	case tried != running:
+		session.TakeTried(env.Home())
+	default:
+		offerKeep(tried)
+	}
+}
+
+func offerKeep(tried string) {
+	desktop := session.Desktop(marker())
+	if desktop == nil {
+		return
+	}
+	for _, line := range desktop {
+		name, value, _ := strings.Cut(line, "=")
+		os.Setenv(name, value)
 	}
 	notify.Ready(run.Minute)
-	action := notify.Ask([]string{"--app-name=solanum", "--expire-time=0", "--action=default=Keep it"}, "The previous kernel works",
+	action, shown := notify.Shown([]string{"--app-name=solanum", "--expire-time=0", "--action=default=Keep it"}, "The previous kernel works",
 		"The desktop started on "+tried+". Click to keep starting this kernel until you choose the newest again.")
-	if action != "default" {
-		return 0
+	if !shown {
+		return
 	}
-	return run.Report(run.Exec("solanum-terminal", append([]string{"--wait"}, privilege.AsRoot("solanum", "kernel", "keep")...)...))
+	session.TakeTried(env.Home())
+	if action == "default" {
+		run.Status("solanum-terminal", append([]string{"--wait"}, privilege.AsRoot("solanum", "kernel", "keep")...)...)
+	}
 }
 
 func Main() {

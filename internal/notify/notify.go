@@ -33,8 +33,13 @@ func Post(options []string, summary, body string) int {
 }
 
 func Ask(options []string, summary, body string) string {
-	output, _ := run.Output("notify-send", arguments(options, summary, body)...)
-	return strings.TrimSpace(output)
+	action, _ := Shown(options, summary, body)
+	return action
+}
+
+func Shown(options []string, summary, body string) (string, bool) {
+	output, err := run.Output("notify-send", arguments(options, summary, body)...)
+	return strings.TrimSpace(output), err == nil
 }
 
 func Ready(wait time.Duration) bool {
