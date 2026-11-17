@@ -24,6 +24,8 @@ const (
 	logStamp  = "==== "
 )
 
+var upAfter = time.Minute
+
 type Outcome int
 
 const (
@@ -45,13 +47,14 @@ func Start(command []string, marker, log string) Outcome {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	output := opened(log)
-	fmt.Fprintf(output, "%s%s %s\n", logStamp, time.Now().Format(time.DateTime), strings.Join(command, " "))
+	began := time.Now()
+	fmt.Fprintf(output, "%s%s %s\n", logStamp, began.Format(time.DateTime), strings.Join(command, " "))
 	code := run.Attached(output, command[0], command[1:]...)
 	fmt.Fprintf(output, "%s%s %s ended (exit %d)\n", logStamp, time.Now().Format(time.DateTime), filepath.Base(command[0]), code)
 	if output != os.Stderr {
 		output.Close()
 	}
-	if fsutil.Exists(marker) {
+	if fsutil.Exists(marker) || time.Since(began) >= upAfter {
 		return Up
 	}
 	return NeverStarted
