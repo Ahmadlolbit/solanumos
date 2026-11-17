@@ -37,6 +37,13 @@ func Unlock(password string) error {
 	return ErrWrongPassword
 }
 
+func AsRoot(args ...string) []string {
+	if isRoot() {
+		return args
+	}
+	return append([]string{sudo}, args...)
+}
+
 func Spawn(environment []string, name string, args ...string) (*run.Child, error) {
 	if isRoot() {
 		return run.Spawn(environment, name, args...)
