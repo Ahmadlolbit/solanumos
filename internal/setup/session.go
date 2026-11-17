@@ -351,6 +351,7 @@ func sessionSteps(context *Context) {
 	context.Run.Step("Install session packages", packages("session"))
 	context.Run.Step("Install the Hyprland defaults", context.hyprlandDefaults)
 	context.toolStep("Install the session starter", "solanum-start")
+	context.toolStep("Install the session that shows a way out when the desktop can't start", "solanum-session")
 	context.Run.Step("Put the solanum command on the PATH", context.commandInstall)
 	context.toolStep("Install the floating terminal", "solanum-terminal")
 	context.toolStep("Install the package picker", "solanum-pkg")
@@ -403,6 +404,7 @@ func sessionChecks(context *Context) {
 	context.Run.Check("The screen recorder is installed", commands("solanum-record"))
 	context.Run.Check("The web app maker is installed", commands("solanum-webapp"))
 	context.Run.Check("The session starter is installed", commands("solanum-start"))
+	context.Run.Check("The session tool is installed", commands("solanum-session"))
 	context.Run.Check("The floating terminal is installed", commands("solanum-terminal"))
 	if !liveImage() {
 		context.Run.Check("Tip notifications are scheduled", timerCheck(tipTimer))

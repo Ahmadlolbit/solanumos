@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=SolanumOS
+Comment=Hyprland, with a way out on the console if it cannot start
+Exec={{ BIN }}/solanum-session
+Type=Application
+DesktopNames=Hyprland
+Keywords=tiling;wayland;compositor;

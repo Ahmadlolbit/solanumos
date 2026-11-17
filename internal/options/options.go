@@ -74,6 +74,7 @@ var table = []Option{
 	{"SNAPSHOT_WEEKLY", "Weekly snapshots to keep", Number, "4", "0-100", "storage", "How many weekly snapshots to keep", snapshotsOn},
 	{"SNAPSHOT_MONTHLY", "Monthly snapshots to keep", Number, "1", "0-100", "storage", "How many monthly snapshots to keep", snapshotsOn},
 	{"GREETER", "Login screen runs on", Choice, "x11", "x11 wayland", "system", "X11 is the most reliable for the login screen; Wayland is newer", nil},
+	{"SESSION_RECOVERY", "Recovery screen", Choice, "menu", "menu off", "system", "When the desktop stops before it finishes starting, the console shows what happened and the ways out; off goes back to the login screen", nil},
 	{"SHELL_PROMPT", "Prompt", Choice, "starship", "starship powerlevel10k", "shell", "How the terminal prompt looks: Starship or Powerlevel10k", nil},
 	{"APPS", "Applications", Multi, "", "", "apps", "Apps to install, by category; untick any you don't want", nil},
 	{"TEAMS_SOURCE", "Install Teams from", Choice, "apt", "apt snap", "apps", "Teams for Linux from its apt repository or from the Snap Store", teamsWanted},
