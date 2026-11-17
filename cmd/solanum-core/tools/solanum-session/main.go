@@ -120,8 +120,9 @@ func desktop() int {
 	cleanup.NotifyInterrupt(held)
 	defer signal.Stop(held)
 	defer cleanup.IgnoreQuit()()
+	output := session.OpenLog(filepath.Join(env.Home(), session.OwnLog))
 	for {
-		if session.Start([]string{"start-hyprland"}, marker(), filepath.Join(env.Home(), session.OwnLog), minute) != session.NeverStarted || off {
+		if session.Start([]string{"start-hyprland"}, marker(), output, minute) != session.NeverStarted || off {
 			return 0
 		}
 		attach()

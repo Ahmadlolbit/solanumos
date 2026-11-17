@@ -38,7 +38,7 @@ const (
 	Signalled
 )
 
-func opened(log string) *os.File {
+func OpenLog(log string) *os.File {
 	if os.MkdirAll(filepath.Dir(log), ownMode) == nil {
 		if file, err := atomic.Rotate(log, logMode); err == nil {
 			return file
@@ -47,19 +47,15 @@ func opened(log string) *os.File {
 	return os.Stderr
 }
 
-func Start(command []string, marker, log string, atMinute func()) Outcome {
+func Start(command []string, marker string, output *os.File, atMinute func()) Outcome {
 	if err := os.Remove(marker); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		fmt.Fprintln(os.Stderr, err)
 	}
-	output := opened(log)
 	fmt.Fprintf(output, "%s%s %s\n", logStamp, time.Now().Format(time.DateTime), strings.Join(command, " "))
 	minute := time.AfterFunc(upAfter, atMinute)
 	code, signalled := run.Attached(output, command[0], command[1:]...)
 	ranAMinute := !minute.Stop()
 	fmt.Fprintf(output, "%s%s %s ended (exit %d)\n", logStamp, time.Now().Format(time.DateTime), filepath.Base(command[0]), code)
-	if output != os.Stderr {
-		output.Close()
-	}
 	switch {
 	case signalled:
 		return Signalled
