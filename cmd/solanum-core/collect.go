@@ -23,6 +23,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/modules"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/session"
 )
 
 const (
@@ -326,6 +327,10 @@ func (out *report) logs() {
 	out.programLogs()
 	out.section("Session log")
 	out.tail("400", filepath.Join(out.person.Home, ".local/share/sddm/wayland-session.log"), out.asUser)
+	out.section("The desktop's log, this login")
+	out.tail("400", filepath.Join(out.person.Home, session.OwnLog), out.asUser)
+	out.section("The desktop's log, the login before")
+	out.tail("400", filepath.Join(out.person.Home, session.OwnLog+".1"), out.asUser)
 	out.hyprLog()
 	out.section("Your journal (this boot)")
 	out.command("journalctl", "-b", "_UID="+out.person.UID, "--no-pager", "-n", "400")
@@ -384,6 +389,11 @@ func copyLogs(person account.Account, folder string) error {
 	failed := copyAsRoot(person, folder)
 	if report := filepath.Join(person.Home, "runbook-report.md"); fsutil.IsFile(report) {
 		copyAsUser(person, report, filepath.Join(folder, filepath.Base(report)))
+	}
+	for _, name := range []string{session.OwnLog, session.OwnLog + ".1"} {
+		if file := filepath.Join(person.Home, name); fsutil.IsFile(file) {
+			copyAsUser(person, file, filepath.Join(folder, filepath.Base(file)))
+		}
 	}
 	hyprLogs, _ := filepath.Glob(person.Runtime() + "/hypr/*/hyprland.log")
 	for _, file := range hyprLogs {
