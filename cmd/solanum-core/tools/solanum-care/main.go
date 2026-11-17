@@ -10,6 +10,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/care"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
@@ -22,7 +23,8 @@ const usage = `Usage: solanum-care [firmware|disk]
 Looks after the system quietly. firmware tells you about new firmware from
 fwupd, once per version. disk warns when / is 90% full, once a day, and
 offers to clean up old snapshots. Without an argument it does both, the
-firmware once a day. A user timer runs it every hour.
+firmware once a day, unless Firmware and disk warnings are off. A user timer
+runs it every hour.
 `
 
 const (
@@ -98,9 +100,16 @@ func disk() {
 	}
 }
 
+func turnedOff() bool {
+	return config.Read(config.Path()).Get("CARE_NOTIFY") != "yes"
+}
+
 func Main() {
 	switch env.Arg(1) {
 	case "":
+		if turnedOff() {
+			return
+		}
 		disk()
 		dailyFirmware()
 	case "firmware":

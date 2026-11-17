@@ -144,6 +144,30 @@ func (work *install) bootImage(log *runlog.Log) error {
 	return chroot(log, "update-initramfs", "-u", "-k", "all")
 }
 
+func bootOrder() string {
+	output, err := run.CaptureQuiet(run.Minute, "efibootmgr")
+	if err != nil {
+		return ""
+	}
+	for _, line := range run.Lines(output) {
+		if order, found := strings.CutPrefix(line, "BootOrder: "); found {
+			return strings.TrimSpace(order)
+		}
+	}
+	return ""
+}
+
+func putBootOrderBack(log *runlog.Log, order string) {
+	if order == "" {
+		return
+	}
+	if output, err := run.CaptureQuiet(run.Minute, "efibootmgr", "--bootorder", order); err != nil {
+		log.Line("warn", "the firmware's boot order couldn't go back to "+order+", so the next start may stop at GRUB: "+strings.TrimSpace(output+" "+err.Error()))
+		return
+	}
+	log.Line("info", "the firmware's boot order is back to "+order+", as before the install, so the next start goes where it went before")
+}
+
 func (work *install) bootLoader(log *runlog.Log) error {
 	args := []string{"grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi", "--bootloader-id=debian", "--recheck"}
 	if !work.plan.Beside {

@@ -13,6 +13,7 @@ QtObject {
   property int code: -1
   property string reason: ""
   property bool stopping: false
+  property int failures: 0
   property string partial: ""
   readonly property int logLines: 2000
   readonly property var kinds: ["text", "rule", "ok", "fail", "skip", "warn", "busy", "done", "note", "result", "page", "log", "choose", "input", "password"]
@@ -72,6 +73,7 @@ QtObject {
     code = -1;
     reason = "";
     stopping = false;
+    failures = 0;
     child.command = command;
     child.running = true;
   }
@@ -209,6 +211,8 @@ QtObject {
   }
 
   function add(kind, text, number, word) {
+    if (kind === "fail")
+      failures++;
     rows.append({
       kind: kind,
       text: clean(text),

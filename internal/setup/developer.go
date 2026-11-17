@@ -239,7 +239,9 @@ func (context *Context) miseInstall(log *runlog.Log) error {
 	}
 	var specs []string
 	for _, preset := range context.presets() {
-		specs = append(specs, preset.spec)
+		if !context.answers("mise", "which", preset.command) {
+			specs = append(specs, preset.spec)
+		}
 	}
 	if len(specs) == 0 {
 		return nil

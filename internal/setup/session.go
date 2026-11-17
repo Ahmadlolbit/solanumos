@@ -10,11 +10,11 @@ import (
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
-	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/detect"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fetch"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/service"
@@ -266,25 +266,37 @@ func walkerReady(*runlog.Log) error {
 }
 
 func (context *Context) commandInstall(*runlog.Log) error {
-	if err := os.MkdirAll(env.BinDir(), programMode); err != nil {
+	for _, folder := range []string{env.BinDir(), env.StateDir()} {
+		if err := os.MkdirAll(folder, programMode); err != nil {
+			return err
+		}
+	}
+	if err := context.Deploy.Link(filepath.Join(env.Root(), "solanum"), pkexec.Record()); err != nil {
 		return err
 	}
-	if err := atomic.Symlink(filepath.Join(env.Root(), "solanum"), filepath.Join(env.BinDir(), "solanum")); err != nil {
+	if err := context.Deploy.Tool("solanum-core"); err != nil {
 		return err
 	}
-	return context.Deploy.Tool("solanum-core")
+	return context.Deploy.Link(filepath.Join(env.BinDir(), "solanum-core"), filepath.Join(env.BinDir(), "solanum"))
+}
+
+func pointsAt(link, want string) error {
+	got, err := fsutil.RealPath(link)
+	if err != nil {
+		return err
+	}
+	wanted, err := fsutil.RealPath(want)
+	if err != nil {
+		return err
+	}
+	return expect(got == wanted, "it points at "+got)
 }
 
 func commandReady(*runlog.Log) error {
-	installed, err := fsutil.RealPath(filepath.Join(env.BinDir(), "solanum"))
-	if err != nil {
+	if err := pointsAt(pkexec.Record(), filepath.Join(env.Root(), "solanum")); err != nil {
 		return err
 	}
-	script, err := fsutil.RealPath(filepath.Join(env.Root(), "solanum"))
-	if err != nil {
-		return err
-	}
-	return expect(installed == script, "it points at "+installed)
+	return pointsAt(filepath.Join(env.BinDir(), "solanum"), filepath.Join(env.BinDir(), "solanum-core"))
 }
 
 func (context *Context) tipsInstall(*runlog.Log) error {

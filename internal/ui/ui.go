@@ -29,6 +29,7 @@ const (
 
 var (
 	writeFailed bool
+	failures    int
 	stream      *events.Stream
 )
 
@@ -106,7 +107,12 @@ func OK(text string) {
 }
 
 func Fail(text string) {
+	failures++
 	status(events.Fail, red, "FAIL", text)
+}
+
+func Failures() int {
+	return failures
 }
 
 func Skip(text string) {

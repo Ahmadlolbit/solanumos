@@ -32,6 +32,7 @@ const (
 	noMatch     = 1
 	inactive    = 3
 	unknownUnit = 4
+	checkFailed = 1
 	runGoing    = "\nA Solanum run is still going, so the doctor fixed nothing: run solanum doctor once it ends.\n"
 )
 
@@ -593,6 +594,7 @@ func examine() int {
 	}
 	setting := config.Read(config.Path()).Get("SNAPSHOTS")
 	visit := checkup{person: person, limit: run.Minute}
+	failed := ui.Failures()
 	ui.Header("solanum doctor", "Checks the system and offers the safe fixes")
 	ui.Rule("Desktop")
 	visit.desktop()
@@ -612,7 +614,14 @@ func examine() int {
 	if visit.ending != nil {
 		visit.wayOut()
 	}
-	return ui.ExitCode()
+	return outcome(failed)
+}
+
+func outcome(failedBefore int) int {
+	if code := ui.ExitCode(); code != 0 || ui.Failures() == failedBefore {
+		return code
+	}
+	return checkFailed
 }
 
 func doctor() int {

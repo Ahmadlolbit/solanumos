@@ -50,6 +50,9 @@ var tools = map[string]func(){
 
 func runTool() {
 	name := oldname.Swap(filepath.Base(os.Args[0]))
+	if name == "solanum" && root() == "" {
+		os.Exit(enter())
+	}
 	if name == "solanum" && os.Getenv("SOLANUM_ENGINE") != "" {
 		return
 	}

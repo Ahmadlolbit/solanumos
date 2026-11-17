@@ -3,6 +3,7 @@ package pkexec
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,7 +20,14 @@ const (
 )
 
 func Caller() (account.Account, bool) {
-	uid := os.Getenv("PKEXEC_UID")
+	return human(os.Getenv("PKEXEC_UID"))
+}
+
+func SudoCaller() (account.Account, bool) {
+	return human(os.Getenv("SUDO_UID"))
+}
+
+func human(uid string) (account.Account, bool) {
 	for _, person := range account.Humans() {
 		if person.UID == uid {
 			return person, true
@@ -58,14 +66,60 @@ func trusted(path string, person account.Account) error {
 	}
 }
 
-func Launcher(person account.Account) (string, error) {
-	program, err := filepath.EvalSymlinks(filepath.Join(env.BinDir(), "solanum"))
+func Clone(root string, person account.Account) error {
+	return trusted(filepath.Join(root, "solanum"), person)
+}
+
+func Record() string {
+	return filepath.Join(env.StateDir(), "launcher")
+}
+
+func resolved(link string) (string, error) {
+	program, err := filepath.EvalSymlinks(link)
 	if err != nil {
 		return "", err
 	}
 	if !filepath.IsAbs(program) {
 		return "", errors.New(program + " isn't a full path")
 	}
+	return program, nil
+}
+
+func unrecorded(err error) error {
+	return fmt.Errorf("solanum doesn't know which folder to run from (%w). In your Solanum folder, run: sudo ./solanum install", err)
+}
+
+func Recorded() (string, error) {
+	program, err := resolved(Record())
+	if _, there := os.Lstat(Record()); !errors.Is(there, fs.ErrNotExist) {
+		return program, err
+	}
+	if old, failed := resolved(filepath.Join(env.BinDir(), "solanum")); failed != nil || filepath.Base(old) != "solanum-core" {
+		return old, failed
+	}
+	return "", unrecorded(err)
+}
+
+func Launcher(person account.Account) (string, error) {
+	program, err := Recorded()
+	if err != nil {
+		return "", err
+	}
+	if err := trusted(program, person); err != nil {
+		return "", err
+	}
+	return program, nil
+}
+
+func Entry() (string, error) {
+	program, err := resolved(Record())
+	if err != nil {
+		return "", unrecorded(err)
+	}
+	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
+		return program, nil
+	}
+	person, _ := SudoCaller()
 	if err := trusted(program, person); err != nil {
 		return "", err
 	}

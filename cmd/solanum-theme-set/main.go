@@ -386,8 +386,20 @@ func iconInstalled(name string) bool {
 	return false
 }
 
+func iconsFile() string {
+	name := settings.Get("apps")
+	if name != appsFollow && name != appsOff && theme.ValidName(name) {
+		for _, dir := range []string{filepath.Join(userThemes(), name), filepath.Join(systemRoot, "themes", name)} {
+			if _, _, err := themeColors(dir); err == nil {
+				return filepath.Join(dir, "icons.theme")
+			}
+		}
+	}
+	return filepath.Join(state(), "theme", "icons.theme")
+}
+
 func iconTheme(mode string) string {
-	first, _, _ := strings.Cut(fsutil.Optional(filepath.Join(state(), "theme", "icons.theme")), "\n")
+	first, _, _ := strings.Cut(fsutil.Optional(iconsFile()), "\n")
 	icons := strings.TrimSpace(strings.TrimPrefix(first, "\ufeff"))
 	if iconName.MatchString(icons) && iconInstalled(icons) {
 		return icons

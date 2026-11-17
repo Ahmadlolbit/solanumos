@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/events"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/move"
+	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
 )
@@ -94,18 +95,18 @@ Logs:          %s/ and ~/runbook-logs/
 `
 
 var commands = map[string]func() int{
-	"version":       showVersion,
-	"--version":     showVersion,
-	"help":          showHelp,
-	"-h":            showHelp,
-	"--help":        showHelp,
+	"version":       nothingAfter("version", showVersion),
+	"--version":     nothingAfter("--version", showVersion),
+	"help":          nothingAfter("help", showHelp),
+	"-h":            nothingAfter("-h", showHelp),
+	"--help":        nothingAfter("--help", showHelp),
 	"verbose":       verbose,
 	"changes":       changes,
 	"update":        updateCommand,
 	"config":        configCommand,
 	"modules":       nothingAfter("modules", modulesCommand),
 	"collect":       collect,
-	"doctor":        doctor,
+	"doctor":        nothingAfter("doctor", doctor),
 	"app":           appCommand,
 	"pkg":           pkgCommand,
 	"db":            dbCommand,
@@ -122,7 +123,7 @@ var commands = map[string]func() int{
 	"trust":         trustCommand,
 	"module":        module,
 	"undo":          undoCommand,
-	"credits":       creditsCommand,
+	"credits":       nothingAfter("credits", creditsCommand),
 	"settings":      settingsCommand,
 	"care":          careCommand,
 	"software":      softwareCommand,
@@ -210,6 +211,23 @@ func script() string {
 	return filepath.Join(root(), "solanum")
 }
 
+func fromSudo() error {
+	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
+		return nil
+	}
+	person, _ := pkexec.SudoCaller()
+	return pkexec.Clone(root(), person)
+}
+
+func enter() int {
+	program, err := pkexec.Entry()
+	if err != nil {
+		return fail("%v", err)
+	}
+	os.Setenv("SOLANUM_COMMAND", os.Args[0])
+	return run.Report(run.Exec(program, os.Args[1:]...))
+}
+
 func throughScript() int {
 	return run.Report(run.Exec("bash", append([]string{script()}, os.Args[1:]...)...))
 }
@@ -252,6 +270,9 @@ func main() {
 	}
 	if root() == "" {
 		os.Exit(run.Report(run.Exec("solanum", os.Args[1:]...)))
+	}
+	if err := fromSudo(); err != nil {
+		os.Exit(fail("%v", err))
 	}
 	if command, ok := command(env.Arg(1)); ok {
 		takeEvents()

@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/Ahmadlolbit/solanumos/internal/account"
-	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -126,12 +126,9 @@ func trusted(path string, person account.Account) error {
 }
 
 func launcher(person account.Account) (string, error) {
-	program, err := filepath.EvalSymlinks(filepath.Join(env.BinDir(), "solanum"))
+	program, err := pkexec.Recorded()
 	if err != nil {
 		return "", err
-	}
-	if !filepath.IsAbs(program) {
-		return "", errors.New(program + " isn't a full path")
 	}
 	return program, trusted(program, person)
 }

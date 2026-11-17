@@ -1,6 +1,7 @@
 package bootimage
 
 import (
+	"io"
 	"os/exec"
 	"path/filepath"
 	"slices"
@@ -54,15 +55,38 @@ func Image(kernel string) string {
 	return filepath.Join(Folder(), "initrd.img-"+kernel)
 }
 
-func Rebuild(all bool) []string {
+func dracut(kernel string) []string {
+	return []string{"dracut", "--force", Image(kernel), kernel}
+}
+
+func everyKernel() [][]string {
+	var commands [][]string
+	for _, kernel := range slices.Backward(Kernels()) {
+		commands = append(commands, dracut(kernel))
+	}
+	return commands
+}
+
+func Rebuild(all bool) [][]string {
 	switch {
+	case Dracut() && all:
+		return everyKernel()
 	case Dracut():
 		if kernel := Newest(); kernel != "" {
-			return []string{"dracut", "--force", Image(kernel), kernel}
+			return [][]string{dracut(kernel)}
 		}
-		return []string{"dracut", "--force"}
+		return nil
 	case all:
-		return []string{"update-initramfs", "-u", "-k", "all"}
+		return [][]string{{"update-initramfs", "-u", "-k", "all"}}
 	}
-	return []string{"update-initramfs", "-u"}
+	return [][]string{{"update-initramfs", "-u"}}
+}
+
+func Make(output io.Writer, all bool) error {
+	for _, command := range Rebuild(all) {
+		if err := run.Logged(output, command[0], command[1:]...); err != nil {
+			return err
+		}
+	}
+	return nil
 }
