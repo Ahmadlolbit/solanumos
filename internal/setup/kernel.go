@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -98,7 +97,7 @@ func installedSinceBoot(kernel string) bool {
 }
 
 func kernelThere(kernel string) bool {
-	return fsutil.IsFile(filepath.Join(bootimage.Folder(), "vmlinuz-"+kernel))
+	return bootimage.Installed(kernel)
 }
 
 func keptGone(kept string) error {

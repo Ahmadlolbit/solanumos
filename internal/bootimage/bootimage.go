@@ -3,10 +3,12 @@ package bootimage
 import (
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/tpm"
 )
 
 const kernelPrefix = "vmlinuz-"
@@ -28,11 +30,16 @@ func Kernels() []string {
 	output, _ := run.CaptureQuiet(run.Minute, "ls", "-v", "--quoting-style=literal", Folder())
 	var kernels []string
 	for _, name := range run.Lines(output) {
-		if version, ok := strings.CutPrefix(name, kernelPrefix); ok && !strings.Contains(version, ".dpkg-") {
+		version, ok := strings.CutPrefix(name, kernelPrefix)
+		if ok && !strings.Contains(version, ".dpkg-") && !strings.HasPrefix(version, tpm.Before("")) {
 			kernels = append(kernels, version)
 		}
 	}
 	return kernels
+}
+
+func Installed(kernel string) bool {
+	return slices.Contains(Kernels(), kernel)
 }
 
 func Newest() string {
