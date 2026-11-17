@@ -33,13 +33,32 @@ type item struct {
 	choice Choice
 }
 
+func wrapped(text string) string {
+	var out strings.Builder
+	width := 0
+	for _, word := range strings.Fields(text) {
+		switch {
+		case width == 0:
+		case width+1+len(word) > screenWidth:
+			out.WriteString("\n")
+			width = 0
+		default:
+			out.WriteString(" ")
+			width++
+		}
+		out.WriteString(word)
+		width += len(word)
+	}
+	return out.String()
+}
+
 func crashed(ending Ending) string {
 	said := "It crashed"
 	if ending.Graphics {
 		said += " while starting the graphics"
 	}
 	if ending.Frame != "" {
-		said += ", in " + ending.Frame
+		said += ", in " + plain(ending.Frame)
 	}
 	return said + "."
 }
@@ -63,6 +82,9 @@ func (facts Facts) reason() string {
 	if facts.Changed != "" {
 		lines = append(lines, "Packages changed after the last login that worked, last on "+facts.Changed+".")
 	}
+	for index, line := range lines {
+		lines[index] = wrapped(line)
+	}
 	return strings.Join(lines, "\n") + "\n"
 }
 
@@ -74,7 +96,7 @@ func (facts Facts) menuSteps() string {
 			open = ", open " + facts.Entry.Submenu
 		}
 	}
-	return "Restart, press Esc right after the laptop's logo" + open + "\nand pick " + pick + ".\n"
+	return wrapped("Restart, press Esc right after the laptop's logo"+open+" and pick "+pick+".") + "\n"
 }
 
 func (facts Facts) previousKernel() Choice {
