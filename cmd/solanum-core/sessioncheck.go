@@ -73,7 +73,7 @@ func dkmsMissing() []string {
 	built := map[string]bool{}
 	for _, line := range run.Lines(output) {
 		if name, rest, found := strings.Cut(line, "/"); found {
-			built[name] = built[name] || strings.Contains(rest, ", "+newest+",") && strings.HasSuffix(line, ": installed")
+			built[name] = built[name] || strings.Contains(rest, ", "+newest+",") && strings.Contains(rest, ": installed")
 		}
 	}
 	var missing []string
