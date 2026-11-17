@@ -1,6 +1,7 @@
 local look = require("solanum.hypr.look")
 
 hl.on("hyprland.start", function()
+  hl.exec_cmd("solanum-session up")
   hl.exec_cmd("dbus-update-activation-environment --systemd --all")
   hl.exec_cmd("xdg-user-dirs-update")
   hl.exec_cmd("/usr/libexec/hyprpolkitagent")

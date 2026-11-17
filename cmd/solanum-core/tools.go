@@ -16,6 +16,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-record"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-screensaver"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-sensors"
+	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-session"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-settings-helper"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-start"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-task-helper"
@@ -38,6 +39,7 @@ var tools = map[string]func(){
 	"solanum-record":          record.Main,
 	"solanum-screensaver":     screensaver.Main,
 	"solanum-sensors":         sensors.Main,
+	"solanum-session":         login.Main,
 	"solanum-settings-helper": helper.Main,
 	"solanum-start":           start.Main,
 	"solanum-task-helper":     task.Main,

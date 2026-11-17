@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	Marker   = "solanum-session-up"
-	OwnLog   = ".local/state/solanum/session.log"
-	logMode  = 0o600
-	ownMode  = 0o700
-	logStamp = "==== "
+	Marker    = "solanum-session-up"
+	OwnLog    = ".local/state/solanum/session.log"
+	GoodLogin = ".local/state/solanum/session-ok"
+	logMode   = 0o600
+	ownMode   = 0o700
+	logStamp  = "==== "
 )
 
 type Outcome int
@@ -53,4 +54,15 @@ func Start(command []string, marker, log string) Outcome {
 		return Up
 	}
 	return NeverStarted
+}
+
+func MarkUp(marker, good string) error {
+	kernel, _ := run.CaptureQuiet(run.Quick, "uname", "-r")
+	if err := os.MkdirAll(filepath.Dir(good), ownMode); err != nil {
+		return err
+	}
+	if err := atomic.Write(good, []byte(kernel+"\n"), logMode); err != nil {
+		return err
+	}
+	return atomic.Write(marker, []byte(kernel+"\n"), logMode)
 }
