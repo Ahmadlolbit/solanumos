@@ -4,14 +4,12 @@ import (
 	"cmp"
 	"fmt"
 	"os"
-	"path/filepath"
 	"slices"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/bootimage"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
-	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/grub"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
@@ -65,7 +63,7 @@ func saveKept(release string) int {
 
 func keepKernel(version string) int {
 	release := cmp.Or(version, runningKernel())
-	if !fsutil.IsFile(filepath.Join(bootimage.Folder(), "vmlinuz-"+release)) {
+	if !bootimage.Installed(release) {
 		return fail("there's no kernel %s in %s; see: solanum kernel", release, bootimage.Folder())
 	}
 	if err := grub.Keep(os.Stdout, release); err != nil {
