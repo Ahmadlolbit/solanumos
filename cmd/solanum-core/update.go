@@ -133,11 +133,12 @@ func updateSystem() int {
 	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 {
 		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
 	}
+	before := sessionVersions()
 	if upgrade := fullUpgrade(); run.Status(upgrade[0], upgrade[1:]...) != 0 {
 		return fail("updating Debian failed")
 	}
 	keptKernelNews()
-	return 0
+	return sessionCheck(before)
 }
 
 func fullUpgrade() []string {
