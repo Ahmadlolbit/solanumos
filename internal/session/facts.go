@@ -37,7 +37,6 @@ type Facts struct {
 	Changed  string
 	Newer    Newer
 	Restore  string
-	Entry    grub.Entry
 	Writable bool
 }
 
@@ -140,7 +139,6 @@ func Gather(person account.Account, limit time.Duration) Facts {
 		facts.Restore = FindWayOut(limit).Restore.Number
 	}
 	if facts.Newer.Previous != "" {
-		facts.Entry, _ = grub.Find(fsutil.Optional(grub.Menu()), facts.Newer.Previous)
 		facts.Writable = grub.EnvWritable()
 	}
 	return facts

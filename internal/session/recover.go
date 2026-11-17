@@ -88,23 +88,13 @@ func (facts Facts) reason() string {
 	return strings.Join(lines, "\n") + "\n"
 }
 
-func (facts Facts) menuSteps() string {
-	open, pick := ", open Advanced options", "the entry with "+facts.Newer.Previous
-	if facts.Entry.ID != "" {
-		open, pick = "", facts.Entry.Title
-		if facts.Entry.Submenu != "" {
-			open = ", open " + facts.Entry.Submenu
-		}
-	}
-	return wrapped("Restart, press Esc right after the laptop's logo"+open+" and pick "+pick+".") + "\n"
-}
-
 func (facts Facts) previousKernel() Choice {
 	tried := facts.Newer.Previous
-	if facts.Writable && facts.Entry.ID != "" {
-		return Choice{Run: [][]string{privilege.AsRoot("grub-reboot", facts.Entry.ID)}, Then: Restart, Tried: tried}
+	if facts.Writable {
+		return Choice{Run: [][]string{privilege.AsRoot("solanum", "kernel", "once", tried)}, Then: Restart, Tried: tried}
 	}
-	return Choice{Say: facts.menuSteps(), Wait: true, Then: Restart, Tried: tried}
+	steps := wrapped("Restart, press Esc right after the laptop's logo, open Advanced options and pick the entry with " + tried + ".")
+	return Choice{Say: steps + "\n", Wait: true, Then: Restart, Tried: tried}
 }
 
 func (facts Facts) items() []item {
