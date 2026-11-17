@@ -116,6 +116,13 @@ func Move(from, to string) error {
 	return errors.Join(syncDir(filepath.Dir(from)), syncDir(filepath.Dir(to)))
 }
 
+func Rotate(path string, perm os.FileMode) (*os.File, error) {
+	if err := os.Rename(path, path+".1"); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return nil, err
+	}
+	return os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, perm)
+}
+
 func Fresh(dir, name, extension string, perm os.FileMode) (string, error) {
 	for number := 1; number <= maxCopies; number++ {
 		path := filepath.Join(dir, numbered(name, number)+extension)
