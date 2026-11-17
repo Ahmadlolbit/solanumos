@@ -17,6 +17,7 @@ const (
 	textMode     = 0x00
 	setKeyboard  = 0x4b45
 	unicodeKeys  = 0x03
+	consoleType  = "linux"
 )
 
 var asking atomic.Pointer[syscall.Termios]
@@ -36,6 +37,12 @@ func TextConsole(file *os.File) error {
 		}
 	}
 	return nil
+}
+
+func NameConsole() {
+	if os.Getenv("TERM") == "" {
+		os.Setenv("TERM", consoleType)
+	}
 }
 
 func IsTerminal(file *os.File) bool {

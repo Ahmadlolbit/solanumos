@@ -47,6 +47,7 @@ func attach() {
 	if err := term.TextConsole(os.Stdin); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
+	term.NameConsole()
 	for _, target := range []int{1, 2} {
 		if err := syscall.Dup3(int(os.Stdin.Fd()), target, 0); err != nil {
 			fmt.Fprintln(os.Stderr, err)
