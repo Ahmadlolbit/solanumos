@@ -28,8 +28,9 @@ Looks after the system quietly. firmware tells you about new firmware from
 fwupd, once per version. disk warns when / is 90% full, once a day, and
 offers to clean up old snapshots. hyprland checks that Hyprland still takes
 its configuration, as the next login needs, and says so once per complaint.
-Without an argument it does all three, the firmware and Hyprland once a day,
-unless Firmware and disk warnings are off. A user timer runs it every hour.
+Without an argument it does all three, the firmware and Hyprland once a day;
+Firmware and disk warnings off leaves out the first two. A user timer runs it
+every hour.
 `
 
 const (
@@ -109,26 +110,26 @@ func turnedOff() bool {
 	return config.Read(config.Path()).Get("CARE_NOTIFY") != "yes"
 }
 
-func hyprland() {
+func hyprland() bool {
 	seen := filepath.Join(stateFolder(), "hyprland-refused")
 	ok, complaint := hypr.Accepts(io.Discard, account.Account{})
 	tell, keep := care.Refusal(ok, complaint, fsutil.Optional(seen))
 	if tell && !offer("solanum-hyprland", "critical", "Hyprland may not start at the next login", keep+"\nBefore you log out: sudo solanum doctor, or solanum restore to go back.") {
-		return
+		return false
 	}
 	if keep == "" {
 		if err := os.Remove(seen); err != nil && !os.IsNotExist(err) {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		return
+		return true
 	}
 	save(seen, keep)
+	return true
 }
 
 func dailyHyprland() {
 	checked := stamp("hyprland-checked")
-	if _, err := exec.LookPath("Hyprland"); err == nil && fsutil.Optional(checked) != today() {
-		hyprland()
+	if _, err := exec.LookPath("Hyprland"); err == nil && fsutil.Optional(checked) != today() && hyprland() {
 		save(checked, today())
 	}
 }
@@ -136,12 +137,12 @@ func dailyHyprland() {
 func Main() {
 	switch env.Arg(1) {
 	case "":
+		dailyHyprland()
 		if turnedOff() {
 			return
 		}
 		disk()
 		dailyFirmware()
-		dailyHyprland()
 	case "firmware":
 		firmware()
 	case "disk":
