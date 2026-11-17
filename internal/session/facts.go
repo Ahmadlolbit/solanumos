@@ -2,6 +2,7 @@ package session
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -135,7 +136,9 @@ func Gather(person account.Account, limit time.Duration) Facts {
 	uid, _ := strconv.Atoi(person.UID)
 	facts := Facts{Ending: Last(person, limit), Tail: tail(person.Home, uid), Newer: NewerKernel(person.Home, limit)}
 	facts.Changed = changedSince(person.Home)
-	facts.Restore = FindWayOut(limit).Restore.Number
+	if _, err := exec.LookPath("snapper"); err == nil {
+		facts.Restore = FindWayOut(limit).Restore.Number
+	}
 	if facts.Newer.Previous != "" {
 		facts.Entry, _ = grub.Find(fsutil.Optional(grub.Menu()), facts.Newer.Previous)
 		facts.Writable = grub.EnvWritable()

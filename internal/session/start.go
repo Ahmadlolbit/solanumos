@@ -18,6 +18,7 @@ const (
 	Marker    = "solanum-session-up"
 	OwnLog    = ".local/state/solanum/session.log"
 	GoodLogin = ".local/state/solanum/session-ok"
+	TriedNote = ".local/state/solanum/kernel-tried"
 	logMode   = 0o600
 	ownMode   = 0o700
 	logStamp  = "==== "
@@ -56,13 +57,21 @@ func Start(command []string, marker, log string) Outcome {
 	return NeverStarted
 }
 
-func MarkUp(marker, good string) error {
+func MarkUp(marker, good string) (string, error) {
 	kernel, _ := run.CaptureQuiet(run.Quick, "uname", "-r")
 	if err := os.MkdirAll(filepath.Dir(good), ownMode); err != nil {
-		return err
+		return kernel, err
 	}
 	if err := atomic.Write(good, []byte(kernel+"\n"), logMode); err != nil {
+		return kernel, err
+	}
+	return kernel, atomic.Write(marker, []byte(kernel+"\n"), logMode)
+}
+
+func NoteTried(home, kernel string) error {
+	path := filepath.Join(home, TriedNote)
+	if err := os.MkdirAll(filepath.Dir(path), ownMode); err != nil {
 		return err
 	}
-	return atomic.Write(marker, []byte(kernel+"\n"), logMode)
+	return atomic.Write(path, []byte(kernel+"\n"), logMode)
 }
