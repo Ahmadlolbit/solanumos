@@ -85,11 +85,19 @@ func resolved(link string) (string, error) {
 	return program, nil
 }
 
+func unrecorded(err error) error {
+	return fmt.Errorf("solanum doesn't know which folder to run from (%w). In your Solanum folder, run: sudo ./solanum install", err)
+}
+
 func Recorded() (string, error) {
-	if _, err := os.Lstat(Record()); errors.Is(err, fs.ErrNotExist) {
-		return resolved(filepath.Join(env.BinDir(), "solanum"))
+	program, err := resolved(Record())
+	if _, there := os.Lstat(Record()); !errors.Is(there, fs.ErrNotExist) {
+		return program, err
 	}
-	return resolved(Record())
+	if old, failed := resolved(filepath.Join(env.BinDir(), "solanum")); failed != nil || filepath.Base(old) != "solanum-core" {
+		return old, failed
+	}
+	return "", unrecorded(err)
 }
 
 func Launcher(person account.Account) (string, error) {
@@ -106,7 +114,7 @@ func Launcher(person account.Account) (string, error) {
 func Entry() (string, error) {
 	program, err := resolved(Record())
 	if err != nil {
-		return "", fmt.Errorf("solanum doesn't know which folder to run from (%w). In your Solanum folder, run: sudo ./solanum install", err)
+		return "", unrecorded(err)
 	}
 	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
 		return program, nil
