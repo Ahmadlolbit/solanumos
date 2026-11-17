@@ -159,11 +159,14 @@ func updateSystem() int {
 		return stoppedCode
 	}
 	before := sessionVersions()
-	if status := debianPart(fullUpgrade(), "updating Debian failed"); status != 0 {
-		return status
+	status := debianPart(fullUpgrade(), "updating Debian failed")
+	if run.Stopped() {
+		return stoppedCode
 	}
-	keptKernelNews()
-	return sessionCheck(before)
+	if status == 0 {
+		keptKernelNews()
+	}
+	return max(status, sessionCheck(before))
 }
 
 func fullUpgrade() []string {
