@@ -97,6 +97,7 @@ FocusScope {
       Layout.fillWidth: true
       Layout.fillHeight: true
       task: Store.task
+      held: Store.holding
       stopQuestion: "Stop the check?"
       title: "System check"
       onClosed: Store.finish()

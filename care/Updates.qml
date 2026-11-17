@@ -328,6 +328,7 @@ FocusScope {
       Layout.fillWidth: true
       Layout.fillHeight: true
       task: Store.task
+      held: Store.holding
       stopQuestion: "Stop the update?"
       title: Store.part ? "Updating " + page.names[Store.part] : "Updating everything"
       onClosed: Store.finish()

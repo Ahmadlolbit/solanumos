@@ -9,6 +9,7 @@ FocusScope {
   property string stopQuestion: "Stop it?"
   property bool logShown: false
   property var halting: null
+  property bool held: false
   property bool rowsFollow: true
   property bool logFollow: true
   property int phase: 0
@@ -38,7 +39,7 @@ FocusScope {
   }
 
   function askStop(text, items, word) {
-    if (running && !task.stopping)
+    if (running && !task.stopping && !held)
       halting = {
         kind: "choose",
         text: text,
@@ -57,6 +58,8 @@ FocusScope {
   }
 
   function settle() {
+    if (held)
+      return;
     if (choosing)
       choices.pick(Math.max(0, question.items.indexOf("No")));
     else if (question)
@@ -65,6 +68,11 @@ FocusScope {
       ending.forceActiveFocus();
     else
       idle.forceActiveFocus();
+  }
+
+  function resume() {
+    if (activeFocus)
+      settle();
   }
 
   function scrolled(view, key) {
@@ -119,6 +127,12 @@ FocusScope {
   onRunningChanged: {
     halting = null;
     Qt.callLater(settle);
+  }
+  onHeldChanged: {
+    if (held)
+      halting = null;
+    else
+      Qt.callLater(resume);
   }
   onCodeChanged: Qt.callLater(settle)
 
@@ -184,6 +198,11 @@ FocusScope {
 
     function onPaged(first) {
       Qt.callLater(root.opened, first);
+    }
+
+    function onStoppingChanged() {
+      if (root.task.stopping)
+        root.halting = null;
     }
   }
 
