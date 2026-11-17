@@ -13,6 +13,7 @@ const (
 	loginScreen = "Ctrl+Alt+F1 brings back the login screen."
 	sendLogs    = "solanum collect packs the logs to send with a bug report."
 	likelyCause = "The graphics driver or the kernel is the likely cause, not your configuration."
+	keepIt      = "If the desktop starts there, sudo solanum kernel keep keeps starting it."
 )
 
 type WayOut struct {
@@ -53,7 +54,7 @@ func (ending Ending) Advice(way WayOut) []string {
 	if ending.Graphics {
 		cause := likelyCause
 		if way.Previous != "" {
-			cause += " This boot runs the newest kernel, " + way.Running + ": restart, press Esc right after the laptop's logo, open Advanced options and pick " + way.Previous + "."
+			cause += " This boot runs the newest kernel, " + way.Running + ": restart, press Esc right after the laptop's logo, open Advanced options and pick " + way.Previous + ". " + keepIt
 		}
 		advice = append(advice, cause)
 	}
