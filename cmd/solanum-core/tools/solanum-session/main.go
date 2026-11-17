@@ -124,7 +124,8 @@ func up() int {
 	if tried == "" || tried != running {
 		return 0
 	}
-	action := notify.Ask([]string{"--app-name=solanum", "--action=default=Keep it"}, "The previous kernel works",
+	notify.Ready(run.Minute)
+	action := notify.Ask([]string{"--app-name=solanum", "--expire-time=0", "--action=default=Keep it"}, "The previous kernel works",
 		"The desktop started on "+tried+". Click to keep starting this kernel until you choose the newest again.")
 	if action != "default" {
 		return 0
