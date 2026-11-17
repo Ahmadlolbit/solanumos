@@ -29,6 +29,7 @@ var (
 	aptOptions  = []string{"-y", "-o", "DPkg::Lock::Timeout=600", "-o", "Dpkg::Use-Pty=0", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold"}
 	dpkgLeft    = apt.Interrupted
 	dpkgState   = apt.DpkgStamp
+	takeLock    = lock.Take
 )
 
 func aPackage(name string) bool {
@@ -44,13 +45,16 @@ func packagesWanted() (string, []string, bool) {
 	return action, names, known && len(names) > 0 && !slices.ContainsFunc(names, bad)
 }
 
-func lockedWhenFree() (*lock.Held, int) {
-	stop := make(chan os.Signal, 1)
-	cleanup.NotifyInterrupt(stop)
-	defer signal.Stop(stop)
+func stoppedEarly() int {
+	ui.Done()
+	ui.Skip("Stopped, nothing changed")
+	return stoppedCode
+}
+
+func lockedWhenFree(stop <-chan os.Signal) (*lock.Held, int) {
 	for waited := time.Duration(0); ; waited += othersPause {
 		if !apt.Busy() {
-			if held, err := lock.Take(); err == nil {
+			if held, err := takeLock(); err == nil {
 				return held, 0
 			}
 		}
@@ -62,9 +66,7 @@ func lockedWhenFree() (*lock.Held, int) {
 		}
 		select {
 		case <-stop:
-			ui.Done()
-			ui.Skip("Stopped, nothing changed")
-			return nil, stoppedCode
+			return nil, stoppedEarly()
 		case <-time.After(othersPause):
 		}
 	}
@@ -144,14 +146,17 @@ func applied(stop <-chan os.Signal, before, action string, names []string) int {
 }
 
 func changePackages(action string, names []string) int {
-	held, code := lockedWhenFree()
+	stop := make(chan os.Signal, 1)
+	cleanup.NotifyInterrupt(stop)
+	defer signal.Stop(stop)
+	held, code := lockedWhenFree(stop)
 	if held == nil {
 		return code
 	}
 	defer held.Close()
-	stop := make(chan os.Signal, 1)
-	cleanup.NotifyInterrupt(stop)
-	defer signal.Stop(stop)
+	if len(stop) > 0 {
+		return stoppedEarly()
+	}
 	before := dpkgState()
 	if code := finishDpkg(); code != 0 {
 		return code
