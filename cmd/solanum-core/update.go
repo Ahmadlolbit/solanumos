@@ -14,6 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
@@ -88,7 +89,10 @@ func gitLog(args ...string) string {
 	return git(append([]string{"log", "--no-show-signature"}, args...)...)
 }
 
-var snapshotTaken bool
+var (
+	snapshotTaken bool
+	debianFailed  bool
+)
 
 func snapshotsOff() bool {
 	if config.Read(config.Path()).Get("SNAPSHOTS") == "yes" {
@@ -119,23 +123,44 @@ func snapshotFirst() int {
 	return 0
 }
 
+func ran(command []string, failure string) int {
+	if run.Status(command[0], command[1:]...) == 0 {
+		return 0
+	}
+	if run.Stopped() {
+		return stoppedCode
+	}
+	return fail("%s", failure)
+}
+
+func debianPart(command []string, failure string) int {
+	status := ran(command, failure)
+	if status != 0 && !run.Stopped() {
+		debianFailed = true
+	}
+	return status
+}
+
 func updateSystem() int {
 	if status := snapshotFirst(); status != 0 {
 		return status
 	}
 	if apt.Interrupted() {
 		ui.Print("dpkg was interrupted, finishing what it left\n")
-		if finish := admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"); run.Status(finish[0], finish[1:]...) != 0 {
-			return fail("finishing what dpkg left failed, so nothing was updated")
+		if status := debianPart(admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
+			return status
 		}
 	}
 	ui.Print("Updating Debian\n")
-	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 {
+	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 && !run.Stopped() {
 		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
 	}
+	if run.Stopped() {
+		return stoppedCode
+	}
 	before := sessionVersions()
-	if upgrade := fullUpgrade(); run.Status(upgrade[0], upgrade[1:]...) != 0 {
-		return fail("updating Debian failed")
+	if status := debianPart(fullUpgrade(), "updating Debian failed"); status != 0 {
+		return status
 	}
 	keptKernelNews()
 	return sessionCheck(before)
@@ -167,8 +192,8 @@ func updateApps() int {
 		if streamed && tool.unasked != "" {
 			command = append(command, tool.unasked)
 		}
-		if run.Status(command[0], command[1:]...) != 0 {
-			return fail("updating %s failed", tool.what)
+		if status := ran(command, "updating "+tool.what+" failed"); status != 0 {
+			return status
 		}
 	}
 	return 0
@@ -272,7 +297,17 @@ func update() int {
 	if wanted("solanum") && gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
 		return fail("%s is not a git clone, so it can't update itself", root())
 	}
+	stopsTheUpdate()
 	return updateParts(wanted)
+}
+
+func stopsTheUpdate() {
+	caught := make(chan os.Signal, 1)
+	cleanup.Notify(caught)
+	go func() {
+		<-caught
+		run.Stop()
+	}()
 }
 
 func updateParts(wanted func(string) bool) int {
@@ -285,7 +320,11 @@ func updateParts(wanted func(string) bool) int {
 			continue
 		}
 		status := step.work()
-		if status != 0 && step.name != "system" {
+		if run.Stopped() {
+			ui.Skip("Stopped, so the update ends here")
+			return stoppedCode
+		}
+		if status != 0 && (step.name != "system" || !debianFailed) {
 			return status
 		}
 		failed = max(failed, status)
