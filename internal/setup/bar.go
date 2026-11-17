@@ -92,10 +92,12 @@ func (context *Context) barSetup(*runlog.Log) error {
 func barSteps(context *Context) {
 	context.Run.Step("Install the bar", context.barInstall)
 	context.Run.Step("Apply the bar settings", context.barSetup)
+	context.Run.Step("Install Care", context.careWindowInstall)
 	context.Run.Step("Install Settings", context.settingsInstall)
 }
 
 func barChecks(context *Context) {
 	context.Run.Check("The bar is installed", barReady)
+	context.Run.Check("Care is installed", careWindowReady)
 	context.Run.Check("Settings is installed", settingsReady)
 }

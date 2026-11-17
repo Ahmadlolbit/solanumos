@@ -52,7 +52,8 @@ USAGE
                                      LocalSend and KDE Connect can reach this computer only on networks you trust
   solanum update [PART]            Update everything (run it without sudo): a snapshot, Debian, the apps,
                                      then Solanum and its installer; PART is system, apps or solanum
-  solanum changes                  Show what the last solanum update changed
+  solanum update --list --json     What's waiting to update, as JSON; changes nothing
+  solanum changes [--json]         Show what the last solanum update changed
   solanum restore [NUMBER]         List the restore points, or show what changed since one and go back to it
                                      (run it without sudo)
   solanum doctor                   Check the system and offer the safe fixes (run it with sudo)
@@ -76,6 +77,8 @@ USAGE
                                      takes away the boot entry kept from before
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
+  solanum care [PAGE]              Open Care, at updates, check or changes: what's waiting to update,
+                                     the system check and what the last update changed
   solanum settings [PAGE]          Open Settings, at a page such as themes or display
   solanum settings list            Every setting as JSON: its page, kind, value, choices, and whether it's
                                      yours or the whole computer's
@@ -97,7 +100,7 @@ var commands = map[string]func() int{
 	"--help":        showHelp,
 	"verbose":       verbose,
 	"changes":       changes,
-	"update":        update,
+	"update":        updateCommand,
 	"config":        configCommand,
 	"modules":       nothingAfter("modules", modulesCommand),
 	"collect":       collect,
@@ -119,6 +122,7 @@ var commands = map[string]func() int{
 	"undo":          undoCommand,
 	"credits":       creditsCommand,
 	"settings":      settingsCommand,
+	"care":          careCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
 	"install-os":    installOSCommand,

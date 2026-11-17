@@ -22,6 +22,7 @@ bind("SUPER + Escape", "System menu", "qs -p /usr/share/solanum/shell ipc call m
 bind("SUPER + CTRL + T", "Theme", "qs -p /usr/share/solanum/shell ipc call picker themes")
 bind("SUPER + CTRL + B", "Next background", "solanum-background next")
 bind("SUPER + K", "Key bindings", "qs -p /usr/share/solanum/shell ipc call keys toggle")
+bind("SUPER + U", "Care", "solanum care")
 bind("SUPER + I", "Settings", "solanum settings")
 bind("SUPER + ALT + R", "Screen reader on or off", "solanum-look reader toggle")
 bind("Print", "Screenshot of a region", "solanum-screenshot region")

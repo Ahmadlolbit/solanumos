@@ -111,6 +111,8 @@ func buttons() []Row {
 		{Name: "open.keys", Label: "Key bindings", Page: "keyboard", Section: "Key bindings", Help: "Every key binding, your own included; Super+K shows them too", Keywords: []string{"shortcuts", "bindings"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "keys", "open"}},
 		{Name: "open.themes", Label: "Theme picker", Page: "themes", Section: "Theme", Help: "Every theme with its preview; Super+Ctrl+T opens it too", Keywords: []string{"theme", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "themes"}},
 		{Name: "open.backgrounds", Label: "Wallpaper picker", Page: "wallpaper", Section: "Pictures", Help: "The pictures in use, drawing another, and adding or removing yours", Keywords: []string{"background", "picker"}, Command: []string{"qs", "-p", shellPath, "ipc", "call", "picker", "backgrounds"}},
+		{Name: "open.update", Label: "Update now", Page: "updates", Section: "Updates", Help: "What's waiting, updated in Care with a snapshot taken first; Super+U opens it too", Keywords: []string{"update", "upgrade", "care"}, Command: []string{"solanum", "care", "updates"}},
+		{Name: "open.check", Label: "Check the system", Page: "updates", Section: "Updates", Help: "The system check in Care, and the safe fixes it offers", Keywords: []string{"doctor", "check", "health"}, Command: []string{"solanum", "care", "check"}},
 		{Name: "open.next", Label: "Next wallpaper", Page: "wallpaper", Section: "Changing", Help: "The next picture along; Super+Ctrl+B does it too", Keywords: []string{"next background"}, Command: []string{"solanum-background", "next"}},
 	}
 }

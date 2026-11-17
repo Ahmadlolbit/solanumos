@@ -30,7 +30,7 @@ invisible=1
 invisible=1
 
 [app-name=solanum-firmware]
-on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sh -c 'fwupdmgr refresh --force; fwupdmgr update'
+on-button-left=exec makoctl dismiss -n "$id"; solanum care updates
 
 [app-name=solanum-disk]
 on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum cleanup
