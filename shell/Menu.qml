@@ -23,8 +23,6 @@ Scope {
       "ui-fonts": allFonts,
       restore: restorePoints,
       keyboard: layouts,
-      install: available,
-      remove: installed,
       credits: makers
     })
   property var typed: []
@@ -33,6 +31,7 @@ Scope {
   property var entries: ({})
   property var order: []
   property var listed: []
+  property var software: []
   readonly property var rows: filter ? search(filter) : childrenOf(page).map(entry => row(entry)).concat(listed)
   readonly property var screen: Quickshell.screens.find(item => Hyprland.focusedMonitor && item.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
   readonly property var desktopApps: DesktopEntries.applications.values
@@ -118,7 +117,7 @@ Scope {
 
   function search(text) {
     const needle = text.toLowerCase();
-    const found = listed.filter(item => item.label.toLowerCase().includes(needle));
+    const found = listed.concat(software).filter(item => item.label.toLowerCase().includes(needle));
     return found.concat(order.map(key => entries[key]).filter(entry => !isPage(entry) && present(entry) && ((entry.label || "") + " " + (entry.keywords || []).join(" ")).toLowerCase().includes(needle)).map(entry => Object.assign(row(entry), {
           path: trail(parentOf(entry.id))
         })));
@@ -131,6 +130,7 @@ Scope {
   function show(id) {
     load();
     settings.running = true;
+    catalogueApps.running = true;
     filter = "";
     const path = [];
     for (let at = id; at && at !== "root" && entries[at]; at = parentOf(at))
@@ -160,7 +160,34 @@ Scope {
       lister.running = true;
   }
 
+  function softwareRows(text) {
+    let found = [];
+    try {
+      found = JSON.parse(text);
+    } catch (error) {
+      return [];
+    }
+    return (Array.isArray(found) ? found : []).map(app => ({
+          id: "software:" + app.id,
+          glyph: app.installed ? "\u{f0b4c}" : "\u{f01da}",
+          label: app.name,
+          action: "solanum software apps " + app.id,
+          shell: "",
+          state: "",
+          color: "",
+          font: "",
+          page: false,
+          icon: "",
+          app: null,
+          path: "Software"
+        }));
+  }
+
   function deliver(kind, text) {
+    if (kind === "software") {
+      software = softwareRows(text);
+      return;
+    }
     const entry = entries[page];
     if (kind === "credits" && page === "credits")
       listed = credits(text);
@@ -206,12 +233,10 @@ Scope {
 
   function catalogue(kind, text) {
     const glyphs = {
-      install: "\u{f01da}",
-      remove: "\u{f0b4c}",
       restore: "\u{f02da}",
       keyboard: "\u{f030c}"
     };
-    const command = kind === "restore" ? "solanum restore" : "sudo solanum app " + kind;
+    const command = "solanum restore";
     const words = (id) => kind === "keyboard" ? "sh -c 'sudo solanum keyboard " + id + " && hyprctl reload'" : command + " " + id;
     const row = (id, label, words) => ({
           id: kind + ":" + id,
@@ -469,17 +494,10 @@ Scope {
   }
 
   Lister {
-    id: available
+    id: catalogueApps
 
-    kind: "install"
-    command: ["solanum", "app", "list", "available"]
-  }
-
-  Lister {
-    id: installed
-
-    kind: "remove"
-    command: ["solanum", "app", "list", "installed"]
+    kind: "software"
+    command: ["solanum", "app", "list", "--json"]
   }
 
   Lister {

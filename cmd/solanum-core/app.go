@@ -13,7 +13,42 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
-const appUsage = "usage: solanum app [list [installed|available] | install APP | remove APP]"
+const appUsage = "usage: solanum app [list [installed|available|--json] | install APP | remove APP]"
+
+type listedApp struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Category  string `json:"category"`
+	Group     string `json:"group"`
+	Source    string `json:"source"`
+	From      string `json:"from"`
+	Installed bool   `json:"installed"`
+}
+
+func appFrom(source, teamsSource string) string {
+	kind, _, _ := strings.Cut(source, ":")
+	switch {
+	case kind == "debian":
+		return "Debian"
+	case kind == "release":
+		return "Maker's release"
+	case kind == "webapp":
+		return "Web app"
+	case kind == "teams" && teamsSource == "snap":
+		return "Snap"
+	}
+	return "Maker's repository"
+}
+
+func appsListed(catalogue []apps.App, present func(apps.App) bool, teamsSource string) []listedApp {
+	listed := []listedApp{}
+	for _, category := range apps.Categories {
+		for _, app := range apps.InCategory(catalogue, category[0]) {
+			listed = append(listed, listedApp{app.ID, app.Name, category[0], category[1], app.Source, appFrom(app.Source, teamsSource), present(app)})
+		}
+	}
+	return listed
+}
 
 func filteredApps(catalogue []apps.App, present func(apps.App) bool, filter string) string {
 	var list strings.Builder
@@ -83,6 +118,9 @@ func appList() int {
 	teamsSource := config.Read(config.Path()).Get("TEAMS_SOURCE")
 	present := func(app apps.App) bool { return app.Present(packages, teamsSource) }
 	catalogue := apps.All()
+	if env.Arg(3) == "--json" {
+		return printed(appsListed(catalogue, present, teamsSource))
+	}
 	if filter := env.Arg(3); filter != "" {
 		return say(filteredApps(catalogue, present, filter))
 	}

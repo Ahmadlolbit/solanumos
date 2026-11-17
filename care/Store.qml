@@ -11,21 +11,18 @@ Singleton {
   readonly property var pages: [
     {
       id: "updates",
-      source: "Updates.qml",
       label: "Updates",
       glyph: "\uf021",
       help: "What's waiting, and updating it with a snapshot taken first"
     },
     {
       id: "check",
-      source: "Check.qml",
       label: "Check",
       glyph: "\uf0f1",
       help: "The system check, and the safe fixes it offers"
     },
     {
       id: "changes",
-      source: "Changes.qml",
       label: "What changed",
       glyph: "\uf1da",
       help: "What the last update of SolanumOS changed"

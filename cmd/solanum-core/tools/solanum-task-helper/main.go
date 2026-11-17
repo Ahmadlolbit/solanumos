@@ -28,8 +28,11 @@ on stdout and its answers on stdin. The jobs:
   undo 09|10|11|16
   app-install APP
   app-remove APP
+  pkg-install NAME...
+  pkg-remove NAME...
 `
 	usageCode   = 2
+	mostNames   = 100
 	groupWrite  = 0o020
 	othersWrite = 0o002
 	rootAccount = "0"
@@ -40,19 +43,23 @@ type job struct {
 	command  []string
 	argument *regexp.Regexp
 	needed   bool
+	many     bool
 }
 
 var (
 	appID  = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,39}$`)
+	pkgID  = regexp.MustCompile(`^[a-z0-9][a-z0-9+.-]{0,99}(:[a-z0-9-]{1,20})?$`)
 	locale = regexp.MustCompile(`^(LANG|LANGUAGE|LC_[A-Z]+)=[A-Za-z0-9_.@:-]{0,64}$`)
 	jobs   = map[string]job{
-		"update":      {[]string{"update", "--events"}, regexp.MustCompile(`^(system|apps|solanum)$`), false},
-		"doctor":      {[]string{"doctor", "--events"}, nil, false},
-		"cleanup":     {[]string{"cleanup", "--events"}, nil, false},
-		"restore":     {[]string{"restore", "--events"}, regexp.MustCompile(`^[1-9][0-9]{0,8}$`), true},
-		"undo":        {[]string{"undo", "--events"}, regexp.MustCompile(`^(09|10|11|16)$`), true},
-		"app-install": {[]string{"app", "install", "--events"}, appID, true},
-		"app-remove":  {[]string{"app", "remove", "--events"}, appID, true},
+		"update":      {[]string{"update", "--events"}, regexp.MustCompile(`^(system|apps|solanum)$`), false, false},
+		"doctor":      {[]string{"doctor", "--events"}, nil, false, false},
+		"cleanup":     {[]string{"cleanup", "--events"}, nil, false, false},
+		"restore":     {[]string{"restore", "--events"}, regexp.MustCompile(`^[1-9][0-9]{0,8}$`), true, false},
+		"undo":        {[]string{"undo", "--events"}, regexp.MustCompile(`^(09|10|11|16)$`), true, false},
+		"app-install": {[]string{"app", "install", "--events"}, appID, true, false},
+		"app-remove":  {[]string{"app", "remove", "--events"}, appID, true, false},
+		"pkg-install": {[]string{"pkg", "--events", "install"}, pkgID, true, true},
+		"pkg-remove":  {[]string{"pkg", "--events", "remove"}, pkgID, true, true},
 	}
 	start = func(program string, args, environment []string) int {
 		os.Clearenv()
@@ -69,19 +76,20 @@ func Main() {
 }
 
 func command(args []string) ([]string, bool) {
-	if len(args) == 0 || len(args) > 2 {
+	if len(args) == 0 {
 		return nil, false
 	}
 	wanted, known := jobs[args[0]]
+	given := args[1:]
 	switch {
-	case !known:
+	case !known || len(given) > 1 && (!wanted.many || len(given) > mostNames):
 		return nil, false
-	case len(args) == 1:
+	case len(given) == 0:
 		return wanted.command, !wanted.needed
-	case wanted.argument == nil || !wanted.argument.MatchString(args[1]):
+	case wanted.argument == nil || slices.ContainsFunc(given, func(each string) bool { return !wanted.argument.MatchString(each) }):
 		return nil, false
 	}
-	return append(slices.Clone(wanted.command), args[1]), true
+	return append(slices.Clone(wanted.command), given...), true
 }
 
 func caller() (account.Account, error) {

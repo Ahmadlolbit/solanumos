@@ -37,7 +37,7 @@ func forgetStates() {
 	remembered.Unlock()
 }
 
-func dpkgStamp() string {
+func DpkgStamp() string {
 	stamp := "dpkg"
 	for _, path := range []string{dpkgStatus, dpkgJournal} {
 		if info, err := os.Stat(path); err == nil {

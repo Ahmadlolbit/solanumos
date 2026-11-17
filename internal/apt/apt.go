@@ -26,6 +26,7 @@ import (
 var (
 	dpkgJournal = "/var/lib/dpkg/updates"
 	dpkgLock    = "/var/lib/dpkg/lock"
+	dpkgFront   = "/var/lib/dpkg/lock-frontend"
 	aptLocks    = []string{"/var/lib/apt/lists/lock", "/var/cache/apt/archives/lock"}
 	lockPause   = 5 * time.Second
 	lockLimit   = 10 * time.Minute
@@ -94,6 +95,10 @@ func dpkgRunning() bool {
 func dpkgBusy() bool {
 	busy, seen := held(dpkgLock)
 	return busy || !seen && dpkgRunning()
+}
+
+func Busy() bool {
+	return dpkgBusy() || locked(dpkgFront) || slices.ContainsFunc(aptLocks, locked)
 }
 
 func waitForApt(out io.Writer) {
@@ -185,7 +190,7 @@ func noteUpdate() error {
 }
 
 func packageStates() (map[string]bool, map[string]bool, error) {
-	stamp := dpkgStamp()
+	stamp := DpkgStamp()
 	if installed, held, kept := keptStates(stamp); kept {
 		return installed, held, nil
 	}

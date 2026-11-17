@@ -79,6 +79,31 @@ func status(input io.Reader, name string, args []string) int {
 	return Report(err)
 }
 
+func Shielded(stop <-chan os.Signal, name string, args ...string) (int, bool) {
+	trace(name, args)
+	command := exec.Command(name, args...)
+	inherit(command)
+	command.Stdin = nil
+	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	command.WaitDelay = grace
+	defer cleanup.IgnoreQuit()()
+	if err := command.Start(); err != nil {
+		return Report(err), false
+	}
+	ended := make(chan error, 1)
+	go func() { ended <- done(command.Wait()) }()
+	stopped := false
+	for {
+		select {
+		case err := <-ended:
+			return Report(err), stopped
+		case caught := <-stop:
+			command.Process.Signal(caught)
+			stopped = true
+		}
+	}
+}
+
 func Within(limit time.Duration, name string, args ...string) int {
 	if kept(os.Stderr, name) {
 		return 0

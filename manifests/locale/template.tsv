@@ -184,6 +184,7 @@ Install Neovim
 Install Podman	
 Install Rust (stable)	
 Install Settings	
+Install Software	
 Install Solanum next to Windows on %s?	
 Install Solanum with these choices	
 Install SolanumOS	
@@ -388,6 +389,7 @@ Snapshot timers are running
 Snapshots and rollback	
 Snapshots appear in the boot menu	
 Snapshots before changes, so you can roll back from the boot menu	
+Software is installed	
 Solanum is installed. Restart, take the USB stick out, and type your disk password.	
 SolanumOS	
 Space               Change the row	

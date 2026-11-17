@@ -58,6 +58,7 @@ USAGE
                                      (run it without sudo)
   solanum doctor                   Check the system and offer the safe fixes (run it with sudo)
   solanum cleanup [--yes]          Delete the oldest automatic snapshots until / is under 85%% (run it with sudo)
+  solanum software [PAGE]          Open Software to add and remove apps, Debian packages and web apps
   solanum app list                 List the apps you can install, by category (* = installed)
   solanum app install|remove APP
                                    Install or remove one app and tick or untick it in the configuration
@@ -106,6 +107,7 @@ var commands = map[string]func() int{
 	"collect":       collect,
 	"doctor":        doctor,
 	"app":           appCommand,
+	"pkg":           pkgCommand,
 	"db":            dbCommand,
 	"dotfiles":      dotfilesCommand,
 	"restore":       restore,
@@ -123,6 +125,7 @@ var commands = map[string]func() int{
 	"credits":       creditsCommand,
 	"settings":      settingsCommand,
 	"care":          careCommand,
+	"software":      softwareCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
 	"install-os":    installOSCommand,
@@ -212,7 +215,7 @@ func throughScript() int {
 }
 
 var (
-	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo"}
+	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg"}
 	streamed      bool
 )
 

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.common
+import "." as Care
 
 FocusScope {
   id: frame
@@ -214,8 +215,30 @@ FocusScope {
       anchors.bottom: question.visible ? question.top : keys.top
       anchors.topMargin: 24
       anchors.bottomMargin: 16
-      source: Store.pageNow.source
+      sourceComponent: ({
+          updates: updatesPart,
+          check: checkPart,
+          changes: changesPart
+        })[Store.pageNow.id]
       onLoaded: Qt.callLater(frame.takeKeys)
+
+      Component {
+        id: updatesPart
+
+        Care.Updates {}
+      }
+
+      Component {
+        id: checkPart
+
+        Care.Check {}
+      }
+
+      Component {
+        id: changesPart
+
+        Care.Changes {}
+      }
     }
 
     Rectangle {
