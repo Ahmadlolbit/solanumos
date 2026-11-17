@@ -10,19 +10,21 @@ FocusScope {
   property bool logShown: false
   property var halting: null
   property bool held: false
+  property bool findings: false
   property bool rowsFollow: true
   property bool logFollow: true
   property int phase: 0
   readonly property bool running: task !== null && task.running
   readonly property int code: task ? task.code : -1
+  readonly property bool found: findings && !running && code === 1 && task.failures > 0
   readonly property var question: halting || (task ? task.question : null)
   readonly property bool choosing: question !== null && question.kind === "choose"
-  readonly property string condition: running ? (task.stopping ? "Stopping" : task.question ? "Waiting for an answer" : "Running") : code === -1 ? "" : ({
+  readonly property string condition: running ? (task.stopping ? "Stopping" : task.question ? "Waiting for an answer" : "Running") : code === -1 ? "" : found ? "Done · something failed" : ({
         0: "Done",
         126: "Cancelled",
         130: "Stopped"
       })[code] || "Failed"
-  readonly property string reason: !running && code !== -1 && code !== 0 && code !== 130 ? failure() : ""
+  readonly property string reason: !running && code !== -1 && code !== 0 && code !== 130 && !found ? failure() : ""
   readonly property var hints: (choosing ? [[["Left", "Right"], "pick"], ["Enter", "answer"]] : question ? [["Enter", "answer"]] : []).concat([["L", logShown ? "hide log" : "show log"], [["Up", "Down"], "scroll"], ["Tab", "next"]])
   readonly property int textColumn: 8 + Theme.size(12) + 8 + Math.ceil(widest.advanceWidth) + 8
 
