@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
 
 	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
@@ -30,7 +32,10 @@ desktop that runs for a minute counts as a login that worked: its kernel is
 noted, and a kernel picked on the recovery screen is offered to keep.
 `
 
-const clearScreen = "\033[H\033[2J"
+const (
+	clearScreen = "\033[H\033[2J"
+	stoppedCode = 130
+)
 
 func marker() string {
 	return filepath.Join(env.Or("XDG_RUNTIME_DIR", env.OwnState()), session.Marker)
@@ -76,8 +81,8 @@ func carry(choice session.Choice, input *bufio.Reader) session.Next {
 		return session.Back
 	}
 	for _, command := range choice.Run {
-		if run.Status(command[0], command[1:]...) != 0 {
-			fmt.Println("That didn't work, so here are the choices again.")
+		if status := run.Status(command[0], command[1:]...); status != 0 {
+			fmt.Println(notDone(status))
 			return session.Back
 		}
 	}
@@ -92,6 +97,13 @@ func carry(choice session.Choice, input *bufio.Reader) session.Next {
 	return choice.Then
 }
 
+func notDone(status int) string {
+	if status == stoppedCode {
+		return "Stopped, so here are the choices again."
+	}
+	return "That didn't work, so here are the choices again."
+}
+
 func recovery(input *bufio.Reader) session.Next {
 	for {
 		next := carry(session.Recover(input, os.Stdout, session.Gather(me(), run.Minute)), input)
@@ -104,6 +116,10 @@ func recovery(input *bufio.Reader) session.Next {
 func desktop() int {
 	off := config.Read(config.Path()).Get("SESSION_RECOVERY") == "off"
 	input := bufio.NewReader(os.Stdin)
+	held := make(chan os.Signal, 1)
+	cleanup.NotifyInterrupt(held)
+	defer signal.Stop(held)
+	defer cleanup.IgnoreQuit()()
 	for {
 		if session.Start([]string{"start-hyprland"}, marker(), filepath.Join(env.Home(), session.OwnLog), minute) != session.NeverStarted || off {
 			return 0
