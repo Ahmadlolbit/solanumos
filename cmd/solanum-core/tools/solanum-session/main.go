@@ -30,6 +30,8 @@ marks this login as one that worked, with the kernel it runs, and offers to
 keep a kernel picked on the recovery screen.
 `
 
+const clearScreen = "\033[H\033[2J"
+
 func marker() string {
 	return filepath.Join(env.Or("XDG_RUNTIME_DIR", env.OwnState()), session.Marker)
 }
@@ -42,11 +44,15 @@ func attach() {
 	if !term.IsTerminal(os.Stdin) || term.IsTerminal(os.Stdout) {
 		return
 	}
+	if err := term.TextConsole(os.Stdin); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 	for _, target := range []int{1, 2} {
 		if err := syscall.Dup3(int(os.Stdin.Fd()), target, 0); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
+	fmt.Print(clearScreen)
 }
 
 func confirmed(input *bufio.Reader) bool {
