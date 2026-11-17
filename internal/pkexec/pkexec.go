@@ -3,6 +3,7 @@ package pkexec
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -69,14 +70,48 @@ func Clone(root string, person account.Account) error {
 	return trusted(filepath.Join(root, "solanum"), person)
 }
 
-func Launcher(person account.Account) (string, error) {
-	program, err := filepath.EvalSymlinks(filepath.Join(env.BinDir(), "solanum"))
+func Record() string {
+	return filepath.Join(env.StateDir(), "launcher")
+}
+
+func resolved(link string) (string, error) {
+	program, err := filepath.EvalSymlinks(link)
 	if err != nil {
 		return "", err
 	}
 	if !filepath.IsAbs(program) {
 		return "", errors.New(program + " isn't a full path")
 	}
+	return program, nil
+}
+
+func Recorded() (string, error) {
+	if _, err := os.Lstat(Record()); errors.Is(err, fs.ErrNotExist) {
+		return resolved(filepath.Join(env.BinDir(), "solanum"))
+	}
+	return resolved(Record())
+}
+
+func Launcher(person account.Account) (string, error) {
+	program, err := Recorded()
+	if err != nil {
+		return "", err
+	}
+	if err := trusted(program, person); err != nil {
+		return "", err
+	}
+	return program, nil
+}
+
+func Entry() (string, error) {
+	program, err := resolved(Record())
+	if err != nil {
+		return "", fmt.Errorf("solanum doesn't know which folder to run from (%w). In your Solanum folder, run: sudo ./solanum install", err)
+	}
+	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
+		return program, nil
+	}
+	person, _ := SudoCaller()
 	if err := trusted(program, person); err != nil {
 		return "", err
 	}

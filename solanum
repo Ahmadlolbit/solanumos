@@ -3,6 +3,8 @@ set -euo pipefail
 
 root="$(readlink -f "${BASH_SOURCE[0]}")"
 root="${root%/*}"
+name="${SOLANUM_COMMAND:-$0}"
+unset SOLANUM_COMMAND
 tools="${SOLANUM_TOOLS_DIR:-$root/build/bin}"
 core="${SOLANUM_CORE:-/usr/local/bin/solanum-core}"
 export SOLANUM_ROOT="$root"
@@ -17,7 +19,7 @@ as_root() {
     return
   fi
   if ! command -v sudo >/dev/null || ! sudo -v; then
-    printf 'This needs root, and this account cannot use sudo yet. Log in as root and run: %s\n' "$0" >&2
+    printf 'This needs root, and this account cannot use sudo yet. Log in as root and run: %s\n' "$name" >&2
     exit 1
   fi
   sudo "$@"
@@ -39,7 +41,7 @@ apt_get() {
 
 needs_root() {
   ((EUID == 0)) && return 0
-  printf 'Solanum needs root for this. Run it again with sudo: sudo %s %s\n' "$0" "$1" >&2
+  printf 'Solanum needs root for this. Run it again with sudo: sudo %s %s\n' "$name" "$1" >&2
   exit 1
 }
 
@@ -76,7 +78,7 @@ build() {
 }
 
 fresh() {
-  SOLANUM_ENGINE=1 exec -a "$0" "$tools/solanum-core" "$@"
+  SOLANUM_ENGINE=1 exec -a "$name" "$tools/solanum-core" "$@"
 }
 
 if [[ -n ${SOLANUM_FROM_CORE:-} ]]; then
@@ -88,7 +90,7 @@ fi
 case "${1:-} ${2:-}" in
   " ")
     if ((EUID == 0)) && [[ -n ${SUDO_USER:-} ]]; then
-      printf 'run it as yourself, without sudo: %s\n' "$0" >&2
+      printf 'run it as yourself, without sudo: %s\n' "$name" >&2
       exit 1
     fi
     build
@@ -115,7 +117,7 @@ case "${1:-} ${2:-}" in
 esac
 
 if [[ -f $core && -x $core && -s $core ]]; then
-  SOLANUM_ENGINE=1 exec -a "$0" "$core" "$@"
+  SOLANUM_ENGINE=1 exec -a "$name" "$core" "$@"
 fi
 build
 fresh "$@"

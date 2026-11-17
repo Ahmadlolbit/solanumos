@@ -219,6 +219,15 @@ func fromSudo() error {
 	return pkexec.Clone(root(), person)
 }
 
+func enter() int {
+	program, err := pkexec.Entry()
+	if err != nil {
+		return fail("%v", err)
+	}
+	os.Setenv("SOLANUM_COMMAND", os.Args[0])
+	return run.Report(run.Exec(program, os.Args[1:]...))
+}
+
 func throughScript() int {
 	return run.Report(run.Exec("bash", append([]string{script()}, os.Args[1:]...)...))
 }
