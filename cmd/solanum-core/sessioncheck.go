@@ -111,7 +111,7 @@ func dontLogOut() int {
 	ui.Print("Don't log out yet. The ways out:\n" +
 		"  " + restore + " goes back to the snapshot taken before this update\n" +
 		"  sudo solanum doctor checks the system\n" +
-		"  solanum collect packs the logs for a bug report\n")
+		"  sudo solanum collect packs the logs for a bug report\n")
 	return 1
 }
 

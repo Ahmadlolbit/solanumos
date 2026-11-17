@@ -11,7 +11,7 @@ import (
 const (
 	updatePoint = "before solanum update"
 	loginScreen = "Ctrl+Alt+F1 brings back the login screen."
-	sendLogs    = "solanum collect packs the logs to send with a bug report."
+	sendLogs    = "sudo solanum collect packs the logs to send with a bug report."
 	likelyCause = "The graphics driver or the kernel is the likely cause, not your configuration."
 	keepIt      = "If the desktop starts there, sudo solanum kernel keep keeps starting it."
 )

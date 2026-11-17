@@ -95,7 +95,7 @@ func (facts Facts) items() []item {
 	}
 	return append(items,
 		item{"Check the system (sudo solanum doctor)", Choice{Run: [][]string{privilege.AsRoot("solanum", "doctor")}}},
-		item{"Collect the logs for a bug report (solanum collect)", Choice{Run: [][]string{{"solanum", "collect"}}}},
+		item{"Collect the logs for a bug report (sudo solanum collect)", Choice{Run: [][]string{privilege.AsRoot("solanum", "collect")}}},
 		item{"Open a shell; exit comes back here", Choice{Run: [][]string{{env.Or("SHELL", "/bin/bash")}}}},
 		item{"Restart", Choice{Then: Restart}},
 		item{"Log out", Choice{Then: LogOut}},
