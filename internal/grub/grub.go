@@ -194,6 +194,14 @@ func Keep(log io.Writer, release string) error {
 	return run.Logged(log, "update-grub")
 }
 
+func Once(log io.Writer, release string) error {
+	entry, err := entryFor(log, release)
+	if err != nil {
+		return err
+	}
+	return run.Logged(log, "grub-reboot", entry.ID)
+}
+
 func Newest(log io.Writer) error {
 	kept := Kept()
 	files := handMade()

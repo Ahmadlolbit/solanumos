@@ -85,6 +85,19 @@ func startNewest() int {
 	return say("The computer starts the newest kernel, " + bootimage.Newest() + ", from the next restart.\n")
 }
 
+func startOnce(release string) int {
+	if !slices.Contains(bootimage.Kernels(), release) {
+		return fail("there's no kernel %s in %s; see: solanum kernel", release, bootimage.Folder())
+	}
+	if !grub.EnvWritable() {
+		return fail("GRUB can't keep a choice for one restart on this /boot: restart, press Esc right after the laptop's logo, open Advanced options and pick %s", release)
+	}
+	if err := grub.Once(os.Stdout, release); err != nil {
+		return fail("%v", err)
+	}
+	return say("The computer starts " + release + " at the next restart, once.\n")
+}
+
 func newerThanKept() []string {
 	kept, kernels := keptNow(), bootimage.Kernels()
 	at := slices.Index(kernels, kept)
@@ -124,8 +137,12 @@ func kernelCommand() int {
 		if env.Arg(3) == "" {
 			return asRoot("kernel newest", alone(startNewest))
 		}
+	case "once":
+		if env.Arg(3) != "" && env.Arg(4) == "" {
+			return asRoot("kernel once", alone(func() int { return startOnce(env.Arg(3)) }))
+		}
 	}
-	return fail("usage: solanum kernel [keep [VERSION] | newest]")
+	return fail("usage: solanum kernel [keep [VERSION] | newest | once VERSION]")
 }
 
 func keptKernelNews() {

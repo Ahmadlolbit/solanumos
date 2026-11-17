@@ -45,9 +45,10 @@ USAGE
   solanum verbose [on|off]         Log the desktop in detail from the next login (run it without sudo)
   solanum guide                    Read the guide in the terminal
   solanum keyboard [LAYOUT]        Show the keyboard layout, list them (list), or set one (run it with sudo)
-  solanum kernel [keep [VERSION]|newest]
+  solanum kernel [keep [VERSION]|newest|once VERSION]
                                    Show the kernels; keep the running one (or VERSION) as the one the computer
-                                     starts, or start the newest again (run it with sudo to change it)
+                                     starts, start the newest again, or start VERSION at the next restart only
+                                     (run it with sudo to change it)
   solanum battery-limit [N|off]    Show or set where charging stops, 50 to 100 (run it with sudo to set it)
   solanum trust [on|off]           Show or set whether you trust the network you're on (run it without sudo);
                                      LocalSend and KDE Connect can reach this computer only on networks you trust
