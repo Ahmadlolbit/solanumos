@@ -12,6 +12,8 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
+	"github.com/Ahmadlolbit/solanumos/internal/notify"
+	"github.com/Ahmadlolbit/solanumos/internal/privilege"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/session"
 	"github.com/Ahmadlolbit/solanumos/internal/term"
@@ -24,7 +26,8 @@ keeps what it says in ~/.local/state/solanum/session.log, and the last
 login's in session.log.1. When Hyprland stops before it finishes starting,
 it shows what happened and the ways out on the console, unless the setting
 Recovery screen is off. up is what the desktop runs once it has come up: it
-marks this login as one that worked, with the kernel it runs.
+marks this login as one that worked, with the kernel it runs, and offers to
+keep a kernel picked on the recovery screen.
 `
 
 func marker() string {
@@ -106,11 +109,21 @@ func desktop() int {
 }
 
 func up() int {
-	if _, err := session.MarkUp(marker(), filepath.Join(env.Home(), session.GoodLogin)); err != nil {
+	running, err := session.MarkUp(marker(), filepath.Join(env.Home(), session.GoodLogin))
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	return 0
+	tried := session.TakeTried(env.Home())
+	if tried == "" || tried != running {
+		return 0
+	}
+	action := notify.Ask([]string{"--app-name=solanum", "--action=default=Keep it"}, "The previous kernel works",
+		"The desktop started on "+tried+". Click to keep starting this kernel until you choose the newest again.")
+	if action != "default" {
+		return 0
+	}
+	return run.Report(run.Exec("solanum-terminal", append([]string{"--wait"}, privilege.AsRoot("solanum", "kernel", "keep")...)...))
 }
 
 func Main() {

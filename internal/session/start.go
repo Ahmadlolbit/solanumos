@@ -75,3 +75,12 @@ func NoteTried(home, kernel string) error {
 	}
 	return atomic.Write(path, []byte(kernel+"\n"), logMode)
 }
+
+func TakeTried(home string) string {
+	path := filepath.Join(home, TriedNote)
+	kernel := strings.TrimSpace(fsutil.Optional(path))
+	if err := os.Remove(path); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		fmt.Fprintln(os.Stderr, err)
+	}
+	return kernel
+}
