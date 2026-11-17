@@ -12,7 +12,6 @@ const (
 	updatePoint = "before solanum update"
 	loginScreen = "Ctrl+Alt+F1 brings back the login screen."
 	sendLogs    = "sudo solanum collect packs the logs to send with a bug report."
-	likelyCause = "The graphics driver or the kernel is the likely cause, not your configuration."
 	keepIt      = "If the desktop starts there, sudo solanum kernel keep keeps starting it."
 )
 
@@ -51,12 +50,8 @@ func (way WayOut) restoreAdvice(afterKernel bool) string {
 
 func (ending Ending) Advice(way WayOut) []string {
 	var advice []string
-	if ending.Graphics {
-		cause := likelyCause
-		if way.Previous != "" {
-			cause += " This boot runs the newest kernel, " + way.Running + ": restart, press Esc right after the laptop's logo, open Advanced options and pick " + way.Previous + ". " + keepIt
-		}
-		advice = append(advice, cause)
+	if ending.Graphics && way.Previous != "" {
+		advice = append(advice, "One choice is the kernel before the newest: sudo solanum kernel once "+way.Previous+" starts it at the next restart (this boot runs "+way.Running+"). "+keepIt)
 	}
 	advice = append(advice, way.restoreAdvice(ending.Graphics && way.Previous != ""))
 	return append(advice, loginScreen, sendLogs)
