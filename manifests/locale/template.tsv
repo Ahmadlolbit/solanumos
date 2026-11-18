@@ -2,7 +2,10 @@
 "%s" failed. What now?	
 %s  %s  ·  %d of %d	
 %s can use sudo	
+%s is LUKS1, which can't hold a recovery key	
 %s · %d of %d	
+%s's key slots can't be read	
+%s. Nothing was changed.	
 24-hour or 12-hour time in the bar and on the lock screen	
 64-bit PC (amd64)	
 A browser is the default	
@@ -12,6 +15,7 @@ A new wallpaper every day: drawn in the theme's colours, NASA's picture of the d
 A notification when a program of yours stops unexpectedly, with what happened and a report you can send	
 A notification when new firmware is ready, or when the disk is nearly full	
 A phone that scans it keeps the key	
+A recovery key opens the disk when the disk password is forgotten, or when the TPM refuses after a firmware change. It works wherever the disk password is asked for.	
 A row can't take a tab or a line break, so the paste isn't taken	
 A second way to open the disk when its password is forgotten, shown once when the install ends; Space turns it off	
 A short chime when you log in, lower for dark themes and higher for light ones; a sound of your own in ~/.config/solanum/startup.ogg plays instead	
@@ -116,12 +120,14 @@ Detect hardware
 Developer tools	
 Disk	
 Disk password	
+Disk password:	
 Disk space used as extra memory when RAM runs out; 0 turns it off, and Hibernate with it	
 Display scale	
 Do not disturb every night, for the hours below	
 Docker command uses	
 Docker publishes ports on	
 Docker works and you are in the docker group	
+Done. The recovery key no longer opens the disk.	
 Downloads and logging	
 Each workspace shows its own wallpaper from the theme	
 Editors follow the theme	
@@ -143,6 +149,7 @@ Firewall
 Firmware and disk warnings	
 Firmware and non-free components are on	
 Firmware for this machine is installed	
+Fix: sudo solanum recovery-key new	
 Flathub is set up	
 Follow theme switches on the boot and login screens	
 For logging in and for sudo	
@@ -318,6 +325,7 @@ Night light until
 No	
 No disk here can take it: each is under %s, read-only, or in use.	
 Nothing changes until you choose Install at the end.	
+Nothing was changed.	
 Notifications are set up	
 Now and then a tip as a notification, at most once a day	
 Now playing on the lock screen	
@@ -366,6 +374,7 @@ Reset applications and tools to the %s preset?
 Review	
 Round the corners of the screen, like a phone's	
 Rounded screen corners	
+Run it in a terminal: it asks for your disk password, and shows the key.	
 Running on Debian 13 (trixie)	
 SSH	
 Save configuration	
@@ -449,6 +458,7 @@ System snapshots
 Tab, Shift+Tab      Move between rows	
 Take out the live system's parts	
 Take the first snapshot	
+Take the recovery key away? It stops opening the disk.	
 Take your finger out of sudo	
 Tap the touchpad to click instead of pressing it down	
 Tap to click	
@@ -465,6 +475,7 @@ The QR code can't be drawn: %s
 The QR code needs %d by %d and the screen has %d by %d: make it bigger, or save the key to a USB stick	
 The SSH server is off	
 The Solanum session is offered	
+The TPM may refuse after the update: have the disk password or the recovery key ready.	
 The admin account can use sudo	
 The bar at the top or the bottom of the screen	
 The bar is installed	
@@ -474,6 +485,7 @@ The boot splash is in the theme's colours
 The colour and QR picker is installed	
 The computer can hibernate	
 The computer's name takes only small letters, digits and -	
+The disk has a recovery key	
 The disk password	
 The disk password needs at least 8 characters	
 The firewall is off	
@@ -495,9 +507,14 @@ The logo and the disk password prompt in your theme's colours while it boots
 The look settings are written	
 The newest kernel is running (or starts after a reboot)	
 The next theme every morning at 6; Super+Ctrl+T still changes it during the day	
+The old recovery key may still work too: %v.	
 The package picker is installed	
 The quiet system checks are scheduled	
 The recovery key couldn't be made: %s. Make one after the first start: sudo solanum recovery-key new	
+The recovery key is still there: %s failed. %s	
+The recovery key reminder is off	
+The recovery key wasn't made: %v. The disk opens as before.	
+The recovery key you have stops working. Make a new one?	
 The same once more	
 The screen reader is installed	
 The screen recorder is installed	
@@ -530,6 +547,10 @@ Theme the text consoles
 Themes	
 There's no layout %s	
 There's no time zone %s	
+This disk has a recovery key.	
+This disk has no recovery key	
+This disk has no recovery key.	
+This disk has no recovery key. Make one: sudo solanum recovery-key new	
 This is the only time it's shown. Keep it off this computer: on paper, or on your phone.	
 Time zone	
 Tip notifications	
@@ -548,6 +569,7 @@ Turn the swapfile on
 Type a number from %d to %d, such as %s	
 Type it in small letters, with its dashes, wherever the disk password is asked for.	
 Type it in small letters, with its dashes, wherever the disk password is asked for. Keep it off this computer.	
+Type it in small letters, with its dashes. Keep it off this computer: on paper, or on your phone.	
 Type to change · Arrows move · Enter goes on · Esc back	
 Type to search · Enter keeps it · Esc clears it	
 Type, then Enter	
@@ -609,6 +631,7 @@ Your name can't have : or , in it
 Your password, for sudo	
 Your recovery key	
 Your recovery key, shown once:	
+Your recovery key:	
 curl is installed	
 distrobox and Podman are installed	
 empty	
@@ -618,10 +641,15 @@ has partitions
 kitty, zsh and tmux are installed	
 kubectl, helm, k9s and kind are installed	
 lazydocker is installed	
+nothing was changed	
 removable	
 restic-backup is in ~/bin	
 snapper-rollback works	
 sudo takes your finger	
+that isn't the disk password	
+the password couldn't be checked: %s	
+the root is on more than one disk, and solanum recovery-key handles a root on one	
+the root isn't on an encrypted disk, so there's no disk for a recovery key to open	
 tmux is set up with its plugins	
 zram size (% of memory)	
 zram swap is on	

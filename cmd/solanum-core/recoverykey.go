@@ -12,37 +12,32 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/term"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
 	wrongPassword = 2
 	keyUsage      = "usage: solanum recovery-key status|new|remove"
-	keyLeads      = `A recovery key opens the disk when the disk password is forgotten, or when
-the TPM refuses after a firmware change. It works wherever the disk password
-is asked for.
-`
-	keyKept = `
-Type it in small letters, with its dashes. Keep it off this computer: on paper,
-or on your phone.
-`
 )
 
-var keyRoot = rootWords{
-	"the root isn't on an encrypted disk, so there's no disk for a recovery key to open",
-	"the root is on more than one disk, and solanum recovery-key handles a root on one",
-	"%s is LUKS1, which can't hold a recovery key",
+func keyRoot() rootWords {
+	return rootWords{
+		words.T("the root isn't on an encrypted disk, so there's no disk for a recovery key to open"),
+		words.T("the root is on more than one disk, and solanum recovery-key handles a root on one"),
+		words.T("%s is LUKS1, which can't hold a recovery key"),
+	}
 }
 
 func hasRecoveryKey(device string) (bool, error) {
 	dump, err := run.CaptureQuiet(run.Quick, "cryptsetup", "luksDump", device)
 	if err != nil {
-		return false, fmt.Errorf("%s's key slots can't be read", device)
+		return false, fmt.Errorf(words.T("%s's key slots can't be read"), device)
 	}
 	return luks.HasKey(dump), nil
 }
 
 func keyStatus() int {
-	root, err := luksRootFor(keyRoot)
+	root, err := luksRootFor(keyRoot())
 	if err != nil {
 		return say(sentenceOf(err.Error()) + ".\n")
 	}
@@ -51,9 +46,9 @@ func keyStatus() int {
 	case err != nil:
 		return fail("%s.", sentenceOf(err.Error()))
 	case has:
-		return say("This disk has a recovery key.\n")
+		return say(words.T("This disk has a recovery key.") + "\n")
 	}
-	return say("This disk has no recovery key. Make one: sudo solanum recovery-key new\n")
+	return say(words.T("This disk has no recovery key. Make one: sudo solanum recovery-key new") + "\n")
 }
 
 func sentenceOf(text string) string {
@@ -69,9 +64,9 @@ func checkPassword(device, password string) error {
 	case err == nil:
 		return nil
 	case run.Code(err) == wrongPassword:
-		return errors.New("that isn't the disk password")
+		return errors.New(words.T("that isn't the disk password"))
 	}
-	return fmt.Errorf("the password couldn't be checked: %s", luks.Reason(messages))
+	return fmt.Errorf(words.T("the password couldn't be checked: %s"), luks.Reason(messages))
 }
 
 func askToReplace(device string) error {
@@ -79,21 +74,21 @@ func askToReplace(device string) error {
 	switch {
 	case err != nil:
 		return err
-	case has && !ui.Confirm("The recovery key you have stops working. Make a new one?"):
-		return errors.New("nothing was changed")
+	case has && !ui.Confirm(words.T("The recovery key you have stops working. Make a new one?")):
+		return errors.New(words.T("nothing was changed"))
 	}
 	return nil
 }
 
 func showKey(key string) {
-	ui.Print("\nYour recovery key:\n\n")
+	ui.Print("\n" + words.T("Your recovery key:") + "\n\n")
 	for _, line := range luks.Lines(key) {
 		ui.Print("  " + line + "\n")
 	}
 	if code, err := qr.Lines(key, os.Getenv("TERM") == "linux"); err == nil {
 		ui.Print("\n" + paintedCode(code) + "\n")
 	}
-	ui.Print(keyKept)
+	ui.Print("\n" + words.T("Type it in small letters, with its dashes. Keep it off this computer: on paper, or on your phone.") + "\n")
 }
 
 func paintedCode(lines []string) string {
@@ -107,37 +102,37 @@ func paintedCode(lines []string) string {
 }
 
 func newKey() int {
-	root, err := luksRootFor(keyRoot)
+	root, err := luksRootFor(keyRoot())
 	if err != nil {
 		return fail("%s.", sentenceOf(err.Error()))
 	}
 	if !ui.CanAsk() {
-		return fail("Run it in a terminal: it asks for your disk password, and shows the key.")
+		return fail("%s", words.T("Run it in a terminal: it asks for your disk password, and shows the key."))
 	}
-	ui.Print(keyLeads)
+	ui.Print(words.T("A recovery key opens the disk when the disk password is forgotten, or when the TPM refuses after a firmware change. It works wherever the disk password is asked for.") + "\n")
 	if err := askToReplace(root.device); err != nil {
 		return fail("%s.", sentenceOf(err.Error()))
 	}
-	password, ok := ui.Password("Disk password:")
+	password, ok := ui.Password(words.T("Disk password:"))
 	if !ok {
-		return fail("Nothing was changed.")
+		return fail("%s", words.T("Nothing was changed."))
 	}
 	if err := checkPassword(root.device, password); err != nil {
-		return fail("%s. Nothing was changed.", sentenceOf(err.Error()))
+		return fail(words.T("%s. Nothing was changed."), sentenceOf(err.Error()))
 	}
 	key, _, err := luks.Make(root.device, password)
 	if key == "" {
-		return fail("The recovery key wasn't made: %v. The disk opens as before.", err)
+		return fail(words.T("The recovery key wasn't made: %v. The disk opens as before."), err)
 	}
 	showKey(key)
 	if err != nil {
-		return fail("The old recovery key may still work too: %v.", err)
+		return fail(words.T("The old recovery key may still work too: %v."), err)
 	}
 	return ui.ExitCode()
 }
 
 func removeKey() int {
-	root, err := luksRootFor(keyRoot)
+	root, err := luksRootFor(keyRoot())
 	if err != nil {
 		return fail("%s.", sentenceOf(err.Error()))
 	}
@@ -146,15 +141,15 @@ func removeKey() int {
 	case err != nil:
 		return fail("%s.", sentenceOf(err.Error()))
 	case !has:
-		return say("This disk has no recovery key.\n")
-	case !ui.Confirm("Take the recovery key away? It stops opening the disk."):
-		return fail("Nothing was changed.")
+		return say(words.T("This disk has no recovery key.") + "\n")
+	case !ui.Confirm(words.T("Take the recovery key away? It stops opening the disk.")):
+		return fail("%s", words.T("Nothing was changed."))
 	}
 	args := luks.Wipe(root.device)
 	if _, messages, err := run.CaptureFed(run.Minute, "", args[0], args[1:]...); err != nil {
-		return fail("The recovery key is still there: %s failed. %s", args[0], luks.Reason(messages))
+		return fail(words.T("The recovery key is still there: %s failed. %s"), args[0], luks.Reason(messages))
 	}
-	return say("Done. The recovery key no longer opens the disk.\n")
+	return say(words.T("Done. The recovery key no longer opens the disk.") + "\n")
 }
 
 func recoveryKeyCommand() int {

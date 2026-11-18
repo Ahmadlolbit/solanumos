@@ -23,6 +23,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/session"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -440,12 +441,12 @@ func (visit *checkup) disk() {
 }
 
 func (visit *checkup) recoveryKey(reminder string) {
-	root, err := luksRootFor(keyRoot)
+	root, err := luksRootFor(keyRoot())
 	switch {
 	case errors.As(err, new(plainRoot)):
 		return
 	case reminder == "no":
-		ui.Skip("The recovery key reminder is off")
+		ui.Skip(words.T("The recovery key reminder is off"))
 		return
 	case err != nil:
 		ui.Skip(sentenceOf(err.Error()))
@@ -456,11 +457,11 @@ func (visit *checkup) recoveryKey(reminder string) {
 		return
 	}
 	if luks.HasKey(dump) {
-		ui.OK("The disk has a recovery key")
+		ui.OK(words.T("The disk has a recovery key"))
 		return
 	}
-	ui.Warn("This disk has no recovery key")
-	ui.Note("Fix: sudo solanum recovery-key new")
+	ui.Warn(words.T("This disk has no recovery key"))
+	ui.Note(words.T("Fix: sudo solanum recovery-key new"))
 }
 
 func batteryValue(battery, energy, charge string) string {

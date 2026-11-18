@@ -21,6 +21,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 	"github.com/Ahmadlolbit/solanumos/internal/tpm"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const usage = `Usage: solanum-care [firmware|disk|hyprland]
@@ -68,7 +69,7 @@ func offer(app, urgency, summary, body string) bool {
 func firmwareBody(fresh []string) string {
 	body := "Click to update.\n" + strings.Join(fresh, "\n")
 	if tpm.Unlocks(fsutil.Optional(tpm.CrypttabPath())) {
-		body += "\nThe TPM may refuse after the update: have the disk password or the recovery key ready."
+		body += "\n" + words.T("The TPM may refuse after the update: have the disk password or the recovery key ready.")
 	}
 	return body
 }
