@@ -336,7 +336,7 @@ func (context *Context) crashNotices(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
-	return everyoneUnit(log, loginWants, crashNotice, !liveImage(), changed)
+	return everyoneUnit(log, loginWants, crashNotice, !liveImage() && context.Config.Get("CRASH_NOTIFY") == "yes", changed)
 }
 
 func (context *Context) brightnessAccess(log *runlog.Log) error {
@@ -411,7 +411,7 @@ func sessionChecks(context *Context) {
 	if !liveImage() && context.Config.Get("CARE_NOTIFY") == "yes" {
 		context.Run.Check("The quiet system checks are scheduled", timerCheck(careTimer))
 	}
-	if !liveImage() {
+	if !liveImage() && context.Config.Get("CRASH_NOTIFY") == "yes" {
 		context.Run.Check("Crash notices are on", unitCheck(loginWants, crashNotice))
 	}
 	context.Run.Check("The solanum command points at this folder", commandReady)

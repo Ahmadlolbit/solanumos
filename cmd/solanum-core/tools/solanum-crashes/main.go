@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/account"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/crashes"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
@@ -25,7 +26,8 @@ follows the journal for systemd-coredump's word of your programs' crashes and
 shows a notification for each: "<program> stopped unexpectedly". Click it to
 see what happened, or middle-click it to write a report (sudo solanum
 collect). It says so at most once an hour for each program, and the next
-notice counts the crashes in between. A user service runs it.
+notice counts the crashes in between. Crash notices off, in Settings ›
+Notifications, stops them at once. A user service runs it.
 login says "The desktop stopped unexpectedly last time", once, when Hyprland
 crashed at the last login after it had come up; the desktop runs it as it
 starts. show prints the journal's last lines from the process PID, this boot,
@@ -75,12 +77,16 @@ func tell(crash crashes.Crash, missed int) {
 	act(action, "show", crash.PID)
 }
 
+func turnedOff() bool {
+	return config.Read(config.Path()).Get("CRASH_NOTIFY") != "yes"
+}
+
 func watch(input io.Reader, limit *crashes.Limit, notice func(crashes.Crash, int)) {
 	lines := bufio.NewScanner(input)
 	lines.Buffer(nil, lineSize)
 	for lines.Scan() {
 		crash, ok := crashes.Parse(lines.Text())
-		if !ok || crash.Program == desktop {
+		if !ok || crash.Program == desktop || turnedOff() {
 			continue
 		}
 		if shown, missed := limit.Take(crash.Program, time.Now()); shown {
@@ -106,7 +112,7 @@ func login() int {
 	person := me()
 	uid, _ := strconv.Atoi(person.UID)
 	key, up := session.CameUpLastTime(person.Home, uid)
-	if !up || session.Told(person.Home) == key || !session.LastTime(person, run.Minute).Crashed || !notify.Ready(run.Minute) {
+	if turnedOff() || !up || session.Told(person.Home) == key || !session.LastTime(person, run.Minute).Crashed || !notify.Ready(run.Minute) {
 		return 0
 	}
 	if err := session.NoteTold(person.Home, key); err != nil {

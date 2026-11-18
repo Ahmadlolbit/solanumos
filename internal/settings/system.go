@@ -38,7 +38,7 @@ var (
 		"DISPLAY_SCALE": {"display", "12"}, "NATURAL_SCROLL": {"mouse", "12"}, "TAP_TO_CLICK": {"mouse", "12"}, "ANIMATIONS": {"windows", "12"},
 		"WINDOW_STYLE": {"themes", "14"}, "TEXT_SIZE": {"accessibility", "14"}, "SCREEN_READER": {"accessibility", "14"}, "STARTUP_SOUND": {"sound", "14"},
 		"SCREENSAVER_MINUTES": {"lock", "12"}, "TIPS_TERMINAL": {"about", "12"}, "TIPS_WELCOME": {"about", "12"}, "TIPS_NOTIFY": {"notifications", "12"},
-		"POWER_FOLLOW": {"power", "14"}, "CARE_NOTIFY": {"notifications", "12"}, "IDLE_LOCK_MINUTES": {"lock", "12"}, "IDLE_SUSPEND_MINUTES": {"power", "12"},
+		"POWER_FOLLOW": {"power", "14"}, "CARE_NOTIFY": {"notifications", "12"}, "CRASH_NOTIFY": {"notifications", "12"}, "IDLE_LOCK_MINUTES": {"lock", "12"}, "IDLE_SUSPEND_MINUTES": {"power", "12"},
 		"BAR_PRESET": {"bar", "13"}, "BAR_POSITION": {"bar", "13"}, "CLOCK_FORMAT": {"time", "12,13,14"}, "LOCK_MEDIA": {"lock", "14"},
 		"LOCK_BATTERY": {"lock", "14"}, "THEME": {"themes", "14"}, "ACCENT_COLOR": {"themes", "14"}, "GLASS": {"themes", "14"},
 		"ROUNDED_CORNERS": {"display", "14"}, "APPS_THEME": {"themes", "14"}, "EDITORS_THEME": {"themes", "14"}, "BROWSERS_THEME": {"themes", "14"},
