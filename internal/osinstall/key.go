@@ -3,6 +3,7 @@ package osinstall
 import (
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -105,7 +106,11 @@ func SaveKey(stick disks.Stick, key, host string) (string, error) {
 	}
 	made := time.Now()
 	name := "solanum-recovery-key-" + host + "-" + made.Format("20060102-150405") + ".txt"
-	err = atomic.Stage(filepath.Join(folder, name), []byte(KeyFile(key, host, made)), 0o644)
+	path := filepath.Join(folder, name)
+	err = atomic.Stage(path, []byte(KeyFile(key, host, made)), 0o644)
+	if err != nil && !errors.Is(err, fs.ErrExist) {
+		os.Remove(path)
+	}
 	if mounted {
 		if _, messages, unmounted := run.CaptureFed(run.Minute, "", "umount", folder); unmounted != nil && err == nil {
 			err = failed(stick.Path+" didn't unmount, so take it out only after the restart", messages)
