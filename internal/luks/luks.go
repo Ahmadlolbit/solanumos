@@ -1,7 +1,6 @@
 package luks
 
 import (
-	"bytes"
 	"errors"
 	"regexp"
 	"slices"
@@ -20,8 +19,14 @@ const (
 )
 
 var (
-	shape    = regexp.MustCompile(`^[` + Characters + `]{8}(-[` + Characters + `]{8}){7}$`)
-	anywhere = regexp.MustCompile(`[` + Characters + `]{8}(-[` + Characters + `]{8}){7}`)
+	shape     = regexp.MustCompile(`^[` + Characters + `]{8}(-[` + Characters + `]{8}){7}$`)
+	anywhere  = regexp.MustCompile(`[` + Characters + `]{8}(-[ \t]*(\r?\n[ \t]*)?[` + Characters + `]{8}){7}|[` + Characters + `]{64}`)
+	modhexOne = func() (table [256]bool) {
+		for _, character := range Characters {
+			table[character] = true
+		}
+		return table
+	}()
 )
 
 func Enroll(device string) []string {
@@ -57,27 +62,22 @@ func Lines(key string) []string {
 	return []string{strings.Join(groups[:perLine], "-") + "-", strings.Join(groups[perLine:], "-")}
 }
 
-func modhex(data []byte) bool {
-	for _, character := range data {
-		if !strings.ContainsRune(Characters, rune(character)) {
-			return false
-		}
-	}
-	return true
-}
-
 func Mentioned(data []byte) bool {
-	for start := 0; ; {
-		at := bytes.IndexByte(data[start:], '-')
-		if at < 0 {
-			return false
-		}
-		at += start
-		if at >= group && len(data) > at+group && modhex(data[at-group:at]) && modhex(data[at+1:at+1+group]) {
+	run := 0
+	for _, character := range data {
+		switch {
+		case modhexOne[character]:
+			run++
+			if run == 8*group {
+				return true
+			}
+		case character == '-' && run >= group:
 			return true
+		default:
+			run = 0
 		}
-		start = at + 1
 	}
+	return false
 }
 
 func Hide(text string) string {
