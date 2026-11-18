@@ -19,6 +19,7 @@ if package.searchpath("solanum.hypr.options", package.path) then
   require("solanum.hypr.options")
 end
 
+require("solanum.hypr.arrange")
 require("solanum.hypr.lid")
 require("solanum.hypr.modes")
 require("solanum.hypr.trackpoint")
