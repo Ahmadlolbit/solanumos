@@ -69,7 +69,11 @@ func parse(output string) []Snapshot {
 }
 
 func All() ([]Snapshot, error) {
-	args := []string{"--csvout", "--no-headers", "--separator", "\t", "-c", "root", "list", "--columns", "number,type,date,description"}
+	return Of("root")
+}
+
+func Of(config string) ([]Snapshot, error) {
+	args := []string{"--csvout", "--no-headers", "--separator", "\t", "-c", config, "list", "--columns", "number,type,date,description"}
 	if os.Geteuid() == 0 {
 		args = append([]string{"--no-dbus"}, args...)
 	}

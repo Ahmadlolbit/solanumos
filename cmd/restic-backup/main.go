@@ -29,6 +29,11 @@ const usage = `Usage: restic-backup init <location>       set up where backups g
        restic-backup schedule daily|off    back up by itself once a day, on the charger only, or stop that
        restic-backup status --json         where backups go, the last one, the schedule, as JSON
        restic-backup list --json           the backups as JSON, newest first
+       restic-backup files <id> <folder> --json
+                                           what a folder in your home held in a backup, as JSON
+       restic-backup restore-path <id> <path> [--copy]
+                                           put a file or folder in your home back as it was in a backup,
+                                           keeping what's there now beside it, or restore it as a copy
        restic-backup keys                  type the keys for an s3: or b2: location again
 
 The location is remembered in ~/.config/restic-backup/repository and the
@@ -223,11 +228,13 @@ func commands() map[string]func([]string) int {
 		"prune": func([]string) int {
 			return repository("forget", "--keep-daily", "7", "--keep-weekly", "4", "--keep-monthly", "6", "--prune")
 		},
-		"usb":       usb,
-		"keys":      func([]string) int { return keys() },
-		"schedule":  schedule,
-		"scheduled": scheduled,
-		"status":    status,
+		"usb":          usb,
+		"keys":         func([]string) int { return keys() },
+		"schedule":     schedule,
+		"scheduled":    scheduled,
+		"status":       status,
+		"files":        files,
+		"restore-path": restorePath,
 	}
 }
 

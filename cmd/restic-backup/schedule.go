@@ -216,3 +216,81 @@ func scheduled([]string) int {
 	remind(last, now)
 	return code
 }
+
+func files(args []string) int {
+	if len(args) != 3 || args[2] != "--json" {
+		fmt.Fprint(os.Stderr, usage)
+		return 2
+	}
+	if !useRepository() {
+		return 1
+	}
+	folder := filepath.Clean(args[1])
+	output, err := run.Capture(run.Slow, "restic", "ls", "--json", args[0], folder)
+	if err != nil {
+		return 1
+	}
+	data, err := json.Marshal(restic.Entries(output, folder))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	fmt.Println(string(data))
+	return 0
+}
+
+func backupWhen(id string) string {
+	output, err := run.CaptureQuiet(run.Slow, "restic", "snapshots", "--json", id)
+	backups, unread := restic.Backups([]byte(output))
+	if err != nil || unread != nil || len(backups) == 0 {
+		return "backup " + id
+	}
+	at, err := time.Parse(time.RFC3339, backups[0].Time)
+	if err != nil {
+		return "backup " + id
+	}
+	return at.Local().Format(restic.WhenLayout)
+}
+
+func restorePath(args []string) int {
+	if (len(args) != 2 && (len(args) != 3 || args[2] != "--copy")) || !restic.Inside(args[1], env.Home()) {
+		fmt.Fprint(os.Stderr, usage)
+		return 2
+	}
+	if !useRepository() {
+		return 1
+	}
+	path := filepath.Clean(args[1])
+	work, err := os.MkdirTemp(env.Home(), ".restic-backup-")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	defer os.RemoveAll(work)
+	if code := run.Status("restic", "restore", args[0], "--target", work, "--include", path); code != 0 {
+		return code
+	}
+	return placeRestored(filepath.Join(work, path), path, backupWhen(args[0]), len(args) == 3)
+}
+
+func placeRestored(source, path, when string, asCopy bool) int {
+	info, err := os.Lstat(source)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s isn't in that backup.\n", path)
+		return 1
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o777); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return 1
+	}
+	placed, aside, err := restic.PutBack(source, path, when, info.IsDir(), asCopy)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s couldn't be restored: %v\n", path, err)
+		return 1
+	}
+	fmt.Println("Restored " + placed)
+	if aside != "" {
+		fmt.Println("What was there is now " + aside)
+	}
+	return 0
+}

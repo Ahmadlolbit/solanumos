@@ -220,6 +220,7 @@ FocusScope {
           check: checkPart,
           changes: changesPart,
           restore: restorePart,
+          history: historyPart,
           space: spacePart,
           undo: undoPart,
           report: reportPart
@@ -248,6 +249,12 @@ FocusScope {
         id: restorePart
 
         Care.Restore {}
+      }
+
+      Component {
+        id: historyPart
+
+        Care.History {}
       }
 
       Component {

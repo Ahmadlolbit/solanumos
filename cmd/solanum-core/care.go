@@ -9,9 +9,9 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 )
 
-const careUsage = "usage: solanum care [updates|check|changes|restore [NUMBER]|space|undo|report]"
+const careUsage = "usage: solanum care [updates|check|changes|restore [NUMBER]|history|space|undo|report]"
 
-var carePages = []string{"updates", "check", "changes", "restore", "space", "undo", "report"}
+var carePages = []string{"updates", "check", "changes", "restore", "history", "space", "undo", "report"}
 
 func careDir() string {
 	return filepath.Join(env.ShareDir(), "care")
@@ -34,7 +34,7 @@ func careCommand() int {
 	case page == "":
 		return openCare("updates")
 	case !slices.Contains(carePages, page):
-		return fail("no page named %s; the pages are updates, check, changes, restore, space, undo and report\n%s", page, careUsage)
+		return fail("no page named %s; the pages are updates, check, changes, restore, history, space, undo and report\n%s", page, careUsage)
 	case point != "":
 		return openCare(page + ":" + point)
 	}

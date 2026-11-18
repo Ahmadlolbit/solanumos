@@ -90,10 +90,17 @@ USAGE
                                      disk password and shows the key once
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
-  solanum care [PAGE]              Open Care, at updates, check, changes, restore, space, undo or report:
-                                     what's waiting to update, the system check, what the last update changed,
-                                     the restore points, the disk's space, undoing a part and making a report
+  solanum care [PAGE]              Open Care, at updates, check, changes, restore, history, space, undo or
+                                     report: what's waiting to update, the system check, what the last update
+                                     changed, the restore points, file history, the disk's space, undoing a
+                                     part and making a report
   solanum care restore NUMBER      Open Care on one restore point
+  solanum history --json           The snapshots of /home, newest first, and whether they're taken, as JSON
+  solanum history files NUMBER FOLDER --json
+                                   What a folder in your home held in snapshot NUMBER of /home, as JSON
+  solanum history restore NUMBER PATH [--copy]
+                                   Put a file or folder in your home back as it was in snapshot NUMBER of
+                                     /home, keeping what's there now beside it, or restore it as a copy
   solanum settings [PAGE]          Open Settings, at a page such as themes or display
   solanum settings list            Every setting as JSON: its page, kind, value, choices, and whether it's
                                      yours or the whole computer's
@@ -139,6 +146,7 @@ var commands = map[string]func() int{
 	"credits":       nothingAfter("credits", creditsCommand),
 	"settings":      settingsCommand,
 	"care":          careCommand,
+	"history":       historyCommand,
 	"software":      softwareCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
