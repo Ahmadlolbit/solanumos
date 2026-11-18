@@ -10,7 +10,7 @@ var (
 		"PROFILE": "Apps", "APPS": "Apps", "TEAMS_SOURCE": "Apps", "EXTRAS": "Apps", "BROWSERS_THEME": "Apps", "THEME": "Theme",
 		"FAILURE_MODE": "Updates", "DEBIAN_MIRROR": "Updates", "AUTO_UPDATES": "Updates",
 		"SNAPSHOTS": "Snapshots", "SNAPSHOT_DAILY": "Snapshots", "SNAPSHOT_WEEKLY": "Snapshots", "SNAPSHOT_MONTHLY": "Snapshots",
-		"HOME_SNAPSHOTS": "File history", "HOME_SNAPSHOT_HOURLY": "File history", "HOME_SNAPSHOT_DAILY": "File history",
+		"HOME_SNAPSHOTS": "File history", "HOME_SNAPSHOT_HOURLY": "File history", "HOME_SNAPSHOT_DAILY": "File history", "BACKUP_ON_BATTERY": "File history",
 		"KERNEL": "Kernel", "KEPT_KERNEL": "Kernel", "WEBCAM": "Webcam", "GRAPHICS": "Graphics", "SWAPFILE_GB": "Swap", "ZRAM_PERCENT": "Swap", "SWAPPINESS": "Swap",
 		"SYSTEM_NAME": "The system's name", "BOOT_SPLASH": "Boot", "BOOT_PROMPT": "Boot", "BOOT_MENU_THEME": "Boot", "CONSOLE_THEME": "Text consoles",
 		"HIBERNATE": "Sleep", "IDLE_SUSPEND_MINUTES": "Sleep", "IDLE_LOCK_MINUTES": "Locking", "SCREENSAVER_MINUTES": "Screensaver", "GREETER": "Login screen", "SESSION_RECOVERY": "Login screen",

@@ -57,6 +57,7 @@ Ask what to do, stop the run, or note the failure and carry on
 At least 8 characters: English letters, digits, signs and spaces	
 Automatic light and dark	
 Automatic security updates	
+Back up on battery	
 Backports are available	
 Backports has a newer kernel for recent laptops; stable is Debian's own	
 Backups	
@@ -109,6 +110,7 @@ Crash notices
 Crash notices are on	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
+Daily backups run on battery too, not only on the charger	
 Daily snapshots of /home to keep	
 Daily snapshots to keep	
 Dark from	

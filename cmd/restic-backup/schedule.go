@@ -10,6 +10,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/battery"
+	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
@@ -72,8 +73,15 @@ func scheduledSince() time.Time {
 }
 
 func onCharger() bool {
+	if online, found := battery.Mains(); found {
+		return online
+	}
 	reading, found := battery.Read()
 	return !found || reading.Plugged
+}
+
+func onBatteryToo() bool {
+	return config.Read(config.Path()).Get("BACKUP_ON_BATTERY") == "yes"
 }
 
 func location() string {
@@ -197,7 +205,7 @@ func remind(last, now time.Time) {
 	if !last.IsZero() {
 		body = "The last one was on " + last.Format("Monday 2 January") + "."
 	}
-	notify.Post([]string{"--app-name=solanum-backup", "--urgency=critical"}, "No backup for a week",
+	notify.Post([]string{"--app-name=solanum-backup"}, "No backup for a week",
 		body+" Backups run once a day while the computer is on the charger and the backup location can be reached.")
 	note("told", now.Format(dayLayout))
 }
@@ -208,7 +216,7 @@ func scheduled([]string) int {
 		return 0
 	}
 	code := 0
-	if where := location(); where != "" && onCharger() && restic.Reachable(where) {
+	if where := location(); where != "" && (onCharger() || onBatteryToo()) && restic.Reachable(where) {
 		if code = backup(); code == 0 || code == unreadable {
 			return 0
 		}

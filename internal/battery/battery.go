@@ -48,6 +48,27 @@ func Batteries() []string {
 	return folders
 }
 
+func adapter(name, kind string) bool {
+	return kind == "Mains" || strings.HasPrefix(name, "ADP") || strings.HasPrefix(name, "AC")
+}
+
+func Mains() (bool, bool) {
+	entries, err := os.ReadDir(root())
+	if err != nil {
+		return false, false
+	}
+	found, online := false, false
+	for _, entry := range entries {
+		folder := filepath.Join(root(), entry.Name())
+		if !adapter(entry.Name(), strings.TrimSpace(fsutil.Optional(filepath.Join(folder, "type")))) {
+			continue
+		}
+		found = true
+		online = online || strings.TrimSpace(fsutil.Optional(filepath.Join(folder, "online"))) == "1"
+	}
+	return online, found
+}
+
 func Limit() string {
 	for _, folder := range Batteries() {
 		return strings.TrimSpace(fsutil.Optional(filepath.Join(folder, endFile)))
