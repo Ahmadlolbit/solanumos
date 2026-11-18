@@ -440,22 +440,24 @@ func (visit *checkup) disk() {
 }
 
 func (visit *checkup) recoveryKey() {
-	devices := rootLuksDevices()
-	if len(devices) == 0 {
+	root, err := luksRootFor(keyRoot)
+	switch {
+	case errors.As(err, new(plainRoot)):
+		return
+	case err != nil:
+		ui.Skip(sentenceOf(err.Error()))
 		return
 	}
-	for _, device := range devices {
-		dump, err := run.CaptureQuiet(visit.limit, "cryptsetup", "luksDump", device.Device)
-		if unchecked("the recovery key", "Reading the disk's key slots", "cryptsetup", err) {
-			return
-		}
-		if !luks.HasKey(dump) {
-			ui.Warn("This disk has no recovery key")
-			ui.Note("Fix: sudo solanum recovery-key new")
-			return
-		}
+	dump, err := run.CaptureQuiet(visit.limit, "cryptsetup", "luksDump", root.device)
+	if unchecked("the recovery key", "Reading the disk's key slots", "cryptsetup", err) {
+		return
 	}
-	ui.OK("The disk has a recovery key")
+	if luks.HasKey(dump) {
+		ui.OK("The disk has a recovery key")
+		return
+	}
+	ui.Warn("This disk has no recovery key")
+	ui.Note("Fix: sudo solanum recovery-key new")
 }
 
 func batteryValue(battery, energy, charge string) string {

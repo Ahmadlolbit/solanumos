@@ -29,7 +29,7 @@ or on your phone.
 
 var keyRoot = rootWords{
 	"the root isn't on an encrypted disk, so there's no disk for a recovery key to open",
-	"the root is on more than one disk, and a recovery key here opens a root on one",
+	"the root is on more than one disk, and solanum recovery-key handles a root on one",
 	"%s is LUKS1, which can't hold a recovery key",
 }
 

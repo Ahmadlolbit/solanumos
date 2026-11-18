@@ -64,6 +64,12 @@ func joinedLog() *runlog.Log {
 	return log
 }
 
+type plainRoot string
+
+func (err plainRoot) Error() string {
+	return string(err)
+}
+
 type rootWords struct {
 	plain string
 	many  string
@@ -87,7 +93,7 @@ func luksRootFor(words rootWords) (luksRoot, error) {
 	pool, _ := run.CaptureQuiet(run.Quick, "btrfs", "filesystem", "show", "/")
 	switch {
 	case len(devices) == 0:
-		return luksRoot{}, errors.New(words.plain)
+		return luksRoot{}, plainRoot(words.plain)
 	case len(devices) > 1 || tpm.PoolDevices(pool) > 1:
 		return luksRoot{}, errors.New(words.many)
 	}
