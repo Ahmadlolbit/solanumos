@@ -160,7 +160,7 @@ Tile {
 
       Label {
         Layout.fillWidth: true
-        text: Arrangement.changed ? "Changed, not applied yet" : Arrangement.saved ? "As saved for these screens" : "As Hyprland set them up"
+        text: Arrangement.changed ? "Changed, not applied yet" : Arrangement.saved ? "As saved for these screens" : "Not saved yet: Apply keeps them as they are"
         color: Theme.subtext
         elide: Text.ElideRight
       }
@@ -175,7 +175,7 @@ Tile {
       }
 
       Button {
-        visible: Arrangement.changed
+        visible: Arrangement.changed || !Arrangement.saved
         label: "Apply"
         primary: true
         chosen: tile.current

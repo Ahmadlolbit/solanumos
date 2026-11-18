@@ -299,7 +299,7 @@ Singleton {
   }
 
   function apply() {
-    if (trying || !changed || !plan.length)
+    if (trying || !plan.length || (!changed && saved))
       return false;
     Store.said = [];
     Store.result = "";
