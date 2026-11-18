@@ -8,7 +8,9 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"slices"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -31,8 +33,14 @@ func screensFile() string {
 	return filepath.Join(env.ConfigHome(), "solanum", "screens.conf")
 }
 
+var procRoot = "/proc"
+
 func trialFile() string {
 	return stateHome("solanum", "screens-trying")
+}
+
+func beforeFile() string {
+	return stateHome("solanum", "screens-before")
 }
 
 func monitorsNow() ([]screens.Monitor, bool) {
@@ -90,9 +98,49 @@ func reloadScreens() {
 	run.Quiet(run.Quick, "hyprctl", "reload")
 }
 
+func liveTrial(word string) bool {
+	pid, err := strconv.Atoi(strings.TrimSuffix(word, " "+revertWord))
+	if err != nil || pid <= 0 || syscall.Kill(pid, 0) != nil {
+		return false
+	}
+	data, err := os.ReadFile(filepath.Join(procRoot, strconv.Itoa(pid), "cmdline"))
+	args := strings.Split(strings.TrimRight(string(data), "\x00"), "\x00")
+	return err == nil && strings.HasPrefix(filepath.Base(args[0]), "solanum-look") && slices.Contains(args, "--try")
+}
+
 func trying() bool {
-	pid, err := strconv.Atoi(stored(trialFile()))
-	return err == nil && pid > 0 && syscall.Kill(pid, 0) == nil
+	return liveTrial(stored(trialFile()))
+}
+
+func settleTrial() {
+	word := stored(trialFile())
+	if word == "" || liveTrial(word) {
+		return
+	}
+	if before, err := os.ReadFile(beforeFile()); err == nil {
+		writeLayouts(string(before))
+		fmt.Fprintln(os.Stderr, "put back the layout from before a trial that never ended")
+	}
+	remove(beforeFile())
+	remove(trialFile())
+	reloadScreens()
+}
+
+func startTrial(before string) bool {
+	if !mark(beforeFile(), before) {
+		return false
+	}
+	if err := atomic.Stage(trialFile(), []byte(strconv.Itoa(os.Getpid())+"\n"), 0o600); err != nil {
+		fmt.Fprintln(os.Stderr, beingTried)
+		remove(beforeFile())
+		return false
+	}
+	return true
+}
+
+func endTrial() {
+	remove(trialFile())
+	remove(beforeFile())
 }
 
 func layoutNow() (screens.Profile, []screens.Monitor, []screens.Profile, string, bool) {
@@ -137,11 +185,11 @@ func screensSave(args []string) int {
 		fmt.Fprintln(os.Stderr, err)
 		return 2
 	}
-	if seconds > 0 && !mark(trialFile(), strconv.Itoa(os.Getpid())) {
+	if seconds > 0 && !startTrial(before) {
 		return 1
 	}
 	if !writeLayouts(screens.Format(screens.Put(saved, profile))) {
-		remove(trialFile())
+		endTrial()
 		return 1
 	}
 	reloadScreens()
@@ -155,7 +203,7 @@ func screensSave(args []string) int {
 func mark(path, value string) bool {
 	err := os.MkdirAll(filepath.Dir(path), 0o777)
 	if err == nil {
-		err = atomic.Write(path, []byte(value+"\n"), 0o600)
+		err = atomic.Write(path, []byte(value), 0o600)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -166,11 +214,12 @@ func mark(path, value string) bool {
 func tryLayout(seconds int, before string) int {
 	fmt.Printf("Keep this layout? Run solanum-look screens confirm within %d seconds, or the old one comes back.\n", seconds)
 	if answered(time.Duration(seconds) * time.Second) {
+		endTrial()
 		fmt.Println("Kept the new layout.")
 		return 0
 	}
 	writeLayouts(before)
-	remove(trialFile())
+	endTrial()
 	reloadScreens()
 	fmt.Println("Put the old layout back.")
 	return 3
@@ -190,7 +239,7 @@ func answered(limit time.Duration) bool {
 		case <-deadline:
 			return false
 		case <-tick.C:
-			if word := stored(trialFile()); word == "" || word == revertWord {
+			if word := stored(trialFile()); word == "" || strings.HasSuffix(word, " "+revertWord) {
 				return word == ""
 			}
 		}
@@ -211,7 +260,7 @@ func screensRevert([]string) int {
 		fmt.Fprintln(os.Stderr, nothingTold)
 		return 1
 	}
-	if !mark(trialFile(), revertWord) {
+	if !mark(trialFile(), stored(trialFile())+" "+revertWord+"\n") {
 		return 1
 	}
 	return 0
@@ -304,7 +353,7 @@ func screensWait(args []string) int {
 func screensCommand(args []string) int {
 	words := map[string]func([]string) int{
 		"list": screensList, "now": screensNow, "save": screensSave, "apply": screensApply,
-		"forget": screensForget, "confirm": screensConfirm, "revert": screensRevert,
+		"forget": screensForget, "confirm": screensConfirm, "revert": screensRevert, "settle": func([]string) int { return 0 },
 	}
 	word := arg(args, 0)
 	if word == "" {
@@ -315,5 +364,6 @@ func screensCommand(args []string) int {
 		fmt.Fprint(os.Stderr, usage)
 		return 2
 	}
+	settleTrial()
 	return command(args[min(1, len(args)):])
 }
