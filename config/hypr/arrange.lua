@@ -29,12 +29,14 @@ local function main(output)
   hl.config({ cursor = { default_monitor = output } })
 end
 
-local attached = screens.attached()
-local plugged = screens.signature(attached)
+local function plugged_now()
+  local ok, attached = pcall(screens.attached)
+  return ok and screens.signature(attached) or ""
+end
 
-local profile, outputs = screens.active()
-if profile then
-  for _, screen in ipairs(profile.screens) do
+local function apply()
+  local profile, outputs = screens.active()
+  for _, screen in ipairs(profile and profile.screens or {}) do
     hl.monitor(rule(screen, outputs))
     if screen.main == "yes" and screen.on ~= "no" then
       main(outputs[screen.screen])
@@ -42,8 +44,14 @@ if profile then
   end
 end
 
+local plugged = plugged_now()
+local ok, problem = pcall(apply)
+if not ok then
+  print("solanum: the screens' layout was left out: " .. tostring(problem))
+end
+
 local function replugged()
-  if screens.signature(screens.attached()) ~= plugged then
+  if plugged_now() ~= plugged then
     hl.exec_cmd("hyprctl reload")
   end
 end

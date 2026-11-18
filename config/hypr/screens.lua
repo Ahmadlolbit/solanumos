@@ -169,12 +169,67 @@ function screens.saved(attached)
   end
 end
 
+local function within(text, low, high)
+  local number = tonumber(text or "")
+  return number ~= nil and number >= low and number <= high
+end
+
+local function good_mode(mode)
+  local wide, high, rate = mode:match("^(%d+)x(%d+)@?([%d.]*)$")
+  return mode == "" or mode == "preferred"
+    or (within(wide, 1, 99999) and within(high, 1, 99999) and (rate == "" and not mode:find("@", 1, true) or within(rate, 1, 999)))
+end
+
+local function good_position(position)
+  local x, y = position:match("^(%-?%d+)x(%-?%d+)$")
+  return position == "" or (within(x, -999999, 999999) and within(y, -999999, 999999))
+end
+
+local checks = {
+  scale = function(value) return value == "" or within(value, 0.25, 4) end,
+  mode = good_mode,
+  position = good_position,
+  rotation = function(value) return value == "" or value == "0" or value == "90" or value == "180" or value == "270" end,
+  on = function(value) return value == "" or value == "yes" or value == "no" end,
+  main = function(value) return value == "" or value == "yes" or value == "no" end,
+}
+
+local function bad_setting(screen, outputs)
+  for name, good in pairs(checks) do
+    if not good(screen[name] or "") then
+      return name
+    end
+  end
+  local mirror = screen.mirror or ""
+  if mirror ~= "" and (mirror == screen.screen or not outputs[mirror]) then
+    return "mirror"
+  end
+end
+
+local function checked(profile, outputs)
+  for _, screen in ipairs(profile.screens) do
+    local bad = bad_setting(screen, outputs)
+    if bad then
+      error("a bad " .. bad .. " for " .. tostring(screen.screen), 0)
+    end
+  end
+  return profile, outputs
+end
+
 local active
 
 function screens.active()
   if active == nil then
-    local profile, outputs = screens.saved(screens.attached())
-    active = profile and { profile = profile, outputs = outputs } or false
+    local ok, profile, outputs = pcall(function()
+      local found, places = screens.saved(screens.attached())
+      if found then
+        return checked(found, places)
+      end
+    end)
+    if not ok then
+      print("solanum: screens.conf left out, the default layout applies: " .. tostring(profile))
+    end
+    active = ok and profile and { profile = profile, outputs = outputs } or false
   end
   if active then
     return active.profile, active.outputs
