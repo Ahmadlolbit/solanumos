@@ -105,23 +105,39 @@ func Parse(text string) []Profile {
 	return profiles
 }
 
-func Find(profiles []Profile, key string) int {
-	return slices.IndexFunc(profiles, func(profile Profile) bool { return profile.Key == key })
+func identity(screen Screen) string {
+	return screen.Model + "\x00" + screen.Serial
+}
+
+func (profile Profile) set() string {
+	keys := make([]string, 0, len(profile.Screens))
+	for _, screen := range profile.Screens {
+		keys = append(keys, identity(screen))
+	}
+	slices.Sort(keys)
+	return strings.Join(keys, "\x01")
+}
+
+func SameScreens(one, other Profile) bool {
+	return one.set() == other.set()
+}
+
+func Find(profiles []Profile, live Profile) int {
+	return slices.IndexFunc(profiles, func(profile Profile) bool { return SameScreens(profile, live) })
 }
 
 func Put(profiles []Profile, profile Profile) []Profile {
-	if at := Find(profiles, profile.Key); at >= 0 {
-		return slices.Replace(slices.Clone(profiles), at, at+1, profile)
+	at := Find(profiles, profile)
+	kept, _ := Forget(profiles, profile)
+	if at < 0 {
+		return append(kept, profile)
 	}
-	return append(slices.Clone(profiles), profile)
+	return slices.Insert(kept, at, profile)
 }
 
-func Forget(profiles []Profile, key string) ([]Profile, bool) {
-	at := Find(profiles, key)
-	if at < 0 {
-		return profiles, false
-	}
-	return slices.Delete(slices.Clone(profiles), at, at+1), true
+func Forget(profiles []Profile, live Profile) ([]Profile, bool) {
+	kept := slices.DeleteFunc(slices.Clone(profiles), func(profile Profile) bool { return SameScreens(profile, live) })
+	return kept, len(kept) != len(profiles)
 }
 
 func (profile Profile) Screen(output string) int {
@@ -131,7 +147,7 @@ func (profile Profile) Screen(output string) int {
 func (profile Profile) same(kept Screen) int {
 	found := -1
 	for at, screen := range profile.Screens {
-		if screen.Description != kept.Description {
+		if identity(screen) != identity(kept) {
 			continue
 		}
 		if screen.Output == kept.Output {
@@ -145,7 +161,7 @@ func (profile Profile) same(kept Screen) int {
 }
 
 func WithSaved(live Profile, saved []Profile) Profile {
-	at := Find(saved, live.Key)
+	at := Find(saved, live)
 	if at < 0 {
 		return live
 	}

@@ -272,7 +272,7 @@ func screensApply([]string) int {
 		return 1
 	}
 	reloadScreens()
-	if screens.Find(saved, live.Key) < 0 {
+	if screens.Find(saved, live) < 0 {
 		fmt.Println("No layout is saved for these screens, so they have the default one.")
 		return 0
 	}
@@ -289,7 +289,7 @@ func screensForget([]string) int {
 	if !ok {
 		return 1
 	}
-	kept, found := screens.Forget(saved, live.Key)
+	kept, found := screens.Forget(saved, live)
 	if !found {
 		fmt.Println("No layout is saved for these screens.")
 		return 0
@@ -307,12 +307,12 @@ func screensList([]string) int {
 	if !ok {
 		return 1
 	}
-	if screens.Find(saved, live.Key) < 0 {
+	if screens.Find(saved, live) < 0 {
 		fmt.Printf("%s (these screens, no layout saved)\n", live.Key)
 	}
 	for _, profile := range saved {
 		note := ""
-		if profile.Key == live.Key {
+		if screens.SameScreens(profile, live) {
 			note = " (these screens)"
 		}
 		fmt.Printf("%s%s\n", profile.Key, note)
@@ -328,7 +328,7 @@ func screensNow([]string) int {
 	if !ok {
 		return 1
 	}
-	data, err := json.Marshal(screens.Shown(live, monitors, screens.Find(saved, live.Key) >= 0, trying()))
+	data, err := json.Marshal(screens.Shown(live, monitors, screens.Find(saved, live) >= 0, trying()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
