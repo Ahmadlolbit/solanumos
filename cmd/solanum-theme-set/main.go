@@ -340,13 +340,12 @@ func linkApps() {
 	linkToolkits(current)
 }
 
-func desktop(action string, args ...string) {
+func desktop(action string, args ...string) bool {
 	args = append([]string{action, "org.gnome.desktop.interface"}, args...)
 	if os.Getenv("DBUS_SESSION_BUS_ADDRESS") != "" {
-		run.Within(run.Quick, "gsettings", args...)
-		return
+		return run.Within(run.Quick, "gsettings", args...) == 0
 	}
-	run.Quiet(run.Quick, "dbus-run-session", append([]string{"--", "gsettings"}, args...)...)
+	return run.Quiet(run.Quick, "dbus-run-session", append([]string{"--", "gsettings"}, args...)...) == 0
 }
 
 func desktopValues() map[string]string {

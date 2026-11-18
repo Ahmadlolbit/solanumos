@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,6 +19,7 @@ import (
 const (
 	gtkMotionKept = "animations.gtk"
 	kdeMotionKept = "animations.kde"
+	kdeStill      = "0"
 )
 
 var kdeSpeedChanged = false
@@ -35,14 +38,25 @@ func keepOnce(name, value string) {
 	}
 }
 
-func takeKept(name string) (string, bool) {
-	path := filepath.Join(state(), name)
-	value, err := fsutil.Text(path)
-	if err != nil {
-		return "", false
+func keptValue(name string) (string, bool) {
+	value, err := fsutil.Text(filepath.Join(state(), name))
+	return value, err == nil
+}
+
+func forget(name string) {
+	if err := os.Remove(filepath.Join(state(), name)); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		fmt.Fprintln(os.Stderr, err)
 	}
-	os.Remove(path)
-	return value, true
+}
+
+func gtkGivenBack(before, now string) bool {
+	switch {
+	case before == now:
+		return true
+	case before == "":
+		return desktop("reset", "enable-animations")
+	}
+	return desktop("set", "enable-animations", before)
 }
 
 func gtkAnimations(current map[string]string) {
@@ -54,39 +68,37 @@ func gtkAnimations(current map[string]string) {
 		}
 		return
 	}
-	before, kept := takeKept(gtkMotionKept)
-	switch {
-	case !kept || before == now:
-	case before == "":
-		desktop("reset", "enable-animations")
-	default:
-		desktop("set", "enable-animations", before)
+	if before, kept := keptValue(gtkMotionKept); kept && gtkGivenBack(before, now) {
+		forget(gtkMotionKept)
 	}
 }
 
-func kdeMotion(text string) string {
+func kdeMotion(text string) (string, bool) {
 	if animationsOff() {
 		keepOnce(kdeMotionKept, theme.KDESpeedOf(text))
-		return theme.KDEAnimations(text, true)
+		return theme.KDEAnimations(text, true), false
 	}
-	if before, kept := takeKept(kdeMotionKept); kept {
-		return theme.KDEGivenSpeed(text, before)
+	before, kept := keptValue(kdeMotionKept)
+	if !kept || theme.KDESpeedOf(text) != kdeStill {
+		return text, kept
 	}
-	return text
+	return theme.KDEGivenSpeed(text, before), true
 }
 
 func kdeAnimations() {
 	globals := filepath.Join(env.ConfigHome(), "kdeglobals")
 	current := fsutil.Optional(globals)
-	merged := kdeMotion(current)
-	if theme.KDESpeedOf(merged) == theme.KDESpeedOf(current) {
-		return
+	merged, givenBack := kdeMotion(current)
+	if theme.KDESpeedOf(merged) != theme.KDESpeedOf(current) {
+		if err := atomic.Write(globals, []byte(merged), 0o666); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return
+		}
+		kdeChanged, kdeSpeedChanged = true, true
 	}
-	if err := atomic.Write(globals, []byte(merged), 0o666); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+	if givenBack {
+		forget(kdeMotionKept)
 	}
-	kdeChanged, kdeSpeedChanged = true, true
 }
 
 func kdeSpeedSignal() string {

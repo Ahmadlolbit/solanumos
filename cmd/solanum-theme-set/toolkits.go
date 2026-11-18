@@ -140,17 +140,24 @@ func writeKDEGlobals(scheme string) {
 	if scheme == "" && theme.OursKDE(current) {
 		merged = theme.KDEGivenBack(merged, fsutil.Optional(kdeBackupOf(globals)))
 	}
-	merged = kdeMotion(merged)
-	if strings.TrimSpace(merged) == strings.TrimSpace(current) {
+	merged, givenBack := kdeMotion(merged)
+	if strings.TrimSpace(merged) != strings.TrimSpace(current) && !putKDEGlobals(globals, current, merged) {
 		return
 	}
+	if givenBack {
+		forget(kdeMotionKept)
+	}
+}
+
+func putKDEGlobals(globals, current, merged string) bool {
 	keepKDEGlobals(globals, current)
 	if err := atomic.Write(globals, []byte(merged), 0o666); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return
+		return false
 	}
 	kdeChanged = true
 	kdeSpeedChanged = kdeSpeedChanged || theme.KDESpeedOf(merged) != theme.KDESpeedOf(current)
+	return true
 }
 
 func kdeColors(file string) {
