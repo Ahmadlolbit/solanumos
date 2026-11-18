@@ -200,11 +200,36 @@ func compareJSON(number string) int {
 	return printed(found)
 }
 
+type runs struct {
+	held *lock.Held
+}
+
+func holdRuns() (*runs, bool) {
+	held, err := lock.Take()
+	if err == nil {
+		return &runs{held}, true
+	}
+	return &runs{}, !lock.Busy()
+}
+
+func (taken *runs) free() {
+	if taken.held != nil {
+		taken.held.Close()
+		taken.held = nil
+	}
+}
+
+func (taken *runs) stillFree() bool {
+	return taken.held != nil || !lock.Busy()
+}
+
 func goBack(number string) int {
 	defer cleanup.IgnoreQuit()()
-	if lock.Busy() {
+	taken, ok := holdRuns()
+	if !ok {
 		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
+	defer taken.free()
 	if code := comparing(number); code != 0 {
 		return code
 	}
@@ -218,20 +243,24 @@ func goBack(number string) int {
 	if code := say(found.Text() + "\n" + found.Kept + found.Kernel + "\n"); code != 0 {
 		return code
 	}
-	code := rollBack(number)
+	code := rollBack(number, taken)
 	if code == 0 && found.Kernel != "" {
 		return say("\n" + found.Kernel)
 	}
 	return code
 }
 
-func rollBack(number string) int {
+func rollBack(number string, taken *runs) int {
 	command := admin("snapper-rollback", number)
+	if streamed && !ui.Confirm("Go back to snapshot "+number+"?") {
+		return fail("nothing changed")
+	}
+	if !taken.stillFree() {
+		return fail("a Solanum run started while snapshot %s was compared, so nothing went back: run solanum restore %s once it ends", number, number)
+	}
+	taken.free()
 	if !streamed {
 		return run.Status(command[0], command[1:]...)
-	}
-	if !ui.Confirm("Go back to snapshot " + number + "?") {
-		return fail("nothing changed")
 	}
 	return run.Typed(confirmWord, command[0], command[1:]...)
 }

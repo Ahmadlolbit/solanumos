@@ -9,7 +9,7 @@ FocusScope {
   readonly property bool working: Store.job === "cleanup" && (Store.running || Store.task.code !== -1)
   readonly property bool known: !!plan && plan.known
   readonly property int old: plan ? plan.old.length : 0
-  readonly property bool wanted: known && plan.use >= plan.goal && old > 0
+  readonly property bool wanted: known && plan.use >= plan.goal && old > 0 && !(Store.waiting && Store.waiting.busy)
   readonly property var hints: working ? [] : wanted ? [["Enter", "delete old snapshots"]] : []
 
   function size(bytes) {
@@ -124,7 +124,7 @@ FocusScope {
     Label {
       Layout.fillWidth: true
       visible: !!Store.waiting && Store.waiting.busy
-      text: "Another Solanum run is going. Deleting waits until it ends."
+      text: "Another Solanum run is going. Old snapshots can be deleted once it ends."
       color: Theme.subtext
       wrapMode: Text.Wrap
     }

@@ -55,7 +55,7 @@ FocusScope {
   }
 
   function goBack() {
-    if (!current || Store.running)
+    if (!current || Store.running || Store.waiting && Store.waiting.busy)
       return;
     Store.start("restore", ["restore", current.number]);
     Qt.callLater(enter);
@@ -257,13 +257,13 @@ FocusScope {
       Label {
         Layout.fillWidth: true
         visible: !!Store.waiting && Store.waiting.busy
-        text: "Another Solanum run is going. Going back waits until it ends."
+        text: "Another Solanum run is going. Going back can start once it ends."
         color: Theme.subtext
         wrapMode: Text.Wrap
       }
 
       Button {
-        visible: !!page.current && !Store.running
+        visible: !!page.current && !Store.running && !(Store.waiting && Store.waiting.busy)
         label: "Go back to this"
         primary: true
         onClicked: page.goBack()
