@@ -1,6 +1,6 @@
 local screens = require("solanum.hypr.screens")
 
-local panels, others = screens.connected()
+local panels, others = screens.showing()
 if #others > 0 and screens.lid_closed() then
   for _, output in ipairs(panels) do
     hl.monitor({ output = output, disabled = true })

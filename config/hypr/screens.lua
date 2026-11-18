@@ -169,6 +169,43 @@ function screens.saved(attached)
   end
 end
 
+local active
+
+function screens.active()
+  if active == nil then
+    local profile, outputs = screens.saved(screens.attached())
+    active = profile and { profile = profile, outputs = outputs } or false
+  end
+  if active then
+    return active.profile, active.outputs
+  end
+end
+
+local function role(output)
+  local profile, outputs = screens.active()
+  for _, screen in ipairs(profile and profile.screens or {}) do
+    if outputs[screen.screen] == output then
+      return screen.on ~= "no" and not outputs[screen.mirror or ""]
+    end
+  end
+  return true
+end
+
+local function own_picture(list)
+  local found = {}
+  for _, output in ipairs(list) do
+    if role(output) then
+      table.insert(found, output)
+    end
+  end
+  return found
+end
+
+function screens.showing()
+  local panels, others = screens.connected()
+  return own_picture(panels), own_picture(others)
+end
+
 function screens.lid_closed()
   for _, name in ipairs({ "LID", "LID0", "LID1" }) do
     local state = screens.first_line("/proc/acpi/button/lid/" .. name .. "/state")

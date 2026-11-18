@@ -32,7 +32,7 @@ end
 local attached = screens.attached()
 local plugged = screens.signature(attached)
 
-local profile, outputs = screens.saved(attached)
+local profile, outputs = screens.active()
 if profile then
   for _, screen in ipairs(profile.screens) do
     hl.monitor(rule(screen, outputs))
