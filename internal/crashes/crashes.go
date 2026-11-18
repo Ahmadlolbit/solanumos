@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
 const (
@@ -71,6 +73,38 @@ func Parse(line string) (Crash, bool) {
 	crash := Crash{PID: value(entry, "COREDUMP_PID"), Program: program(value(entry, "COREDUMP_EXE"), value(entry, "COREDUMP_COMM"))}
 	pid, err := strconv.Atoi(crash.PID)
 	return crash, err == nil && pid > 0 && crash.Program != ""
+}
+
+func parsed(output string) []Crash {
+	var all []Crash
+	for _, line := range run.Lines(output) {
+		if crash, ok := Parse(line); ok {
+			all = append(all, crash)
+		}
+	}
+	return all
+}
+
+func SinceBoot(limit time.Duration) ([]Crash, error) {
+	output, err := run.CaptureQuiet(limit, "journalctl", append([]string{"--boot"}, Journal()...)...)
+	return parsed(output), err
+}
+
+func Names(all []Crash) string {
+	counts := map[string]int{}
+	var order []string
+	for _, crash := range all {
+		if counts[crash.Program] == 0 {
+			order = append(order, crash.Program)
+		}
+		counts[crash.Program]++
+	}
+	for index, name := range order {
+		if counts[name] > 1 {
+			order[index] = fmt.Sprintf("%s (%d)", name, counts[name])
+		}
+	}
+	return strings.Join(order, ", ")
 }
 
 func NewLimit() *Limit {

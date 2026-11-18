@@ -159,6 +159,8 @@ func (out *report) system() {
 	out.command("dpkg-query", "-W", "-f", "${Package} ${Version}\n", "hyprland*", "quickshell", "linux-image-*", "firmware-*", "nvidia-*", "mesa-vulkan-drivers")
 	out.write("\n")
 	out.command("journalctl", "-b", "-p", "warning", "--no-pager", "-n", "300")
+	out.write("\nCrashes in the last 30 days, without their dumps:\n")
+	out.command("coredumpctl", "--no-pager", "--since=-30d", "list")
 }
 
 func public(address netip.Addr) bool {
