@@ -93,7 +93,7 @@ func stickFolder(stick disks.Stick) (string, bool, error) {
 	if err := os.MkdirAll(folder, 0o700); err != nil {
 		return "", false, err
 	}
-	if _, messages, err := run.CaptureFed(run.Minute, "", "mount", stick.Path, folder); err != nil {
+	if _, messages, err := run.CaptureFed(run.Minute, "", "mount", "-o", "nosuid,nodev,noexec", stick.Path, folder); err != nil {
 		return "", false, failed(stick.Path+" didn't mount", messages)
 	}
 	return folder, true, nil
