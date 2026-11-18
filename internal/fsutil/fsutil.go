@@ -180,6 +180,15 @@ func ReadTail(path string, limit int64, owners ...int) ([]byte, error) {
 	return io.ReadAll(io.LimitReader(file, limit))
 }
 
+func ReadHead(path string, limit int64, owners ...int) ([]byte, error) {
+	file, _, err := openPlain(path, owners)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return io.ReadAll(io.LimitReader(file, limit))
+}
+
 func ReadPlain(path string, limit int64, owners ...int) ([]byte, error) {
 	file, _, err := openPlain(path, owners)
 	if err != nil {

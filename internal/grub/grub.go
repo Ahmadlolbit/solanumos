@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
@@ -33,6 +34,22 @@ type Entry struct {
 	ID      string
 	Submenu string
 	Title   string
+}
+
+var (
+	unwritable  = []string{"btrfs", "zfs", "squashfs", "romfs"}
+	abstraction = regexp.MustCompile(`^(lvm|raid[0-9]*|md)$`)
+)
+
+func EnvWritable() bool {
+	output, err := run.CaptureQuiet(run.Quick, "findmnt", "-n", "-o", "FSTYPE,SOURCE", "-T", filepath.Join(bootimage.Folder(), "grub"))
+	fields := strings.Fields(output)
+	if err != nil || len(fields) < 2 || slices.Contains(unwritable, fields[0]) {
+		return false
+	}
+	device, _, _ := strings.Cut(fields[1], "[")
+	stack, err := run.CaptureQuiet(run.Quick, "lsblk", "-n", "-s", "-o", "TYPE", device)
+	return err == nil && !slices.ContainsFunc(run.Lines(stack), abstraction.MatchString)
 }
 
 func Defaults() string {
@@ -175,6 +192,14 @@ func Keep(log io.Writer, release string) error {
 		return err
 	}
 	return run.Logged(log, "update-grub")
+}
+
+func Once(log io.Writer, release string) error {
+	entry, err := entryFor(log, release)
+	if err != nil {
+		return err
+	}
+	return run.Logged(log, "grub-reboot", entry.ID)
 }
 
 func Newest(log io.Writer) error {

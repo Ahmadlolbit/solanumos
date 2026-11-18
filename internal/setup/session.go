@@ -1,11 +1,9 @@
 package setup
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -14,6 +12,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fetch"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
 	"github.com/Ahmadlolbit/solanumos/internal/pkexec"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
@@ -22,26 +21,24 @@ import (
 )
 
 const (
-	hyprSystem   = "/etc/xdg/hypr/"
-	hyprUser     = ".config/hypr/hyprland.lua"
-	appsMenu     = "/etc/xdg/menus/solanum-applications.menu"
-	makoUser     = ".config/mako/config"
-	elephantLib  = "/usr/local/lib/elephant"
-	tipTimer     = "solanum-tip.timer"
-	tipService   = "solanum-tip.service"
-	careTimer    = "solanum-care.timer"
-	careService  = "solanum-care.service"
-	fwupdTimer   = "fwupd-refresh.timer"
-	userUnits    = "/etc/systemd/user/"
-	verdictLine  = "Config parsing result:"
-	verdictShown = 20
-	screensCall  = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
-	dpmsOn       = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
-	dpmsOff      = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
-	secondsAMin  = 60
-	dimAhead     = 30
-	screenOff    = 10 * secondsAMin
-	saverStop    = "solanum-screensaver stop; "
+	hyprSystem  = "/etc/xdg/hypr/"
+	hyprUser    = ".config/hypr/hyprland.lua"
+	appsMenu    = "/etc/xdg/menus/solanum-applications.menu"
+	makoUser    = ".config/mako/config"
+	elephantLib = "/usr/local/lib/elephant"
+	tipTimer    = "solanum-tip.timer"
+	tipService  = "solanum-tip.service"
+	careTimer   = "solanum-care.timer"
+	careService = "solanum-care.service"
+	fwupdTimer  = "fwupd-refresh.timer"
+	userUnits   = "/etc/systemd/user/"
+	screensCall = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
+	dpmsOn      = `hyprctl dispatch 'hl.dsp.dpms({action = "on"})'; ` + screensCall + "on"
+	dpmsOff     = screensCall + `off; hyprctl dispatch 'hl.dsp.dpms({action = "off"})'`
+	secondsAMin = 60
+	dimAhead    = 30
+	screenOff   = 10 * secondsAMin
+	saverStop   = "solanum-screensaver stop; "
 )
 
 var elephantProviders = []string{"desktopapplications", "calc", "runner", "files", "symbols", "websearch", "clipboard", "providerlist", "unicode"}
@@ -108,42 +105,9 @@ func (context *Context) hyprlandUserReady(*runlog.Log) error {
 	return holds(mentions(context.Person.Path(hyprUser), filepath.Join(hyprShare(), "solanum.lua")))
 }
 
-func hyprlandAccepted(lines []string) bool {
-	start := slices.IndexFunc(lines, func(line string) bool { return strings.Contains(line, verdictLine) })
-	if start < 0 {
-		return false
-	}
-	verdict := slices.IndexFunc(lines[start:], func(line string) bool {
-		return !strings.Contains(line, verdictLine) && strings.Trim(line, " \t") != ""
-	})
-	return verdict >= 0 && lines[start+verdict] == "config ok"
-}
-
-func hyprlandComplaint(lines []string) string {
-	start := slices.IndexFunc(lines, func(line string) bool { return strings.Contains(line, verdictLine) })
-	if start < 0 {
-		return ""
-	}
-	shown := lines[start:]
-	return strings.Join(shown[:min(verdictShown, len(shown))], "\n") + "\n"
-}
-
 func (context *Context) hyprlandConfigOK(log *runlog.Log) error {
-	runtime, err := os.MkdirTemp("", "solanum")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(runtime)
-	if err := run.Logged(log, "chown", context.Person.Name+":", runtime); err != nil {
-		return err
-	}
-	var output bytes.Buffer
-	context.Person.RunWithin(run.Minute, &output, "env", "XDG_RUNTIME_DIR="+runtime, "Hyprland", "--verify-config")
-	lines := strings.Split(strings.TrimRight(output.String(), "\n"), "\n")
-	accepted := hyprlandAccepted(lines)
-	if !accepted {
-		fmt.Fprint(log, hyprlandComplaint(lines))
-	}
+	accepted, complaint := hypr.Accepts(log, context.Person)
+	fmt.Fprint(log, complaint)
 	return holds(accepted)
 }
 
@@ -387,6 +351,7 @@ func sessionSteps(context *Context) {
 	context.Run.Step("Install session packages", packages("session"))
 	context.Run.Step("Install the Hyprland defaults", context.hyprlandDefaults)
 	context.toolStep("Install the session starter", "solanum-start")
+	context.toolStep("Install the session that shows a way out when the desktop can't start", "solanum-session")
 	context.Run.Step("Put the solanum command on the PATH", context.commandInstall)
 	context.toolStep("Install the floating terminal", "solanum-terminal")
 	context.toolStep("Install the package picker", "solanum-pkg")
@@ -439,6 +404,7 @@ func sessionChecks(context *Context) {
 	context.Run.Check("The screen recorder is installed", commands("solanum-record"))
 	context.Run.Check("The web app maker is installed", commands("solanum-webapp"))
 	context.Run.Check("The session starter is installed", commands("solanum-start"))
+	context.Run.Check("The session tool is installed", commands("solanum-session"))
 	context.Run.Check("The floating terminal is installed", commands("solanum-terminal"))
 	if !liveImage() {
 		context.Run.Check("Tip notifications are scheduled", timerCheck(tipTimer))

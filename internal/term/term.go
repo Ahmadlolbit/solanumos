@@ -11,7 +11,14 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 )
 
-const discardTyped = 0x540b
+const (
+	discardTyped = 0x540b
+	setMode      = 0x4b3a
+	textMode     = 0x00
+	setKeyboard  = 0x4b45
+	unicodeKeys  = 0x03
+	consoleType  = "linux"
+)
 
 var asking atomic.Pointer[syscall.Termios]
 
@@ -21,6 +28,21 @@ func attributes(file *os.File, request uintptr, state *syscall.Termios) error {
 		return failed
 	}
 	return nil
+}
+
+func TextConsole(file *os.File) error {
+	for _, change := range [][2]uintptr{{setMode, textMode}, {setKeyboard, unicodeKeys}} {
+		if _, _, failed := syscall.Syscall(syscall.SYS_IOCTL, file.Fd(), change[0], change[1]); failed != 0 {
+			return failed
+		}
+	}
+	return nil
+}
+
+func NameConsole() {
+	if os.Getenv("TERM") == "" {
+		os.Setenv("TERM", consoleType)
+	}
 }
 
 func IsTerminal(file *os.File) bool {

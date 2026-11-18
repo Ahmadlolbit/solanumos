@@ -4,6 +4,8 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 
 	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/apt"
@@ -23,6 +25,8 @@ const (
 	sddmUnit     = "sddm.service"
 	sddmProgram  = "/usr/bin/sddm"
 	sessionFile  = "/usr/share/wayland-sessions/hyprland.desktop"
+	debianHypr   = "hyprland.desktop"
+	ourEntry     = "solanum.desktop"
 	sddmChoice   = "sddm shared/default-x-display-manager select sddm\n"
 )
 
@@ -40,6 +44,10 @@ func sddmConf() string {
 
 func sddmState() string {
 	return env.Or("SOLANUM_SDDM_STATE", "/var/lib/sddm/state.conf")
+}
+
+func sessionsDir() string {
+	return env.Or("SOLANUM_SESSIONS", "/usr/share/wayland-sessions")
 }
 
 func sddmThemes() string {
@@ -65,7 +73,8 @@ func (context *Context) sddmFirstState() error {
 		return err
 	}
 	uid, gid := sddmOwner()
-	return atomic.InstallAs(sddmState(), []byte(files.Render(string(template), "USER="+context.Person.Name)), plainMode, uid, gid)
+	text := files.Render(string(template), "USER="+context.Person.Name, "SESSIONS="+sessionsDir())
+	return atomic.InstallAs(sddmState(), []byte(text), plainMode, uid, gid)
 }
 
 func sddmOwner() (int, int) {
@@ -89,6 +98,41 @@ func (context *Context) sddmConfigure(*runlog.Log) error {
 		return context.sddmFirstState()
 	}
 	return nil
+}
+
+func stateOnOurs(text string) (string, bool) {
+	debian, ours := "Session="+filepath.Join(sessionsDir(), debianHypr), "Session="+filepath.Join(sessionsDir(), ourEntry)
+	lines := strings.Split(text, "\n")
+	at := slices.Index(lines, debian)
+	if at < 0 {
+		return text, false
+	}
+	lines[at] = ours
+	return strings.Join(lines, "\n"), true
+}
+
+func sessionSwitched() string {
+	return filepath.Join(env.StateDir(), "session-switched")
+}
+
+func (context *Context) sessionOffer(log *runlog.Log) error {
+	if err := context.Deploy.File("system/sddm/"+ourEntry, filepath.Join(sessionsDir(), ourEntry), "BIN="+env.BinDir()); err != nil {
+		return err
+	}
+	text, err := fsutil.Text(sddmState())
+	if err != nil || fsutil.Exists(sessionSwitched()) {
+		return nil
+	}
+	if switched, changed := stateOnOurs(text); changed {
+		log.Line("info", "the login screen starts the Solanum session from now on")
+		if err := atomic.Write(sddmState(), []byte(switched+"\n"), plainMode); err != nil {
+			return err
+		}
+	}
+	if err := os.MkdirAll(env.StateDir(), programMode); err != nil {
+		return err
+	}
+	return atomic.Write(sessionSwitched(), nil, plainMode)
 }
 
 func displayManager() string {
@@ -157,6 +201,7 @@ func sddmSteps(context *Context) {
 	context.Run.Step("Install the login screen", context.sddmPackages)
 	context.Run.Step("Install the Solanum login screen", context.sddmThemeInstall)
 	context.Run.Step("Configure the login screen", context.sddmConfigure)
+	context.Run.Step("Offer the Solanum session", context.sessionOffer)
 	context.Run.Step("Start into the login screen at boot", sddmEnable)
 }
 
@@ -171,5 +216,6 @@ func sddmStarts(*runlog.Log) error {
 func sddmChecks(context *Context) {
 	context.Run.Check("The login screen starts at boot", sddmStarts)
 	context.Run.Check("Hyprland is offered as a session", filesCheck(sessionFile))
+	context.Run.Check("The Solanum session is offered", filesCheck(filepath.Join(sessionsDir(), ourEntry)))
 	context.Run.Check("The login screen uses the Solanum theme", sddmThemeReady)
 }

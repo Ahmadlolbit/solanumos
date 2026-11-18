@@ -2,29 +2,35 @@ package care
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/care"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/hypr"
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 )
 
-const usage = `Usage: solanum-care [firmware|disk]
+const usage = `Usage: solanum-care [firmware|disk|hyprland]
 
 Looks after the system quietly. firmware tells you about new firmware from
 fwupd, once per version. disk warns when / is 90% full, once a day, and
-offers to clean up old snapshots. Without an argument it does both, the
-firmware once a day, unless Firmware and disk warnings are off. A user timer
-runs it every hour.
+offers to clean up old snapshots. hyprland checks that Hyprland still takes
+its configuration, as the next login needs, and says so once per complaint.
+Without an argument it does all three, the firmware and Hyprland once a day;
+Firmware and disk warnings off leaves out the first two. A user timer runs it
+every hour.
 `
 
 const (
@@ -104,9 +110,34 @@ func turnedOff() bool {
 	return config.Read(config.Path()).Get("CARE_NOTIFY") != "yes"
 }
 
+func hyprland() bool {
+	seen := filepath.Join(stateFolder(), "hyprland-refused")
+	ok, complaint := hypr.Accepts(io.Discard, account.Account{})
+	tell, keep := care.Refusal(ok, complaint, fsutil.Optional(seen))
+	if tell && !offer("solanum-hyprland", "critical", "Hyprland may not start at the next login", keep+"\nBefore you log out: sudo solanum doctor, or solanum restore to go back.") {
+		return false
+	}
+	if keep == "" {
+		if err := os.Remove(seen); err != nil && !os.IsNotExist(err) {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		return true
+	}
+	save(seen, keep)
+	return true
+}
+
+func dailyHyprland() {
+	checked := stamp("hyprland-checked")
+	if _, err := exec.LookPath("Hyprland"); err == nil && fsutil.Optional(checked) != today() && hyprland() {
+		save(checked, today())
+	}
+}
+
 func Main() {
 	switch env.Arg(1) {
 	case "":
+		dailyHyprland()
 		if turnedOff() {
 			return
 		}
@@ -116,6 +147,8 @@ func Main() {
 		firmware()
 	case "disk":
 		disk()
+	case "hyprland":
+		hyprland()
 	case "-h", "--help":
 		fmt.Print(usage)
 	default:

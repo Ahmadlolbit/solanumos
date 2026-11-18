@@ -12,7 +12,7 @@ var (
 		"SNAPSHOTS": "Snapshots", "SNAPSHOT_DAILY": "Snapshots", "SNAPSHOT_WEEKLY": "Snapshots", "SNAPSHOT_MONTHLY": "Snapshots",
 		"KERNEL": "Kernel", "KEPT_KERNEL": "Kernel", "WEBCAM": "Webcam", "GRAPHICS": "Graphics", "SWAPFILE_GB": "Swap", "ZRAM_PERCENT": "Swap", "SWAPPINESS": "Swap",
 		"SYSTEM_NAME": "The system's name", "BOOT_SPLASH": "Boot", "BOOT_PROMPT": "Boot", "BOOT_MENU_THEME": "Boot", "CONSOLE_THEME": "Text consoles",
-		"HIBERNATE": "Sleep", "IDLE_SUSPEND_MINUTES": "Sleep", "IDLE_LOCK_MINUTES": "Locking", "SCREENSAVER_MINUTES": "Screensaver", "GREETER": "Login screen",
+		"HIBERNATE": "Sleep", "IDLE_SUSPEND_MINUTES": "Sleep", "IDLE_LOCK_MINUTES": "Locking", "SCREENSAVER_MINUTES": "Screensaver", "GREETER": "Login screen", "SESSION_RECOVERY": "Login screen",
 		"SHELL_PROMPT": "Terminal", "DEV_TOOLS": "Tools", "MISE_TOOLS": "Tools", "CONTAINER_ENGINE": "Containers", "DOCKER_PORTS": "Containers",
 		"DISPLAY_SCALE": "Scale and shape", "NATURAL_SCROLL": "Touchpad", "TAP_TO_CLICK": "Touchpad", "ANIMATIONS": "Animations",
 		"TIPS_TERMINAL": "Tips", "TIPS_WELCOME": "Tips", "TIPS_NOTIFY": "Tips and warnings", "CARE_NOTIFY": "Tips and warnings",

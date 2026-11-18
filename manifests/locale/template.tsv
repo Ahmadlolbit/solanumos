@@ -229,6 +229,7 @@ Install the screen recorder
 Install the screensaver	
 Install the screenshot command	
 Install the session starter	
+Install the session that shows a way out when the desktop can't start	
 Install the theme follower	
 Install the theme switcher	
 Install the themes	
@@ -303,6 +304,7 @@ Nothing changes until you choose Install at the end.
 Notifications are set up	
 Now and then a tip as a notification, at most once a day	
 Now playing on the lock screen	
+Offer the Solanum session	
 Only English letters, digits and signs: the boot prompt may misread others	
 Only English letters, digits, spaces, slashes and . , _ : @ + - ~	
 Open LocalSend and KDE Connect only on networks you trust	
@@ -335,6 +337,7 @@ Quiet until
 Read the choices from a file	
 Read the new partitions	
 Record what this run uses	
+Recovery screen	
 Remove %s	
 Remove the old themes	
 Repositories and base packages	
@@ -433,6 +436,7 @@ The %s prompt is set up
 The IPU6 webcam's tools are there	
 The NVIDIA module is built for the newest kernel	
 The SSH server is off	
+The Solanum session is offered	
 The admin account can use sudo	
 The bar at the top or the bottom of the screen	
 The bar is installed	
@@ -470,6 +474,7 @@ The screen recorder is installed
 The screensaver is installed	
 The screenshot command is installed	
 The session starter is installed	
+The session tool is installed	
 The setup didn't start: %s (exit %d)	
 The setup is running · Ctrl+C stops it	
 The setup stopped before it could show a summary.	
@@ -539,6 +544,7 @@ When both are installed, which engine answers the docker command
 When notifications come back	
 When notifications go quiet	
 When the dark theme starts	
+When the desktop stops before it finishes starting, the console shows what happened and the ways out; off goes back to the login screen	
 When the light theme starts	
 When the screen goes back to normal	
 When the screen warms up	

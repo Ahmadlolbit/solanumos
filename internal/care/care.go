@@ -44,3 +44,11 @@ func Unseen(waiting []string, seen string) []string {
 	}
 	return fresh
 }
+
+func Refusal(ok bool, complaint, seen string) (bool, string) {
+	if ok {
+		return false, ""
+	}
+	said := strings.TrimSpace(complaint)
+	return said != seen, said
+}
