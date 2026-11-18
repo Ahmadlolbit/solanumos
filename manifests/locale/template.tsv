@@ -4,6 +4,7 @@
 %s can use sudo	
 %s is LUKS1, which can't hold a recovery key	
 %s · %d of %d	
+%s's LUKS header can't be read	
 %s's key slots can't be read	
 %s. Nothing was changed.	
 24-hour or 12-hour time in the bar and on the lock screen	
@@ -100,6 +101,7 @@ Could not save: %s
 Could not start the setup: %s	
 Could not write the answers: %s	
 Could not write the settings: %s	
+Couldn't check the recovery key: %s	
 Couldn't look for USB sticks: %s	
 Crash dumps are kept small	
 Crash notices	
@@ -632,6 +634,7 @@ Your password, for sudo
 Your recovery key	
 Your recovery key, shown once:	
 Your recovery key:	
+cryptsetup isn't installed	
 curl is installed	
 distrobox and Podman are installed	
 empty	

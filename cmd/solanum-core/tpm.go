@@ -17,6 +17,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/tpm"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const tpmWarning = `This lets you type a short PIN at boot instead of the disk password.
@@ -70,16 +71,24 @@ func (err plainRoot) Error() string {
 	return string(err)
 }
 
+type unreadRoot string
+
+func (err unreadRoot) Error() string {
+	return string(err)
+}
+
 type rootWords struct {
-	plain string
-	many  string
-	old   string
+	plain  string
+	many   string
+	old    string
+	unread string
 }
 
 var tpmRoot = rootWords{
 	"the root isn't on an encrypted disk, so there's nothing for the TPM to unlock",
 	"the root is on more than one disk, and TPM unlocking handles a root on one",
 	"%s is LUKS1, which can't hold a TPM key",
+	"%s's LUKS header can't be read",
 }
 
 func rootLuksDevices() []tpm.Device {
@@ -98,10 +107,22 @@ func luksRootFor(words rootWords) (luksRoot, error) {
 		return luksRoot{}, errors.New(words.many)
 	}
 	root := luksRoot{devices[0].Mapper, devices[0].Device}
-	if run.Quiet(run.Quick, "cryptsetup", "isLuks", "--type", "luks2", root.device) != 0 {
-		return luksRoot{}, fmt.Errorf(words.old, root.device)
+	if err := luks2(words, root.device); err != nil {
+		return luksRoot{}, err
 	}
 	return root, nil
+}
+
+func luks2(said rootWords, device string) error {
+	switch {
+	case run.Quiet(run.Quick, "cryptsetup", "isLuks", "--type", "luks2", device) == 0:
+		return nil
+	case !installed("cryptsetup"):
+		return unreadRoot(words.T("cryptsetup isn't installed"))
+	case run.Quiet(run.Quick, "cryptsetup", "isLuks", "--type", "luks1", device) == 0:
+		return fmt.Errorf(said.old, device)
+	}
+	return unreadRoot(fmt.Sprintf(said.unread, device))
 }
 
 func findLuksRoot() (luksRoot, error) {

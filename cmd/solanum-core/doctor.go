@@ -448,6 +448,9 @@ func (visit *checkup) recoveryKey(reminder string) {
 	case reminder == "no":
 		ui.Skip(words.T("The recovery key reminder is off"))
 		return
+	case errors.As(err, new(unreadRoot)):
+		ui.Warn(fmt.Sprintf(words.T("Couldn't check the recovery key: %s"), err.Error()))
+		return
 	case err != nil:
 		ui.Skip(sentenceOf(err.Error()))
 		return

@@ -25,6 +25,7 @@ func keyRoot() rootWords {
 		words.T("the root isn't on an encrypted disk, so there's no disk for a recovery key to open"),
 		words.T("the root is on more than one disk, and solanum recovery-key handles a root on one"),
 		words.T("%s is LUKS1, which can't hold a recovery key"),
+		words.T("%s's LUKS header can't be read"),
 	}
 }
 
