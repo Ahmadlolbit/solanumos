@@ -7,6 +7,7 @@ Rectangle {
 
   readonly property bool contrast: chosen.contrast
   readonly property real textScale: chosen.larger ? 1.5 : 1
+  readonly property real keyScale: Math.max(0.5, Math.min(textScale, (height - size(320)) / 276))
   readonly property color background: contrast ? "#000000" : config.background || "#1e1e2e"
   readonly property color foreground: contrast ? "#ffffff" : config.foreground || "#cdd6f4"
   readonly property color accent: contrast ? "#ffff00" : config.accent || "#89b4fa"
@@ -361,7 +362,7 @@ Rectangle {
     paper: root.background
     accent: root.accent
     family: root.fontFamily
-    factor: root.textScale
+    factor: root.keyScale
     onTyped: root.failed = false
     onEntered: root.login()
   }
@@ -463,6 +464,15 @@ Rectangle {
               onClicked: choice.press()
             }
           }
+        }
+
+        Text {
+          objectName: "untilBoot"
+          visible: !memory.item
+          text: "Only until the next boot"
+          color: root.muted
+          font.family: root.fontFamily
+          font.pixelSize: root.size(14)
         }
       }
     }
