@@ -23,6 +23,7 @@ const usage = `Usage: solanum-look
        solanum-look text [normal|large|larger]
        solanum-look reader [on|off|toggle]
        solanum-look zoom [in|out|reset|toggle]
+       solanum-look normal
        solanum-look zoom-follow [edges|centre]
        solanum-look filter [none|greyscale|deuteranopia|protanopia|tritanopia|invert]
        solanum-look animations [on|off|toggle]
@@ -82,11 +83,12 @@ in, or ~/.config/solanum/startup.ogg (.oga, .wav, .flac, .mp3) if it's
 there; play plays it now.
 zoom magnifies the screen around the pointer a quarter more or less at a
 time, up to eight times, until you log out; reset goes back to normal and
-toggle switches between normal and twice the size. zoom-follow moves the
-zoomed view when the pointer reaches its edges, or keeps the pointer in the
-middle. filter changes the screen's colours: greyscale, for colour
-blindness (deuteranopia is green weak, protanopia red weak, tritanopia blue
-weak), or inverted; screenshots and recordings show it too. animations off
+toggle switches between normal and twice the size. normal takes the zoom
+and the colour filter away together. zoom-follow moves the zoomed view
+when the pointer reaches its edges, or keeps the pointer in the middle.
+filter changes the screen's colours: greyscale, for colour blindness
+(deuteranopia is green weak, protanopia red weak, tritanopia blue weak),
+or inverted; screenshots and recordings show it too. animations off
 is reduced motion: windows, workspaces, the bar's popups and GTK and KDE
 apps stop animating, at once. keyboard shows or hides the on-screen
 keyboard in the theme's colours; with no word it says shown or hidden.
@@ -534,7 +536,7 @@ func all() int {
 func commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"get": getSetting, "accent": accent, "glass": glass, "editors": editorsFollow, "corners": corners, "apps": appsTheme, "sun": sun, "auto": auto, "times": times, "daily": daily,
-		"tick": tick, "remember": remember, "rotate": rotate, "wallpapers": wallpapers, "wallpaper-day": dayWallpaper, "workspaces": workspaces, "bar": barLayout, "position": barPosition, "style": windowStyle, "text": textSize, "reader": reader, "zoom": zoom, "zoom-follow": zoomFollow, "filter": filter, "animations": animations, "keyboard": keyboard, "chime": chimeCommand, "video": video,
+		"tick": tick, "remember": remember, "rotate": rotate, "wallpapers": wallpapers, "wallpaper-day": dayWallpaper, "workspaces": workspaces, "bar": barLayout, "position": barPosition, "style": windowStyle, "text": textSize, "reader": reader, "zoom": zoom, "normal": normal, "zoom-follow": zoomFollow, "filter": filter, "animations": animations, "keyboard": keyboard, "chime": chimeCommand, "video": video,
 		"video-battery": videoBattery, "weather": weather, "weather-units": weatherUnits, "coordinates": showCoordinates,
 		"quiet": quiet, "quiet-hours": quietHours, "night": night, "night-hours": nightHours, "night-warmth": nightWarmth, "location": location,
 		"power": powerFollow, "power-profiles": powerProfiles, "power-apply": powerApply,

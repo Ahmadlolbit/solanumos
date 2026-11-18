@@ -75,6 +75,14 @@ func zoom(args []string) int {
 	return 2
 }
 
+func normal([]string) int {
+	zoomTo(1)
+	if settings.Get("filter") == "none" {
+		return 0
+	}
+	return putThen("filter", "none", hyprReload)()
+}
+
 func zoomFollow(args []string) int {
 	switch value := strings.ToLower(arg(args, 0)); value {
 	case "":

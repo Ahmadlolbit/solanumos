@@ -37,7 +37,7 @@ for _, zoom in ipairs(zooms) do
     bind("SUPER + " .. key, index == 1 and description or nil, "solanum-look zoom " .. step, { repeating = true })
   end
 end
-bind("SUPER + ALT + code:19", "Zoom back to normal", "solanum-look zoom reset")
+bind("SUPER + ALT + code:19", "Back to normal", "solanum-look normal")
 bind("SUPER + ALT + mouse_up", "Zoom in", "solanum-look zoom in")
 bind("SUPER + ALT + mouse_down", "Zoom out", "solanum-look zoom out")
 
