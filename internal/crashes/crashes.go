@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -28,6 +29,7 @@ type Crash struct {
 }
 
 type Limit struct {
+	held   sync.Mutex
 	shown  map[string]time.Time
 	missed map[string]int
 }
@@ -112,6 +114,8 @@ func NewLimit() *Limit {
 }
 
 func (limit *Limit) Take(program string, now time.Time) (bool, int) {
+	limit.held.Lock()
+	defer limit.held.Unlock()
 	if last, seen := limit.shown[program]; seen && now.Sub(last) < Window {
 		limit.missed[program]++
 		return false, 0
@@ -120,6 +124,13 @@ func (limit *Limit) Take(program string, now time.Time) (bool, int) {
 	limit.shown[program] = now
 	delete(limit.missed, program)
 	return true, missed
+}
+
+func (limit *Limit) Unshown(program string, missed int) {
+	limit.held.Lock()
+	defer limit.held.Unlock()
+	delete(limit.shown, program)
+	limit.missed[program] += missed + 1
 }
 
 func Summary(program string) string {

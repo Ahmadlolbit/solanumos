@@ -27,8 +27,9 @@ follows the journal for systemd-coredump's word of your programs' crashes and
 shows a notification for each: "<program> stopped unexpectedly". Click it to
 see what happened, or middle-click it to write a report (sudo solanum
 collect). It says so at most once an hour for each program, and the next
-notice counts the crashes in between. Crash notices off, in Settings ›
-Notifications, stops them at once. A user service runs it.
+notice counts the crashes in between. A notice that can't be shown, with no
+desktop running, takes no hour, and its crash is counted too. Crash notices
+off, in Settings › Notifications, stops them at once. A user service runs it.
 login says "The desktop stopped unexpectedly last time", once, when Hyprland
 crashed at the last login after its desktop had run a minute; the desktop
 runs it as it starts. show prints the journal's last lines from the process
@@ -75,8 +76,12 @@ func act(action string, what ...string) int {
 	return run.Status(terminal, append([]string{ownName}, what...)...)
 }
 
-func tell(crash crashes.Crash, missed int) {
-	action, _ := notify.Shown(options, crashes.Summary(crash.Program), crashes.Body(missed))
+func tell(limit *crashes.Limit, crash crashes.Crash, missed int) {
+	action, shown := notify.Shown(options, crashes.Summary(crash.Program), crashes.Body(missed))
+	if !shown {
+		limit.Unshown(crash.Program, missed)
+		return
+	}
 	act(action, "show", crash.PID)
 }
 
@@ -105,7 +110,8 @@ func follow() int {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	watch(child.Output, crashes.NewLimit(), func(crash crashes.Crash, missed int) { go tell(crash, missed) })
+	limit := crashes.NewLimit()
+	watch(child.Output, limit, func(crash crashes.Crash, missed int) { go tell(limit, crash, missed) })
 	code, message := child.Wait()
 	fmt.Fprintf(os.Stderr, "journalctl ended (exit %d) %s\n", code, message)
 	return 1
