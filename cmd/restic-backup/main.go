@@ -26,6 +26,9 @@ const usage = `Usage: restic-backup init <location>       set up where backups g
        restic-backup check                 verify the backup data
        restic-backup prune                 keep 7 daily, 4 weekly and 6 monthly backups, drop the rest
        restic-backup usb on|off            back up by itself whenever the backup drive is plugged in
+       restic-backup schedule daily|off    back up by itself once a day, on the charger only, or stop that
+       restic-backup status --json         where backups go, the last one, the schedule, as JSON
+       restic-backup list --json           the backups as JSON, newest first
        restic-backup keys                  type the keys for an s3: or b2: location again
 
 The location is remembered in ~/.config/restic-backup/repository and the
@@ -179,7 +182,11 @@ func backup() int {
 	if fsutil.IsFile(excludes) {
 		args = append(args, "--exclude-file", excludes)
 	}
-	return run.Status("restic", args...)
+	code := run.Status("restic", args...)
+	if code == 0 || code == unreadable {
+		note("last", time.Now().Format(time.RFC3339))
+	}
+	return code
 }
 
 func repository(args ...string) int {
@@ -209,15 +216,18 @@ func commands() map[string]func([]string) int {
 	return map[string]func([]string) int{
 		"init":    initialize,
 		"run":     func([]string) int { return backup() },
-		"list":    func([]string) int { return repository("snapshots") },
+		"list":    list,
 		"restore": restore,
 		"mount":   mount,
 		"check":   func([]string) int { return repository("check") },
 		"prune": func([]string) int {
 			return repository("forget", "--keep-daily", "7", "--keep-weekly", "4", "--keep-monthly", "6", "--prune")
 		},
-		"usb":  usb,
-		"keys": func([]string) int { return keys() },
+		"usb":       usb,
+		"keys":      func([]string) int { return keys() },
+		"schedule":  schedule,
+		"scheduled": scheduled,
+		"status":    status,
 	}
 }
 

@@ -179,12 +179,18 @@ func (plan undoPlan) takeMade(log *runlog.Log) error {
 	return nil
 }
 
-func usbOff(log *runlog.Log, helper string) error {
+func backupRunsOff(log *runlog.Log, helper string) error {
 	person, ok, err := account.Owner(helper)
 	if err != nil || !ok {
 		return err
 	}
-	return person.Run(log, helper, "usb", "off")
+	if err := person.Run(log, helper, "usb", "off"); err != nil {
+		return err
+	}
+	if !fsutil.Exists(person.Path(".config/systemd/user/restic-backup.timer")) {
+		return nil
+	}
+	return person.Run(log, helper, "schedule", "off")
 }
 
 func (plan undoPlan) backupsOff(log *runlog.Log) error {
@@ -195,7 +201,7 @@ func (plan undoPlan) backupsOff(log *runlog.Log) error {
 		if filepath.Base(path) != backupHelper || !fsutil.Runnable(path) {
 			continue
 		}
-		if err := usbOff(log, path); err != nil {
+		if err := backupRunsOff(log, path); err != nil {
 			return err
 		}
 	}
