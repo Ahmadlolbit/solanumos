@@ -267,7 +267,7 @@ func restorePath(args []string) int {
 		return 1
 	}
 	defer os.RemoveAll(work)
-	if code := run.Status("restic", "restore", args[0], "--target", work, "--include", path); code != 0 {
+	if code := run.Status("restic", "restore", args[0], "--target", work, "--include", restic.Literal(path)); code != 0 {
 		return code
 	}
 	return placeRestored(filepath.Join(work, path), path, backupWhen(args[0]), len(args) == 3)

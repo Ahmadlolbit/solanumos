@@ -18,6 +18,8 @@ import (
 
 const WhenLayout = "2 Jan 2006 15.04"
 
+var patternEscape = strings.NewReplacer(`\`, `\\`, `*`, `\*`, `?`, `\?`, `[`, `\[`)
+
 type Entry struct {
 	Name string `json:"name"`
 	Kind string `json:"kind"`
@@ -141,6 +143,10 @@ func putAsideBack(target, aside string, failed error) error {
 		return fmt.Errorf("%w, and what was there is still in %s", failed, aside)
 	}
 	return failed
+}
+
+func Literal(path string) string {
+	return patternEscape.Replace(path)
 }
 
 func Inside(path, home string) bool {
