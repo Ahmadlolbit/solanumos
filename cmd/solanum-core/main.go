@@ -35,6 +35,7 @@ USAGE
   solanum modules                  List the modules and how they last ended
   solanum undo MODULE [--yes]      Take back what module 09, 10, 11 or 16 installed, wrote and turned on
                                      (run it with sudo); the setup then leaves it out until you run it again
+  solanum undo --list --json       What undoing each of those modules would take back, as JSON; changes nothing
   solanum config [show|path|edit|reset|export]
                                    export prints your settings as a preset to share, without your Debian mirror
   solanum config import FILE|URL
@@ -58,8 +59,13 @@ USAGE
   solanum changes [--json]         Show what the last solanum update changed
   solanum restore [NUMBER]         List the restore points, or show what changed since one and go back to it
                                      (run it without sudo)
+  solanum restore list --json      The restore points as JSON, newest first
+  solanum restore compare NUMBER --json
+                                   What changed since a restore point, what going back keeps and the kernel
+                                     advice, as JSON; changes nothing
   solanum doctor                   Check the system and offer the safe fixes (run it with sudo)
   solanum cleanup [--yes]          Delete the oldest automatic snapshots until / is under 85%% (run it with sudo)
+  solanum cleanup --plan --json    What cleanup would delete and how full / is, as JSON; changes nothing
   solanum software [PAGE]          Open Software to add and remove apps, Debian packages and web apps
   solanum app list                 List the apps you can install, by category (* = installed)
   solanum app install|remove APP
@@ -238,7 +244,7 @@ func throughScript() int {
 }
 
 var (
-	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg"}
+	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg", "collect"}
 	streamed      bool
 )
 

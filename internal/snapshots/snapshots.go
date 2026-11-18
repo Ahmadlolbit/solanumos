@@ -23,11 +23,31 @@ const (
 	keptNewest  = 3
 )
 
+var sizeUnits = []string{"B", "KiB", "MiB", "GiB", "TiB", "PiB"}
+
 type Snapshot struct {
 	Number      string
 	Kind        string
 	Date        string
 	Description string
+}
+
+type Point struct {
+	Number      string `json:"number"`
+	Time        string `json:"time"`
+	Description string `json:"description"`
+}
+
+type Folder struct {
+	Folder string `json:"folder"`
+	Count  int    `json:"count"`
+}
+
+type Tally struct {
+	Added   int      `json:"added"`
+	Removed int      `json:"removed"`
+	Changed int      `json:"changed"`
+	Folders []Folder `json:"folders"`
 }
 
 func IsNumber(text string) bool {
@@ -69,6 +89,18 @@ func (snapshot Snapshot) reason() string {
 	return cmp.Or(snapshot.Description, "No description")
 }
 
+func (snapshot Snapshot) Point() Point {
+	return Point{snapshot.Number, strings.Join(strings.Fields(snapshot.Date), "T"), snapshot.reason()}
+}
+
+func Points(all []Snapshot) []Point {
+	points := []Point{}
+	for _, snapshot := range all {
+		points = append(points, snapshot.Point())
+	}
+	return points
+}
+
 func (snapshot Snapshot) Label() string {
 	when := snapshot.Date
 	if at, err := time.ParseInLocation(dateLayout, snapshot.Date, time.Local); err == nil {
@@ -101,7 +133,7 @@ func printable(text string) string {
 	}, text)
 }
 
-func Changes(status string) string {
+func Compare(status string) Tally {
 	kinds := map[byte]int{}
 	counts := map[string]int{}
 	for _, line := range run.Lines(status) {
@@ -110,12 +142,24 @@ func Changes(status string) string {
 			counts[folderOf(printable(strings.TrimLeft(path, " ")))]++
 		}
 	}
-	var text strings.Builder
-	fmt.Fprintf(&text, "\nSince then: %d added, %d removed, %d changed\nMost of it is in:\n", kinds['+'], kinds['-'], kinds['c']+kinds['t'])
+	tally := Tally{Added: kinds['+'], Removed: kinds['-'], Changed: kinds['c'] + kinds['t'], Folders: []Folder{}}
 	for _, folder := range biggest(counts) {
-		fmt.Fprintf(&text, "%7d %s\n", counts[folder], folder)
+		tally.Folders = append(tally.Folders, Folder{folder, counts[folder]})
+	}
+	return tally
+}
+
+func (tally Tally) Text() string {
+	var text strings.Builder
+	fmt.Fprintf(&text, "\nSince then: %d added, %d removed, %d changed\nMost of it is in:\n", tally.Added, tally.Removed, tally.Changed)
+	for _, folder := range tally.Folders {
+		fmt.Fprintf(&text, "%7d %s\n", folder.Count, folder.Folder)
 	}
 	return text.String()
+}
+
+func Changes(status string) string {
+	return Compare(status).Text()
 }
 
 func Disposable(all []Snapshot) []string {
@@ -138,6 +182,44 @@ func OldRoots(root, listing string) []string {
 		}
 	}
 	return found
+}
+
+func sizeOf(text string) (int64, bool) {
+	number, unit, _ := strings.Cut(strings.TrimSpace(text), " ")
+	value, err := strconv.ParseFloat(number, 64)
+	at := slices.Index(sizeUnits, cmp.Or(unit, "B"))
+	if err != nil || at < 0 || value < 0 {
+		return 0, false
+	}
+	for range at {
+		value *= 1024
+	}
+	return int64(value), true
+}
+
+func Held(numbers []string) (int64, bool) {
+	args := []string{"--csvout", "--no-headers", "--separator", "\t", "-c", "root", "list", "--columns", "number,used-space"}
+	if os.Geteuid() == 0 {
+		args = append([]string{"--no-dbus"}, args...)
+	}
+	output, err := run.CaptureQuiet(run.Minute, "snapper", args...)
+	if err != nil || len(numbers) == 0 {
+		return 0, false
+	}
+	sizes := map[string]string{}
+	for _, line := range run.Lines(output) {
+		number, size, _ := strings.Cut(line, "\t")
+		sizes[number] = size
+	}
+	var total int64
+	for _, number := range numbers {
+		size, known := sizeOf(sizes[number])
+		if !known {
+			return 0, false
+		}
+		total += size
+	}
+	return total, true
 }
 
 func DiskUse() (int, bool) {
