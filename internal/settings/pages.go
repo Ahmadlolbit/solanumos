@@ -60,7 +60,7 @@ var pages = []Page{
 	{"wallpaper", "Wallpaper and desktop", "\uf03e", "Look", "The wallpapers, how often they change, and live wallpapers.", []string{"wallpaper", "background", "pictures", "slideshow", "logo", "life"}},
 	{"bar", "Bar, dock and menu", "\uf0c9", "Look", "The bar's layout, its widgets, the clock and the weather.", []string{"bar", "widgets", "clock", "weather", "zen"}},
 	{"windows", "Windows and workspaces", "\uf2d2", "Look", "How windows and workspaces move.", []string{"windows", "animations", "workspaces"}},
-	{"display", "Display", "\uf108", "Devices", "Night light, scale and brightness.", []string{"screen", "scale", "brightness", "night light", "corners"}},
+	{"display", "Display", "\uf108", "Devices", "How the screens are arranged, night light, scale and brightness.", []string{"screen", "screens", "monitors", "arrange", "resolution", "refresh rate", "rotation", "mirror", "scale", "brightness", "night light", "corners"}},
 	{"sound", "Sound", "\uf028", "Devices", "Speakers, microphones and the startup sound.", []string{"audio", "volume", "speakers", "microphone", "chime"}},
 	{"network", "Network", "\uf1eb", "Devices", "Wi-Fi and wired connections.", []string{"wi-fi", "wifi", "internet", "networkmanager"}},
 	{"bluetooth", "Bluetooth", "\uf293", "Devices", "Pairing, connecting, and the battery of each device.", []string{"devices", "pair", "headphones"}},

@@ -29,6 +29,12 @@ FocusScope {
           name: "header.maker"
         }
       ],
+      display: Arrangement.plan.length ? [
+        {
+          kind: "screens",
+          name: "header.screens"
+        }
+      ].concat(Arrangement.rows) : [],
       wallpaper: [
         {
           kind: "pictures",
@@ -102,6 +108,7 @@ FocusScope {
       grid: [[["Left", "Right"], "themes"], ["Enter", "apply"]],
       maker: focused && focused.open ? [[["Left", "Right"], "mode"], ["Enter", "type"]] : [["Enter", "open"]],
       pictures: [[["Left", "Right"], "pictures"], ["Enter", "show"], ["Delete", "to the Trash"]],
+      screens: Arrangement.trying ? [[["Left", "Right"], "buttons"], ["Enter", "press"]] : [[["Left", "Right"], "screens"], ["Enter", "apply"]],
       about: [[["Left", "Right"], "buttons"], ["Enter", "press"]]
     }[item.kind] || [];
     return [[["Up", "Down"], "move"]].concat(own, tail);
@@ -417,12 +424,13 @@ FocusScope {
         required property int index
         readonly property var entry: JSON.parse(json)
 
-        width: ["grid", "maker", "pictures"].includes(entry.kind) ? ListView.view.width : content.column
+        width: ["grid", "maker", "pictures", "screens"].includes(entry.kind) ? ListView.view.width : content.column
         sourceComponent: ({
             about: aboutPart,
             grid: gridPart,
             maker: makerPart,
             pictures: picturesPart,
+            screens: screensPart,
             everyone: headingPart,
             section: headingPart
           })[entry.kind] || rowPart
@@ -503,6 +511,15 @@ FocusScope {
           Maker {
             current: holder.index === frame.index && frame.zone === "rows"
             onEditingChanged: frame.editing = editing
+            onPointed: frame.point(holder.index)
+          }
+        }
+
+        Component {
+          id: screensPart
+
+          Arranger {
+            current: holder.index === frame.index && frame.zone === "rows"
             onPointed: frame.point(holder.index)
           }
         }

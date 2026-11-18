@@ -50,6 +50,9 @@ func MatchMode(modes []string, value string) (string, bool) {
 	if parts == nil {
 		return "", false
 	}
+	if len(modes) == 0 {
+		return value, true
+	}
 	for _, mode := range modes {
 		size, hertz := refresh(mode)
 		wanted, _ := strconv.ParseFloat(parts[3], 64)

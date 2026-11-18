@@ -288,6 +288,19 @@ func screensNow([]string) int {
 	return 0
 }
 
+func screensWait(args []string) int {
+	value := arg(args, 0)
+	if value == "" {
+		return show("screens_wait")
+	}
+	seconds, ok := look.WholeNumber(value)
+	if !ok || seconds < 5 || seconds > tryLimit {
+		fmt.Fprintf(os.Stderr, "screens-wait takes seconds from 5 to %d\n", tryLimit)
+		return 2
+	}
+	return putThen("screens_wait", strconv.FormatInt(seconds, 10), nothing)()
+}
+
 func screensCommand(args []string) int {
 	words := map[string]func([]string) int{
 		"list": screensList, "now": screensNow, "save": screensSave, "apply": screensApply,

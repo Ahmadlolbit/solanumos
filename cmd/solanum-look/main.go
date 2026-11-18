@@ -61,6 +61,7 @@ const usage = `Usage: solanum-look
        solanum-look presentation [on|off|toggle]
        solanum-look screens [list|now|apply|forget|confirm|revert]
        solanum-look screens save [--try SECONDS] [SCREEN SETTING=VALUE...]...
+       solanum-look screens-wait [SECONDS]
        solanum-look get SETTING
 
 Shows and changes how the desktop looks. Your settings are kept in
@@ -120,7 +121,8 @@ mode=2560x1440@144 position=1920x0 scale=1.25 rotation=90 on=no main=yes
 mirror=eDP-1; the main screen gets workspace 1 and the cursor. With --try,
 the old layout comes back after that many seconds unless confirm comes
 first, and revert brings it back at once. apply puts the saved layout
-back, and forget drops it.
+back, and forget drops it. screens-wait is how long Settings waits for
+Keep before the old layout comes back, 15 seconds unless you set another.
 `
 
 const (
@@ -522,7 +524,7 @@ func commands() map[string]func([]string) int {
 		"quiet": quiet, "quiet-hours": quietHours, "night": night, "night-hours": nightHours, "night-warmth": nightWarmth, "location": location,
 		"power": powerFollow, "power-profiles": powerProfiles, "power-apply": powerApply,
 		"trackpoint-speed": trackpointSpeed, "trackpoint-accel": trackpointAccel, "trackpoint-scroll": trackpointScroll,
-		"zen": zen, "presentation": presentation, "screens": screensCommand, "lock-media": lockMedia, "lock-battery": lockBattery, "lock-line": lockLine,
+		"zen": zen, "presentation": presentation, "screens": screensCommand, "screens-wait": screensWait, "lock-media": lockMedia, "lock-battery": lockBattery, "lock-line": lockLine,
 		"font":    func(args []string) int { return font("font", arg(args, 0)) },
 		"ui-font": func(args []string) int { return font("ui_font", arg(args, 0)) },
 		"light":   func(args []string) int { return themeChoice("light", arg(args, 0)) },
