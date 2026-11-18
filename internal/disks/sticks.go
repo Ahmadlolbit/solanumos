@@ -29,8 +29,12 @@ func firstMount(points []string) string {
 	return ""
 }
 
+func (disk Disk) liveImage() bool {
+	return disk.FSType == "iso9660" || slices.ContainsFunc(disk.Children, func(part Partition) bool { return part.FSType == "iso9660" })
+}
+
 func (disk Disk) holdsKeys(target string) bool {
-	return disk.External() && !disk.ReadOnly && disk.Path != target && !disk.Holds("/run/live/medium") && !disk.Holds("/")
+	return disk.External() && !disk.ReadOnly && disk.Path != target && !disk.Holds("/run/live/medium") && !disk.Holds("/") && !disk.liveImage()
 }
 
 func Sticks(all []Disk, target string) []Stick {
