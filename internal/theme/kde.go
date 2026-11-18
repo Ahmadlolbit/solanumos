@@ -19,7 +19,6 @@ const (
 	kdeDefaultFont = "Noto Sans"
 	kdeGroup       = "[KDE]"
 	KDESpeed       = "AnimationDurationFactor="
-	kdeStill       = KDESpeed + "0"
 )
 
 func OursKDE(text string) bool {
@@ -132,27 +131,37 @@ func KDEGlobals(current, scheme, font string, scale float64) string {
 	return strings.TrimLeft(text+"\n", "\n")
 }
 
-func KDEStill(text string) bool {
-	return kdeValue(text, kdeGroup, KDESpeed) == "0"
+func KDESpeedOf(text string) string {
+	return kdeValue(text, kdeGroup, KDESpeed)
 }
 
-func KDEAnimations(text string, off bool) string {
+func KDEGivenSpeed(text, speed string) string {
 	var kept []string
-	header, added := "", false
+	header, added := "", speed == ""
 	for _, line := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
 		if strings.HasPrefix(line, "[") {
 			header = line
 		}
-		if header == kdeGroup && strings.HasPrefix(line, KDESpeed) && (off || line == kdeStill) {
+		if header == kdeGroup && strings.HasPrefix(line, KDESpeed) {
 			continue
 		}
 		kept = append(kept, line)
-		if off && line == kdeGroup && !added {
-			kept, added = append(kept, kdeStill), true
+		if line == kdeGroup && !added {
+			kept, added = append(kept, KDESpeed+speed), true
 		}
 	}
-	if off && !added {
-		kept = append(kept, "", kdeGroup, kdeStill)
+	if !added {
+		kept = append(kept, "", kdeGroup, KDESpeed+speed)
 	}
 	return strings.TrimLeft(strings.Join(kept, "\n")+"\n", "\n")
+}
+
+func KDEAnimations(text string, off bool) string {
+	if off {
+		return KDEGivenSpeed(text, "0")
+	}
+	if KDESpeedOf(text) != "0" {
+		return strings.TrimLeft(strings.TrimRight(text, "\n")+"\n", "\n")
+	}
+	return KDEGivenSpeed(text, "")
 }

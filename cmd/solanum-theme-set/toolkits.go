@@ -140,7 +140,7 @@ func writeKDEGlobals(scheme string) {
 	if scheme == "" && theme.OursKDE(current) {
 		merged = theme.KDEGivenBack(merged, fsutil.Optional(kdeBackupOf(globals)))
 	}
-	merged = theme.KDEAnimations(merged, animationsOff())
+	merged = kdeMotion(merged)
 	if strings.TrimSpace(merged) == strings.TrimSpace(current) {
 		return
 	}
@@ -150,7 +150,7 @@ func writeKDEGlobals(scheme string) {
 		return
 	}
 	kdeChanged = true
-	kdeSpeedChanged = kdeSpeedChanged || theme.KDEStill(merged) != theme.KDEStill(current)
+	kdeSpeedChanged = kdeSpeedChanged || theme.KDESpeedOf(merged) != theme.KDESpeedOf(current)
 }
 
 func kdeColors(file string) {

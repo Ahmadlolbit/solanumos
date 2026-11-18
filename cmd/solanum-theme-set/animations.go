@@ -14,26 +14,72 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/theme"
 )
 
+const (
+	gtkMotionKept = "animations.gtk"
+	kdeMotionKept = "animations.kde"
+)
+
 var kdeSpeedChanged = false
 
 func animationsOff() bool {
-	return settings.Get("animations") == "no"
+	return settings.Get("animations") == "no" && settings.Get("apps") != appsOff
+}
+
+func keepOnce(name, value string) {
+	path := filepath.Join(state(), name)
+	if fsutil.Exists(path) {
+		return
+	}
+	if err := atomic.Write(path, []byte(value+"\n"), 0o666); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+}
+
+func takeKept(name string) (string, bool) {
+	path := filepath.Join(state(), name)
+	value, err := fsutil.Text(path)
+	if err != nil {
+		return "", false
+	}
+	os.Remove(path)
+	return value, true
 }
 
 func gtkAnimations(current map[string]string) {
-	switch now := current["enable-animations"]; {
-	case animationsOff() && now != "false":
-		desktop("set", "enable-animations", "false")
-	case !animationsOff() && now == "false":
-		desktop("reset", "enable-animations")
+	now := current["enable-animations"]
+	if animationsOff() {
+		keepOnce(gtkMotionKept, now)
+		if now != "false" {
+			desktop("set", "enable-animations", "false")
+		}
+		return
 	}
+	before, kept := takeKept(gtkMotionKept)
+	switch {
+	case !kept || before == now:
+	case before == "":
+		desktop("reset", "enable-animations")
+	default:
+		desktop("set", "enable-animations", before)
+	}
+}
+
+func kdeMotion(text string) string {
+	if animationsOff() {
+		keepOnce(kdeMotionKept, theme.KDESpeedOf(text))
+		return theme.KDEAnimations(text, true)
+	}
+	if before, kept := takeKept(kdeMotionKept); kept {
+		return theme.KDEGivenSpeed(text, before)
+	}
+	return text
 }
 
 func kdeAnimations() {
 	globals := filepath.Join(env.ConfigHome(), "kdeglobals")
 	current := fsutil.Optional(globals)
-	merged := theme.KDEAnimations(current, animationsOff())
-	if theme.KDEStill(merged) == theme.KDEStill(current) {
+	merged := kdeMotion(current)
+	if theme.KDESpeedOf(merged) == theme.KDESpeedOf(current) {
 		return
 	}
 	if err := atomic.Write(globals, []byte(merged), 0o666); err != nil {
