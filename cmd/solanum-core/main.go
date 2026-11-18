@@ -90,8 +90,10 @@ USAGE
                                      disk password and shows the key once
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
-  solanum care [PAGE]              Open Care, at updates, check or changes: what's waiting to update,
-                                     the system check and what the last update changed
+  solanum care [PAGE]              Open Care, at updates, check, changes, restore, space, undo or report:
+                                     what's waiting to update, the system check, what the last update changed,
+                                     the restore points, the disk's space, undoing a part and making a report
+  solanum care restore NUMBER      Open Care on one restore point
   solanum settings [PAGE]          Open Settings, at a page such as themes or display
   solanum settings list            Every setting as JSON: its page, kind, value, choices, and whether it's
                                      yours or the whole computer's

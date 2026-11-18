@@ -218,7 +218,11 @@ FocusScope {
       sourceComponent: ({
           updates: updatesPart,
           check: checkPart,
-          changes: changesPart
+          changes: changesPart,
+          restore: restorePart,
+          space: spacePart,
+          undo: undoPart,
+          report: reportPart
         })[Store.pageNow.id]
       onLoaded: Qt.callLater(frame.takeKeys)
 
@@ -238,6 +242,30 @@ FocusScope {
         id: changesPart
 
         Care.Changes {}
+      }
+
+      Component {
+        id: restorePart
+
+        Care.Restore {}
+      }
+
+      Component {
+        id: spacePart
+
+        Care.Space {}
+      }
+
+      Component {
+        id: undoPart
+
+        Care.Undo {}
+      }
+
+      Component {
+        id: reportPart
+
+        Care.Report {}
       }
     }
 
@@ -264,7 +292,7 @@ FocusScope {
 
         Label {
           Layout.fillWidth: true
-          text: (Store.job === "doctor" ? "Stop the check?" : "Stop the update?") + " If you keep it running, this window stays open on it."
+          text: Store.stopWords + " If you keep it running, this window stays open on it."
           wrapMode: Text.Wrap
         }
 

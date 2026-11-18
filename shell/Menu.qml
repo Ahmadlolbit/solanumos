@@ -236,13 +236,12 @@ Scope {
       restore: "\u{f02da}",
       keyboard: "\u{f030c}"
     };
-    const command = "solanum restore";
-    const words = (id) => kind === "keyboard" ? "sh -c 'sudo solanum keyboard " + id + " && hyprctl reload'" : command + " " + id;
+    const words = (id) => kind === "keyboard" ? "solanum-terminal --wait sh -c 'sudo solanum keyboard " + id + " && hyprctl reload'" : "solanum care restore " + id;
     const row = (id, label, words) => ({
           id: kind + ":" + id,
           glyph: glyphs[kind],
           label: label,
-          action: "solanum-terminal --wait " + words,
+          action: words,
           shell: "",
           state: "",
           color: "",
@@ -257,7 +256,7 @@ Scope {
       return row(fields[0], fields[1], words(fields[0]));
     });
     if (kind === "restore" && rows.length === 0)
-      return [row("terminal", "Open restore points in a terminal", command)];
+      return [row("care", "Open restore points in Care", "solanum care restore")];
     return rows;
   }
 

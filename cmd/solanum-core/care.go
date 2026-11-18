@@ -6,11 +6,12 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
 )
 
-const careUsage = "usage: solanum care [updates|check|changes]"
+const careUsage = "usage: solanum care [updates|check|changes|restore [NUMBER]|space|undo|report]"
 
-var carePages = []string{"updates", "check", "changes"}
+var carePages = []string{"updates", "check", "changes", "restore", "space", "undo", "report"}
 
 func careDir() string {
 	return filepath.Join(env.ShareDir(), "care")
@@ -24,16 +25,18 @@ func openCare(page string) int {
 }
 
 func careCommand() int {
-	page := env.Arg(2)
+	page, point := env.Arg(2), env.Arg(3)
 	switch {
 	case page == "-h" || page == "--help":
 		return say(careUsage + "\n")
-	case env.Arg(3) != "":
+	case env.Arg(4) != "" || point != "" && (page != "restore" || !snapshots.IsNumber(point)):
 		return fail(careUsage)
 	case page == "":
 		return openCare("updates")
 	case !slices.Contains(carePages, page):
-		return fail("no page named %s; the pages are updates, check and changes\n%s", page, careUsage)
+		return fail("no page named %s; the pages are updates, check, changes, restore, space, undo and report\n%s", page, careUsage)
+	case point != "":
+		return openCare(page + ":" + point)
 	}
 	return openCare(page)
 }
