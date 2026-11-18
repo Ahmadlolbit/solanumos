@@ -126,10 +126,13 @@ func newKey() int {
 		return fail("%s. Nothing was changed.", sentenceOf(err.Error()))
 	}
 	key, _, err := luks.Make(root.device, password)
-	if err != nil {
+	if key == "" {
 		return fail("The recovery key wasn't made: %v. The disk opens as before.", err)
 	}
 	showKey(key)
+	if err != nil {
+		return fail("The old recovery key may still work too: %v.", err)
+	}
 	return ui.ExitCode()
 }
 

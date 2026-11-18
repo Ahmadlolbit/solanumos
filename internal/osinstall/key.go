@@ -35,9 +35,12 @@ func KeyReady(answers Answers) error {
 func (work *install) makeKey(log *runlog.Log) handed {
 	key, messages, err := luks.Make(work.plan.RootDevice(), work.answers.Password)
 	io.WriteString(log, messages)
-	if err != nil {
+	if key == "" {
 		log.Line("warn", "no recovery key, and the install goes on: "+err.Error())
 		return handed{why: err.Error()}
+	}
+	if err != nil {
+		log.Line("warn", "the recovery key opens the disk, though "+luks.Enroller+" ended with an error: "+err.Error())
 	}
 	log.Line("info", "the recovery key is made: the installer shows it once at the end, and no log keeps it")
 	return handed{key: key}

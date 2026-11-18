@@ -1,6 +1,7 @@
 package luks
 
 import (
+	"cmp"
 	"errors"
 	"regexp"
 	"slices"
@@ -92,13 +93,29 @@ func Reason(messages string) string {
 	return strings.TrimSpace(lines[len(lines)-1])
 }
 
+type Unfinished struct {
+	Why string
+}
+
+func (err Unfinished) Error() string {
+	return err.Why
+}
+
+func Opens(device, secret string) bool {
+	_, _, err := run.CaptureFed(run.Minute, secret, "cryptsetup", "open", "--test-passphrase", "--key-file=-", device)
+	return err == nil
+}
+
 func Make(device, password string) (string, string, error) {
 	args := Enroll(device)
 	output, messages, err := run.CaptureFed(run.Minute, password, args[0], args[1:]...)
 	key, found := Key(output)
+	why := Reason(messages)
 	switch {
-	case err != nil && Reason(messages) != "":
-		return "", Hide(messages), errors.New(Reason(messages))
+	case err != nil && found && Opens(device, key):
+		return key, Hide(messages), Unfinished{cmp.Or(why, err.Error())}
+	case err != nil && why != "":
+		return "", Hide(messages), errors.New(why)
 	case err != nil:
 		return "", Hide(messages), err
 	case !found:
