@@ -65,7 +65,7 @@ var (
 		{"quiet_to", "Quiet until", "notifications", "Quiet hours", Time, "", "When notifications come back", is("quiet", "yes")},
 		{"location", "Location", "time", "Location", Text, "", "zone for your time zone's main city, or LATITUDE,LONGITUDE; the sun and the weather use it", nil},
 		{"text", "Text size", "accessibility", "Seeing", Pick, "normal:Normal|large:Large|larger:Larger", "Text everywhere a quarter (large) or half (larger) bigger", nil},
-		{"zoom_follow", "Zoom follows the pointer", "accessibility", "Seeing", Pick, "edges:At the screen's edges|centre:In the middle", "Super and plus or minus zoom in and out, and Super+Alt+0 goes back; the zoomed view moves when the pointer reaches its edge, or keeps the pointer in the middle", nil},
+		{"zoom_follow", "Zoom follows the pointer", "accessibility", "Seeing", Pick, "edges:At the screen's edges|centre:In the middle", "Super with the two keys right of 0, or with the keypad's plus and minus, zooms in and out; Super+Alt+0 goes back to normal and takes the colour filter away too; the zoomed view moves when the pointer reaches its edge, or keeps the pointer in the middle", nil},
 		{"filter", "Colour filter", "accessibility", "Seeing", Pick, filters, "Colours to tell apart or to rest your eyes; screenshots and recordings show them too", nil},
 		{"animations", "Animations", "accessibility", "Motion", Toggle, "", "Windows, workspaces, popups and apps move as they open and close; off is reduced motion", nil},
 		{"reader", "Screen reader", "accessibility", "Screen reader", Toggle, "", "Orca reads apps aloud, now and at every login; it can't read the bar, the menu or the launcher", nil},
