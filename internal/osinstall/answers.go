@@ -54,7 +54,7 @@ func Read(path string) (Answers, error) {
 	if err != nil {
 		return Answers{}, err
 	}
-	var answers Answers
+	answers := Answers{Key: true}
 	if err := json.Unmarshal(data, &answers); err != nil {
 		return Answers{}, err
 	}
