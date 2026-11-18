@@ -120,15 +120,19 @@ func plain(line string) string {
 	return line
 }
 
-func tail(home string, uid int) []string {
-	data, _ := fsutil.ReadTail(filepath.Join(home, OwnLog), logBytes, uid)
+func tailOf(path string, uid, most int) []string {
+	data, _ := fsutil.ReadTail(path, logBytes, uid)
 	var lines []string
 	for _, line := range strings.Split(string(data), "\n") {
 		if line = plain(line); line != "" && !strings.HasPrefix(line, logStamp) {
 			lines = append(lines, line)
 		}
 	}
-	return lines[max(len(lines)-tailLines, 0):]
+	return lines[max(len(lines)-most, 0):]
+}
+
+func tail(home string, uid int) []string {
+	return tailOf(filepath.Join(home, OwnLog), uid, tailLines)
 }
 
 func Gather(person account.Account, limit time.Duration) Facts {

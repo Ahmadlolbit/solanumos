@@ -13,6 +13,7 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("solanum-start walker")
   hl.exec_cmd("solanum-start bar")
   hl.exec_cmd("solanum changes --notify")
+  hl.exec_cmd("solanum-crashes login")
   hl.exec_cmd("solanum-look presentation off")
   hl.exec_cmd("solanum-theme-set --editors")
   if look.get("reader") == "yes" then
