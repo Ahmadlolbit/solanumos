@@ -30,8 +30,6 @@ Scope {
       "print": "Print",
       "mouse_down": "Wheel down",
       "mouse_up": "Wheel up",
-      "plus": "Plus",
-      "minus": "Minus",
       "xf86audioraisevolume": "Volume up",
       "xf86audiolowervolume": "Volume down",
       "xf86audiomute": "Mute",
@@ -48,6 +46,8 @@ Scope {
       "down": "Down"
     })
   readonly property var codes: ({
+      "20": "the key right of 0",
+      "21": "two keys right of 0",
       "49": "the key left of 1"
     })
 

@@ -28,8 +28,8 @@ bind("SUPER + A", "Software", "solanum software")
 bind("SUPER + ALT + R", "Screen reader on or off", "solanum-look reader toggle")
 
 local zooms = {
-  { "in", "Zoom in", { "plus", "equal", "SHIFT + equal", "KP_Add" } },
-  { "out", "Zoom out", { "minus", "KP_Subtract" } },
+  { "in", "Zoom in", { "code:21", "KP_Add" } },
+  { "out", "Zoom out", { "code:20", "KP_Subtract" } },
 }
 for _, zoom in ipairs(zooms) do
   local step, description, keys = table.unpack(zoom)
