@@ -30,6 +30,7 @@ const usage = `Usage: solanum-theme-set <theme>
        solanum-theme-set --previews
        solanum-theme-set --current
        solanum-theme-set --editors
+       solanum-theme-set --animations
        solanum-theme-set --make NAME BACKGROUND FOREGROUND ACCENT
        solanum-theme-set --copy THEME NAME [KEY=#RRGGBB ...]
        solanum-theme-set --change NAME KEY=#RRGGBB ...
@@ -44,13 +45,15 @@ checked: what's missing is worked out, text too faint to read is made
 readable, and files that can't be read are left out, each said in one line.
 A theme that can't be read at all is never applied. --editors gives the
 editors and Firefox's profiles the current theme again, for one installed or
-made since. --make makes a theme of your own from a background, a foreground
-and an accent: the rest of its colours are worked out, dark or light follows
-from the background, and it gets a preview and contours as its first
-background. --copy makes your own copy of a theme with any colours changed;
-the theme you started from stays as it was. --change changes colours of a
-theme of your own, and applies it again if it's in use. --palette prints a
-theme's colours as JSON, each with its contrast, and what a switch would fix.
+made since. --animations turns GTK and KDE apps' animations on or off, at
+once, as solanum-look animations has them. --make makes a theme of your own
+from a background, a foreground and an accent: the rest of its colours are
+worked out, dark or light follows from the background, and it gets a preview
+and contours as its first background. --copy makes your own copy of a theme
+with any colours changed; the theme you started from stays as it was.
+--change changes colours of a theme of your own, and applies it again if
+it's in use. --palette prints a theme's colours as JSON, each with its
+contrast, and what a switch would fix.
 `
 
 const (
@@ -431,6 +434,7 @@ func desktopSettings(colors, apps theme.Colors) {
 		change(current, "font-name", ui+" 11")
 	}
 	scaleText(current, theme.TextScale(settings.Get("text")))
+	gtkAnimations(current)
 	change(current, "cursor-theme", "Bibata-Modern-Ice")
 }
 
@@ -657,6 +661,8 @@ func main() {
 		os.Exit(current())
 	case "--editors":
 		os.Exit(refreshEditors())
+	case "--animations":
+		os.Exit(animationsOnly())
 	case wallpapers:
 		time.Sleep(time.Second)
 		os.Exit(run.Report(run.Exec("solanum-background", "workspaces")))

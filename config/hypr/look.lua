@@ -36,6 +36,20 @@ local function bar_value(path, key)
   return text:match('"' .. key .. '"%s*:%s*"([%w-]+)"')
 end
 
+function look.zoom()
+  local runtime = os.getenv("XDG_RUNTIME_DIR")
+  local file = runtime and runtime ~= "" and io.open(runtime .. "/solanum-zoom", "r")
+  if not file then
+    return 1
+  end
+  local factor = tonumber(file:read("l") or "")
+  file:close()
+  if not factor or factor < 1 or factor > 8 then
+    return 1
+  end
+  return factor
+end
+
 function look.bar(key)
   local system = os.getenv("SOLANUM_SHELL_SYSTEM") or "/etc/solanum/shell.json"
   return bar_value(config_home() .. "/solanum/shell.json", key) or bar_value(system, key)

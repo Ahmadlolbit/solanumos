@@ -140,6 +140,7 @@ func writeKDEGlobals(scheme string) {
 	if scheme == "" && theme.OursKDE(current) {
 		merged = theme.KDEGivenBack(merged, fsutil.Optional(kdeBackupOf(globals)))
 	}
+	merged = theme.KDEAnimations(merged, animationsOff())
 	if strings.TrimSpace(merged) == strings.TrimSpace(current) {
 		return
 	}
@@ -149,6 +150,7 @@ func writeKDEGlobals(scheme string) {
 		return
 	}
 	kdeChanged = true
+	kdeSpeedChanged = kdeSpeedChanged || theme.KDEStill(merged) != theme.KDEStill(current)
 }
 
 func kdeColors(file string) {
@@ -226,6 +228,7 @@ func tellKDEApps() {
 	}
 	run.Quiet(run.Quick, "gdbus", "emit", "--session", "--object-path", "/KIconLoader", "--signal", "org.kde.KIconLoader.iconChanged", "0")
 	run.Quiet(run.Quick, "gdbus", "emit", "--session", "--object-path", "/KDEPlatformTheme", "--signal", "org.kde.KDEPlatformTheme.refreshFonts")
+	tellKDESpeed()
 }
 
 func linkToolkits(current string) {

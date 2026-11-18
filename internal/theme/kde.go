@@ -17,6 +17,9 @@ const (
 	kdeFontSize    = 10
 	kdeFontRest    = ",-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 	kdeDefaultFont = "Noto Sans"
+	kdeGroup       = "[KDE]"
+	KDESpeed       = "AnimationDurationFactor="
+	kdeStill       = KDESpeed + "0"
 )
 
 func OursKDE(text string) bool {
@@ -127,4 +130,29 @@ func KDEGlobals(current, scheme, font string, scale float64) string {
 		text += "\n\n" + kdeRecord + "\n" + kdeRecordKey + wanted
 	}
 	return strings.TrimLeft(text+"\n", "\n")
+}
+
+func KDEStill(text string) bool {
+	return kdeValue(text, kdeGroup, KDESpeed) == "0"
+}
+
+func KDEAnimations(text string, off bool) string {
+	var kept []string
+	header, added := "", false
+	for _, line := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
+		if strings.HasPrefix(line, "[") {
+			header = line
+		}
+		if header == kdeGroup && strings.HasPrefix(line, KDESpeed) && (off || line == kdeStill) {
+			continue
+		}
+		kept = append(kept, line)
+		if off && line == kdeGroup && !added {
+			kept, added = append(kept, kdeStill), true
+		}
+	}
+	if off && !added {
+		kept = append(kept, "", kdeGroup, kdeStill)
+	}
+	return strings.TrimLeft(strings.Join(kept, "\n")+"\n", "\n")
 }

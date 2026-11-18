@@ -22,6 +22,7 @@ end
 require("solanum.hypr.arrange")
 require("solanum.hypr.lid")
 require("solanum.hypr.modes")
+require("solanum.hypr.accessibility")
 require("solanum.hypr.trackpoint")
 
 if package.searchpath("solanum.current.theme.glass", package.path) then

@@ -25,6 +25,7 @@ var defaults = map[string]string{
 	"quiet_from": "22:00", "quiet_to": "07:00", "night": "off", "night_from": "20:00", "night_to": "07:00", "night_warmth": "4500",
 	"power": "no", "power_ac": "balanced", "power_battery": "power-saver",
 	"trackpoint_speed": "0", "trackpoint_accel": "adaptive", "trackpoint_scroll": "yes", "zen": "no", "presentation": "no", "screens_wait": "15", "daily": "no", "reader": "no", "lock_media": "yes", "lock_battery": "yes", "editors": "yes", "chime": "no", "day_wallpaper": "off", "wallpaper_folder": "~/Pictures/Wallpapers", "logo": "off", "wallpapers": "both",
+	"animations": "yes", "filter": "none", "zoom_follow": "edges",
 }
 
 type Store struct {

@@ -26,6 +26,21 @@ bind("SUPER + U", "Care", "solanum care")
 bind("SUPER + I", "Settings", "solanum settings")
 bind("SUPER + A", "Software", "solanum software")
 bind("SUPER + ALT + R", "Screen reader on or off", "solanum-look reader toggle")
+
+local zooms = {
+  { "in", "Zoom in", { "plus", "equal", "SHIFT + equal", "KP_Add" } },
+  { "out", "Zoom out", { "minus", "KP_Subtract" } },
+}
+for _, zoom in ipairs(zooms) do
+  local step, description, keys = table.unpack(zoom)
+  for index, key in ipairs(keys) do
+    bind("SUPER + " .. key, index == 1 and description or nil, "solanum-look zoom " .. step, { repeating = true })
+  end
+end
+bind("SUPER + ALT + code:19", "Zoom back to normal", "solanum-look zoom reset")
+bind("SUPER + ALT + mouse_up", "Zoom in", "solanum-look zoom in")
+bind("SUPER + ALT + mouse_down", "Zoom out", "solanum-look zoom out")
+
 bind("Print", "Screenshot of a region", "solanum-screenshot region")
 bind("SHIFT + Print", "Screenshot of the window", "solanum-screenshot window")
 bind("CTRL + Print", "Screenshot of the screen", "solanum-screenshot screen")
