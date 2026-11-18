@@ -439,10 +439,13 @@ func (visit *checkup) disk() {
 	}
 }
 
-func (visit *checkup) recoveryKey() {
+func (visit *checkup) recoveryKey(reminder string) {
 	root, err := luksRootFor(keyRoot)
 	switch {
 	case errors.As(err, new(plainRoot)):
+		return
+	case reminder == "no":
+		ui.Skip("The recovery key reminder is off")
 		return
 	case err != nil:
 		ui.Skip(sentenceOf(err.Error()))
@@ -633,7 +636,7 @@ func examine() int {
 	if !ok {
 		return fail("cannot tell whose desktop this is; run it with sudo from your own account")
 	}
-	setting := config.Read(config.Path()).Get("SNAPSHOTS")
+	settings := config.Read(config.Path())
 	visit := checkup{person: person, limit: run.Minute}
 	failed := ui.Failures()
 	ui.Header("solanum doctor", "Checks the system and offers the safe fixes")
@@ -642,9 +645,9 @@ func examine() int {
 	visit.services()
 	visit.crashes()
 	ui.Rule("Storage")
-	visit.snapshots(setting)
+	visit.snapshots(settings.Get("SNAPSHOTS"))
 	visit.disk()
-	visit.recoveryKey()
+	visit.recoveryKey(settings.Get("RECOVERY_KEY_REMINDER"))
 	ui.Rule("Hardware and packages")
 	checkBatteries()
 	visit.firmware()

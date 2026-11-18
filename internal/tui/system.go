@@ -30,10 +30,11 @@ import (
 )
 
 const (
-	shortest = 8
-	diskAt   = 1
-	lockAt   = 2
-	youAt    = 3
+	shortest    = 8
+	diskAt      = 1
+	lockAt      = 2
+	youAt       = 3
+	reminderKey = "RECOVERY_KEY_REMINDER"
 )
 
 type system struct {

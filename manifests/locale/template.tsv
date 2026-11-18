@@ -23,6 +23,7 @@ A tip at the bottom of the welcome screen
 A user name takes only small letters, digits, - and _	
 A wallpaper per workspace	
 A warmer screen: never, always, or at night	
+A warning from solanum doctor when the encrypted disk has no recovery key; skipping the key in the installer turns it off	
 Accent colour	
 Add Flathub	
 Add MangoHud to Steam	
@@ -356,6 +357,7 @@ Read the choices from a file
 Read the new partitions	
 Record what this run uses	
 Recovery key	
+Recovery key reminder	
 Recovery screen	
 Remove %s	
 Remove the old themes	

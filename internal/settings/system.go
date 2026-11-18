@@ -49,6 +49,7 @@ var (
 		"NIGHT_FROM": {"display", "14"}, "NIGHT_TO": {"display", "14"}, "BOOT_SPLASH": {"startup", "14"}, "BOOT_PROMPT": {"startup", "14"},
 		"BOOT_MENU_THEME": {"startup", "14"}, "CONSOLE_THEME": {"startup", "14"}, "FIREWALL": {"privacy", "15"}, "AUTO_UPDATES": {"updates", "15"},
 		"SSH_POLICY": {"sharing", "15"}, "NM_HANDOVER": {"network", "15"}, "FINGERPRINT": {"accounts", "12,15"},
+		"RECOVERY_KEY_REMINDER": {"privacy", ""},
 	}
 )
 
