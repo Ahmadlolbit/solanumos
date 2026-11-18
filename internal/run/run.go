@@ -104,6 +104,38 @@ func Shielded(stop <-chan os.Signal, name string, args ...string) (int, bool) {
 	}
 }
 
+func Apart(limit time.Duration, output io.Writer, stoppable bool, name string, args ...string) error {
+	if stopped.Load() {
+		return ErrStopped
+	}
+	trace(name, args)
+	shared := &serial{output: output}
+	command, finish := limited(limit, shared, name, args)
+	withEnvironment(command, english)
+	command.Stdout = shared
+	command.Stderr = shared
+	command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	var stop chan os.Signal
+	if stoppable {
+		stop = make(chan os.Signal, 1)
+		cleanup.NotifyInterrupt(stop)
+		defer signal.Stop(stop)
+	}
+	if err := command.Start(); err != nil {
+		return finish(err)
+	}
+	ended := make(chan error, 1)
+	go func() { ended <- command.Wait() }()
+	for {
+		select {
+		case err := <-ended:
+			return done(finish(err))
+		case caught := <-stop:
+			command.Process.Signal(caught)
+		}
+	}
+}
+
 func Within(limit time.Duration, name string, args ...string) int {
 	if kept(os.Stderr, name) {
 		return 0
@@ -233,14 +265,6 @@ func LoggedWithin(limit time.Duration, output io.Writer, name string, args ...st
 		return nil
 	}
 	return loggedWithin(limit, output, nil, name, args)
-}
-
-func LoggedInEnglish(limit time.Duration, output io.Writer, name string, args ...string) error {
-	if stopped.Load() {
-		return ErrStopped
-	}
-	trace(name, args)
-	return loggedWithin(limit, output, english, name, args)
 }
 
 func LoggedPrivately(limit time.Duration, output io.Writer, name string, args ...string) error {
