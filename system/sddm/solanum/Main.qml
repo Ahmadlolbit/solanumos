@@ -146,12 +146,12 @@ Rectangle {
   Column {
     objectName: "middle"
     anchors.horizontalCenter: parent.horizontalCenter
-    y: keys.item ? Math.max(root.size(16), keys.y - height - root.size(24)) : (parent.height - height) / 2 - root.size(40)
+    y: keys.visible ? Math.max(root.size(16), keys.y - height - root.size(24)) : (parent.height - height) / 2 - root.size(40)
     spacing: root.size(14)
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      visible: !keys.item
+      visible: !keys.visible
       text: Qt.formatTime(root.now, root.timeFormat)
       color: root.foreground
       font.family: root.displayFamily
@@ -160,7 +160,7 @@ Rectangle {
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      visible: !keys.item
+      visible: !keys.visible
       text: Qt.formatDate(root.now, "dddd, d MMMM")
       color: root.foreground
       font.family: root.fontFamily
@@ -170,7 +170,7 @@ Rectangle {
     Item {
       width: 1
       height: root.size(56)
-      visible: !keys.item
+      visible: !keys.visible
     }
 
     Text {
@@ -348,16 +348,22 @@ Rectangle {
     }
   }
 
-  Loader {
+  Keyboard {
     id: keys
 
     objectName: "keys"
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: root.size(120)
-    width: Math.min(parent.width - 64, parent.height * 1.1)
-    active: chosen.keyboard
-    source: "Keyboard.qml"
+    visible: chosen.keyboard
+    target: password
+    ink: root.foreground
+    paper: root.background
+    accent: root.accent
+    family: root.fontFamily
+    factor: root.textScale
+    onTyped: root.failed = false
+    onEntered: root.login()
   }
 
   Column {
@@ -404,7 +410,6 @@ Rectangle {
             required property var modelData
             required property int index
             readonly property bool on: chosen[modelData[0]]
-            readonly property bool missing: modelData[0] === "keyboard" && keys.status === Loader.Error
 
             objectName: modelData[0]
             width: root.size(260)
@@ -445,7 +450,7 @@ Rectangle {
               anchors.right: parent.right
               anchors.rightMargin: 16
               anchors.verticalCenter: parent.verticalCenter
-              text: choice.missing ? "Not installed" : choice.on ? "On" : "Off"
+              text: choice.on ? "On" : "Off"
               color: choice.on ? root.background : root.foreground
               font.family: root.fontFamily
               font.pixelSize: root.size(14)
