@@ -120,8 +120,7 @@ func trying() bool {
 }
 
 func settleTrial() {
-	word := stored(trialFile())
-	if word == "" || liveTrial(word) {
+	if _, err := os.Lstat(trialFile()); err != nil || liveTrial(stored(trialFile())) {
 		return
 	}
 	if before, err := os.ReadFile(beforeFile()); err == nil {
