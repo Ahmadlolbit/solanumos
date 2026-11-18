@@ -467,9 +467,9 @@ Rectangle {
         }
 
         Text {
-          objectName: "untilBoot"
+          objectName: "notKept"
           visible: !memory.item
-          text: "Only until the next boot"
+          text: "Only until you log in"
           color: root.muted
           font.family: root.fontFamily
           font.pixelSize: root.size(14)
