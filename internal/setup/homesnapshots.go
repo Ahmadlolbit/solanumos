@@ -54,6 +54,11 @@ func (context *Context) keptOutOfHome() []string {
 	return folders
 }
 
+func keptIn(log *runlog.Log, rel string) error {
+	fmt.Fprintf(log, "~/%s already holds files, so it stays in the snapshots of /home: making it a subvolume of its own would move them, and that isn't done under a running desktop\n", rel)
+	return nil
+}
+
 func (context *Context) keepOut(log *runlog.Log, rel string) error {
 	person := context.Person
 	path := person.Path(rel)
@@ -61,11 +66,10 @@ func (context *Context) keepOut(log *runlog.Log, rel string) error {
 	case isSubvolume(path):
 		return nil
 	case fsutil.IsLink(path) || !empty(path):
-		fmt.Fprintf(log, "~/%s already holds files, so it stays in the snapshots of /home: making it a subvolume of its own would move them, and that isn't done under a running desktop\n", rel)
-		return nil
+		return keptIn(log, rel)
 	case fsutil.Exists(path):
-		if err := person.Run(log, "rmdir", path); err != nil {
-			return err
+		if person.Run(log, "rmdir", path) != nil {
+			return keptIn(log, rel)
 		}
 	}
 	if err := person.Run(log, "mkdir", "-p", filepath.Dir(path)); err != nil {
