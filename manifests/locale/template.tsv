@@ -495,6 +495,7 @@ The newest kernel is running (or starts after a reboot)
 The next theme every morning at 6; Super+Ctrl+T still changes it during the day	
 The package picker is installed	
 The quiet system checks are scheduled	
+The recovery key couldn't be made: %s. Make one after the first start: sudo solanum recovery-key new	
 The same once more	
 The screen reader is installed	
 The screen recorder is installed	

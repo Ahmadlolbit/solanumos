@@ -2,7 +2,6 @@ package osinstall
 
 import (
 	"errors"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -13,7 +12,6 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/disks"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
-	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/step"
@@ -62,36 +60,21 @@ func Grouped(steps []disks.Step) [][]disks.Step {
 	return groups
 }
 
-func (work *install) commands(group []disks.Step, key *string) step.Work {
+func (work *install) commands(group []disks.Step) step.Work {
 	return func(log *runlog.Log) error {
 		for _, each := range group {
-			if err := work.command(log, each, key); err != nil {
+			var err error
+			if each.Secret {
+				err = run.Supply(run.Minute, log, work.answers.Password, each.Args[0], each.Args[1:]...)
+			} else {
+				err = run.Logged(log, each.Args[0], each.Args[1:]...)
+			}
+			if err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-}
-
-func (work *install) command(log *runlog.Log, each disks.Step, key *string) error {
-	switch {
-	case luks.MakesKey(each.Args):
-		return work.makeKey(log, key)
-	case each.Secret:
-		return run.Supply(run.Minute, log, work.answers.Password, each.Args[0], each.Args[1:]...)
-	}
-	return run.Logged(log, each.Args[0], each.Args[1:]...)
-}
-
-func (work *install) makeKey(log *runlog.Log, key *string) error {
-	made, messages, err := luks.Make(work.plan.RootDevice(), work.answers.Password)
-	io.WriteString(log, messages)
-	if err != nil {
-		return err
-	}
-	*key = made
-	log.Line("info", "the recovery key is made: the installer shows it once at the end, and no log keeps it")
-	return nil
 }
 
 func (work *install) clean(log *runlog.Log) error {

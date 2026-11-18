@@ -2,7 +2,9 @@ package osinstall
 
 import (
 	"errors"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -11,8 +13,51 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/step"
+	"github.com/Ahmadlolbit/solanumos/internal/ui"
 	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
+
+type handed struct {
+	key string
+	why string
+}
+
+func KeyReady(answers Answers) error {
+	if _, err := exec.LookPath(luks.Enroller); answers.Key && err != nil {
+		return errors.New("systemd-cryptenroll isn't on this live system, so the recovery key can't be made, and nothing was erased: turn Recovery key off on the disk password page, or start from a stick that has systemd-cryptsetup")
+	}
+	return nil
+}
+
+func (work *install) makeKey(log *runlog.Log) handed {
+	key, messages, err := luks.Make(work.plan.RootDevice(), work.answers.Password)
+	io.WriteString(log, messages)
+	if err != nil {
+		log.Line("warn", "no recovery key, and the install goes on: "+err.Error())
+		return handed{why: err.Error()}
+	}
+	log.Line("info", "the recovery key is made: the installer shows it once at the end, and no log keeps it")
+	return handed{key: key}
+}
+
+func (work *install) keyStep(runner *step.Runner, title string) handed {
+	if runner.Ended() {
+		return handed{}
+	}
+	runner.Log.Line("info", "step: "+title)
+	ui.Busy(words.T(title))
+	made := work.makeKey(runner.Log)
+	ui.Done()
+	if made.why == "" {
+		ui.OK(words.T(title))
+		return made
+	}
+	ui.Warn(words.T(title))
+	ui.Note(made.why)
+	return made
+}
 
 func keyMount() string {
 	return env.Or("SOLANUM_KEY_MOUNT", "/run/solanum-key")

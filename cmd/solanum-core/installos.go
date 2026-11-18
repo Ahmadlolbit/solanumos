@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
@@ -34,6 +35,18 @@ func installOSArgs() (string, bool, bool) {
 	return answers, streamed, answers != ""
 }
 
+func readyAnswers(path string) (osinstall.Answers, error) {
+	chosen, err := osinstall.Read(path)
+	os.Remove(path)
+	if err == nil {
+		err = osinstall.Ready()
+	}
+	if err == nil {
+		err = osinstall.KeyReady(chosen)
+	}
+	return chosen, err
+}
+
 func installOSCommand() int {
 	answers, streamed, ok := installOSArgs()
 	if !ok {
@@ -60,11 +73,7 @@ func installOSCommand() int {
 	if streamed {
 		log.Mirror(ui.Mirror)
 	}
-	chosen, err := osinstall.Read(answers)
-	os.Remove(answers)
-	if err == nil {
-		err = osinstall.Ready()
-	}
+	chosen, err := readyAnswers(answers)
 	if err != nil {
 		return fail("%v", err)
 	}
@@ -73,19 +82,22 @@ func installOSCommand() int {
 		return fail("%v", err)
 	}
 	runner := step.New(log, "install", "halt")
-	key := osinstall.Steps(runner, chosen, plan)
+	key, why := osinstall.Steps(runner, chosen, plan)
 	ui.Rule(events.SummaryTitle)
 	if code := runner.ExitCode(); code != 0 {
 		ui.Print(words.T("The install stopped at the step that failed, and nothing after it ran.") + "\n")
 		ui.Print(words.T("Its log") + ": " + log.Path() + "\n")
 		return code
 	}
-	return handOver(key)
+	return handOver(key, why)
 }
 
-func handOver(key string) int {
+func handOver(key, why string) int {
 	ui.Print(words.T("Solanum is installed. Restart, take the USB stick out, and type your disk password.") + "\n")
 	ui.Print(words.T("The first start finishes the setup before the login screen, which takes a few minutes.") + "\n")
+	if why != "" {
+		ui.Print(fmt.Sprintf(words.T("The recovery key couldn't be made: %s. Make one after the first start: sudo solanum recovery-key new"), why) + "\n")
+	}
 	if key == "" || ui.HandOver(key) {
 		return 0
 	}
