@@ -108,7 +108,7 @@ FocusScope {
       grid: [[["Left", "Right"], "themes"], ["Enter", "apply"]],
       maker: focused && focused.open ? [[["Left", "Right"], "mode"], ["Enter", "type"]] : [["Enter", "open"]],
       pictures: [[["Left", "Right"], "pictures"], ["Enter", "show"], ["Delete", "to the Trash"]],
-      screens: Arrangement.trying ? [[["Left", "Right"], "buttons"], ["Enter", "press"]] : [[["Left", "Right"], "screens"], ["Enter", "apply"]],
+      screens: Arrangement.trying ? [[["Left", "Right"], "buttons"], ["Enter", "press"]] : [[["Left", "Right"], "screens"], [["Shift", "Arrows"], "move it"], ["Enter", "apply"]],
       about: [[["Left", "Right"], "buttons"], ["Enter", "press"]]
     }[item.kind] || [];
     return [[["Up", "Down"], "move"]].concat(own, tail);
@@ -228,6 +228,8 @@ FocusScope {
       return fieldKey(event);
     if (event.key === Qt.Key_Slash || event.key === Qt.Key_L && event.modifiers & Qt.ControlModifier)
       return seek();
+    if (event.modifiers & Qt.ShiftModifier && zone === "rows" && focused && focused.nudge)
+      return focused.nudge(event.key);
     const keys = {
       [Qt.Key_Escape]: () => leave(),
       [Qt.Key_Tab]: () => flip(),

@@ -269,6 +269,19 @@ Singleton {
     };
   }
 
+  function hop(at, dx, dy) {
+    const others = plan.filter((item, index) => index !== at && shown(item)).map(box);
+    if (!others.length || !plan[at] || !shown(plan[at]))
+      return false;
+    const mine = box(plan[at]);
+    const left = Math.min(...others.map(other => other.x));
+    const top = Math.min(...others.map(other => other.y));
+    const x = dx < 0 ? left - mine.w : dx > 0 ? Math.max(...others.map(other => other.x + other.w)) : left;
+    const y = dy < 0 ? top - mine.h : dy > 0 ? Math.max(...others.map(other => other.y + other.h)) : top;
+    drop(at, x, y, 0);
+    return true;
+  }
+
   function drop(at, x, y, reach) {
     const spot = snapped(at, x, y, reach);
     const next = JSON.parse(JSON.stringify(plan));

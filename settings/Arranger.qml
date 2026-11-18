@@ -18,6 +18,16 @@ Tile {
     return Arrangement.apply();
   }
 
+  function nudge(key) {
+    const way = {
+      [Qt.Key_Left]: [-1, 0],
+      [Qt.Key_Right]: [1, 0],
+      [Qt.Key_Up]: [0, -1],
+      [Qt.Key_Down]: [0, 1]
+    }[key];
+    return !trying && !!way && Arrangement.hop(Arrangement.picked, way[0], way[1]);
+  }
+
   function step(direction) {
     if (trying) {
       if (at + direction < 0 || at + direction > 1)
@@ -33,7 +43,7 @@ Tile {
   }
 
   title: "Screens"
-  hint: trying ? "" : current ? "Drag to arrange · Left and Right pick a screen · Enter applies" : Arrangement.saved ? "Saved for these screens" : "Not saved for these screens yet"
+  hint: trying ? "" : current ? "Drag, or Shift and the arrows, to move · Left and Right pick a screen · Enter applies" : Arrangement.saved ? "Saved for these screens" : "Not saved for these screens yet"
   onTryingChanged: at = 0
 
   Column {
