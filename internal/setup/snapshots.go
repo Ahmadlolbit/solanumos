@@ -116,14 +116,18 @@ func snapperConfigs() string {
 }
 
 func snapperRegister() error {
+	return snapperRegisterAs("root")
+}
+
+func snapperRegisterAs(name string) error {
 	configs := snapperConfigs()
-	if slices.Contains(strings.Fields(configs), "root") {
+	if slices.Contains(strings.Fields(configs), name) {
 		return nil
 	}
 	if configs != "" {
 		configs += " "
 	}
-	return files.ConfSet(snapperDefaults(), "SNAPPER_CONFIGS", `"`+configs+`root"`)
+	return files.ConfSet(snapperDefaults(), "SNAPPER_CONFIGS", `"`+configs+name+`"`)
 }
 
 func (context *Context) snapperSettings() [][2]string {
@@ -435,6 +439,7 @@ func snapshotSteps(context *Context) {
 	context.Run.Step("Install grub-btrfs", menu.install)
 	context.Run.Step("Show snapshots in the boot menu", menu.enable)
 	context.Run.Step("Install snapper-rollback", context.rollbackInstall)
+	context.homeSnapshotSteps()
 }
 
 func snapshotChecks(context *Context) {
@@ -446,4 +451,5 @@ func snapshotChecks(context *Context) {
 	context.Run.Check("snapper-rollback works", rollbackReady)
 	context.Run.Check("Snapper is set up for /", snapperReady)
 	context.Run.Check("Snapshot timers are running", timersActive)
+	context.homeSnapshotChecks()
 }

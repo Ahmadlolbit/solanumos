@@ -73,6 +73,9 @@ var table = []Option{
 	{"SNAPSHOT_DAILY", "Daily snapshots to keep", Number, "7", "0-100", "storage", "How many daily snapshots to keep", snapshotsOn},
 	{"SNAPSHOT_WEEKLY", "Weekly snapshots to keep", Number, "4", "0-100", "storage", "How many weekly snapshots to keep", snapshotsOn},
 	{"SNAPSHOT_MONTHLY", "Monthly snapshots to keep", Number, "1", "0-100", "storage", "How many monthly snapshots to keep", snapshotsOn},
+	{"HOME_SNAPSHOTS", "Snapshots of /home", YesNo, "yes", "", "storage", "A snapshot of /home every hour, to get back a file you deleted or changed; ~/.cache and Steam's games stay out, and a file you delete stays in them until they age out", snapshotsOn},
+	{"HOME_SNAPSHOT_HOURLY", "Hourly snapshots of /home to keep", Number, "24", "0-100", "storage", "How many hourly snapshots of /home to keep", homeSnapshotsOn},
+	{"HOME_SNAPSHOT_DAILY", "Daily snapshots of /home to keep", Number, "7", "0-100", "storage", "How many daily snapshots of /home to keep", homeSnapshotsOn},
 	{"GREETER", "Login screen runs on", Choice, "x11", "x11 wayland", "system", "X11 is the most reliable for the login screen; Wayland is newer", nil},
 	{"SESSION_RECOVERY", "Recovery screen", Choice, "menu", "menu off", "system", "When the desktop stops before it finishes starting, the console shows what happened and the ways out; off goes back to the login screen", nil},
 	{"SHELL_PROMPT", "Prompt", Choice, "starship", "starship powerlevel10k", "shell", "How the terminal prompt looks: Starship or Powerlevel10k", nil},
@@ -160,6 +163,10 @@ func swapfileOn(facts Facts) bool {
 
 func snapshotsOn(facts Facts) bool {
 	return facts.Value("SNAPSHOTS") == "yes"
+}
+
+func homeSnapshotsOn(facts Facts) bool {
+	return snapshotsOn(facts) && facts.Value("HOME_SNAPSHOTS") == "yes"
 }
 
 func teamsWanted(facts Facts) bool {

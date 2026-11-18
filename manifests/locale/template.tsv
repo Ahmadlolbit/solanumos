@@ -21,6 +21,7 @@ A row can't take a tab or a line break, so the paste isn't taken
 A second way to open the disk when its password is forgotten, shown once when the install ends; Space turns it off	
 A short chime when you log in, lower for dark themes and higher for light ones; a sound of your own in ~/.config/solanum/startup.ogg plays instead	
 A short tip under the prompt in every new terminal	
+A snapshot of /home every hour, to get back a file you deleted or changed; ~/.cache and Steam's games stay out, and a file you delete stays in them until they age out	
 A text file with the key, on a USB stick other than the installer's	
 A theme is applied	
 A time zone takes only letters, digits, slashes and _ + -	
@@ -108,6 +109,7 @@ Crash notices
 Crash notices are on	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
+Daily snapshots of /home to keep	
 Daily snapshots to keep	
 Dark from	
 Dark theme	
@@ -171,9 +173,12 @@ Glass mode
 Hand the network over to NetworkManager	
 Hand the rest of the setup to the first start	
 Hibernate	
+Hourly snapshots of /home to keep	
 How full the battery is, in a corner; nothing on a computer without one	
 How it shows on the network: small letters, digits and -	
+How many daily snapshots of /home to keep	
 How many daily snapshots to keep	
+How many hourly snapshots of /home to keep	
 How many monthly snapshots to keep	
 How many weekly snapshots to keep	
 How readily memory moves to swap; a high value suits zram	
@@ -270,6 +275,7 @@ Keep crash dumps small
 Keep the SSH server off	
 Keep the firmware list fresh	
 Keep these choices without installing	
+Keep ~/.cache and Steam's games out of the snapshots of /home	
 Kept kernel	
 Kernel	
 Kernel and drivers	
@@ -427,6 +433,8 @@ Snapshot timers are running
 Snapshots and rollback	
 Snapshots appear in the boot menu	
 Snapshots before changes, so you can roll back from the boot menu	
+Snapshots of /home	
+Snapshots of /home are set up	
 Software is installed	
 Solanum is installed. Restart, take the USB stick out, and type your disk password.	
 Solanum recovery key	
@@ -443,6 +451,7 @@ Steam is installed
 Stop chezmoi pushing your dotfiles on its own	
 Stop hibernating	
 Stop taking new snapshots	
+Stop taking snapshots of /home	
 Stop the setup?	
 Stopping: what's running has to end first	
 Storage	
@@ -458,6 +467,7 @@ System
 System preflight	
 System snapshots	
 Tab, Shift+Tab      Move between rows	
+Take a snapshot of /home every hour	
 Take out the live system's parts	
 Take the first snapshot	
 Take the recovery key away? It stops opening the disk.	
