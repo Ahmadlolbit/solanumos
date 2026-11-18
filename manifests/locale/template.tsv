@@ -92,6 +92,7 @@ Could not start the setup: %s
 Could not write the answers: %s	
 Could not write the settings: %s	
 Crash dumps are kept small	
+Crash notices are on	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
 Daily snapshots to keep	
@@ -430,6 +431,7 @@ Take your finger out of sudo
 Tap the touchpad to click instead of pressing it down	
 Tap to click	
 Teams for Linux from its apt repository or from the Snap Store	
+Tell you when a program crashes	
 Terminal and shell	
 Testing mode	
 Text size	

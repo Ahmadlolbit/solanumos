@@ -9,6 +9,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-background"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-care"
+	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-crashes"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-follow-theme"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-installer"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-pick"
@@ -32,6 +33,7 @@ var tools = map[string]func(){
 	"solanum":                 wizard.Main,
 	"solanum-background":      background.Main,
 	"solanum-care":            care.Main,
+	"solanum-crashes":         notice.Main,
 	"solanum-follow-theme":    followtheme.Main,
 	"solanum-installer":       installer.Main,
 	"solanum-pick":            pick.Main,
