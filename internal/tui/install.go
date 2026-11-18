@@ -173,9 +173,6 @@ func (work *installer) begin() tea.Cmd {
 		return nil
 	}
 	work.path = settingsFile()
-	if work.flow.system != nil {
-		work.flow.settings.Set(reminderKey, yesOrNo(work.flow.system.answers.Key))
-	}
 	if err := work.flow.settings.Save(work.path); err != nil {
 		work.flow.notice = "Could not write the settings: " + err.Error()
 		return nil
