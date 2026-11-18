@@ -16,7 +16,7 @@ import (
 var Keys = []string{"accent", "font", "ui_font", "text", "glass", "corners", "style", "apps", "auto", "light", "dark", "light_at", "dark_at", "location",
 	"rotate", "workspaces", "video", "video_battery", "weather", "weather_units", "quiet", "quiet_from", "quiet_to",
 	"night", "night_from", "night_to", "night_warmth", "power", "power_ac", "power_battery",
-	"trackpoint_speed", "trackpoint_accel", "trackpoint_scroll", "zen", "presentation", "screens_wait", "daily", "reader", "lock_media", "lock_battery", "editors", "chime", "day_wallpaper", "wallpaper_folder", "logo", "wallpapers"}
+	"trackpoint_speed", "trackpoint_accel", "trackpoint_scroll", "zen", "presentation", "screens_wait", "daily", "reader", "lock_media", "lock_battery", "editors", "chime", "day_wallpaper", "wallpaper_folder", "logo", "wallpapers", "animations", "filter", "zoom_follow"}
 
 var defaults = map[string]string{
 	"accent": "theme", "font": "JetBrainsMono Nerd Font", "ui_font": "default", "text": "normal", "glass": "no", "corners": "no", "style": "sharp", "apps": "follow", "auto": "off",

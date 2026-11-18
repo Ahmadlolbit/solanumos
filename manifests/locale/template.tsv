@@ -647,8 +647,8 @@ Which USB stick?
 Wi-Fi and wired connections move to NetworkManager, so the bar manages them	
 Window style	
 Windows	
-Windows and workspaces animate as they open, close and move	
 Windows stays. Solanum goes in the free space, and the boot menu offers both for five seconds.	
+Windows, workspaces, popups and apps move as they open and close; turning them off reduces motion	
 Without one, a forgotten disk password means nothing on the disk can be read again.	
 Words above it	
 Words above the disk password	

@@ -90,7 +90,7 @@ var table = []Option{
 	{"DISPLAY_SCALE", "Display scale", Choice, "auto", "auto 1 1.25 1.5 1.75 2", "input", "Size of everything on screen; auto picks it from the screen's density", nil},
 	{"NATURAL_SCROLL", "Natural scrolling", YesNo, "no", "", "input", "Content follows your fingers on the touchpad, like on a phone", nil},
 	{"TAP_TO_CLICK", "Tap to click", YesNo, "yes", "", "input", "Tap the touchpad to click instead of pressing it down", nil},
-	{"ANIMATIONS", "Animations", YesNo, "yes", "", "look", "Windows and workspaces animate as they open, close and move", nil},
+	{"ANIMATIONS", "Animations", YesNo, "yes", "", "look", "Windows, workspaces, popups and apps move as they open and close; turning them off reduces motion", nil},
 	{"WINDOW_STYLE", "Window style", Choice, "sharp", "sharp soft", "look", "Sharp corners with thin gaps, or soft rounded corners", nil},
 	{"TEXT_SIZE", "Text size", Choice, "normal", "normal large larger", "look", "Larger text in the bar, terminals, notifications, the lock screen and apps: large is a quarter bigger, larger half", nil},
 	{"SCREEN_READER", "Screen reader", YesNo, "no", "", "look", "Orca reads apps aloud; Super+Alt+R starts or stops it. On Hyprland it can't read the bar, the menu or the launcher, and its own key commands don't work", nil},

@@ -261,6 +261,108 @@
       "accessibility"
     ]
   },
+  "toggle.zoom": {
+    "glyph": "\uf00e",
+    "label": "Zoom",
+    "action": "solanum-look zoom toggle",
+    "state": "test \"$(solanum-look zoom)\" != 1",
+    "keywords": [
+      "zoom",
+      "magnifier",
+      "magnify",
+      "accessibility"
+    ]
+  },
+  "toggle.filter": {
+    "glyph": "\uf042",
+    "label": "Colour filter"
+  },
+  "toggle.filter.none": {
+    "glyph": "\uf042",
+    "label": "None",
+    "action": "solanum-look filter none",
+    "state": "test \"$(solanum-look filter)\" = none",
+    "keywords": [
+      "colour filter",
+      "color filter"
+    ]
+  },
+  "toggle.filter.greyscale": {
+    "glyph": "\uf042",
+    "label": "Greyscale",
+    "action": "solanum-look filter greyscale",
+    "state": "test \"$(solanum-look filter)\" = greyscale",
+    "keywords": [
+      "colour filter",
+      "color filter",
+      "greyscale",
+      "grayscale"
+    ]
+  },
+  "toggle.filter.deuteranopia": {
+    "glyph": "\uf042",
+    "label": "Green weak (deuteranopia)",
+    "action": "solanum-look filter deuteranopia",
+    "state": "test \"$(solanum-look filter)\" = deuteranopia",
+    "keywords": [
+      "colour filter",
+      "color filter",
+      "colour blindness",
+      "color blindness",
+      "deuteranopia"
+    ]
+  },
+  "toggle.filter.protanopia": {
+    "glyph": "\uf042",
+    "label": "Red weak (protanopia)",
+    "action": "solanum-look filter protanopia",
+    "state": "test \"$(solanum-look filter)\" = protanopia",
+    "keywords": [
+      "colour filter",
+      "color filter",
+      "colour blindness",
+      "color blindness",
+      "protanopia"
+    ]
+  },
+  "toggle.filter.tritanopia": {
+    "glyph": "\uf042",
+    "label": "Blue weak (tritanopia)",
+    "action": "solanum-look filter tritanopia",
+    "state": "test \"$(solanum-look filter)\" = tritanopia",
+    "keywords": [
+      "colour filter",
+      "color filter",
+      "colour blindness",
+      "color blindness",
+      "tritanopia"
+    ]
+  },
+  "toggle.filter.invert": {
+    "glyph": "\uf042",
+    "label": "Inverted colours",
+    "action": "solanum-look filter invert",
+    "state": "test \"$(solanum-look filter)\" = invert",
+    "keywords": [
+      "colour filter",
+      "color filter",
+      "invert",
+      "inverted",
+      "negative"
+    ]
+  },
+  "toggle.animations": {
+    "glyph": "\uf04c",
+    "label": "Reduced motion",
+    "action": "solanum-look animations toggle",
+    "state": "test \"$(solanum-look animations)\" = no",
+    "keywords": [
+      "animations",
+      "motion",
+      "reduce motion",
+      "accessibility"
+    ]
+  },
   "toggle.weather": {
     "glyph": "\udb81\udd95",
     "label": "Weather",

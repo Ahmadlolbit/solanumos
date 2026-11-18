@@ -18,6 +18,7 @@ type yours struct {
 var (
 	accents  = "theme:The theme's own|red:Red|orange:Orange|yellow:Yellow|green:Green|cyan:Cyan|blue:Blue|magenta:Magenta"
 	profiles = "power-saver:Power saver|balanced:Balanced|performance:Performance"
+	filters  = "none:None|greyscale:Greyscale|deuteranopia:Green weak (deuteranopia)|protanopia:Red weak (protanopia)|tritanopia:Blue weak (tritanopia)|invert:Inverted colours"
 	yourRows = []yours{
 		{"accent", "Accent colour", "themes", "Colours and fonts", Pick, accents, "The theme's own accent, or another of its colours, for borders and highlights", nil},
 		{"font", "Font", "themes", "Colours and fonts", Pick, "", "The terminal's, the bar's and the lock screen's font", nil},
@@ -63,7 +64,10 @@ var (
 		{"quiet_from", "Quiet from", "notifications", "Quiet hours", Time, "", "When notifications go quiet", is("quiet", "yes")},
 		{"quiet_to", "Quiet until", "notifications", "Quiet hours", Time, "", "When notifications come back", is("quiet", "yes")},
 		{"location", "Location", "time", "Location", Text, "", "zone for your time zone's main city, or LATITUDE,LONGITUDE; the sun and the weather use it", nil},
-		{"text", "Text size", "accessibility", "Text size", Pick, "normal:Normal|large:Large|larger:Larger", "Text everywhere a quarter (large) or half (larger) bigger", nil},
+		{"text", "Text size", "accessibility", "Seeing", Pick, "normal:Normal|large:Large|larger:Larger", "Text everywhere a quarter (large) or half (larger) bigger", nil},
+		{"zoom_follow", "Zoom follows the pointer", "accessibility", "Seeing", Pick, "edges:At the screen's edges|centre:In the middle", "Super and plus or minus zoom in and out, and Super+Alt+0 goes back; the zoomed view moves when the pointer reaches its edge, or keeps the pointer in the middle", nil},
+		{"filter", "Colour filter", "accessibility", "Seeing", Pick, filters, "Colours to tell apart or to rest your eyes; screenshots and recordings show them too", nil},
+		{"animations", "Animations", "accessibility", "Motion", Toggle, "", "Windows, workspaces, popups and apps move as they open and close; off is reduced motion", nil},
 		{"reader", "Screen reader", "accessibility", "Screen reader", Toggle, "", "Orca reads apps aloud, now and at every login; it can't read the bar, the menu or the launcher", nil},
 	}
 )

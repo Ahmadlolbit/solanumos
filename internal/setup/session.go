@@ -90,7 +90,7 @@ func (context *Context) hyprlandOptions(*runlog.Log) error {
 	settings := context.Config
 	return context.Deploy.File("system/hypr/options.lua", "/etc/solanum/hypr/options.lua",
 		"NATURAL_SCROLL="+luaBool(settings.Get("NATURAL_SCROLL")), "TAP_TO_CLICK="+luaBool(settings.Get("TAP_TO_CLICK")),
-		"ANIMATIONS="+luaBool(settings.Get("ANIMATIONS")), "SCALE="+luaScale(settings.Get("DISPLAY_SCALE")),
+		"SCALE="+luaScale(settings.Get("DISPLAY_SCALE")),
 		"NVIDIA="+strconv.FormatBool(nvidiaDrivesDisplay(context.hardware(), settings.Get("GRAPHICS"))))
 }
 
