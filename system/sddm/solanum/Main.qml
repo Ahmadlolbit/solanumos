@@ -1,4 +1,3 @@
-import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
@@ -6,8 +5,8 @@ import QtQuick.Effects
 Rectangle {
   id: root
 
-  readonly property bool contrast: remembered.contrast
-  readonly property real textScale: remembered.larger ? 1.5 : 1
+  readonly property bool contrast: chosen.contrast
+  readonly property real textScale: chosen.larger ? 1.5 : 1
   readonly property color background: contrast ? "#000000" : config.background || "#1e1e2e"
   readonly property color foreground: contrast ? "#ffffff" : config.foreground || "#cdd6f4"
   readonly property color accent: contrast ? "#ffff00" : config.accent || "#89b4fa"
@@ -59,16 +58,26 @@ Rectangle {
     password.forceActiveFocus();
   }
 
-  Settings {
-    id: remembered
+  QtObject {
+    id: chosen
 
     property bool larger: false
     property bool contrast: false
     property bool keyboard: false
 
-    objectName: "remembered"
-    location: StandardPaths.writableLocation(StandardPaths.GenericConfigLocation) + "/solanum-login.conf"
-    category: "accessibility"
+    objectName: "chosen"
+  }
+
+  Loader {
+    id: memory
+
+    objectName: "memory"
+    source: "Remembered.qml"
+    onLoaded: {
+      chosen.larger = item.larger;
+      chosen.contrast = item.contrast;
+      chosen.keyboard = item.keyboard;
+    }
   }
 
   Shortcut {
@@ -347,7 +356,7 @@ Rectangle {
     anchors.bottom: parent.bottom
     anchors.bottomMargin: root.size(120)
     width: Math.min(parent.width - 64, parent.height * 1.1)
-    active: remembered.keyboard
+    active: chosen.keyboard
     source: "Keyboard.qml"
   }
 
@@ -394,7 +403,7 @@ Rectangle {
 
             required property var modelData
             required property int index
-            readonly property bool on: remembered[modelData[0]]
+            readonly property bool on: chosen[modelData[0]]
             readonly property bool missing: modelData[0] === "keyboard" && keys.status === Loader.Error
 
             objectName: modelData[0]
@@ -414,9 +423,12 @@ Rectangle {
 
             function press() {
               const name = modelData[0];
-              remembered[name] = !remembered[name];
-              remembered.setValue(name, remembered[name]);
-              remembered.sync();
+              chosen[name] = !chosen[name];
+              if (!memory.item)
+                return;
+              memory.item[name] = chosen[name];
+              memory.item.setValue(name, chosen[name]);
+              memory.item.sync();
             }
 
             Text {
