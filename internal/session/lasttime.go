@@ -26,27 +26,33 @@ func modified(path string) time.Time {
 	return info.ModTime()
 }
 
-func CameUpLastTime(home string, uid int) (string, bool) {
+func CameUpLastTime(home string, uid int) (string, time.Time, bool) {
 	path := filepath.Join(home, LastLog)
 	began, ended, up := logStart(path, uid), modified(path), modified(filepath.Join(home, GoodLogin))
 	if began.IsZero() || up.Before(began) || up.After(ended.Add(slack)) {
-		return "", false
+		return "", time.Time{}, false
 	}
-	return began.Format(time.DateTime), true
+	return began.Format(time.DateTime), up.Truncate(time.Second), true
 }
 
-func LastTime(person account.Account, limit time.Duration) Ending {
+func LastBound(home string, uid int) time.Time {
+	if _, since, up := CameUpLastTime(home, uid); up {
+		return since
+	}
+	if began := logStart(filepath.Join(home, LastLog), uid); !began.IsZero() {
+		return began.Add(-slack)
+	}
+	return time.Time{}
+}
+
+func LastTime(person account.Account, since time.Time, limit time.Duration) Ending {
 	var ending Ending
 	uid, err := strconv.Atoi(person.UID)
-	if err != nil || !filepath.IsAbs(person.Home) {
+	if err != nil || !filepath.IsAbs(person.Home) || since.IsZero() {
 		return ending
 	}
-	began := logStart(filepath.Join(person.Home, LastLog), uid)
-	if began.IsZero() {
-		return ending
-	}
-	ending.fromDump(person.UID, began.Add(-slack), limit)
-	ending.fromReport(person.Home, uid, began.Add(-slack))
+	ending.fromDump(person.UID, since, limit)
+	ending.fromReport(person.Home, uid, since)
 	return ending
 }
 

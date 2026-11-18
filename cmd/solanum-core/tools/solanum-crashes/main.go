@@ -29,8 +29,8 @@ collect). It says so at most once an hour for each program, and the next
 notice counts the crashes in between. Crash notices off, in Settings ›
 Notifications, stops them at once. A user service runs it.
 login says "The desktop stopped unexpectedly last time", once, when Hyprland
-crashed at the last login after it had come up; the desktop runs it as it
-starts. show prints the journal's last lines from the process PID, this boot,
+crashed at the last login after its desktop had run a minute; the desktop runs
+it as it starts. show prints the journal's last lines from the process PID, this boot,
 and what coredumpctl kept of its crash; show desktop prints Hyprland's last
 lines from the last login and what coredumpctl kept of its newest crash.
 `
@@ -111,8 +111,8 @@ func follow() int {
 func login() int {
 	person := me()
 	uid, _ := strconv.Atoi(person.UID)
-	key, up := session.CameUpLastTime(person.Home, uid)
-	if turnedOff() || !up || session.Told(person.Home) == key || !session.LastTime(person, run.Minute).Crashed || !notify.Ready(run.Minute) {
+	key, since, up := session.CameUpLastTime(person.Home, uid)
+	if turnedOff() || !up || session.Told(person.Home) == key || !session.LastTime(person, since, run.Minute).Crashed || !notify.Ready(run.Minute) {
 		return 0
 	}
 	if err := session.NoteTold(person.Home, key); err != nil {
@@ -145,7 +145,7 @@ func whatHappenedToTheDesktop() string {
 	uid, _ := strconv.Atoi(person.UID)
 	var text strings.Builder
 	text.WriteString(desktopStopped + ".\n\n")
-	for _, line := range session.LastTime(person, run.Minute).Lines {
+	for _, line := range session.LastTime(person, session.LastBound(person.Home, uid), run.Minute).Lines {
 		text.WriteString(line.From + ": " + line.Text + "\n")
 	}
 	info, failed := run.CaptureQuiet(run.Minute, "coredumpctl", "--no-pager", "-1", "info", "COREDUMP_UID="+person.UID, "COREDUMP_COMM="+desktop)
