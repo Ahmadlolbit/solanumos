@@ -404,6 +404,15 @@ func CaptureOnce(limit time.Duration, name string, args ...string) (string, erro
 	return output, err
 }
 
+func CaptureFed(limit time.Duration, input, name string, args ...string) (string, string, error) {
+	command, finish := bounded(limit, nil, name, args)
+	command.Stdin = strings.NewReader(input)
+	messages := &strings.Builder{}
+	command.Stderr = messages
+	output, err := collect(command)
+	return output, messages.String(), finish(err)
+}
+
 func CaptureInEnglish(limit time.Duration, name string, args ...string) (string, error) {
 	return captureQuiet(limit, english, name, args)
 }

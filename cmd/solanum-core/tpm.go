@@ -64,22 +64,42 @@ func joinedLog() *runlog.Log {
 	return log
 }
 
-func findLuksRoot() (luksRoot, error) {
+type rootWords struct {
+	plain string
+	many  string
+	old   string
+}
+
+var tpmRoot = rootWords{
+	"the root isn't on an encrypted disk, so there's nothing for the TPM to unlock",
+	"the root is on more than one disk, and TPM unlocking handles a root on one",
+	"%s is LUKS1, which can't hold a TPM key",
+}
+
+func rootLuksDevices() []tpm.Device {
 	source, _, _ := strings.Cut(detect.RootSource(), "[")
 	listing, _ := run.CaptureQuiet(run.Quick, "lsblk", "-lnps", "-o", "NAME,TYPE", source)
+	return tpm.LuksDevices(listing)
+}
+
+func luksRootFor(words rootWords) (luksRoot, error) {
+	devices := rootLuksDevices()
 	pool, _ := run.CaptureQuiet(run.Quick, "btrfs", "filesystem", "show", "/")
-	devices := tpm.LuksDevices(listing)
 	switch {
 	case len(devices) == 0:
-		return luksRoot{}, errors.New("the root isn't on an encrypted disk, so there's nothing for the TPM to unlock")
+		return luksRoot{}, errors.New(words.plain)
 	case len(devices) > 1 || tpm.PoolDevices(pool) > 1:
-		return luksRoot{}, errors.New("the root is on more than one disk, and TPM unlocking handles a root on one")
+		return luksRoot{}, errors.New(words.many)
 	}
 	root := luksRoot{devices[0].Mapper, devices[0].Device}
 	if run.Quiet(run.Quick, "cryptsetup", "isLuks", "--type", "luks2", root.device) != 0 {
-		return luksRoot{}, fmt.Errorf("%s is LUKS1, which can't hold a TPM key", root.device)
+		return luksRoot{}, fmt.Errorf(words.old, root.device)
 	}
 	return root, nil
+}
+
+func findLuksRoot() (luksRoot, error) {
+	return luksRootFor(tpmRoot)
 }
 
 func tpmPresent() bool {
