@@ -19,15 +19,22 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/look"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/screens"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
-	tryLimit    = 120
-	tryPoll     = 100 * time.Millisecond
-	revertWord  = "revert"
-	beingTried  = "a layout is being tried: keep it with solanum-look screens confirm, or put the old one back with solanum-look screens revert"
-	nothingTold = "no layout is being tried"
+	tryLimit   = 120
+	tryPoll    = 100 * time.Millisecond
+	revertWord = "revert"
 )
+
+func beingTried() {
+	fmt.Fprintln(os.Stderr, words.T("a layout is being tried: keep it with solanum-look screens confirm, or put the old one back with solanum-look screens revert"))
+}
+
+func nothingTried() {
+	fmt.Fprintln(os.Stderr, words.T("no layout is being tried"))
+}
 
 func screensFile() string {
 	return filepath.Join(env.ConfigHome(), "solanum", "screens.conf")
@@ -50,7 +57,7 @@ func monitorsNow() ([]screens.Monitor, bool) {
 	}
 	monitors, err := screens.ParseMonitors(output)
 	if err == nil && len(monitors) == 0 {
-		err = errors.New("hyprctl lists no screens")
+		err = errors.New(words.T("hyprctl lists no screens"))
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -119,7 +126,7 @@ func settleTrial() {
 	}
 	if before, err := os.ReadFile(beforeFile()); err == nil {
 		writeLayouts(string(before))
-		fmt.Fprintln(os.Stderr, "put back the layout from before a trial that never ended")
+		fmt.Fprintln(os.Stderr, words.T("put back the layout from before a trial that never ended"))
 	}
 	remove(beforeFile())
 	remove(trialFile())
@@ -131,7 +138,7 @@ func startTrial(before string) bool {
 		return false
 	}
 	if err := atomic.Stage(trialFile(), []byte(strconv.Itoa(os.Getpid())+"\n"), 0o600); err != nil {
-		fmt.Fprintln(os.Stderr, beingTried)
+		beingTried()
 		remove(beforeFile())
 		return false
 	}
@@ -161,7 +168,7 @@ func trySeconds(args []string) (int, []string, bool) {
 	}
 	seconds, err := strconv.Atoi(arg(args, 1))
 	if err != nil || seconds < 1 || seconds > tryLimit {
-		fmt.Fprintf(os.Stderr, "--try takes seconds from 1 to %d\n", tryLimit)
+		fmt.Fprintf(os.Stderr, words.T("--try takes seconds from 1 to %d")+"\n", tryLimit)
 		return 0, nil, false
 	}
 	return seconds, args[2:], true
@@ -173,7 +180,7 @@ func screensSave(args []string) int {
 		return 2
 	}
 	if trying() {
-		fmt.Fprintln(os.Stderr, beingTried)
+		beingTried()
 		return 1
 	}
 	live, monitors, saved, before, ok := layoutNow()
@@ -196,7 +203,7 @@ func screensSave(args []string) int {
 	if seconds > 0 {
 		return tryLayout(seconds, before)
 	}
-	fmt.Println("Saved the layout for these screens.")
+	fmt.Println(words.T("Saved the layout for these screens."))
 	return 0
 }
 
@@ -212,16 +219,16 @@ func mark(path, value string) bool {
 }
 
 func tryLayout(seconds int, before string) int {
-	fmt.Printf("Keep this layout? Run solanum-look screens confirm within %d seconds, or the old one comes back.\n", seconds)
+	fmt.Printf(words.T("Keep this layout? Run solanum-look screens confirm within %d seconds, or the old one comes back.")+"\n", seconds)
 	if answered(time.Duration(seconds) * time.Second) {
 		endTrial()
-		fmt.Println("Kept the new layout.")
+		fmt.Println(words.T("Kept the new layout."))
 		return 0
 	}
 	writeLayouts(before)
 	endTrial()
 	reloadScreens()
-	fmt.Println("Put the old layout back.")
+	fmt.Println(words.T("Put the old layout back."))
 	return 3
 }
 
@@ -248,7 +255,7 @@ func answered(limit time.Duration) bool {
 
 func screensConfirm([]string) int {
 	if !trying() {
-		fmt.Fprintln(os.Stderr, nothingTold)
+		nothingTried()
 		return 1
 	}
 	remove(trialFile())
@@ -257,7 +264,7 @@ func screensConfirm([]string) int {
 
 func screensRevert([]string) int {
 	if !trying() {
-		fmt.Fprintln(os.Stderr, nothingTold)
+		nothingTried()
 		return 1
 	}
 	if !mark(trialFile(), stored(trialFile())+" "+revertWord+"\n") {
@@ -273,16 +280,16 @@ func screensApply([]string) int {
 	}
 	reloadScreens()
 	if screens.Find(saved, live) < 0 {
-		fmt.Println("No layout is saved for these screens, so they have the default one.")
+		fmt.Println(words.T("No layout is saved for these screens, so they have the default one."))
 		return 0
 	}
-	fmt.Println("Put back the layout saved for these screens.")
+	fmt.Println(words.T("Put back the layout saved for these screens."))
 	return 0
 }
 
 func screensForget([]string) int {
 	if trying() {
-		fmt.Fprintln(os.Stderr, beingTried)
+		beingTried()
 		return 1
 	}
 	live, _, saved, _, ok := layoutNow()
@@ -291,14 +298,14 @@ func screensForget([]string) int {
 	}
 	kept, found := screens.Forget(saved, live)
 	if !found {
-		fmt.Println("No layout is saved for these screens.")
+		fmt.Println(words.T("No layout is saved for these screens."))
 		return 0
 	}
 	if !writeLayouts(screens.Format(kept)) {
 		return 1
 	}
 	reloadScreens()
-	fmt.Println("Forgot the layout for these screens; they have the default one again.")
+	fmt.Println(words.T("Forgot the layout for these screens; they have the default one again."))
 	return 0
 }
 
@@ -308,12 +315,12 @@ func screensList([]string) int {
 		return 1
 	}
 	if screens.Find(saved, live) < 0 {
-		fmt.Printf("%s (these screens, no layout saved)\n", live.Key)
+		fmt.Printf(words.T("%s (these screens, no layout saved)")+"\n", live.Key)
 	}
 	for _, profile := range saved {
 		note := ""
 		if screens.SameScreens(profile, live) {
-			note = " (these screens)"
+			note = " (" + words.T("these screens") + ")"
 		}
 		fmt.Printf("%s%s\n", profile.Key, note)
 		for _, screen := range profile.Screens {
@@ -344,7 +351,7 @@ func screensWait(args []string) int {
 	}
 	seconds, ok := look.WholeNumber(value)
 	if !ok || seconds < 5 || seconds > tryLimit {
-		fmt.Fprintf(os.Stderr, "screens-wait takes seconds from 5 to %d\n", tryLimit)
+		fmt.Fprintf(os.Stderr, words.T("screens-wait takes seconds from 5 to %d")+"\n", tryLimit)
 		return 2
 	}
 	return putThen("screens_wait", strconv.FormatInt(seconds, 10), nothing)()
