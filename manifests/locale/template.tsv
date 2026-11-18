@@ -285,6 +285,7 @@ Make Helium the default browser
 Make the %s subvolume	
 Make the btrfs filesystem	
 Make the partitions	
+Make the recovery key	
 Make your account	
 MangoHud reaches Steam	
 Monthly snapshots to keep	
@@ -521,6 +522,7 @@ Turn on the snapshot timers
 Turn the swapfile off and remove it	
 Turn the swapfile on	
 Type a number from %d to %d, such as %s	
+Type it in small letters, with its dashes, wherever the disk password is asked for. Keep it off this computer.	
 Type to change · Arrows move · Enter goes on · Esc back	
 Type to search · Enter keeps it · Esc clears it	
 Type, then Enter	
@@ -577,6 +579,7 @@ Your account can change the brightness
 Your name	
 Your name can't have : or , in it	
 Your password, for sudo	
+Your recovery key, shown once:	
 curl is installed	
 distrobox and Podman are installed	
 empty	

@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
@@ -31,6 +32,7 @@ const (
 var secrets = regexp.MustCompile(`(wifi-sec\.psk|802-11-wireless-security\.psk|wpa-psk|psk=)[^\n]*`)
 
 func Redact(text string) string {
+	text = luks.Hide(text)
 	if !strings.Contains(text, "psk") {
 		return text
 	}
@@ -228,10 +230,14 @@ func (log *Log) Mirror(to func([]byte)) {
 }
 
 func (log *Log) Write(data []byte) (int, error) {
-	warn(&log.fileWarning, write(log.opened, log.file, os.O_CREATE, data))
-	warn(&log.copyWarning, write(log.copied, log.copy, syscall.O_NOFOLLOW|syscall.O_NONBLOCK, data))
+	shown := data
+	if luks.Mentioned(data) {
+		shown = []byte(luks.Hide(string(data)))
+	}
+	warn(&log.fileWarning, write(log.opened, log.file, os.O_CREATE, shown))
+	warn(&log.copyWarning, write(log.copied, log.copy, syscall.O_NOFOLLOW|syscall.O_NONBLOCK, shown))
 	if log.mirror != nil {
-		log.mirror(data)
+		log.mirror(shown)
 	}
 	return len(data), nil
 }

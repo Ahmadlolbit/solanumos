@@ -7,6 +7,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/events"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/osinstall"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
@@ -72,14 +73,26 @@ func installOSCommand() int {
 		return fail("%v", err)
 	}
 	runner := step.New(log, "install", "halt")
-	osinstall.Steps(runner, chosen, plan)
+	key := osinstall.Steps(runner, chosen, plan)
 	ui.Rule(events.SummaryTitle)
 	if code := runner.ExitCode(); code != 0 {
 		ui.Print(words.T("The install stopped at the step that failed, and nothing after it ran.") + "\n")
 		ui.Print(words.T("Its log") + ": " + log.Path() + "\n")
 		return code
 	}
+	return handOver(key)
+}
+
+func handOver(key string) int {
 	ui.Print(words.T("Solanum is installed. Restart, take the USB stick out, and type your disk password.") + "\n")
 	ui.Print(words.T("The first start finishes the setup before the login screen, which takes a few minutes.") + "\n")
+	if key == "" || ui.HandOver(key) {
+		return 0
+	}
+	ui.Print("\n" + words.T("Your recovery key, shown once:") + "\n")
+	for _, line := range luks.Lines(key) {
+		ui.Print("  " + line + "\n")
+	}
+	ui.Print(words.T("Type it in small letters, with its dashes, wherever the disk password is asked for. Keep it off this computer.") + "\n")
 	return 0
 }

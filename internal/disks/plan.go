@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"strconv"
+
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 )
 
 const (
@@ -30,6 +32,7 @@ type Plan struct {
 	Sector int64
 	IDs    [3]string
 	Reuses []string
+	Key    bool
 }
 
 type Step struct {
@@ -135,9 +138,13 @@ func (plan Plan) Partition() []Step {
 	if !plan.Beside {
 		steps = append(steps, Step{"Format the EFI partition", []string{"mkfs.vfat", "-F", "32", "-n", "EFI", plan.ESPDevice()}, false})
 	}
-	return append(steps,
+	steps = append(steps,
 		Step{"Format the boot partition", []string{"mkfs.ext4", "-F", "-q", "-L", "boot", plan.BootDevice()}, false},
-		Step{"Encrypt the rest", []string{"cryptsetup", "luksFormat", "--type", "luks2", "--batch-mode", "--key-file=-", plan.RootDevice()}, true},
+		Step{"Encrypt the rest", []string{"cryptsetup", "luksFormat", "--type", "luks2", "--batch-mode", "--key-file=-", plan.RootDevice()}, true})
+	if plan.Key {
+		steps = append(steps, Step{"Make the recovery key", luks.Enroll(plan.RootDevice()), true})
+	}
+	return append(steps,
 		Step{"Unlock it", []string{"cryptsetup", "open", "--key-file=-", plan.RootDevice(), Mapper}, true},
 		Step{"Make the btrfs filesystem", []string{"mkfs.btrfs", "-f", "-q", "-L", "solanum", "/dev/mapper/" + Mapper}, false})
 }

@@ -7,11 +7,12 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
-func Steps(runner *step.Runner, answers Answers, plan disks.Plan) {
+func Steps(runner *step.Runner, answers Answers, plan disks.Plan) string {
 	work := &install{answers, plan}
+	key := ""
 	runner.Step("Start from a clean slate", work.clean)
 	for _, group := range Grouped(slices.Concat(plan.Partition(), disks.Layout(), plan.Boot())) {
-		runner.Step(group[0].Title, work.commands(group))
+		runner.Step(group[0].Title, work.commands(group, &key))
 	}
 	runner.Step("Copy the system", work.copySystem)
 	runner.Step("Write fstab and crypttab", work.tables)
@@ -36,4 +37,8 @@ func Steps(runner *step.Runner, answers Answers, plan disks.Plan) {
 	case runner.Ended():
 		putBootOrderBack(runner.Log, order)
 	}
+	if runner.Ended() {
+		return ""
+	}
+	return key
 }
