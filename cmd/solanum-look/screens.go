@@ -133,15 +133,18 @@ func settleTrial() {
 }
 
 func startTrial(before string) bool {
-	if err := os.MkdirAll(filepath.Dir(trialFile()), 0o777); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return false
+	err := os.MkdirAll(filepath.Dir(trialFile()), 0o777)
+	if err == nil {
+		err = atomic.Stage(trialFile(), []byte(strconv.Itoa(os.Getpid())+"\n"), 0o600)
 	}
-	if atomic.Stage(trialFile(), []byte(strconv.Itoa(os.Getpid())+"\n"), 0o600) != nil {
+	switch {
+	case errors.Is(err, fs.ErrExist):
 		beingTried()
 		return false
-	}
-	if !mark(beforeFile(), before) {
+	case err != nil:
+		fmt.Fprintln(os.Stderr, err)
+		return false
+	case !mark(beforeFile(), before):
 		remove(trialFile())
 		return false
 	}
