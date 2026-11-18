@@ -1,3 +1,4 @@
+import QtCore
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
@@ -5,11 +6,13 @@ import QtQuick.Effects
 Rectangle {
   id: root
 
-  readonly property color background: config.background || "#1e1e2e"
-  readonly property color foreground: config.foreground || "#cdd6f4"
-  readonly property color accent: config.accent || "#89b4fa"
-  readonly property color fail: config.fail || "#f38ba8"
-  readonly property color muted: Qt.alpha(root.foreground, 0.6)
+  readonly property bool contrast: remembered.contrast
+  readonly property real textScale: remembered.larger ? 1.5 : 1
+  readonly property color background: contrast ? "#000000" : config.background || "#1e1e2e"
+  readonly property color foreground: contrast ? "#ffffff" : config.foreground || "#cdd6f4"
+  readonly property color accent: contrast ? "#ffff00" : config.accent || "#89b4fa"
+  readonly property color fail: contrast ? "#ff6e6e" : config.fail || "#f38ba8"
+  readonly property color muted: contrast ? root.foreground : Qt.alpha(root.foreground, 0.6)
   readonly property string fontFamily: config.font || "monospace"
   readonly property string displayFamily: Qt.fontFamilies().includes("Departure Mono") ? "Departure Mono" : root.fontFamily
   readonly property string timeFormat: config.clock === "12h" ? "h:mm AP" : "HH:mm"
@@ -27,6 +30,20 @@ Rectangle {
   height: 1080
   color: root.background
 
+  function size(pixels) {
+    return Math.round(pixels * root.textScale);
+  }
+
+  function hint() {
+    if (access.focused)
+      return "Enter to turn it on or off · Up and Down to move · Esc to close";
+    if (button.activeFocus)
+      return "Enter for larger text, high contrast or a keyboard · Tab to go on";
+    if (!password.activeFocus)
+      return "Enter to press · Left and Right to move · Tab to go back";
+    return "Enter to log in" + (users.count > 1 ? " · F1 for the next account" : "") + " · Tab for accessibility, sleep, restart or shut down";
+  }
+
   function login() {
     failed = false;
     sddm.login(root.userName, password.text, root.sessionIndex);
@@ -40,6 +57,18 @@ Rectangle {
     tries = 0;
     password.text = "";
     password.forceActiveFocus();
+  }
+
+  Settings {
+    id: remembered
+
+    property bool larger: false
+    property bool contrast: false
+    property bool keyboard: false
+
+    objectName: "remembered"
+    location: StandardPaths.writableLocation(StandardPaths.GenericConfigLocation) + "/solanum-login.conf"
+    category: "accessibility"
   }
 
   Shortcut {
@@ -83,6 +112,7 @@ Rectangle {
     id: wallpaper
 
     anchors.fill: parent
+    visible: !root.contrast
     source: config.wallpaper ? Qt.resolvedUrl(config.wallpaper) : ""
     fillMode: Image.PreserveAspectCrop
     asynchronous: true
@@ -91,7 +121,7 @@ Rectangle {
   MultiEffect {
     anchors.fill: parent
     source: wallpaper
-    visible: wallpaper.status === Image.Ready
+    visible: !root.contrast && wallpaper.status === Image.Ready
     blurEnabled: true
     blur: 1.0
     blurMax: 48
@@ -99,35 +129,39 @@ Rectangle {
 
   Rectangle {
     anchors.fill: parent
-    visible: wallpaper.status === Image.Ready
+    visible: !root.contrast && wallpaper.status === Image.Ready
     color: "black"
     opacity: 0.4
   }
 
   Column {
-    anchors.centerIn: parent
-    anchors.verticalCenterOffset: -40
-    spacing: 14
+    objectName: "middle"
+    anchors.horizontalCenter: parent.horizontalCenter
+    y: keys.item ? Math.max(root.size(16), keys.y - height - root.size(24)) : (parent.height - height) / 2 - root.size(40)
+    spacing: root.size(14)
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
+      visible: !keys.item
       text: Qt.formatTime(root.now, root.timeFormat)
       color: root.foreground
       font.family: root.displayFamily
-      font.pixelSize: 132
+      font.pixelSize: root.size(132)
     }
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
+      visible: !keys.item
       text: Qt.formatDate(root.now, "dddd, d MMMM")
       color: root.foreground
       font.family: root.fontFamily
-      font.pixelSize: 26
+      font.pixelSize: root.size(26)
     }
 
     Item {
       width: 1
-      height: 56
+      height: root.size(56)
+      visible: !keys.item
     }
 
     Text {
@@ -135,7 +169,7 @@ Rectangle {
       text: root.currentUser ? root.currentUser.shown : root.userName
       color: Qt.alpha(root.foreground, 0.8)
       font.family: root.fontFamily
-      font.pixelSize: 18
+      font.pixelSize: root.size(18)
 
       Text {
         anchors.left: parent.right
@@ -145,7 +179,7 @@ Rectangle {
         text: Math.min(root.userIndex, users.count - 1) + 1 + " of " + users.count
         color: root.muted
         font.family: root.fontFamily
-        font.pixelSize: 16
+        font.pixelSize: root.size(16)
       }
 
       MouseArea {
@@ -158,8 +192,8 @@ Rectangle {
 
     Rectangle {
       anchors.horizontalCenter: parent.horizontalCenter
-      width: 320
-      height: 56
+      width: root.size(320)
+      height: root.size(56)
       color: Qt.alpha(root.background, 0.8)
       border.color: root.failed ? root.fail : password.activeFocus ? root.accent : root.muted
       border.width: 2
@@ -167,6 +201,7 @@ Rectangle {
       TextField {
         id: password
 
+        objectName: "password"
         anchors.fill: parent
         anchors.margins: 2
         focus: true
@@ -176,12 +211,12 @@ Rectangle {
         cursorVisible: activeFocus && text !== ""
         color: root.foreground
         font.family: root.fontFamily
-        font.pixelSize: 20
+        font.pixelSize: root.size(20)
         background: Item {}
         onTextEdited: root.failed = false
         onAccepted: root.login()
         Keys.onEscapePressed: text = ""
-        Keys.onTabPressed: power.step(-1, 1)
+        Keys.onTabPressed: button.forceActiveFocus()
         Keys.onBacktabPressed: power.step(actions.count, -1)
       }
 
@@ -190,9 +225,9 @@ Rectangle {
         visible: password.text === ""
         text: "Password"
         color: root.foreground
-        opacity: 0.5
+        opacity: root.contrast ? 1 : 0.5
         font.family: root.fontFamily
-        font.pixelSize: 20
+        font.pixelSize: root.size(20)
       }
     }
 
@@ -201,7 +236,7 @@ Rectangle {
       text: root.layoutName ? "\u{f030c} " + root.layoutName : " "
       color: root.muted
       font.family: root.fontFamily
-      font.pixelSize: 16
+      font.pixelSize: root.size(16)
     }
 
     Text {
@@ -209,7 +244,7 @@ Rectangle {
       text: [root.failed ? "Wrong password · try " + root.tries : "", keyboard.capsLock ? "Caps Lock is on" : ""].filter(Boolean).join(" · ") || " "
       color: root.failed ? root.fail : root.foreground
       font.family: root.fontFamily
-      font.pixelSize: 16
+      font.pixelSize: root.size(16)
     }
   }
 
@@ -217,10 +252,10 @@ Rectangle {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 32
-    text: !password.activeFocus ? "Enter to press · Left and Right to move · Tab to go back" : users.count > 1 ? "Enter to log in · F1 for the next account · Tab to sleep, restart or shut down" : "Enter to log in · Tab to sleep, restart or shut down"
+    text: root.hint()
     color: root.muted
     font.family: root.fontFamily
-    font.pixelSize: 14
+    font.pixelSize: root.size(14)
   }
 
   Row {
@@ -253,8 +288,8 @@ Rectangle {
         readonly property bool lit: activeFocus || hover.containsMouse
 
         visible: modelData[1]
-        width: 96
-        height: 72
+        width: root.size(96)
+        height: root.size(72)
         color: "transparent"
         border.color: root.accent
         border.width: activeFocus ? 2 : 0
@@ -264,7 +299,7 @@ Rectangle {
         Keys.onEnterPressed: press()
         Keys.onSpacePressed: press()
         Keys.onTabPressed: password.forceActiveFocus()
-        Keys.onBacktabPressed: password.forceActiveFocus()
+        Keys.onBacktabPressed: button.forceActiveFocus()
         Keys.onEscapePressed: password.forceActiveFocus()
 
         function press() {
@@ -278,7 +313,7 @@ Rectangle {
           text: action.modelData[0]
           color: action.lit ? root.accent : root.foreground
           font.family: root.fontFamily
-          font.pixelSize: 26
+          font.pixelSize: root.size(26)
         }
 
         Text {
@@ -289,7 +324,7 @@ Rectangle {
           text: action.modelData[3]
           color: root.foreground
           font.family: root.fontFamily
-          font.pixelSize: 14
+          font.pixelSize: root.size(14)
         }
 
         MouseArea {
@@ -300,6 +335,174 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           onClicked: action.press()
         }
+      }
+    }
+  }
+
+  Loader {
+    id: keys
+
+    objectName: "keys"
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    anchors.bottomMargin: root.size(120)
+    width: Math.min(parent.width - 64, parent.height * 1.1)
+    active: remembered.keyboard
+    source: "Keyboard.qml"
+  }
+
+  Column {
+    id: access
+
+    property bool open: false
+    readonly property bool focused: panel.activeFocus
+
+    anchors.left: parent.left
+    anchors.bottom: parent.bottom
+    anchors.margins: 32
+    spacing: 8
+
+    function show(at) {
+      const shown = Math.max(0, Math.min(at, choices.count - 1));
+      choices.itemAt(shown).forceActiveFocus();
+    }
+
+    function close() {
+      open = false;
+      button.forceActiveFocus();
+    }
+
+    FocusScope {
+      id: panel
+
+      visible: access.open
+      width: list.width
+      height: list.height
+
+      Column {
+        id: list
+
+        spacing: 8
+
+        Repeater {
+          id: choices
+
+          model: [["larger", "Larger text"], ["contrast", "High contrast"], ["keyboard", "Keyboard"]]
+
+          Rectangle {
+            id: choice
+
+            required property var modelData
+            required property int index
+            readonly property bool on: remembered[modelData[0]]
+            readonly property bool missing: modelData[0] === "keyboard" && keys.status === Loader.Error
+
+            objectName: modelData[0]
+            width: root.size(260)
+            height: root.size(44)
+            color: on ? root.foreground : Qt.alpha(root.background, 0.8)
+            border.color: root.accent
+            border.width: activeFocus ? 2 : 0
+            Keys.onUpPressed: access.show(index - 1)
+            Keys.onDownPressed: index === choices.count - 1 ? button.forceActiveFocus() : access.show(index + 1)
+            Keys.onReturnPressed: press()
+            Keys.onEnterPressed: press()
+            Keys.onSpacePressed: press()
+            Keys.onEscapePressed: access.close()
+            Keys.onTabPressed: power.step(-1, 1)
+            Keys.onBacktabPressed: password.forceActiveFocus()
+
+            function press() {
+              const name = modelData[0];
+              remembered[name] = !remembered[name];
+              remembered.setValue(name, remembered[name]);
+              remembered.sync();
+            }
+
+            Text {
+              anchors.left: parent.left
+              anchors.leftMargin: 16
+              anchors.verticalCenter: parent.verticalCenter
+              text: choice.modelData[1]
+              color: choice.on ? root.background : root.foreground
+              font.family: root.fontFamily
+              font.pixelSize: root.size(16)
+            }
+
+            Text {
+              anchors.right: parent.right
+              anchors.rightMargin: 16
+              anchors.verticalCenter: parent.verticalCenter
+              text: choice.missing ? "Not installed" : choice.on ? "On" : "Off"
+              color: choice.on ? root.background : root.foreground
+              font.family: root.fontFamily
+              font.pixelSize: root.size(14)
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: choice.press()
+            }
+          }
+        }
+      }
+    }
+
+    Rectangle {
+      id: button
+
+      readonly property bool lit: activeFocus || hovered.containsMouse
+
+      objectName: "access"
+      width: root.size(136)
+      height: root.size(72)
+      color: "transparent"
+      border.color: root.accent
+      border.width: activeFocus ? 2 : 0
+      Keys.onReturnPressed: press()
+      Keys.onEnterPressed: press()
+      Keys.onSpacePressed: press()
+      Keys.onUpPressed: access.open ? access.show(choices.count - 1) : press()
+      Keys.onTabPressed: power.step(-1, 1)
+      Keys.onBacktabPressed: password.forceActiveFocus()
+      Keys.onEscapePressed: access.open ? access.close() : password.forceActiveFocus()
+
+      function press() {
+        access.open = !access.open;
+        if (access.open)
+          access.show(0);
+      }
+
+      Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 8
+        text: "\uf29a"
+        color: button.lit || access.open ? root.accent : root.foreground
+        font.family: root.fontFamily
+        font.pixelSize: root.size(26)
+      }
+
+      Text {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 8
+        visible: button.lit || access.open
+        text: "Accessibility"
+        color: root.foreground
+        font.family: root.fontFamily
+        font.pixelSize: root.size(14)
+      }
+
+      MouseArea {
+        id: hovered
+
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: button.press()
       }
     }
   }
