@@ -17,6 +17,7 @@ import (
 const (
 	securityMirror = "https://security.debian.org/debian-security"
 	quietBackups   = "/etc/apt/apt.conf.d/10solanum-backups"
+	crashLimits    = "/etc/systemd/coredump.conf.d/solanum.conf"
 )
 
 func sourcesList() string {
@@ -177,12 +178,14 @@ func repositorySteps(context *Context) {
 	context.Run.Step("Use Debian over HTTPS with backports", sources.write)
 	context.Run.Step("Prepare vendor repositories", extrepoSetup)
 	context.Run.Step("Install base packages", packages("base"))
+	context.Run.Step("Keep crash dumps small", func(*runlog.Log) error { return context.Deploy.File("system/coredump/solanum.conf", crashLimits) })
 	context.Run.Step("Install firmware for this machine", context.firmwareInstall)
 	context.nameSteps()
 }
 
 func repositoryChecks(context *Context) {
 	context.Run.Check("Base packages are installed", func(log *runlog.Log) error { return apt.ListsPresent(log, "base") })
+	context.Run.Check("Crash dumps are kept small", filesCheck(crashLimits))
 	context.Run.Check("Vendor repositories can be enabled", extrepoReady)
 	context.Run.Check("Firmware for this machine is installed", context.firmwarePresent)
 	context.Run.Check("Backports are available", backportsListed)

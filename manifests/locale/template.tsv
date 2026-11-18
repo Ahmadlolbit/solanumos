@@ -91,6 +91,7 @@ Could not save: %s
 Could not start the setup: %s	
 Could not write the answers: %s	
 Could not write the settings: %s	
+Crash dumps are kept small	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
 Daily snapshots to keep	
@@ -244,6 +245,7 @@ JetBrains Mono Nerd Font is installed
 JetBrains Toolbox is installed	
 Keep Windows	
 Keep container storage out of snapshots	
+Keep crash dumps small	
 Keep the SSH server off	
 Keep the firmware list fresh	
 Keep these choices without installing	

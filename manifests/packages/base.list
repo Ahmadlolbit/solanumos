@@ -24,6 +24,7 @@ pkexec
 polkitd
 rsync
 sudo
+systemd-coredump
 udisks2
 unattended-upgrades
 unzip
