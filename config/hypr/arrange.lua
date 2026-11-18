@@ -29,7 +29,10 @@ local function main(output)
   hl.config({ cursor = { default_monitor = output } })
 end
 
-local profile, outputs = screens.saved()
+local attached = screens.attached()
+local plugged = screens.signature(attached)
+
+local profile, outputs = screens.saved(attached)
 if profile then
   for _, screen in ipairs(profile.screens) do
     hl.monitor(rule(screen, outputs))
@@ -38,3 +41,12 @@ if profile then
     end
   end
 end
+
+local function replugged()
+  if screens.signature(screens.attached()) ~= plugged then
+    hl.exec_cmd("hyprctl reload")
+  end
+end
+
+hl.on("monitor.added", replugged)
+hl.on("monitor.removed", replugged)

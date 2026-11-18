@@ -151,8 +151,16 @@ local function placed(profile, attached)
   return outputs
 end
 
-function screens.saved()
-  local attached = screens.attached()
+function screens.signature(attached)
+  local names = {}
+  for _, screen in ipairs(attached) do
+    table.insert(names, table.concat({ screen.output, screen.model, screen.serial }, " "))
+  end
+  table.sort(names)
+  return table.concat(names, "\n")
+end
+
+function screens.saved(attached)
   for _, profile in ipairs(screens.profiles(screens.layout_file())) do
     local outputs = #profile.screens == #attached and placed(profile, attached)
     if outputs then
