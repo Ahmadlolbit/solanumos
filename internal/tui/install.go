@@ -16,6 +16,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/events"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/privilege"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
@@ -85,6 +86,7 @@ var handlers = map[string]func(*installer, events.Event){
 	events.Choose:   (*installer).ask,
 	events.Input:    (*installer).ask,
 	events.Password: (*installer).ask,
+	events.Key:      (*installer).handed,
 }
 
 func clean(line string) string {
@@ -287,6 +289,9 @@ func (work *installer) finish(done ended) tea.Cmd {
 		return work.refused(done)
 	}
 	work.closing = work.closingLines(done.text)
+	if done.code != 0 {
+		work.flow.end.key = ""
+	}
 	work.over = true
 	work.flow.dialogs = nil
 	work.flow.asking = nil
@@ -321,6 +326,12 @@ func (work *installer) status(event events.Event) {
 	work.steps = append(work.steps, line)
 	if event.Kind != events.Warn {
 		work.remember(event)
+	}
+}
+
+func (work *installer) handed(event events.Event) {
+	if luks.Valid(event.Text) {
+		work.flow.end.key = event.Text
 	}
 }
 

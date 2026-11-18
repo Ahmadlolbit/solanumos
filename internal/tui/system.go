@@ -32,6 +32,7 @@ import (
 const (
 	shortest = 8
 	diskAt   = 1
+	lockAt   = 2
 	youAt    = 3
 )
 
@@ -63,7 +64,7 @@ func newSystem(found []disks.Disk) *system {
 	}
 	layout := keyboard.Current()
 	return &system{found: internalFirst(found), room: map[string]string{}, reuse: map[string]bool{}, shrink: map[string]bool{}, seen: layout,
-		answers: osinstall.Answers{Host: "solanum", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8"}}
+		answers: osinstall.Answers{Host: "solanum", Zone: zone, Keyboard: layout, Locale: "en_US.UTF-8", Key: true}}
 }
 
 func internalFirst(found []disks.Disk) []disks.Disk {
@@ -246,7 +247,42 @@ func (flow *wizard) lockRows() []row {
 		bootTyped(secretRow("Again", "The same once more", &state.twice)),
 		{label: "Words above it", value: flow.settings.Get("BOOT_PROMPT"), help: "What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words",
 			input: &field{allow: config.SafeText, valid: func(string) bool { return true }, set: func(text string) { flow.settings.Set("BOOT_PROMPT", text) }, refused: safeRefused}},
+		state.keyRow(),
 	}
+}
+
+func yesOrNo(on bool) string {
+	if on {
+		return "yes"
+	}
+	return "no"
+}
+
+func (state *system) keyRow() row {
+	return row{label: "Recovery key", value: yesOrNo(state.answers.Key), help: "A second way to open the disk when its password is forgotten, shown once when the install ends; Space turns it off",
+		space: func() tea.Cmd { state.answers.Key = !state.answers.Key; return nil }}
+}
+
+func (state *system) keyPlan() string {
+	if state.answers.Key {
+		return "shown once when the install ends"
+	}
+	return "none"
+}
+
+func (state *system) skipKey(then func() tea.Cmd) *dialog {
+	box := question("Install without a recovery key?", []string{"Make one", "Yes, skip it"}, func(text string, _ bool) tea.Cmd {
+		switch text {
+		case "Make one":
+			state.answers.Key = true
+			return then()
+		case "Yes, skip it":
+			return then()
+		}
+		return nil
+	})
+	box.lines = []string{words.T("Without one, a forgotten disk password means nothing on the disk can be read again.")}
+	return box
 }
 
 func (state *system) lockReady() string {
@@ -332,6 +368,7 @@ func (flow *wizard) systemRows() []row {
 	return []row{
 		{label: "Disk", value: where, help: "Enter opens this window", enter: func() tea.Cmd { flow.reviewing = true; flow.jump(diskAt); return nil }},
 		{label: "You", value: state.answers.User + " on " + state.answers.Host, help: "Enter opens this window", enter: func() tea.Cmd { flow.reviewing = true; flow.jump(youAt); return nil }},
+		{label: "Recovery key", value: state.keyPlan(), help: "Enter opens the disk password window", enter: func() tea.Cmd { flow.reviewing = true; flow.jump(lockAt); return nil }},
 	}
 }
 
@@ -350,9 +387,15 @@ func (state *system) installRow(flow *wizard) row {
 		if state.answers.Beside {
 			question = "Install Solanum next to Windows on " + disk.Name() + "?"
 		}
-		box := confirmation(question, flow.install.begin)
-		box.cursor = 1
-		return flow.open(box)
+		erase := func() tea.Cmd {
+			box := confirmation(question, flow.install.begin)
+			box.cursor = 1
+			return flow.open(box)
+		}
+		if !state.answers.Key {
+			return flow.open(state.skipKey(erase))
+		}
+		return erase()
 	}}
 }
 

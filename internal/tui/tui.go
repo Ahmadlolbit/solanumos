@@ -29,7 +29,7 @@ func (flow *wizard) allStages(machine []string, catalogue []apps.App) []stage {
 		stages = append(stages, flow.settingsStage(section.title, section.key))
 	}
 	flow.install = &installer{flow: flow}
-	flow.end = &ending{viewer: viewer{leave: func() tea.Cmd { return tea.Quit }}}
+	flow.end = newEnding(flow)
 	return append(stages, flow.reviewStage(), flow.install, flow.end)
 }
 
