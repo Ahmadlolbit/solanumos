@@ -156,5 +156,5 @@ func cleanupCommand() int {
 	if (env.Arg(2) != "" && !yes) || env.Arg(3) != "" {
 		return fail("usage: solanum cleanup [--yes]")
 	}
-	return asRoot("cleanup", func() int { return cleanUp(yes) })
+	return asRoot("cleanup", alone(func() int { return cleanUp(yes) }))
 }

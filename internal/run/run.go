@@ -308,11 +308,23 @@ type Child struct {
 	errors  *strings.Builder
 }
 
+type Spawning struct {
+	Environment []string
+	Shown       bool
+}
+
 func Spawn(environment []string, name string, args ...string) (*Child, error) {
+	return SpawnWith(Spawning{Environment: environment}, name, args...)
+}
+
+func SpawnWith(how Spawning, name string, args ...string) (*Child, error) {
 	command := exec.Command(name, args...)
-	command.Env = append(os.Environ(), environment...)
+	command.Env = append(os.Environ(), how.Environment...)
 	child := &Child{command: command, errors: &strings.Builder{}}
 	command.Stderr = child.errors
+	if how.Shown {
+		command.Stderr = os.Stderr
+	}
 	var err error
 	if child.Input, err = command.StdinPipe(); err != nil {
 		return nil, err
@@ -326,6 +338,10 @@ func Spawn(environment []string, name string, args ...string) (*Child, error) {
 func (child *Child) Wait() (int, string) {
 	err := child.command.Wait()
 	return Code(err), strings.TrimSpace(child.errors.String())
+}
+
+func (child *Child) Stop() error {
+	return child.command.Process.Signal(syscall.SIGTERM)
 }
 
 func Detach(watch time.Duration, name string, args ...string) error {

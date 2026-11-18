@@ -102,6 +102,7 @@ func releaseTarget() (string, string, error) {
 }
 
 func afterUpdate(from, to string) int {
+	releaseUpdateHold()
 	args := []string{script(), "install"}
 	if streamed {
 		args = append(args, "--events")
@@ -241,7 +242,7 @@ func undoHalfMove(target string) {
 func updateSolanum() int {
 	ui.Print("Updating " + root() + "\n")
 	tag, target, err := releaseTarget()
-	if lock.Busy() {
+	if !updateHolding() && lock.Busy() {
 		return fail("a Solanum run is going, so Solanum itself wasn't updated: run solanum update solanum once it ends")
 	}
 	switch {

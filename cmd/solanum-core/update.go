@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"cmp"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -101,10 +104,105 @@ func gitLog(args ...string) string {
 	return git(append([]string{"log", "--no-show-signature"}, args...)...)
 }
 
+const (
+	holdBusy   = 75
+	holdFailed = 74
+	holdGrace  = 10 * time.Second
+)
+
+var errRunGoing = errors.New("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
+
 var (
 	snapshotTaken bool
 	debianFailed  bool
+	updateHeld    struct {
+		held  *lock.Held
+		child *run.Child
+	}
 )
+
+func holdForUpdate() error {
+	if os.Geteuid() == 0 {
+		held, err := lock.Take()
+		updateHeld.held = held
+		return heldOrWhy(err)
+	}
+	command := admin(script(), "update", "--hold")
+	child, err := run.SpawnWith(run.Spawning{Shown: true}, command[0], command[1:]...)
+	if err != nil {
+		return fmt.Errorf("%v, so nothing was updated", err)
+	}
+	updateHeld.child = child
+	if answer, _ := bufio.NewReader(child.Output).ReadString('\n'); answer == "held\n" {
+		return nil
+	}
+	switch releaseUpdateHold() {
+	case holdBusy:
+		return errRunGoing
+	case holdFailed:
+		return errors.New("the run lock couldn't be taken, so nothing was updated")
+	}
+	return errors.New("sudo didn't run solanum, so nothing was updated")
+}
+
+func heldOrWhy(err error) error {
+	switch {
+	case errors.Is(err, lock.ErrBusy):
+		return errRunGoing
+	case err != nil:
+		return fmt.Errorf("%v, so nothing was updated", err)
+	}
+	return nil
+}
+
+func releaseUpdateHold() int {
+	code := 0
+	if updateHeld.held != nil {
+		updateHeld.held.Close()
+	}
+	if updateHeld.child != nil {
+		code = letGo(updateHeld.child)
+	}
+	updateHeld.held, updateHeld.child = nil, nil
+	return code
+}
+
+func letGo(child *run.Child) int {
+	child.Input.Close()
+	ended := make(chan int, 1)
+	go func() {
+		code, _ := child.Wait()
+		ended <- code
+	}()
+	select {
+	case code := <-ended:
+		return code
+	case <-time.After(holdGrace):
+	}
+	child.Stop()
+	ui.Print("Letting go of the run lock took longer than 10 seconds, so its holder was stopped.\n")
+	return <-ended
+}
+
+func updateHolding() bool {
+	return updateHeld.held != nil || updateHeld.child != nil
+}
+
+func holdUntilDone() int {
+	held, err := lock.Take()
+	switch {
+	case errors.Is(err, lock.ErrBusy):
+		return holdBusy
+	case err != nil:
+		fmt.Fprintln(os.Stderr, err)
+		return holdFailed
+	}
+	defer held.Close()
+	cleanup.NotifyInterrupt(make(chan os.Signal, 1))
+	ui.Print("held\n")
+	io.Copy(io.Discard, os.Stdin)
+	return 0
+}
 
 func snapshotsOff() bool {
 	if config.Read(config.Path()).Get("SNAPSHOTS") == "yes" {
@@ -329,11 +427,17 @@ func update() int {
 		return fail("run it as yourself, without sudo: solanum update")
 	}
 	if lock.Busy() {
-		return fail("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
+		return fail("%v", errRunGoing)
 	}
 	wanted := func(name string) bool { return part == "all" || part == name }
 	if wanted("solanum") && gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
 		return fail("%s is not a git clone, so it can't update itself", root())
+	}
+	if wanted("system") || wanted("solanum") {
+		if err := holdForUpdate(); err != nil {
+			return fail("%v", err)
+		}
+		defer releaseUpdateHold()
 	}
 	stopsTheUpdate()
 	return updateParts(wanted)

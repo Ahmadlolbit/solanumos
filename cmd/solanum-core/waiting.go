@@ -174,5 +174,8 @@ func updateCommand() int {
 	if env.Arg(2) == "--list" {
 		return listUpdates()
 	}
+	if env.Arg(2) == "--hold" && env.Arg(3) == "" {
+		return holdUntilDone()
+	}
 	return update()
 }

@@ -16,7 +16,10 @@ const (
 	lockFields = 6
 )
 
-var heldLocks = "/proc/locks"
+var (
+	heldLocks = "/proc/locks"
+	ErrBusy   = errors.New("another Solanum run is still going")
+)
 
 type Held struct {
 	files []*os.File
@@ -57,7 +60,7 @@ func (held *Held) hold(file *os.File) error {
 	held.files = append(held.files, file)
 	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		held.Close()
-		return errors.New("another Solanum run is still going")
+		return ErrBusy
 	}
 	return nil
 }
