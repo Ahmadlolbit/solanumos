@@ -1,8 +1,10 @@
 package setup
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -24,6 +26,7 @@ const (
 	subvolumeRoot = 256
 	steamFolder   = ".var/app/com.valvesoftware.Steam"
 	privateFolder = "700"
+	bySignal      = 128
 )
 
 func homeSnapperConfig() string {
@@ -60,6 +63,17 @@ func keptIn(log *runlog.Log, rel string) error {
 	return nil
 }
 
+func leftIn(log *runlog.Log, rel, path, said string, err error) error {
+	switch {
+	case errors.Is(err, run.ErrStopped) || run.Stopped() || run.Code(err) > bySignal:
+		return err
+	case !empty(path):
+		return keptIn(log, rel)
+	}
+	fmt.Fprintf(log, "~/%s stays in the snapshots of /home, as removing it to make it a subvolume of its own failed: %s\n", rel, cmp.Or(strings.TrimSpace(said), err.Error()))
+	return nil
+}
+
 func (context *Context) keepOut(log *runlog.Log, rel string) error {
 	person := context.Person
 	path := person.Path(rel)
@@ -69,8 +83,9 @@ func (context *Context) keepOut(log *runlog.Log, rel string) error {
 	case fsutil.IsLink(path) || !empty(path):
 		return keptIn(log, rel)
 	case fsutil.Exists(path):
-		if person.Run(log, "rmdir", path) != nil {
-			return keptIn(log, rel)
+		var said strings.Builder
+		if err := person.Run(io.MultiWriter(log, &said), "rmdir", path); err != nil {
+			return leftIn(log, rel, path, said.String(), err)
 		}
 	}
 	if err := person.Run(log, "mkdir", "-p", filepath.Dir(path)); err != nil {
