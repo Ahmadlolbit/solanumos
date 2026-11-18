@@ -133,21 +133,14 @@ func ran(command []string, failure string) int {
 	return fail("%s", failure)
 }
 
-func debianPart(command []string, failure string) int {
-	status := ran(command, failure)
-	if status != 0 && !run.Stopped() {
-		debianFailed = true
-	}
-	return status
-}
-
 func updateSystem() int {
 	if status := snapshotFirst(); status != 0 {
 		return status
 	}
 	if apt.Interrupted() {
 		ui.Print("dpkg was interrupted, finishing what it left\n")
-		if status := debianPart(admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
+		if status := ran(admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
+			debianFailed = true
 			return status
 		}
 	}
@@ -159,14 +152,18 @@ func updateSystem() int {
 		return stoppedCode
 	}
 	before := sessionVersions()
-	status := debianPart(fullUpgrade(), "updating Debian failed")
+	status := ran(fullUpgrade(), "updating Debian failed")
 	if run.Stopped() {
 		return stoppedCode
 	}
 	if status == 0 {
 		keptKernelNews()
 	}
-	return max(status, sessionCheck(before))
+	if check := sessionCheck(before); check != 0 {
+		return check
+	}
+	debianFailed = status != 0
+	return status
 }
 
 func fullUpgrade() []string {
