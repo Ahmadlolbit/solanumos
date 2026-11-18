@@ -2,6 +2,7 @@ package notice
 
 import (
 	"bufio"
+	"cmp"
 	"fmt"
 	"io"
 	"os"
@@ -19,7 +20,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/session"
 )
 
-const usage = `Usage: solanum-crashes [login|show PID|show desktop]
+const usage = `Usage: solanum-crashes [login|show PID|show desktop [SINCE]]
 
 Tells you when a program of yours stops unexpectedly. Without an argument it
 follows the journal for systemd-coredump's word of your programs' crashes and
@@ -29,10 +30,12 @@ collect). It says so at most once an hour for each program, and the next
 notice counts the crashes in between. Crash notices off, in Settings ›
 Notifications, stops them at once. A user service runs it.
 login says "The desktop stopped unexpectedly last time", once, when Hyprland
-crashed at the last login after its desktop had run a minute; the desktop runs
-it as it starts. show prints the journal's last lines from the process PID, this boot,
-and what coredumpctl kept of its crash; show desktop prints Hyprland's last
-lines from the last login and what coredumpctl kept of its newest crash.
+crashed at the last login after its desktop had run a minute; the desktop
+runs it as it starts. show prints the journal's last lines from the process
+PID, this boot, and what coredumpctl kept of its crash. show desktop prints
+what Hyprland left since SINCE (seconds since 1970; by default the last
+login's minute mark): its last lines from the last login and what coredumpctl
+kept of its newest crash since then.
 `
 
 const (
@@ -119,7 +122,7 @@ func login() int {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	action, _ := notify.Shown(options, desktopStopped, crashes.Hint)
-	act(action, "show", "desktop")
+	act(action, "show", "desktop", strconv.FormatInt(since.Unix(), 10))
 	return 0
 }
 
@@ -140,23 +143,35 @@ func whatHappened(pid string) string {
 		"\nWhat coredumpctl kept of its crash (coredumpctl info " + pid + "):\n\n" + said(info, failed, "Nothing.")
 }
 
-func whatHappenedToTheDesktop() string {
+func desktopBound(home string, uid int, given string) time.Time {
+	if seconds, err := strconv.ParseInt(given, 10, 64); err == nil && seconds > 0 {
+		return time.Unix(seconds, 0)
+	}
+	return session.LastBound(home, uid)
+}
+
+func whatHappenedToTheDesktop(given string) string {
 	person := me()
 	uid, _ := strconv.Atoi(person.UID)
+	since := desktopBound(person.Home, uid, given)
 	var text strings.Builder
 	text.WriteString(desktopStopped + ".\n\n")
-	for _, line := range session.LastTime(person, session.LastBound(person.Home, uid), run.Minute).Lines {
+	for _, line := range session.LastTime(person, since, run.Minute).Lines {
 		text.WriteString(line.From + ": " + line.Text + "\n")
 	}
-	info, failed := run.CaptureQuiet(run.Minute, "coredumpctl", "--no-pager", "-1", "info", "COREDUMP_UID="+person.UID, "COREDUMP_COMM="+desktop)
+	args := []string{"--no-pager", "-1"}
+	if !since.IsZero() {
+		args = append(args, "--since=@"+strconv.FormatInt(since.Unix(), 10))
+	}
+	info, failed := run.CaptureQuiet(run.Minute, "coredumpctl", append(args, "info", "COREDUMP_UID="+person.UID, "COREDUMP_COMM="+desktop)...)
 	text.WriteString("\nHyprland's last lines, in ~/" + session.LastLog + ":\n\n" + said(strings.Join(session.LastLines(person.Home, uid), "\n"), nil, "None."))
 	text.WriteString("\nWhat coredumpctl kept of its newest crash (coredumpctl info COREDUMP_COMM=" + desktop + "):\n\n" + said(info, failed, "Nothing."))
 	return text.String()
 }
 
-func show(what string) int {
+func show(what string, bound ...string) int {
 	if what == "desktop" {
-		run.Page(whatHappenedToTheDesktop())
+		run.Page(whatHappenedToTheDesktop(cmp.Or(bound...)))
 		return 0
 	}
 	if number, err := strconv.Atoi(what); err != nil || number <= 0 {
@@ -174,7 +189,7 @@ func Main() {
 	case "login":
 		os.Exit(login())
 	case "show":
-		os.Exit(show(env.Arg(2)))
+		os.Exit(show(env.Arg(2), env.Arg(3)))
 	case "-h", "--help":
 		fmt.Print(usage)
 	default:
