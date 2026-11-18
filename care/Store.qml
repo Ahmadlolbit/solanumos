@@ -235,7 +235,8 @@ Singleton {
         firmware: [],
         last: "",
         restart: false,
-        busy: false
+        busy: false,
+        unread: ["debian", "apps", "solanum", "firmware"]
       }
     }
   }

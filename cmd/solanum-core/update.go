@@ -63,7 +63,7 @@ func rootsOnly(path string) bool {
 }
 
 func gitCommand(args ...string) []string {
-	command := append([]string{"git", "-C", root()}, args...)
+	command := append(append([]string{"git", "-C", root()}, readable(root())...), args...)
 	if rootsOnly(root()) {
 		return command
 	}
@@ -74,6 +74,17 @@ func git(args ...string) string {
 	command := gitCommand(args...)
 	output, _ := run.Capture(run.Slow, command[0], command[1:]...)
 	return output
+}
+
+func readable(path string) []string {
+	info, err := os.Stat(path)
+	if err != nil || os.Geteuid() == 0 {
+		return nil
+	}
+	if stat, ok := info.Sys().(*syscall.Stat_t); !ok || stat.Uid != 0 {
+		return nil
+	}
+	return []string{"-c", "safe.directory=" + path}
 }
 
 func gitQuiet(limit time.Duration, args ...string) int {
