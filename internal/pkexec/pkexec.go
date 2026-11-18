@@ -27,6 +27,26 @@ func SudoCaller() (account.Account, bool) {
 	return human(os.Getenv("SUDO_UID"))
 }
 
+func Person(path string) account.Account {
+	if os.Getenv("SUDO_UID") != "" {
+		person, _ := SudoCaller()
+		return person
+	}
+	for ; ; path = filepath.Dir(path) {
+		var stat syscall.Stat_t
+		if err := syscall.Lstat(path, &stat); err != nil {
+			return account.Account{}
+		}
+		if owner := strconv.FormatUint(uint64(stat.Uid), 10); owner != rootAccount {
+			person, _ := human(owner)
+			return person
+		}
+		if path == filepath.Dir(path) {
+			return account.Account{}
+		}
+	}
+}
+
 func human(uid string) (account.Account, bool) {
 	for _, person := range account.Humans() {
 		if person.UID == uid {
@@ -116,11 +136,10 @@ func Entry() (string, error) {
 	if err != nil {
 		return "", unrecorded(err)
 	}
-	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
+	if os.Geteuid() != 0 {
 		return program, nil
 	}
-	person, _ := SudoCaller()
-	if err := trusted(program, person); err != nil {
+	if err := trusted(program, Person(program)); err != nil {
 		return "", err
 	}
 	return program, nil

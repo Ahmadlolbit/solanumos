@@ -212,12 +212,11 @@ func script() string {
 	return filepath.Join(root(), "solanum")
 }
 
-func fromSudo() error {
-	if os.Geteuid() != 0 || os.Getenv("SUDO_UID") == "" {
+func safeCopy() error {
+	if os.Geteuid() != 0 {
 		return nil
 	}
-	person, _ := pkexec.SudoCaller()
-	return pkexec.Clone(root(), person)
+	return pkexec.Clone(root(), pkexec.Person(script()))
 }
 
 func enter() int {
@@ -272,7 +271,7 @@ func main() {
 	if root() == "" {
 		os.Exit(run.Report(run.Exec("solanum", os.Args[1:]...)))
 	}
-	if err := fromSudo(); err != nil {
+	if err := safeCopy(); err != nil {
 		os.Exit(fail("%v", err))
 	}
 	if command, ok := command(env.Arg(1)); ok {
