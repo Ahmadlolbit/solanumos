@@ -14,7 +14,6 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
-	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/step"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
 	"github.com/Ahmadlolbit/solanumos/internal/words"
@@ -32,14 +31,18 @@ func KeyReady(answers Answers) error {
 	return nil
 }
 
-func (work *install) makeKey(log *runlog.Log) handed {
+func (work *install) makeKey(runner *step.Runner) handed {
 	key, messages, err := luks.Make(work.plan.RootDevice(), work.answers.Password)
+	log := runner.Log
 	io.WriteString(log, messages)
-	if key == "" {
+	switch {
+	case runner.Ended():
+		log.Line("warn", "the recovery key step was stopped, and so is the install")
+		return handed{}
+	case key == "":
 		log.Line("warn", "no recovery key, and the install goes on: "+err.Error())
 		return handed{why: err.Error()}
-	}
-	if err != nil {
+	case err != nil:
 		log.Line("warn", "the recovery key opens the disk, though "+luks.Enroller+" ended with an error: "+err.Error())
 	}
 	log.Line("info", "the recovery key is made: the installer shows it once at the end, and no log keeps it")
@@ -52,8 +55,11 @@ func (work *install) keyStep(runner *step.Runner, title string) handed {
 	}
 	runner.Log.Line("info", "step: "+title)
 	ui.Busy(words.T(title))
-	made := work.makeKey(runner.Log)
+	made := work.makeKey(runner)
 	ui.Done()
+	if runner.Ended() {
+		return handed{}
+	}
 	if made.why == "" {
 		ui.OK(words.T(title))
 		return made
