@@ -363,6 +363,18 @@
       "accessibility"
     ]
   },
+  "toggle.keyboard": {
+    "glyph": "\uf11c",
+    "label": "On-screen keyboard",
+    "action": "solanum-look keyboard toggle",
+    "state": "test \"$(solanum-look keyboard)\" = shown",
+    "keywords": [
+      "keyboard",
+      "on-screen keyboard",
+      "touch",
+      "accessibility"
+    ]
+  },
   "toggle.weather": {
     "glyph": "\udb81\udd95",
     "label": "Weather",

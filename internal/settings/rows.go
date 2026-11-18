@@ -38,7 +38,7 @@ var barRows = []barRow{
 	{"workspaces", "Workspaces shown", "bar", "Widgets", Text, "", "", "The workspace numbers the bar always shows, such as 1 2 3; empty shows the ones in use"},
 	{"left", "Widgets on the left", "bar", "Widgets", Text, "", "workspaces window", "The bar's widgets on the left, in order"},
 	{"center", "Widgets in the middle", "bar", "Widgets", Text, "", "media clock focus", "The bar's widgets in the middle, in order"},
-	{"right", "Widgets on the right", "bar", "Widgets", Text, "", "privacy indicators updates snapshots weather tray cpu memory temperature network bluetooth audio brightness power-profile battery notifications", "The bar's widgets on the right, in order"},
+	{"right", "Widgets on the right", "bar", "Widgets", Text, "", "privacy indicators updates snapshots weather tray cpu memory temperature network bluetooth audio brightness power-profile battery keyboard notifications", "The bar's widgets on the right, in order"},
 	{"clock", "24-hour clock", "time", "Clock", Pick, "24h:24-hour|12h:12-hour", "24h", "24-hour or 12-hour time in the bar and on the lock screen"},
 }
 

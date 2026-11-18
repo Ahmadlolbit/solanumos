@@ -74,7 +74,7 @@ var pages = []Page{
 	{"privacy", "Privacy and security", "\uf132", "You", "The firewall between this computer and the network.", []string{"firewall", "security"}},
 	{"sharing", "Sharing and remote access", "\uf1e0", "You", "Whether the SSH server starts.", []string{"ssh", "remote"}},
 	{"time", "Date and time", "\uf017", "You", "The clock, and your location for the sun and the weather.", []string{"clock", "24-hour", "12-hour", "location", "sun"}},
-	{"accessibility", "Accessibility", "\uf29a", "You", "Text size, zoom, colour filters, animations and the screen reader.", []string{"screen reader", "orca", "text size", "larger text", "zoom", "magnifier", "colour filter", "color filter", "colour blindness", "greyscale", "invert", "animations", "reduce motion", "reduced motion"}},
+	{"accessibility", "Accessibility", "\uf29a", "You", "Text size, zoom, colour filters, animations, the screen reader and the on-screen keyboard.", []string{"screen reader", "orca", "text size", "larger text", "zoom", "magnifier", "colour filter", "color filter", "colour blindness", "greyscale", "invert", "animations", "reduce motion", "reduced motion", "on-screen keyboard"}},
 	{"updates", "Updates, snapshots and backups", "\uf021", "System", "Security updates, the Debian mirror and the snapshots kept.", []string{"updates", "snapshots", "restore", "mirror"}},
 	{"storage", "Storage and memory", "\uf1c0", "System", "Swap, zram and how readily memory moves to them.", []string{"swap", "zram", "memory", "disk"}},
 	{"startup", "Startup, login and boot", "\uf011", "System", "The system's name, the boot splash, the boot menu and the consoles.", []string{"boot", "splash", "grub", "console"}},
@@ -113,6 +113,7 @@ func buttons() []Row {
 		{Name: "open.update", Label: "Update now", Page: "updates", Section: "Updates", Help: "What's waiting, updated in Care with a snapshot taken first; Super+U opens it too", Keywords: []string{"update", "upgrade", "care"}, Command: []string{"solanum", "care", "updates"}},
 		{Name: "open.check", Label: "Check the system", Page: "updates", Section: "Updates", Help: "The system check in Care, and the safe fixes it offers", Keywords: []string{"doctor", "check", "health"}, Command: []string{"solanum", "care", "check"}},
 		{Name: "open.next", Label: "Next wallpaper", Page: "wallpaper", Section: "Changing", Help: "The next picture along; Super+Ctrl+B does it too", Keywords: []string{"next background"}, Command: []string{"solanum-background", "next"}},
+		{Name: "open.keyboard", Label: "On-screen keyboard", Page: "accessibility", Section: "Typing", Help: "A keyboard on the screen, in the theme's colours; the menu's Toggle page has it too, and the bar while it's shown or on a touch screen", Keywords: []string{"keyboard", "on-screen keyboard", "touch", "wvkbd"}, Command: []string{"solanum-look", "keyboard", "toggle"}},
 		{Name: "open.software", Label: "Add and remove software", Page: "apps", Section: "Software", Help: "Apps, any Debian package and web apps, in the Software window; Super+A opens it too", Keywords: []string{"software", "install", "remove", "package", "apt", "web app"}, Command: []string{"solanum", "software"}},
 	}
 }

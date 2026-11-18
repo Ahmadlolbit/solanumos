@@ -32,7 +32,7 @@ var (
 		"updates":       {"Updates", "Snapshots", "File history"},
 		"startup":       {"Boot", "Text consoles", "The system's name"},
 		"developer":     {"Tools", "Containers", "Terminal"},
-		"accessibility": {"Seeing", "Motion", "Screen reader"},
+		"accessibility": {"Seeing", "Motion", "Screen reader", "Typing"},
 	}
 )
 

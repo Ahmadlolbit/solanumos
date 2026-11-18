@@ -774,6 +774,7 @@ func themeSteps(context *Context) {
 	context.Run.Step("Point btop at the theme", theme.btopSetup)
 	context.Run.Step("Write the look settings", theme.lookInstall)
 	context.Run.Step("Install the screen reader", theme.readerInstall)
+	context.Run.Step("Install the on-screen keyboard", packages("accessibility"))
 	if context.Run.Step("Apply the "+context.Config.Get("THEME")+" theme", theme.apply) {
 		context.Run.Step("Remove the old themes", theme.oldThemesRemove)
 	}
@@ -799,6 +800,7 @@ func themeChecks(context *Context) {
 	if context.Config.Get("SCREEN_READER") == "yes" {
 		context.Run.Check("The screen reader is installed", func(log *runlog.Log) error { return apt.ListsPresent(log, "screen-reader") })
 	}
+	context.Run.Check("The on-screen keyboard is installed", func(log *runlog.Log) error { return apt.ListsPresent(log, "accessibility") })
 	context.Run.Check("GTK apps can take the theme's colours", func(*runlog.Log) error {
 		return expect(gtkBaseInPlace(), gtkBase+" isn't in "+gtkThemes)
 	})

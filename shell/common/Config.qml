@@ -15,17 +15,17 @@ Singleton {
       workspaces: [],
       left: ["workspaces", "window"],
       center: ["media", "clock", "focus"],
-      right: ["privacy", "indicators", "updates", "snapshots", "weather", "tray", "cpu", "memory", "temperature", "network", "bluetooth", "audio", "brightness", "power-profile", "battery", "notifications"],
+      right: ["privacy", "indicators", "updates", "snapshots", "weather", "tray", "cpu", "memory", "temperature", "network", "bluetooth", "audio", "brightness", "power-profile", "battery", "keyboard", "notifications"],
       preset: "full"
     })
   readonly property var presets: ({
       minimal: {
         left: ["workspaces"],
-        right: ["privacy", "indicators", "updates", "weather", "tray", "network", "bluetooth", "audio", "battery", "notifications"]
+        right: ["privacy", "indicators", "updates", "weather", "tray", "network", "bluetooth", "audio", "battery", "keyboard", "notifications"]
       },
       vertical: {
         left: ["workspaces"],
-        right: ["privacy", "indicators", "updates", "weather", "tray", "network", "bluetooth", "audio", "brightness", "battery", "notifications"]
+        right: ["privacy", "indicators", "updates", "weather", "tray", "network", "bluetooth", "audio", "brightness", "battery", "keyboard", "notifications"]
       }
     })
   readonly property var system: parse(systemFile.text())
