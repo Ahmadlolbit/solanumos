@@ -49,7 +49,7 @@ func Batteries() []string {
 }
 
 func adapter(name, kind string) bool {
-	return kind == "Mains" || strings.HasPrefix(name, "ADP") || strings.HasPrefix(name, "AC")
+	return kind == "Mains" || kind == "USB" || strings.HasPrefix(name, "ADP") || strings.HasPrefix(name, "AC")
 }
 
 func Mains() (bool, bool) {
