@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -12,6 +13,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/restic"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -98,9 +100,9 @@ func historyRestore(number, path string, asCopy bool) int {
 	if err != nil {
 		return fail("%s couldn't be restored: %v", path, err)
 	}
-	text := "Restored " + placed + "\n"
+	text := fmt.Sprintf(words.T("Restored %s")+"\n", placed)
 	if aside != "" {
-		text += "What was there is now " + aside + "\n"
+		text += fmt.Sprintf(words.T("What was there is now %s")+"\n", aside)
 	}
 	return say(text)
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
 	"github.com/Ahmadlolbit/solanumos/internal/restic"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -121,7 +122,7 @@ func listJSON() int {
 	}
 	backups, err := restic.Backups([]byte(output))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "restic's list of backups can't be read:", err)
+		fmt.Fprintf(os.Stderr, words.T("restic's list of backups can't be read: %v")+"\n", err)
 		return 1
 	}
 	data, err := json.Marshal(backups)
@@ -169,28 +170,32 @@ func scheduleDaily() int {
 	if code := run.Within(serviceLimit, "systemctl", "--user", "enable", "--now", timerUnit); code != 0 {
 		return code
 	}
-	fmt.Println("Backups now run once a day, while the computer is on the charger and the backup location can be reached.")
+	if onBatteryToo() {
+		fmt.Println(words.T("Backups now run once a day, when the backup location can be reached."))
+	} else {
+		fmt.Println(words.T("Backups now run once a day, while the computer is on the charger and the backup location can be reached."))
+	}
 	return 0
 }
 
 func scheduleOff() int {
 	if fsutil.IsFile(userUnit(timerUnit)) {
 		if code := run.Within(serviceLimit, "systemctl", "--user", "disable", "--now", timerUnit); code != 0 {
-			fmt.Fprintln(os.Stderr, "Daily backups are still on: systemd didn't turn the timer off.")
+			fmt.Fprintln(os.Stderr, words.T("Daily backups are still on: systemd didn't turn the timer off."))
 			return code
 		}
 	}
 	for _, name := range []string{timerUnit, serviceUnit} {
 		if err := os.Remove(userUnit(name)); err != nil && !os.IsNotExist(err) {
-			fmt.Fprintf(os.Stderr, "Daily backups are still on: %v\n", err)
+			fmt.Fprintf(os.Stderr, words.T("Daily backups are still on: %v")+"\n", err)
 			return 1
 		}
 	}
 	if code := run.Within(serviceLimit, "systemctl", "--user", "daemon-reload"); code != 0 {
-		fmt.Fprintln(os.Stderr, "The timer is off and its files are gone, but systemd still has it loaded: run systemctl --user daemon-reload.")
+		fmt.Fprintln(os.Stderr, words.T("The timer is off and its files are gone, but systemd still has it loaded: run systemctl --user daemon-reload."))
 		return code
 	}
-	fmt.Println("Daily backups are off.")
+	fmt.Println(words.T("Daily backups are off."))
 	return 0
 }
 
@@ -209,12 +214,11 @@ func remind(last, now time.Time) {
 	if !restic.Stale(last, scheduledSince(), now) || stamped("told") == now.Format(dayLayout) {
 		return
 	}
-	body := "There's no backup yet."
+	body := words.T("There's no backup yet. Backups run once a day while the computer is on the charger and the backup location can be reached.")
 	if !last.IsZero() {
-		body = "The last one was on " + last.Format("Monday 2 January") + "."
+		body = fmt.Sprintf(words.T("The last one was on %s. Backups run once a day while the computer is on the charger and the backup location can be reached."), last.Format("Monday 2 January"))
 	}
-	notify.Post([]string{"--app-name=solanum-backup"}, "No backup for a week",
-		body+" Backups run once a day while the computer is on the charger and the backup location can be reached.")
+	notify.Post([]string{"--app-name=solanum-backup"}, words.T("No backup for a week"), body)
 	note("told", now.Format(dayLayout))
 }
 
@@ -292,7 +296,7 @@ func restorePath(args []string) int {
 func placeRestored(source, path, when string, asCopy bool) int {
 	info, err := os.Lstat(source)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s isn't in that backup.\n", path)
+		fmt.Fprintf(os.Stderr, words.T("%s isn't in that backup.")+"\n", path)
 		return 1
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o777); err != nil {
@@ -301,12 +305,12 @@ func placeRestored(source, path, when string, asCopy bool) int {
 	}
 	placed, aside, err := restic.PutBack(source, path, when, info.IsDir(), asCopy)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s couldn't be restored: %v\n", path, err)
+		fmt.Fprintf(os.Stderr, words.T("%s couldn't be restored: %v")+"\n", path, err)
 		return 1
 	}
-	fmt.Println("Restored " + placed)
+	fmt.Printf(words.T("Restored %s")+"\n", placed)
 	if aside != "" {
-		fmt.Println("What was there is now " + aside)
+		fmt.Printf(words.T("What was there is now %s")+"\n", aside)
 	}
 	return 0
 }

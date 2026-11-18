@@ -15,6 +15,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -140,7 +141,7 @@ func (context *Context) homeSnapshotSteps() {
 		}
 		return
 	case !homeApart():
-		context.Run.Note("/home isn't a btrfs subvolume of its own, so there are no hourly snapshots of it.")
+		context.Run.Note(words.T("/home isn't a btrfs subvolume of its own, so there are no hourly snapshots of it."))
 		return
 	}
 	context.Run.Step("Keep ~/.cache and Steam's games out of the snapshots of /home", context.homeKeptOut)

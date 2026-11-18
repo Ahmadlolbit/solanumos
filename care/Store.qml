@@ -160,13 +160,13 @@ Singleton {
   }
 
   function showSecret() {
-    secretWhy = "";
-    if (!revealer.running)
+    secretWhy = Quickshell.env("USER") ? "" : "Your account's name isn't known here, so the password can't be shown. It's in ~/.config/restic-backup/password.";
+    if (!secretWhy && !revealer.running)
       revealer.running = true;
   }
 
   function compare(number) {
-    if (!number || compared[number] || comparing)
+    if (!number || comparing || compared[number] && !compared[number].failed)
       return;
     comparing = number;
     comparer.said = "";
@@ -181,7 +181,8 @@ Singleton {
     };
     compared = all;
     comparing = "";
-    compare(point);
+    if (!compared[point])
+      compare(point);
   }
 
   function parsed(text) {

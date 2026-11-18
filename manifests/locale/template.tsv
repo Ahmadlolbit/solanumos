@@ -2,11 +2,14 @@
 "%s" failed. What now?	
 %s  %s  ·  %d of %d	
 %s can use sudo	
+%s couldn't be restored: %v	
 %s is LUKS1, which can't hold a recovery key	
+%s isn't in that backup.	
 %s · %d of %d	
 %s's LUKS header can't be read	
 %s's key slots can't be read	
 %s. Nothing was changed.	
+/home isn't a btrfs subvolume of its own, so there are no hourly snapshots of it.	
 24-hour or 12-hour time in the bar and on the lock screen	
 64-bit PC (amd64)	
 A browser is the default	
@@ -61,6 +64,8 @@ Back up on battery
 Backports are available	
 Backports has a newer kernel for recent laptops; stable is Debian's own	
 Backups	
+Backups now run once a day, when the backup location can be reached.	
+Backups now run once a day, while the computer is on the charger and the backup location can be reached.	
 Bar	
 Bar layout	
 Bar position	
@@ -110,6 +115,9 @@ Crash notices
 Crash notices are on	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
+Daily backups are off.	
+Daily backups are still on: %v	
+Daily backups are still on: systemd didn't turn the timer off.	
 Daily backups run on battery too, not only on the charger	
 Daily snapshots of /home to keep	
 Daily snapshots to keep	
@@ -333,6 +341,7 @@ Night light
 Night light from	
 Night light until	
 No	
+No backup for a week	
 No disk here can take it: each is under %s, read-only, or in use.	
 Nothing changes until you choose Install at the end.	
 Nothing was changed.	
@@ -381,6 +390,7 @@ Remove %s
 Remove the old themes	
 Repositories and base packages	
 Reset applications and tools to the %s preset?	
+Restored %s	
 Review	
 Round the corners of the screen, like a phone's	
 Rounded screen corners	
@@ -514,6 +524,7 @@ The kernel the computer keeps starting, until you choose the newest again; empty
 The key wasn't saved: %s	
 The keyboard stays as it is: %s	
 The keyboard stays as it is: this terminal can't reach the desktop. Open Install SolanumOS from the launcher to change it	
+The last one was on %s. Backups run once a day while the computer is on the charger and the backup location can be reached.	
 The lock screen is configured	
 The login screen starts at boot	
 The login screen uses the Solanum theme	
@@ -548,6 +559,7 @@ The text consoles (Ctrl+Alt+F3) in your theme's colours, with a larger font and 
 The theme for the day	
 The theme for the night	
 The theme's own accent, or another of its colours, for borders and highlights	
+The timer is off and its files are gone, but systemd still has it loaded: run systemctl --user daemon-reload.	
 The tips are installed	
 The two disk passwords aren't the same	
 The two passwords aren't the same	
@@ -559,6 +571,7 @@ Theme switches reach the boot screens
 Theme the boot menu	
 Theme the text consoles	
 Themes	
+There's no backup yet. Backups run once a day while the computer is on the charger and the backup location can be reached.	
 There's no layout %s	
 There's no time zone %s	
 This disk has a recovery key.	
@@ -608,6 +621,7 @@ What mise sets up for every terminal: Node.js LTS, Python, Java 25 (Temurin) and
 What the boot menu, the text consoles, fastfetch and About call the system; programs that check which system this is still find Debian 13	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words, and the TPM's PIN prompt keeps its own	
+What was there is now %s	
 When a step fails	
 When both are installed, which engine answers the docker command	
 When notifications come back	
@@ -658,6 +672,7 @@ kubectl, helm, k9s and kind are installed
 lazydocker is installed	
 nothing was changed	
 removable	
+restic's list of backups can't be read: %v	
 restic-backup is in ~/bin	
 snapper-rollback works	
 sudo takes your finger	
