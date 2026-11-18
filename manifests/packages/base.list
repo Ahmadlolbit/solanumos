@@ -22,9 +22,11 @@ network-manager
 pciutils
 pkexec
 polkitd
+qrencode
 rsync
 sudo
 systemd-coredump
+systemd-cryptsetup
 udisks2
 unattended-upgrades
 unzip

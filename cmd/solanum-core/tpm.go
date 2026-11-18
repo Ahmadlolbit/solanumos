@@ -51,7 +51,7 @@ const (
 )
 
 func crypttab() string {
-	return env.Or("SOLANUM_CRYPTTAB", "/etc/crypttab")
+	return tpm.CrypttabPath()
 }
 
 func dracutConfig() string {

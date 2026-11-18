@@ -11,6 +11,8 @@ gdisk
 parted
 cryptsetup
 cryptsetup-initramfs
+systemd-cryptsetup
+qrencode
 btrfs-progs
 dosfstools
 e2fsprogs

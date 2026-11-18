@@ -20,6 +20,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/notify"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/snapshots"
+	"github.com/Ahmadlolbit/solanumos/internal/tpm"
 )
 
 const usage = `Usage: solanum-care [firmware|disk|hyprland]
@@ -64,13 +65,21 @@ func offer(app, urgency, summary, body string) bool {
 	return notify.Post([]string{"--app-name=" + app, "--urgency=" + urgency, "--expire-time=0", "--hint=string:x-dunst-stack-tag:" + app}, summary, body) == 0
 }
 
+func firmwareBody(fresh []string) string {
+	body := "Click to update.\n" + strings.Join(fresh, "\n")
+	if tpm.Unlocks(fsutil.Optional(tpm.CrypttabPath())) {
+		body += "\nThe TPM may refuse after the update: have the disk password or the recovery key ready."
+	}
+	return body
+}
+
 func firmware() bool {
 	output, err := run.Capture(run.Minute, "fwupdmgr", "get-updates", "--json")
 	waiting := care.Updates([]byte(output))
 	seen := filepath.Join(stateFolder(), "firmware-seen")
 	fresh := care.Unseen(waiting, fsutil.Optional(seen))
 	if len(fresh) > 0 {
-		if !offer("solanum-firmware", "normal", "Firmware update", "Click to update.\n"+strings.Join(fresh, "\n")) {
+		if !offer("solanum-firmware", "normal", "Firmware update", firmwareBody(fresh)) {
 			return false
 		}
 		save(seen, strings.Join(waiting, "\n")+"\n")

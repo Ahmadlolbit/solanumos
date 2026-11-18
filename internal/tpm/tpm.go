@@ -4,6 +4,8 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 )
 
 const (
@@ -20,6 +22,19 @@ type Image struct {
 	Listing  string
 	Crypttab string
 	Cmdline  string
+}
+
+func CrypttabPath() string {
+	return env.Or("SOLANUM_CRYPTTAB", "/etc/crypttab")
+}
+
+func Unlocks(crypttab string) bool {
+	for _, line := range strings.Split(crypttab, "\n") {
+		if fields := strings.Fields(line); len(fields) > 3 && !strings.HasPrefix(fields[0], "#") && slices.Contains(strings.Split(fields[3], ","), Option) {
+			return true
+		}
+	}
+	return false
 }
 
 func Before(kernel string) string {

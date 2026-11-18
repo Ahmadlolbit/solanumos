@@ -19,6 +19,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/session"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
@@ -438,6 +439,25 @@ func (visit *checkup) disk() {
 	}
 }
 
+func (visit *checkup) recoveryKey() {
+	devices := rootLuksDevices()
+	if len(devices) == 0 {
+		return
+	}
+	for _, device := range devices {
+		dump, err := run.CaptureQuiet(visit.limit, "cryptsetup", "luksDump", device.Device)
+		if unchecked("the recovery key", "Reading the disk's key slots", "cryptsetup", err) {
+			return
+		}
+		if !luks.HasKey(dump) {
+			ui.Warn("This disk has no recovery key")
+			ui.Note("Fix: sudo solanum recovery-key new")
+			return
+		}
+	}
+	ui.OK("The disk has a recovery key")
+}
+
 func batteryValue(battery, energy, charge string) string {
 	if text, err := fsutil.Text(filepath.Join(battery, energy)); err == nil {
 		return text
@@ -622,6 +642,7 @@ func examine() int {
 	ui.Rule("Storage")
 	visit.snapshots(setting)
 	visit.disk()
+	visit.recoveryKey()
 	ui.Rule("Hardware and packages")
 	checkBatteries()
 	visit.firmware()
