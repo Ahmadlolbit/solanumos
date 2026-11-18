@@ -174,14 +174,22 @@ func scheduleDaily() int {
 }
 
 func scheduleOff() int {
-	run.Quiet(serviceLimit, "systemctl", "--user", "disable", "--now", timerUnit)
+	if fsutil.IsFile(userUnit(timerUnit)) {
+		if code := run.Within(serviceLimit, "systemctl", "--user", "disable", "--now", timerUnit); code != 0 {
+			fmt.Fprintln(os.Stderr, "Daily backups are still on: systemd didn't turn the timer off.")
+			return code
+		}
+	}
 	for _, name := range []string{timerUnit, serviceUnit} {
 		if err := os.Remove(userUnit(name)); err != nil && !os.IsNotExist(err) {
 			fmt.Fprintf(os.Stderr, "Daily backups are still on: %v\n", err)
 			return 1
 		}
 	}
-	run.Within(serviceLimit, "systemctl", "--user", "daemon-reload")
+	if code := run.Within(serviceLimit, "systemctl", "--user", "daemon-reload"); code != 0 {
+		fmt.Fprintln(os.Stderr, "The timer is off and its files are gone, but systemd still has it loaded: run systemctl --user daemon-reload.")
+		return code
+	}
 	fmt.Println("Daily backups are off.")
 	return 0
 }
