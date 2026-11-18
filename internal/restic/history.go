@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"cmp"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -112,7 +113,11 @@ func copied(source, target string) error {
 func PutBack(source, target, when string, folder, asCopy bool) (string, string, error) {
 	if asCopy {
 		named := Beside(target, "from "+when, folder)
-		return named, "", copied(source, named)
+		if err := copied(source, named); err != nil {
+			os.RemoveAll(named)
+			return "", "", err
+		}
+		return named, "", nil
 	}
 	aside := ""
 	if _, err := os.Lstat(target); err == nil {
@@ -122,12 +127,20 @@ func PutBack(source, target, when string, folder, asCopy bool) (string, string, 
 		}
 	}
 	if err := copied(source, target); err != nil {
-		if aside != "" {
-			run.Logged(os.Stderr, "mv", "-n", "-T", "--", aside, target)
-		}
-		return "", "", err
+		return "", "", putAsideBack(target, aside, err)
 	}
 	return target, aside, nil
+}
+
+func putAsideBack(target, aside string, failed error) error {
+	removed := os.RemoveAll(target)
+	if aside == "" {
+		return failed
+	}
+	if removed != nil || run.Logged(os.Stderr, "mv", "-n", "-T", "--", aside, target) != nil {
+		return fmt.Errorf("%w, and what was there is still in %s", failed, aside)
+	}
+	return failed
 }
 
 func Inside(path, home string) bool {
