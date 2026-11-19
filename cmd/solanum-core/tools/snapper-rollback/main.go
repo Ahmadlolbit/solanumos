@@ -14,6 +14,7 @@ import (
 
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/inhibit"
 	runs "github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -251,6 +252,7 @@ func goBack(top layout, number string) error {
 		return errors.New("nothing changed")
 	}
 	signal.Ignore(unstoppable...)
+	defer inhibit.While("Rolling back to snapshot " + number)()
 	err = top.whileMounted(func() error { return top.replace(paths) })
 	syscall.Sync()
 	if err != nil {

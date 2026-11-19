@@ -14,6 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/files"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/inhibit"
 	"github.com/Ahmadlolbit/solanumos/internal/ledger"
 	"github.com/Ahmadlolbit/solanumos/internal/modules"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -243,6 +244,7 @@ func takeBack(id string, yes bool, log *runlog.Log) int {
 	if !yes && !ui.Confirm("Undo module "+id+"?") {
 		return undoFailed(log, "Nothing was changed.")
 	}
+	defer inhibit.While("Undoing module " + id)()
 	taken, err := snapshotBefore("before undoing module " + id)
 	if err != nil {
 		return undoFailed(log, "%v", err)

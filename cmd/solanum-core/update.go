@@ -22,6 +22,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/inhibit"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -361,6 +362,8 @@ func fullUpgrade() []string {
 		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade")
 }
 
+var updateWhy = map[string]string{"all": "Updating Debian, the apps and SolanumOS", "system": "Updating Debian", "apps": "Updating the apps", "solanum": "Updating SolanumOS"}
+
 var desktopPackages = []string{"hyprland", "quickshell", "hyprlock", "hypridle", "hyprpaper", "hyprpolkitagent", "xdg-desktop-portal-hyprland", "mako-notifier",
 	"pipewire", "wireplumber", "udiskie", "xdg-user-dirs", "sddm", "network-manager", "kitty", "polkitd", "pkexec", "sudo", "snapper", "btrfs-progs",
 	"linux-image-amd64", "initramfs-tools", "grub-efi-amd64"}
@@ -494,6 +497,7 @@ func update() int {
 		}
 		defer releaseUpdateHold()
 	}
+	defer inhibit.While(updateWhy[part])()
 	stopsTheUpdate()
 	return updateParts(wanted)
 }

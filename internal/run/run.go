@@ -311,6 +311,7 @@ type Child struct {
 type Spawning struct {
 	Environment []string
 	Shown       bool
+	Apart       bool
 }
 
 func Spawn(environment []string, name string, args ...string) (*Child, error) {
@@ -324,6 +325,9 @@ func SpawnWith(how Spawning, name string, args ...string) (*Child, error) {
 	command.Stderr = child.errors
 	if how.Shown {
 		command.Stderr = os.Stderr
+	}
+	if how.Apart {
+		command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	}
 	var err error
 	if child.Input, err = command.StdinPipe(); err != nil {
