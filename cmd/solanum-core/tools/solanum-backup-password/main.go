@@ -40,6 +40,10 @@ func passwordFile(person account.Account) string {
 }
 
 func show(args []string) int {
+	if len(args) == 1 && (args[0] == "-h" || args[0] == "--help") {
+		fmt.Print(usage)
+		return 0
+	}
 	if len(args) != 0 {
 		fmt.Fprint(os.Stderr, usage)
 		return usageCode
