@@ -11,6 +11,9 @@ FocusScope {
   property int index: 0
   property bool editing: false
   property bool seeking: false
+  property bool asking: false
+  property int answer: 0
+  readonly property bool changing: !!Store.busy || Arrangement.trying
   readonly property int pageIndex: Math.max(0, Store.pages.findIndex(item => item.id === Store.page))
   readonly property var headers: Store.search ? [] : ({
       about: [
@@ -90,6 +93,8 @@ FocusScope {
   }
 
   function hinted() {
+    if (asking)
+      return [[["Left", "Right"], "pick"], ["Enter", "answer"], ["Esc", "keep it open"]];
     if (chooser.visible)
       return chooser.hints;
     if (editing || list.activeFocus)
@@ -187,15 +192,37 @@ FocusScope {
   }
 
   function leave() {
-    if (Store.result === "failed") {
+    if (asking) {
+      asking = false;
+    } else if (Store.result === "failed") {
       Store.dismiss();
     } else if (Store.search || seeking) {
       Store.search = "";
       seeking = false;
       index = 0;
+    } else if (changing) {
+      answer = 0;
+      asking = true;
     } else {
       done();
     }
+    return true;
+  }
+
+  function answered(close) {
+    asking = false;
+    if (close)
+      done();
+    return true;
+  }
+
+  function askKey(event) {
+    if (event.key === Qt.Key_Left || event.key === Qt.Key_Right)
+      answer = event.key === Qt.Key_Left ? 0 : 1;
+    else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+      return answered(answer === 1);
+    else if (event.key === Qt.Key_Escape)
+      return answered(false);
     return true;
   }
 
@@ -222,6 +249,8 @@ FocusScope {
   }
 
   function key(event) {
+    if (asking)
+      return askKey(event);
     if (chooser.visible)
       return chooser.key(event);
     if (editing || list.activeFocus)
@@ -289,6 +318,10 @@ FocusScope {
   }
 
   focus: true
+  onChangingChanged: {
+    if (!changing)
+      asking = false;
+  }
   Component.onCompleted: sync()
   onItemsChanged: sync()
   onIndexChanged: {
@@ -556,6 +589,46 @@ FocusScope {
 
         width: parent.width
         pairs: frame.hints
+      }
+    }
+
+    Rectangle {
+      anchors.left: keys.left
+      anchors.right: keys.right
+      anchors.bottom: keys.top
+      anchors.bottomMargin: 16
+      visible: frame.asking
+      height: asked.implicitHeight + 32
+      color: Theme.surface
+      radius: Theme.radius
+      border.width: 1
+      border.color: Theme.overlay
+
+      RowLayout {
+        id: asked
+
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 16
+
+        Label {
+          Layout.fillWidth: true
+          text: Arrangement.trying ? "Close Settings? You can't keep this layout then: the old one comes back in " + Arrangement.left + " s." : "Close Settings? A change is still going, and it could stop halfway."
+          wrapMode: Text.Wrap
+        }
+
+        Button {
+          label: "Keep it open"
+          primary: true
+          chosen: frame.answer === 0
+          onClicked: frame.answered(false)
+        }
+
+        Button {
+          label: "Close"
+          chosen: frame.answer === 1
+          onClicked: frame.answered(true)
+        }
       }
     }
 
