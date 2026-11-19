@@ -58,6 +58,9 @@ func logTo(path string, command []string) error {
 
 func start(name string, chosen program) int {
 	command := chosen.command
+	if err := os.Unsetenv("HL_INITIAL_WORKSPACE_TOKEN"); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 	if verbose() {
 		logs := filepath.Join(env.StateHome(), "solanum", "logs")
 		if err := os.MkdirAll(logs, 0o777); err != nil {
