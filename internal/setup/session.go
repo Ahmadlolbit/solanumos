@@ -30,6 +30,9 @@ const (
 	tipService  = "solanum-tip.service"
 	careTimer   = "solanum-care.timer"
 	careService = "solanum-care.service"
+	crashNotice = "solanum-crashes.service"
+	loginWants  = "default.target.wants/"
+	timersWants = "timers.target.wants/"
 	fwupdTimer  = "fwupd-refresh.timer"
 	userUnits   = "/etc/systemd/user/"
 	screensCall = "timeout 2 qs -p /usr/share/solanum/shell ipc call screens "
@@ -287,15 +290,19 @@ func (context *Context) deployUserUnits(units ...string) (bool, error) {
 	return changed, nil
 }
 
-func everyoneTimer(log *runlog.Log, timer string, on, changed bool) error {
-	if !changed && fsutil.IsLink(userUnits+"timers.target.wants/"+timer) == on {
+func everyoneUnit(log *runlog.Log, wants, unit string, on, changed bool) error {
+	if !changed && fsutil.IsLink(userUnits+wants+unit) == on {
 		return nil
 	}
 	action := "disable"
 	if on {
 		action = "enable"
 	}
-	return run.Logged(log, "systemctl", "--global", action, timer)
+	return run.Logged(log, "systemctl", "--global", action, unit)
+}
+
+func everyoneTimer(log *runlog.Log, timer string, on, changed bool) error {
+	return everyoneUnit(log, timersWants, timer, on, changed)
 }
 
 func liveImage() bool {
@@ -321,6 +328,17 @@ func (context *Context) careInstall(log *runlog.Log) error {
 	return everyoneTimer(log, careTimer, !liveImage() && context.Config.Get("CARE_NOTIFY") == "yes", changed)
 }
 
+func (context *Context) crashNotices(log *runlog.Log) error {
+	if err := context.Deploy.Tool("solanum-crashes"); err != nil {
+		return err
+	}
+	changed, err := context.deployUserUnits(crashNotice)
+	if err != nil {
+		return err
+	}
+	return everyoneUnit(log, loginWants, crashNotice, !liveImage() && context.Config.Get("CRASH_NOTIFY") == "yes", changed)
+}
+
 func (context *Context) brightnessAccess(log *runlog.Log) error {
 	rules := followUp{name: "brightness-rules"}
 	changed, err := context.Deploy.Changed("system/udev/90-solanum-brightness.rules", "/etc/udev/rules.d/90-solanum-brightness.rules")
@@ -341,10 +359,14 @@ func (context *Context) toolStep(title, tool string) {
 	context.Run.Step(title, func(*runlog.Log) error { return context.Deploy.Tool(tool) })
 }
 
-func timerCheck(timer string) step.Work {
+func unitCheck(wants, unit string) step.Work {
 	return func(*runlog.Log) error {
-		return expect(fsutil.IsLink(userUnits+"timers.target.wants/"+timer), timer+" isn't enabled")
+		return expect(fsutil.IsLink(userUnits+wants+unit), unit+" isn't enabled")
 	}
+}
+
+func timerCheck(timer string) step.Work {
+	return unitCheck(timersWants, timer)
 }
 
 func sessionSteps(context *Context) {
@@ -359,6 +381,7 @@ func sessionSteps(context *Context) {
 	context.Run.Step("Show a tip now and then", context.tipTimerInstall)
 	context.Run.Step("Keep the firmware list fresh", func(log *runlog.Log) error { return service.Start(log, fwupdTimer) })
 	context.Run.Step("Look after the system quietly", context.careInstall)
+	context.Run.Step("Tell you when a program crashes", context.crashNotices)
 	context.Run.Step("Apply display and input settings", context.hyprlandOptions)
 	context.Run.Step("Set up your Hyprland config", context.hyprlandUserConfig)
 	context.Run.Step("Set up the lock screen", context.hyprlockSetup)
@@ -387,6 +410,9 @@ func sessionChecks(context *Context) {
 	})
 	if !liveImage() && context.Config.Get("CARE_NOTIFY") == "yes" {
 		context.Run.Check("The quiet system checks are scheduled", timerCheck(careTimer))
+	}
+	if !liveImage() && context.Config.Get("CRASH_NOTIFY") == "yes" {
+		context.Run.Check("Crash notices are on", unitCheck(loginWants, crashNotice))
 	}
 	context.Run.Check("The solanum command points at this folder", commandReady)
 	context.Run.Check("The firmware list is refreshed", func(*runlog.Log) error {

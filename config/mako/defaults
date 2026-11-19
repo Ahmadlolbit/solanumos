@@ -34,3 +34,6 @@ on-button-left=exec makoctl dismiss -n "$id"; solanum care updates
 
 [app-name=solanum-disk]
 on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum cleanup
+
+[app-name=solanum-crash]
+on-button-middle=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum collect

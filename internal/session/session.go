@@ -176,8 +176,8 @@ func loggedIn(home string) time.Time {
 	return info.ModTime()
 }
 
-func ownStart(home string, uid int) time.Time {
-	head, err := fsutil.ReadHead(filepath.Join(home, OwnLog), headBytes, uid)
+func logStart(path string, uid int) time.Time {
+	head, err := fsutil.ReadHead(path, headBytes, uid)
 	stamp, found := strings.CutPrefix(string(head), logStamp)
 	if err != nil || !found || len(stamp) < len(time.DateTime) {
 		return time.Time{}
@@ -187,6 +187,10 @@ func ownStart(home string, uid int) time.Time {
 		return time.Time{}
 	}
 	return when
+}
+
+func ownStart(home string, uid int) time.Time {
+	return logStart(filepath.Join(home, OwnLog), uid)
 }
 
 func Last(person account.Account, limit time.Duration) Ending {

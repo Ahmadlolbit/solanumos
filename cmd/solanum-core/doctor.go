@@ -14,6 +14,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/account"
 	"github.com/Ahmadlolbit/solanumos/internal/btrfs"
 	"github.com/Ahmadlolbit/solanumos/internal/config"
+	"github.com/Ahmadlolbit/solanumos/internal/crashes"
 	"github.com/Ahmadlolbit/solanumos/internal/deployed"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
@@ -264,6 +265,24 @@ func (visit *checkup) services() {
 	for _, unit := range user {
 		visit.offer("Restart "+unit, func() bool { return succeeded("runuser", visit.userSystemctl("restart", unit)...) })
 	}
+}
+
+func (visit *checkup) crashes() {
+	if _, err := exec.LookPath("coredumpctl"); err != nil {
+		ui.Skip("Crashes aren't kept: systemd-coredump isn't installed")
+		ui.Note("Fix: sudo solanum install --only 02")
+		return
+	}
+	all, err := crashes.SinceBoot(visit.limit)
+	if unchecked("for crashes", "Looking for crashes", "journalctl", err) {
+		return
+	}
+	if len(all) == 0 {
+		ui.OK("No program crashed since boot")
+		return
+	}
+	ui.Warn("Programs that crashed since boot: " + crashes.Names(all))
+	ui.Note("Fix: coredumpctl info NAME says what happened; sudo solanum collect writes a report to send")
 }
 
 func (visit *checkup) timers() (bool, error) {
@@ -599,6 +618,7 @@ func examine() int {
 	ui.Rule("Desktop")
 	visit.desktop()
 	visit.services()
+	visit.crashes()
 	ui.Rule("Storage")
 	visit.snapshots(setting)
 	visit.disk()

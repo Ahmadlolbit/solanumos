@@ -15,7 +15,7 @@ var (
 		"HIBERNATE": "Sleep", "IDLE_SUSPEND_MINUTES": "Sleep", "IDLE_LOCK_MINUTES": "Locking", "SCREENSAVER_MINUTES": "Screensaver", "GREETER": "Login screen", "SESSION_RECOVERY": "Login screen",
 		"SHELL_PROMPT": "Terminal", "DEV_TOOLS": "Tools", "MISE_TOOLS": "Tools", "CONTAINER_ENGINE": "Containers", "DOCKER_PORTS": "Containers",
 		"DISPLAY_SCALE": "Scale and shape", "NATURAL_SCROLL": "Touchpad", "TAP_TO_CLICK": "Touchpad", "ANIMATIONS": "Animations",
-		"TIPS_TERMINAL": "Tips", "TIPS_WELCOME": "Tips", "TIPS_NOTIFY": "Tips and warnings", "CARE_NOTIFY": "Tips and warnings",
+		"TIPS_TERMINAL": "Tips", "TIPS_WELCOME": "Tips", "TIPS_NOTIFY": "Tips and warnings", "CARE_NOTIFY": "Tips and warnings", "CRASH_NOTIFY": "Tips and warnings",
 		"FIREWALL": "Firewall", "SSH_POLICY": "SSH", "NM_HANDOVER": "Connections", "FINGERPRINT": "Fingerprint",
 	}
 	sectionOrder = map[string][]string{
