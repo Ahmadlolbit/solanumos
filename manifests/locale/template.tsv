@@ -260,6 +260,7 @@ Install the boot loader
 Install the colour and QR picker	
 Install the floating terminal	
 Install the login screen	
+Install the on-screen keyboard	
 Install the package picker	
 Install the restic-backup helper	
 Install the screen reader	
@@ -543,6 +544,7 @@ The look settings are written
 The newest kernel is running (or starts after a reboot)	
 The next theme every morning at 6; Super+Ctrl+T still changes it during the day	
 The old recovery key may still work too: %v.	
+The on-screen keyboard is installed	
 The package picker is installed	
 The quiet system checks are scheduled	
 The recovery key couldn't be made: %s. Make one after the first start: sudo solanum recovery-key new	
@@ -647,8 +649,8 @@ Which USB stick?
 Wi-Fi and wired connections move to NetworkManager, so the bar manages them	
 Window style	
 Windows	
-Windows and workspaces animate as they open, close and move	
 Windows stays. Solanum goes in the free space, and the boot menu offers both for five seconds.	
+Windows, workspaces, popups and apps move as they open and close; turning them off reduces motion	
 Without one, a forgotten disk password means nothing on the disk can be read again.	
 Words above it	
 Words above the disk password	

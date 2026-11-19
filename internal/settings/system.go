@@ -24,7 +24,7 @@ var (
 		"night": "NIGHT_LIGHT", "night_from": "NIGHT_FROM", "night_to": "NIGHT_TO", "chime": "STARTUP_SOUND", "power": "POWER_FOLLOW",
 		"lock_media": "LOCK_MEDIA", "lock_battery": "LOCK_BATTERY", "weather": "WEATHER", "weather_units": "WEATHER_UNITS", "quiet": "QUIET_HOURS",
 		"quiet_from": "QUIET_FROM", "quiet_to": "QUIET_TO", "text": "TEXT_SIZE", "reader": "SCREEN_READER",
-		"bar.preset": "BAR_PRESET", "bar.position": "BAR_POSITION", "bar.clock": "CLOCK_FORMAT",
+		"animations": "ANIMATIONS", "bar.preset": "BAR_PRESET", "bar.position": "BAR_POSITION", "bar.clock": "CLOCK_FORMAT",
 	}
 
 	afterRestart = []string{"KERNEL", "KEPT_KERNEL", "GRAPHICS", "WEBCAM", "GREETER", "HIBERNATE", "BOOT_SPLASH", "BOOT_PROMPT", "BOOT_MENU_THEME", "CONSOLE_THEME"}
@@ -36,7 +36,7 @@ var (
 		"GREETER": {"lock", "07"}, "SESSION_RECOVERY": {"lock", "07"},
 		"SHELL_PROMPT": {"developer", "08"}, "APPS": {"apps", "10"}, "TEAMS_SOURCE": {"apps", "10"}, "DEV_TOOLS": {"developer", "11"},
 		"MISE_TOOLS": {"developer", "11"}, "CONTAINER_ENGINE": {"developer", "11"}, "DOCKER_PORTS": {"developer", "11"}, "EXTRAS": {"apps", "10"},
-		"DISPLAY_SCALE": {"display", "12"}, "NATURAL_SCROLL": {"mouse", "12"}, "TAP_TO_CLICK": {"mouse", "12"}, "ANIMATIONS": {"windows", "12"},
+		"DISPLAY_SCALE": {"display", "12"}, "NATURAL_SCROLL": {"mouse", "12"}, "TAP_TO_CLICK": {"mouse", "12"}, "ANIMATIONS": {"accessibility", "14"},
 		"WINDOW_STYLE": {"themes", "14"}, "TEXT_SIZE": {"accessibility", "14"}, "SCREEN_READER": {"accessibility", "14"}, "STARTUP_SOUND": {"sound", "14"},
 		"SCREENSAVER_MINUTES": {"lock", "12"}, "TIPS_TERMINAL": {"about", "12"}, "TIPS_WELCOME": {"about", "12"}, "TIPS_NOTIFY": {"notifications", "12"},
 		"POWER_FOLLOW": {"power", "14"}, "CARE_NOTIFY": {"notifications", "12"}, "CRASH_NOTIFY": {"notifications", "12"}, "IDLE_LOCK_MINUTES": {"lock", "12"}, "IDLE_SUSPEND_MINUTES": {"power", "12"},

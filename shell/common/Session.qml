@@ -11,6 +11,7 @@ Singleton {
   property bool recording: false
   property bool powerProfiles: false
   property bool fnLock: false
+  property bool keyboardShown: false
   property string fnLed: ""
   property real until: 0
   property real now: Date.now()
@@ -121,6 +122,26 @@ Singleton {
       root.now = Date.now();
       if (root.now >= root.until)
         root.awake = false;
+    }
+  }
+
+  Process {
+    running: true
+    command: ["solanum-look", "keyboard"]
+    stdout: StdioCollector {
+      onStreamFinished: root.keyboardShown = text.trim() === "shown"
+    }
+  }
+
+  IpcHandler {
+    target: "keyboard"
+
+    function shown(): void {
+      root.keyboardShown = true;
+    }
+
+    function hidden(): void {
+      root.keyboardShown = false;
     }
   }
 

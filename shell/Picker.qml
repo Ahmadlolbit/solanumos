@@ -391,14 +391,14 @@ Scope {
 
             Behavior on x {
               NumberAnimation {
-                duration: 180
+                duration: Theme.slide
                 easing.type: Easing.OutCubic
               }
             }
 
             Behavior on width {
               NumberAnimation {
-                duration: 180
+                duration: Theme.slide
                 easing.type: Easing.OutCubic
               }
             }
@@ -464,7 +464,7 @@ Scope {
 
                 Behavior on opacity {
                   NumberAnimation {
-                    duration: 180
+                    duration: Theme.slide
                   }
                 }
               }

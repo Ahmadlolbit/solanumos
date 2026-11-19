@@ -15,7 +15,7 @@ var (
 		"SYSTEM_NAME": "The system's name", "BOOT_SPLASH": "Boot", "BOOT_PROMPT": "Boot", "BOOT_MENU_THEME": "Boot", "CONSOLE_THEME": "Text consoles",
 		"HIBERNATE": "Sleep", "IDLE_SUSPEND_MINUTES": "Sleep", "IDLE_LOCK_MINUTES": "Locking", "SCREENSAVER_MINUTES": "Screensaver", "GREETER": "Login screen", "SESSION_RECOVERY": "Login screen",
 		"SHELL_PROMPT": "Terminal", "DEV_TOOLS": "Tools", "MISE_TOOLS": "Tools", "CONTAINER_ENGINE": "Containers", "DOCKER_PORTS": "Containers",
-		"DISPLAY_SCALE": "Scale and shape", "NATURAL_SCROLL": "Touchpad", "TAP_TO_CLICK": "Touchpad", "ANIMATIONS": "Animations",
+		"DISPLAY_SCALE": "Scale and shape", "NATURAL_SCROLL": "Touchpad", "TAP_TO_CLICK": "Touchpad", "ANIMATIONS": "Motion",
 		"TIPS_TERMINAL": "Tips", "TIPS_WELCOME": "Tips", "TIPS_NOTIFY": "Tips and warnings", "CARE_NOTIFY": "Tips and warnings", "CRASH_NOTIFY": "Tips and warnings",
 		"FIREWALL": "Firewall", "SSH_POLICY": "SSH", "NM_HANDOVER": "Connections", "FINGERPRINT": "Fingerprint",
 		"RECOVERY_KEY_REMINDER": "Recovery key",
@@ -32,6 +32,7 @@ var (
 		"updates":       {"Updates", "Snapshots", "File history"},
 		"startup":       {"Boot", "Text consoles", "The system's name"},
 		"developer":     {"Tools", "Containers", "Terminal"},
+		"accessibility": {"Seeing", "Motion", "Screen reader", "Typing"},
 	}
 )
 
