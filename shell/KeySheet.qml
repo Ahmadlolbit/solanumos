@@ -134,7 +134,7 @@ Scope {
       close();
     else if (event.key === Qt.Key_Backspace)
       filter = filter.slice(0, -1);
-    else if (/^[\w .+-]$/.test(event.text))
+    else if (Keyboard.joins(filter, event.text))
       filter += event.text;
     else
       return false;

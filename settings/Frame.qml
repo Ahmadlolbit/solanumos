@@ -181,7 +181,7 @@ FocusScope {
   function typed(event) {
     if (event.key === Qt.Key_Backspace && Store.search) {
       Store.search = Store.search.slice(0, -1);
-    } else if (/^[\w .,+-]$/.test(event.text)) {
+    } else if (Keyboard.joins(Store.search, event.text)) {
       Store.search += event.text;
       zone = "rows";
     } else {

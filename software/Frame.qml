@@ -119,7 +119,7 @@ FocusScope {
     if (watching)
       return [["Esc", "pages"]];
     const marking = focused && ["app", "pkg"].includes(focused.kind);
-    return [[["Up", "Down"], "move"], ["Enter", Store.marked > 0 ? "apply" : marking ? (focused.installed ? "remove" : "install") : "choose"]].concat(marking ? [["Space", "mark"]] : [], [["Type", "search"], ["Esc", searching ? "clear" : "close"]]);
+    return [[["Up", "Down"], "move"], ["Enter", Store.marked > 0 ? "apply" : marking ? (focused.installed ? "remove" : "install") : "choose"]].concat(marking && !searching ? [["Space", "mark"]] : [], [["Type", "search"], ["Esc", searching ? "clear" : "close"]]);
   }
 
   function selectable(item) {
@@ -244,7 +244,7 @@ FocusScope {
   function typed(event) {
     if (event.key === Qt.Key_Backspace && searching)
       Store.search = Store.search.slice(0, -1);
-    else if (/^[\w.+-]$/.test(event.text) && !watching)
+    else if (Keyboard.joins(Store.search, event.text) && !watching)
       Store.search += event.text.toLowerCase();
     else
       return false;
@@ -277,7 +277,7 @@ FocusScope {
       [Qt.Key_Down]: () => move(1),
       [Qt.Key_Return]: () => activate(),
       [Qt.Key_Enter]: () => activate(),
-      [Qt.Key_Space]: () => markFocused(),
+      [Qt.Key_Space]: () => searching ? typed(event) : markFocused(),
       [Qt.Key_Home]: () => first() || true,
       [Qt.Key_PageUp]: () => move(-10),
       [Qt.Key_PageDown]: () => move(10)
