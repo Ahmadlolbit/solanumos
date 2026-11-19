@@ -267,9 +267,6 @@ func apart(stoppable bool, command []string, failure string) int {
 }
 
 func updateSystem() int {
-	if status := snapshotFirst(); status != 0 {
-		return status
-	}
 	if apt.Interrupted() {
 		ui.Print("dpkg was interrupted, finishing what it left\n")
 		if status := apart(false, admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
@@ -280,12 +277,11 @@ func updateSystem() int {
 			return stoppedCode
 		}
 	}
-	ui.Print("Updating Debian\n")
-	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 && !run.Stopped() {
-		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
+	if status := refreshed(); status != 0 {
+		return status
 	}
-	if run.Stopped() {
-		return stoppedCode
+	if status := snapshotFirst(); status != 0 {
+		return status
 	}
 	before := sessionVersions()
 	status := apart(true, fullUpgrade(), "updating Debian failed")
@@ -302,6 +298,61 @@ func updateSystem() int {
 	return status
 }
 
+func refreshed() int {
+	ui.Print("Updating Debian\n")
+	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 && !run.Stopped() {
+		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
+	}
+	if run.Stopped() {
+		return stoppedCode
+	}
+	gone, err := desktopRemoved()
+	if err != nil {
+		debianFailed = true
+		return fail("couldn't check what updating Debian would remove: %v, so Debian wasn't updated", err)
+	}
+	if len(gone) > 0 {
+		debianFailed = true
+		return fail("updating Debian would remove %s, which the desktop needs, so Debian wasn't updated: apt full-upgrade --simulate shows what would go and why", spokenList(gone))
+	}
+	return 0
+}
+
+func desktopRemoved() ([]string, error) {
+	removed, err := simulated("full-upgrade", nil)
+	var gone []string
+	for _, name := range removed {
+		if bare, _, _ := strings.Cut(name, ":"); desktopNeeds(bare) {
+			gone = append(gone, bare)
+		}
+	}
+	return gone, err
+}
+
+func desktopNeeds(name string) bool {
+	switch {
+	case slices.Contains(desktopPackages, name), strings.HasPrefix(name, "grub-efi"), strings.HasPrefix(name, "grub-pc"):
+		return true
+	}
+	return name == "cryptsetup-initramfs" && rootEncrypted()
+}
+
+func rootEncrypted() bool {
+	for _, line := range run.Lines(fsutil.Optional(env.Or("SOLANUM_CRYPTTAB", "/etc/crypttab"))) {
+		if fields := strings.Fields(line); len(fields) > 1 && !strings.HasPrefix(fields[0], "#") {
+			return true
+		}
+	}
+	return false
+}
+
+func spokenList(words []string) string {
+	if len(words) < 2 {
+		return strings.Join(words, "")
+	}
+	return strings.Join(words[:len(words)-1], ", ") + " and " + words[len(words)-1]
+}
+
 func fullUpgrade() []string {
 	if !streamed {
 		return admin("apt", "full-upgrade")
@@ -309,6 +360,10 @@ func fullUpgrade() []string {
 	return admin("env", "DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none",
 		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade")
 }
+
+var desktopPackages = []string{"hyprland", "quickshell", "hyprlock", "hypridle", "hyprpaper", "hyprpolkitagent", "xdg-desktop-portal-hyprland", "mako-notifier",
+	"pipewire", "wireplumber", "udiskie", "xdg-user-dirs", "sddm", "network-manager", "kitty", "polkitd", "pkexec", "sudo", "snapper", "btrfs-progs",
+	"linux-image-amd64", "initramfs-tools", "grub-efi-amd64"}
 
 var appTools = []struct {
 	name, what, action, unasked string
