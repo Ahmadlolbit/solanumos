@@ -227,7 +227,7 @@ func snapshotFirst() int {
 		return 0
 	}
 	ui.Print("Taking a snapshot first\n")
-	if snapshot := admin("snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number"); run.Status(snapshot[0], snapshot[1:]...) != 0 {
+	if snapshot := admin("snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number", "--userdata", "important=yes"); run.Status(snapshot[0], snapshot[1:]...) != 0 {
 		return fail("the snapshot failed, so nothing was updated")
 	}
 	snapshotTaken = true
