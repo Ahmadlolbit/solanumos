@@ -38,7 +38,7 @@ const (
 )
 
 func marker() string {
-	return filepath.Join(env.Or("XDG_RUNTIME_DIR", env.OwnState()), session.Marker)
+	return session.MarkerPath()
 }
 
 func me() account.Account {
