@@ -16,7 +16,10 @@ else
 fi
 mkdir -p /var/log/solanum-live
 mv /home/solanum/runbook-logs /home/solanum/runbook-report.md /var/log/solanum-live/ 2>/dev/null || true
-[ "$status" = 0 ] || echo "The setup in the image stopped short (exit $status); the image keeps what passed, and its log is in /var/log/solanum-live" >&2
+if [ "$status" != 0 ]; then
+  echo "The setup in the image failed (exit $status), so the build stops here; its log is in the image's /var/log/solanum-live" >&2
+  exit 1
+fi
 rm -rf /home/solanum/.cache /root/.cache
 mv /etc/skel /etc/skel.debian
 mv /home/solanum /etc/skel

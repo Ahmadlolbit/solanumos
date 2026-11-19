@@ -29,3 +29,5 @@ git -c advice.detachedHead=false clone --quiet --no-local --single-branch --no-t
 git -C "$target" remote set-url origin https://github.com/Ahmadlolbit/solanumos.git
 printf 'commit %s\n' "$(git -C "$target" rev-parse HEAD)" >"$record"
 [[ -z $tag ]] || printf 'tag %s\n' "$tag" >>"$record"
+changed="$(git -C "$from" --no-optional-locks status --porcelain --untracked-files=no && git -C "$from" --no-optional-locks status --porcelain -- iso)"
+[[ -z $changed ]] || printf 'dirty\n' >>"$record"
