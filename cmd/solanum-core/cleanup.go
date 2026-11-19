@@ -115,7 +115,43 @@ func cleanUp(yes bool) int {
 	return deleteUntilClean(numbers, use)
 }
 
+type cleanupPlan struct {
+	Use       int               `json:"use"`
+	Known     bool              `json:"known"`
+	Goal      int               `json:"goal"`
+	Snapshots int               `json:"snapshots"`
+	Old       []snapshots.Point `json:"old"`
+	Held      int64             `json:"held"`
+	HeldKnown bool              `json:"heldKnown"`
+	Unread    bool              `json:"unread"`
+}
+
+func planCleanup() int {
+	plan := cleanupPlan{Goal: cleanGoal, Old: []snapshots.Point{}}
+	plan.Use, plan.Known = snapshots.DiskUse()
+	if !installed("snapper") {
+		return printed(plan)
+	}
+	all, err := snapshots.All()
+	if err != nil {
+		plan.Unread = true
+		return printed(plan)
+	}
+	numbers := snapshots.Disposable(all)
+	plan.Snapshots = len(all)
+	for _, snapshot := range all {
+		if slices.Contains(numbers, snapshot.Number) {
+			plan.Old = append(plan.Old, snapshot.Point())
+		}
+	}
+	plan.Held, plan.HeldKnown = snapshots.Held(numbers)
+	return printed(plan)
+}
+
 func cleanupCommand() int {
+	if env.Arg(2) == "--plan" && env.Arg(3) == "--json" && env.Arg(4) == "" {
+		return planCleanup()
+	}
 	yes := env.Arg(2) == "--yes"
 	if (env.Arg(2) != "" && !yes) || env.Arg(3) != "" {
 		return fail("usage: solanum cleanup [--yes]")

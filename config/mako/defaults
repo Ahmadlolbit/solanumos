@@ -33,7 +33,10 @@ invisible=1
 on-button-left=exec makoctl dismiss -n "$id"; solanum care updates
 
 [app-name=solanum-disk]
-on-button-left=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum cleanup
+on-button-left=exec makoctl dismiss -n "$id"; solanum care space
 
 [app-name=solanum-crash]
 on-button-middle=exec makoctl dismiss -n "$id"; solanum-terminal --wait sudo solanum collect
+
+[app-name=solanum-backup]
+on-button-left=exec makoctl dismiss -n "$id"; solanum care history

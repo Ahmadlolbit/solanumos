@@ -2,11 +2,14 @@
 "%s" failed. What now?	
 %s  %s  ·  %d of %d	
 %s can use sudo	
+%s couldn't be restored: %v	
 %s is LUKS1, which can't hold a recovery key	
+%s isn't in that backup.	
 %s · %d of %d	
 %s's LUKS header can't be read	
 %s's key slots can't be read	
 %s. Nothing was changed.	
+/home isn't a btrfs subvolume of its own, so there are no hourly snapshots of it.	
 24-hour or 12-hour time in the bar and on the lock screen	
 64-bit PC (amd64)	
 A browser is the default	
@@ -21,6 +24,7 @@ A row can't take a tab or a line break, so the paste isn't taken
 A second way to open the disk when its password is forgotten, shown once when the install ends; Space turns it off	
 A short chime when you log in, lower for dark themes and higher for light ones; a sound of your own in ~/.config/solanum/startup.ogg plays instead	
 A short tip under the prompt in every new terminal	
+A snapshot of /home every hour, to get back a file you deleted or changed; ~/.cache and Steam's games stay out, and a file you delete stays in them until they age out	
 A text file with the key, on a USB stick other than the installer's	
 A theme is applied	
 A time zone takes only letters, digits, slashes and _ + -	
@@ -56,9 +60,12 @@ Ask what to do, stop the run, or note the failure and carry on
 At least 8 characters: English letters, digits, signs and spaces	
 Automatic light and dark	
 Automatic security updates	
+Back up on battery	
 Backports are available	
 Backports has a newer kernel for recent laptops; stable is Debian's own	
 Backups	
+Backups now run once a day, when the backup location can be reached.	
+Backups now run once a day, while the computer is on the charger and the backup location can be reached.	
 Bar	
 Bar layout	
 Bar position	
@@ -108,6 +115,11 @@ Crash notices
 Crash notices are on	
 Create a %s GiB swapfile	
 Ctrl+C              Leave, after asking	
+Daily backups are off.	
+Daily backups are still on: %v	
+Daily backups are still on: systemd didn't turn the timer off.	
+Daily backups run on battery too, not only on the charger	
+Daily snapshots of /home to keep	
 Daily snapshots to keep	
 Dark from	
 Dark theme	
@@ -171,9 +183,12 @@ Glass mode
 Hand the network over to NetworkManager	
 Hand the rest of the setup to the first start	
 Hibernate	
+Hourly snapshots of /home to keep	
 How full the battery is, in a corner; nothing on a computer without one	
 How it shows on the network: small letters, digits and -	
+How many daily snapshots of /home to keep	
 How many daily snapshots to keep	
+How many hourly snapshots of /home to keep	
 How many monthly snapshots to keep	
 How many weekly snapshots to keep	
 How readily memory moves to swap; a high value suits zram	
@@ -270,6 +285,7 @@ Keep crash dumps small
 Keep the SSH server off	
 Keep the firmware list fresh	
 Keep these choices without installing	
+Keep ~/.cache and Steam's games out of the snapshots of /home	
 Kept kernel	
 Kernel	
 Kernel and drivers	
@@ -325,6 +341,7 @@ Night light
 Night light from	
 Night light until	
 No	
+No backup for a week	
 No disk here can take it: each is under %s, read-only, or in use.	
 Nothing changes until you choose Install at the end.	
 Nothing was changed.	
@@ -373,6 +390,7 @@ Remove %s
 Remove the old themes	
 Repositories and base packages	
 Reset applications and tools to the %s preset?	
+Restored %s	
 Review	
 Round the corners of the screen, like a phone's	
 Rounded screen corners	
@@ -427,6 +445,8 @@ Snapshot timers are running
 Snapshots and rollback	
 Snapshots appear in the boot menu	
 Snapshots before changes, so you can roll back from the boot menu	
+Snapshots of /home	
+Snapshots of /home are set up	
 Software is installed	
 Solanum is installed. Restart, take the USB stick out, and type your disk password.	
 Solanum recovery key	
@@ -443,6 +463,7 @@ Steam is installed
 Stop chezmoi pushing your dotfiles on its own	
 Stop hibernating	
 Stop taking new snapshots	
+Stop taking snapshots of /home	
 Stop the setup?	
 Stopping: what's running has to end first	
 Storage	
@@ -458,6 +479,7 @@ System
 System preflight	
 System snapshots	
 Tab, Shift+Tab      Move between rows	
+Take a snapshot of /home every hour	
 Take out the live system's parts	
 Take the first snapshot	
 Take the recovery key away? It stops opening the disk.	
@@ -502,6 +524,7 @@ The kernel the computer keeps starting, until you choose the newest again; empty
 The key wasn't saved: %s	
 The keyboard stays as it is: %s	
 The keyboard stays as it is: this terminal can't reach the desktop. Open Install SolanumOS from the launcher to change it	
+The last one was on %s. Backups run once a day while the computer is on the charger and the backup location can be reached.	
 The lock screen is configured	
 The login screen starts at boot	
 The login screen uses the Solanum theme	
@@ -536,6 +559,7 @@ The text consoles (Ctrl+Alt+F3) in your theme's colours, with a larger font and 
 The theme for the day	
 The theme for the night	
 The theme's own accent, or another of its colours, for borders and highlights	
+The timer is off and its files are gone, but systemd still has it loaded: run systemctl --user daemon-reload.	
 The tips are installed	
 The two disk passwords aren't the same	
 The two passwords aren't the same	
@@ -547,6 +571,7 @@ Theme switches reach the boot screens
 Theme the boot menu	
 Theme the text consoles	
 Themes	
+There's no backup yet. Backups run once a day while the computer is on the charger and the backup location can be reached.	
 There's no layout %s	
 There's no time zone %s	
 This disk has a recovery key.	
@@ -596,6 +621,7 @@ What mise sets up for every terminal: Node.js LTS, Python, Java 25 (Temurin) and
 What the boot menu, the text consoles, fastfetch and About call the system; programs that check which system this is still find Debian 13	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words	
 What the boot splash shows above the disk password, such as Welcome back; empty keeps the system's own words, and the TPM's PIN prompt keeps its own	
+What was there is now %s	
 When a step fails	
 When both are installed, which engine answers the docker command	
 When notifications come back	
@@ -646,6 +672,7 @@ kubectl, helm, k9s and kind are installed
 lazydocker is installed	
 nothing was changed	
 removable	
+restic's list of backups can't be read: %v	
 restic-backup is in ~/bin	
 snapper-rollback works	
 sudo takes your finger	

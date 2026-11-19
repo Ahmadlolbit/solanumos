@@ -30,6 +30,7 @@ on stdout and its answers on stdin. The jobs:
   app-remove APP
   pkg-install NAME...
   pkg-remove NAME...
+  collect
 `
 	usageCode   = 2
 	mostNames   = 100
@@ -60,6 +61,7 @@ var (
 		"app-remove":  {[]string{"app", "remove", "--events"}, appID, true, false},
 		"pkg-install": {[]string{"pkg", "--events", "install"}, pkgID, true, true},
 		"pkg-remove":  {[]string{"pkg", "--events", "remove"}, pkgID, true, true},
+		"collect":     {[]string{"collect", "--events"}, nil, false, false},
 	}
 	start = func(program string, args, environment []string) int {
 		os.Clearenv()

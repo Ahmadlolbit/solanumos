@@ -179,12 +179,18 @@ func (plan undoPlan) takeMade(log *runlog.Log) error {
 	return nil
 }
 
-func usbOff(log *runlog.Log, helper string) error {
+func backupRunsOff(log *runlog.Log, helper string) error {
 	person, ok, err := account.Owner(helper)
 	if err != nil || !ok {
 		return err
 	}
-	return person.Run(log, helper, "usb", "off")
+	if err := person.Run(log, helper, "usb", "off"); err != nil {
+		return err
+	}
+	if !fsutil.Exists(person.Path(".config/systemd/user/restic-backup.timer")) {
+		return nil
+	}
+	return person.Run(log, helper, "schedule", "off")
 }
 
 func (plan undoPlan) backupsOff(log *runlog.Log) error {
@@ -195,7 +201,7 @@ func (plan undoPlan) backupsOff(log *runlog.Log) error {
 		if filepath.Base(path) != backupHelper || !fsutil.Runnable(path) {
 			continue
 		}
-		if err := usbOff(log, path); err != nil {
+		if err := backupRunsOff(log, path); err != nil {
 			return err
 		}
 	}
@@ -270,9 +276,58 @@ func undo(id string, yes bool) int {
 	return code
 }
 
+type undoEntry struct {
+	ID       string   `json:"id"`
+	Title    string   `json:"title"`
+	State    string   `json:"state"`
+	Packages []string `json:"packages"`
+	Services []string `json:"services"`
+	Files    []string `json:"files"`
+	Unpacked []string `json:"unpacked"`
+	Problem  string   `json:"problem"`
+}
+
+func listed(names []string) []string {
+	if names == nil {
+		return []string{}
+	}
+	return names
+}
+
+func undoEntryFor(id string) undoEntry {
+	entry := undoEntry{ID: id, Title: moduleTitle(id), State: "unknown", Packages: []string{}, Services: []string{}, Files: []string{}, Unpacked: []string{}}
+	status, _ := modules.StatusOf(fsutil.Optional(modules.StatusFile()), id)
+	switch {
+	case !ledger.Known(id) && status == modules.Undone:
+		entry.State = "undone"
+		return entry
+	case !ledger.Known(id):
+		return entry
+	}
+	plan, err := planUndo(id)
+	if err != nil {
+		entry.State, entry.Problem = "unread", err.Error()
+		return entry
+	}
+	entry.State = "ready"
+	entry.Packages, entry.Services, entry.Files, entry.Unpacked = listed(plan.packages), listed(plan.services), listed(plan.files), listed(plan.made)
+	return entry
+}
+
+func listUndo() int {
+	entries := []undoEntry{}
+	for _, id := range undoable {
+		entries = append(entries, undoEntryFor(id))
+	}
+	return printed(entries)
+}
+
 func undoCommand() int {
 	id, yes := env.Arg(2), env.Arg(3) == "--yes"
-	if id == "" || (env.Arg(3) != "" && !yes) || env.Arg(4) != "" {
+	if id == "--list" && env.Arg(3) == "--json" && env.Arg(4) == "" {
+		return listUndo()
+	}
+	if id == "" || id == "--list" || (env.Arg(3) != "" && !yes) || env.Arg(4) != "" {
 		return fail("usage: solanum undo MODULE [--yes], where MODULE is 09, 10, 11 or 16")
 	}
 	if !slices.Contains(undoable, id) {

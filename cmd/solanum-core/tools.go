@@ -8,6 +8,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/snapper-rollback"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-background"
+	password "github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-backup-password"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-care"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-crashes"
 	"github.com/Ahmadlolbit/solanumos/cmd/solanum-core/tools/solanum-follow-theme"
@@ -32,6 +33,7 @@ var tools = map[string]func(){
 	"engine-switch":           engineswitch.Main,
 	"solanum":                 wizard.Main,
 	"solanum-background":      background.Main,
+	"solanum-backup-password": password.Main,
 	"solanum-care":            care.Main,
 	"solanum-crashes":         notice.Main,
 	"solanum-follow-theme":    followtheme.Main,

@@ -53,7 +53,7 @@ QtObject {
     stderr: SplitParser {
       onRead: line => root.reason = ((root.reason ? root.reason + "\n" : "") + root.clean(line)).slice(-4096)
     }
-    onExited: code => root.code = code
+    onExited: (code, status) => root.code = status ? 128 + Math.max(1, code) : code
     onRunningChanged: {
       if (!running)
         Qt.callLater(root.ended);

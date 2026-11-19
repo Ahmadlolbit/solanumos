@@ -35,6 +35,7 @@ USAGE
   solanum modules                  List the modules and how they last ended
   solanum undo MODULE [--yes]      Take back what module 09, 10, 11 or 16 installed, wrote and turned on
                                      (run it with sudo); the setup then leaves it out until you run it again
+  solanum undo --list --json       What undoing each of those modules would take back, as JSON; changes nothing
   solanum config [show|path|edit|reset|export]
                                    export prints your settings as a preset to share, without your Debian mirror
   solanum config import FILE|URL
@@ -58,8 +59,13 @@ USAGE
   solanum changes [--json]         Show what the last solanum update changed
   solanum restore [NUMBER]         List the restore points, or show what changed since one and go back to it
                                      (run it without sudo)
+  solanum restore list --json      The restore points as JSON, newest first
+  solanum restore compare NUMBER --json
+                                   What changed since a restore point, what going back keeps and the kernel
+                                     advice, as JSON; changes nothing
   solanum doctor                   Check the system and offer the safe fixes (run it with sudo)
   solanum cleanup [--yes]          Delete the oldest automatic snapshots until / is under 85%% (run it with sudo)
+  solanum cleanup --plan --json    What cleanup would delete and how full / is, as JSON; changes nothing
   solanum software [PAGE]          Open Software to add and remove apps, Debian packages and web apps
   solanum app list                 List the apps you can install, by category (* = installed)
   solanum app install|remove APP
@@ -84,8 +90,17 @@ USAGE
                                      disk password and shows the key once
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
-  solanum care [PAGE]              Open Care, at updates, check or changes: what's waiting to update,
-                                     the system check and what the last update changed
+  solanum care [PAGE]              Open Care, at updates, check, changes, restore, history, space, undo or
+                                     report: what's waiting to update, the system check, what the last update
+                                     changed, the restore points, file history, the disk's space, undoing a
+                                     part and making a report
+  solanum care restore NUMBER      Open Care on one restore point
+  solanum history --json           The snapshots of /home, newest first, and whether they're taken, as JSON
+  solanum history files NUMBER FOLDER --json
+                                   What a folder in your home held in snapshot NUMBER of /home, as JSON
+  solanum history restore NUMBER PATH [--copy]
+                                   Put a file or folder in your home back as it was in snapshot NUMBER of
+                                     /home, keeping what's there now beside it, or restore it as a copy
   solanum settings [PAGE]          Open Settings, at a page such as themes or display
   solanum settings list            Every setting as JSON: its page, kind, value, choices, and whether it's
                                      yours or the whole computer's
@@ -131,6 +146,7 @@ var commands = map[string]func() int{
 	"credits":       nothingAfter("credits", creditsCommand),
 	"settings":      settingsCommand,
 	"care":          careCommand,
+	"history":       historyCommand,
 	"software":      softwareCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
@@ -238,7 +254,7 @@ func throughScript() int {
 }
 
 var (
-	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg"}
+	eventCommands = []string{"update", "doctor", "cleanup", "restore", "undo", "pkg", "collect"}
 	streamed      bool
 )
 

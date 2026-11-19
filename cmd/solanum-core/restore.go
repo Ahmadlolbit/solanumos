@@ -170,41 +170,97 @@ func comparing(number string) int {
 	return 0
 }
 
+type comparison struct {
+	snapshots.Tally
+	Number string `json:"number"`
+	Kept   string `json:"kept"`
+	Kernel string `json:"kernel"`
+}
+
+func compared(number string) (comparison, error) {
+	status, err := run.Capture(run.Slow, "snapper", "-c", "root", "status", number+"..0")
+	if err != nil {
+		return comparison{}, err
+	}
+	modules := filepath.Join(env.Or("SOLANUM_SNAPSHOTS", "/.snapshots"), number, "snapshot/usr/lib/modules")
+	return comparison{
+		Tally:  snapshots.Compare(status),
+		Number: number,
+		Kept:   keptWords("/", fsutil.Optional("/proc/self/mountinfo")) + movedBackWords(move.Before(number), move.HomeApart()),
+		Kernel: kernelAdvice(modules, env.Or("SOLANUM_BOOT", "/boot"), "/"),
+	}, nil
+}
+
+func compareJSON(number string) int {
+	found, err := compared(number)
+	if err != nil {
+		return fail("snapshot %s can't be read: see solanum restore", number)
+	}
+	found.Kept, found.Kernel = strings.TrimSpace(found.Kept), strings.TrimSpace(found.Kernel)
+	return printed(found)
+}
+
+type runs struct {
+	held *lock.Held
+}
+
+func holdRuns() (*runs, bool) {
+	held, err := lock.Take()
+	if err == nil {
+		return &runs{held}, true
+	}
+	return &runs{}, !lock.Busy()
+}
+
+func (taken *runs) free() {
+	if taken.held != nil {
+		taken.held.Close()
+		taken.held = nil
+	}
+}
+
+func (taken *runs) stillFree() bool {
+	return taken.held != nil || !lock.Busy()
+}
+
 func goBack(number string) int {
 	defer cleanup.IgnoreQuit()()
-	if lock.Busy() {
+	taken, ok := holdRuns()
+	if !ok {
 		return fail("a Solanum run is still going, so nothing went back: run solanum restore %s once it ends", number)
 	}
+	defer taken.free()
 	if code := comparing(number); code != 0 {
 		return code
 	}
-	status, err := run.Capture(run.Slow, "snapper", "-c", "root", "status", number+"..0")
+	found, err := compared(number)
 	if streamed {
 		ui.Done()
 	}
 	if err != nil {
 		return fail("snapshot %s can't be read: see solanum restore", number)
 	}
-	modules := filepath.Join(env.Or("SOLANUM_SNAPSHOTS", "/.snapshots"), number, "snapshot/usr/lib/modules")
-	advice := kernelAdvice(modules, env.Or("SOLANUM_BOOT", "/boot"), "/")
-	kept := keptWords("/", fsutil.Optional("/proc/self/mountinfo")) + movedBackWords(move.Before(number), move.HomeApart())
-	if code := say(snapshots.Changes(status) + "\n" + kept + advice + "\n"); code != 0 {
+	if code := say(found.Text() + "\n" + found.Kept + found.Kernel + "\n"); code != 0 {
 		return code
 	}
-	code := rollBack(number)
-	if code == 0 && advice != "" {
-		return say("\n" + advice)
+	code := rollBack(number, taken)
+	if code == 0 && found.Kernel != "" {
+		return say("\n" + found.Kernel)
 	}
 	return code
 }
 
-func rollBack(number string) int {
+func rollBack(number string, taken *runs) int {
 	command := admin("snapper-rollback", number)
+	if streamed && !ui.Confirm("Go back to snapshot "+number+"?") {
+		return fail("nothing changed")
+	}
+	if !taken.stillFree() {
+		return fail("a Solanum run started while snapshot %s was compared, so nothing went back: run solanum restore %s once it ends", number, number)
+	}
+	taken.free()
 	if !streamed {
 		return run.Status(command[0], command[1:]...)
-	}
-	if !ui.Confirm("Go back to snapshot " + number + "?") {
-		return fail("nothing changed")
 	}
 	return run.Typed(confirmWord, command[0], command[1:]...)
 }
@@ -222,9 +278,35 @@ func showPoints(target string) int {
 	return say(restoreRows(points, "%6s  %s\n") + "\nGo back to one: solanum restore NUMBER\n")
 }
 
+func pointsJSON() int {
+	points, err := snapshots.All()
+	if err != nil {
+		return fail("the snapshots can't be read")
+	}
+	slices.Reverse(points)
+	return printed(snapshots.Points(points))
+}
+
+func restoreAction() (func() int, bool) {
+	target, more := env.Arg(2), env.Arg(3)
+	switch {
+	case target == "list" && more == "--json" && env.Arg(4) == "":
+		return pointsJSON, true
+	case target == "compare" && snapshots.IsNumber(more) && env.Arg(4) == "--json" && env.Arg(5) == "":
+		return func() int { return compareJSON(more) }, true
+	case more != "":
+		return nil, false
+	case target == "" || target == "list":
+		return func() int { return showPoints(target) }, true
+	case snapshots.IsNumber(target):
+		return func() int { return goBack(target) }, true
+	}
+	return nil, false
+}
+
 func restore() int {
-	target := env.Arg(2)
-	if env.Arg(3) != "" || (target != "" && target != "list" && !snapshots.IsNumber(target)) {
+	action, ok := restoreAction()
+	if !ok {
 		return fail("usage: solanum restore [list | NUMBER]")
 	}
 	if !forAPerson() {
@@ -233,8 +315,5 @@ func restore() int {
 	if !installed("snapper") {
 		return fail("snapper isn't installed, so there are no restore points")
 	}
-	if target == "" || target == "list" {
-		return showPoints(target)
-	}
-	return goBack(target)
+	return action()
 }
