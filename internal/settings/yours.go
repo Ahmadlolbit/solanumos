@@ -45,6 +45,7 @@ var (
 		{"night_from", "Night light from", "display", "Night light", Time, "", "When the screen warms up", is("night", "times")},
 		{"night_to", "Night light until", "display", "Night light", Time, "", "When the screen goes back to normal", is("night", "times")},
 		{"night_warmth", "Night light warmth", "display", "Night light", Slide, "", "How warm, in kelvin: lower is warmer", nil},
+		{"screens_wait", "Keep a new layout for", "display", "Screens", Pick, "10:10 seconds|15:15 seconds|30:30 seconds|60:A minute", "How long Keep this layout? waits for an answer before the old layout comes back", nil},
 		{"presentation", "Presentation mode", "display", "Presenting", Toggle, "", "No notifications, stay awake, a bigger cursor and the laptop mirrored to other screens, until you log in again", nil},
 		{"chime", "Startup sound", "sound", "Startup sound", Toggle, "", "A short chime when you log in, or ~/.config/solanum/startup.ogg if it's there", nil},
 		{"power", "Power saver on battery", "power", "Battery", Toggle, "", "Switch the power profile when you plug in or unplug", nil},

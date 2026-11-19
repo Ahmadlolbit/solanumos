@@ -71,6 +71,7 @@ Singleton {
   }
 
   function load() {
+    Arrangement.load();
     lister.running = true;
     facts.running = true;
     makers.running = true;
@@ -85,9 +86,15 @@ Singleton {
   function show(id) {
     search = "";
     page = id;
+    if (id === "display")
+      Arrangement.load();
   }
 
   function set(row, value) {
+    if (row.name.startsWith("screen.")) {
+      Arrangement.change(row.name, String(value));
+      return;
+    }
     if (busy)
       return;
     busy = row.name;

@@ -9,7 +9,7 @@ if look.get("zen") == "yes" then
 end
 
 if look.get("presentation") == "yes" and not screens.lid_closed() then
-  local panels, others = screens.connected()
+  local panels, others = screens.showing()
   for _, output in ipairs(others) do
     if panels[1] then
       hl.monitor({ output = output, mirror = panels[1] })

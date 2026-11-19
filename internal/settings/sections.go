@@ -24,7 +24,7 @@ var (
 		"themes":        {"Colours and fonts", "Windows", "Apps", "Light and dark", "Theme"},
 		"wallpaper":     {"Pictures", "Changing", "Live wallpapers"},
 		"bar":           {"Layout", "Widgets", "Clock", "Weather"},
-		"display":       {"Night light", "Scale and shape", "Brightness", "Presenting"},
+		"display":       {"Screens", "Night light", "Scale and shape", "Brightness", "Presenting"},
 		"power":         {"Battery", "Sleep"},
 		"mouse":         {"Touchpad", "TrackPoint"},
 		"lock":          {"Locking", "Screensaver", "Login screen"},

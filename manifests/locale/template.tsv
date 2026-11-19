@@ -1,6 +1,7 @@
 # The installer's words. Copy this file to <language>.tsv, such as fr.tsv or pt_BR.tsv, and write each translation after the tab. Keep each %s and %d, in the same order: a translation with others, or in another order, is left out.
 "%s" failed. What now?	
 %s  %s  ·  %d of %d	
+%s (these screens, no layout saved)	
 %s can use sudo	
 %s couldn't be restored: %v	
 %s is LUKS1, which can't hold a recovery key	
@@ -9,6 +10,7 @@
 %s's LUKS header can't be read	
 %s's key slots can't be read	
 %s. Nothing was changed.	
+--try takes seconds from 1 to %d	
 /home isn't a btrfs subvolume of its own, so there are no hourly snapshots of it.	
 24-hour or 12-hour time in the bar and on the lock screen	
 64-bit PC (amd64)	
@@ -169,6 +171,7 @@ Follow theme switches on the boot and login screens
 For logging in and for sudo	
 For logging in: small letters, digits, - and _	
 For the cameras on newer Intel laptops (IPU6): libcamera, its PipeWire camera for browsers and calls, and solanum webcam relay for apps that take only a normal webcam; auto sets it up only where that camera is found	
+Forgot the layout for these screens; they have the default one again.	
 Format the EFI partition	
 Format the boot partition	
 From Open-Meteo, no account; it sends your time zone's main city there	
@@ -285,8 +288,10 @@ Keep crash dumps small
 Keep the SSH server off	
 Keep the firmware list fresh	
 Keep these choices without installing	
+Keep this layout? Run solanum-look screens confirm within %d seconds, or the old one comes back.	
 Keep ~/.cache and Steam's games out of the snapshots of /home	
 Kept kernel	
+Kept the new layout.	
 Kernel	
 Kernel and drivers	
 Keyboard	
@@ -343,6 +348,8 @@ Night light until
 No	
 No backup for a week	
 No disk here can take it: each is under %s, read-only, or in use.	
+No layout is saved for these screens, so they have the default one.	
+No layout is saved for these screens.	
 Nothing changes until you choose Install at the end.	
 Nothing was changed.	
 Notifications are set up	
@@ -373,8 +380,10 @@ Printing and finding printers are on
 Printing and scanning tools are installed	
 Profile	
 Prompt	
+Put back the layout saved for these screens.	
 Put in a USB stick other than the installer's, then choose Save to a USB stick again	
 Put the laptop to sleep when you're away; 0 = never	
+Put the old layout back.	
 Put the solanum command on the PATH	
 Quickshell runs	
 Quiet from	
@@ -400,6 +409,7 @@ SSH
 Save configuration	
 Save everything to disk and power off; the swapfile grows to the size of your memory	
 Save to a USB stick	
+Saved the layout for these screens.	
 Saved to %s	
 Saved to %s as %s. Open it on another computer before you count on it	
 Saved to %s until the restart: copy it to keep it	
@@ -660,6 +670,7 @@ Your password, for sudo
 Your recovery key	
 Your recovery key, shown once:	
 Your recovery key:	
+a layout is being tried: keep it with solanum-look screens confirm, or put the old one back with solanum-look screens revert	
 cryptsetup isn't installed	
 curl is installed	
 distrobox and Podman are installed	
@@ -667,19 +678,24 @@ empty
 engine-switch points docker at %s	
 has files	
 has partitions	
+hyprctl lists no screens	
 kitty, zsh and tmux are installed	
 kubectl, helm, k9s and kind are installed	
 lazydocker is installed	
+no layout is being tried	
 nothing was changed	
+put back the layout from before a trial that never ended	
 removable	
 restic's list of backups can't be read: %v	
 restic-backup is in ~/bin	
+screens-wait takes seconds from 5 to %d	
 snapper-rollback works	
 sudo takes your finger	
 that isn't the disk password	
 the password couldn't be checked: %s	
 the root is on more than one disk, and solanum recovery-key handles a root on one	
 the root isn't on an encrypted disk, so there's no disk for a recovery key to open	
+these screens	
 tmux is set up with its plugins	
 zram size (% of memory)	
 zram swap is on	
