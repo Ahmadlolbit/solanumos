@@ -423,7 +423,7 @@ Scope {
       filter = filter.slice(0, -1);
     else if ((event.key === Qt.Key_Backspace || event.key === Qt.Key_Left) && !filter)
       back();
-    else if (/^[\w .+-]$/.test(event.text))
+    else if (Keyboard.joins(filter, event.text))
       filter += event.text;
     else
       return false;

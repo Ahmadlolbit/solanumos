@@ -7,10 +7,12 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Ahmadlolbit/solanumos/internal/atomic"
+	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
@@ -47,14 +49,32 @@ func OpenLog(log string) *os.File {
 	return os.Stderr
 }
 
+func MarkerPath() string {
+	return filepath.Join(env.Or("XDG_RUNTIME_DIR", env.OwnState()), Marker)
+}
+
+func sinceBoot() time.Duration {
+	text, _ := fsutil.Text(env.Or("SOLANUM_UPTIME", "/proc/uptime"))
+	fields := strings.Fields(text)
+	if len(fields) == 0 {
+		return 0
+	}
+	seconds, err := strconv.ParseFloat(fields[0], 64)
+	if err != nil {
+		return 0
+	}
+	return time.Duration(seconds * float64(time.Second))
+}
+
 func Start(command []string, marker string, output *os.File, atMinute func()) Outcome {
 	if err := os.Remove(marker); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		fmt.Fprintln(os.Stderr, err)
 	}
 	fmt.Fprintf(output, "%s%s %s\n", logStamp, time.Now().Format(time.DateTime), strings.Join(command, " "))
+	began := sinceBoot()
 	minute := time.AfterFunc(upAfter, atMinute)
 	code, signalled := run.Attached(output, command[0], command[1:]...)
-	ranAMinute := !minute.Stop()
+	ranAMinute := !minute.Stop() || sinceBoot()-began >= upAfter
 	fmt.Fprintf(output, "%s%s %s ended (exit %d)\n", logStamp, time.Now().Format(time.DateTime), filepath.Base(command[0]), code)
 	switch {
 	case signalled:

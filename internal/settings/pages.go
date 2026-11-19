@@ -37,9 +37,9 @@ type Row struct {
 	Value    string   `json:"value"`
 	Choices  []Choice `json:"choices,omitempty"`
 	Multiple bool     `json:"multiple,omitempty"`
-	Min      float64  `json:"min,omitempty"`
-	Max      float64  `json:"max,omitempty"`
-	Step     float64  `json:"step,omitempty"`
+	Min      float64  `json:"min"`
+	Max      float64  `json:"max"`
+	Step     float64  `json:"step"`
 	Unit     string   `json:"unit,omitempty"`
 	Whose    string   `json:"whose"`
 	Twin     string   `json:"twin,omitempty"`

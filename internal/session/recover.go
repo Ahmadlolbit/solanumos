@@ -73,6 +73,9 @@ func (newer Newer) said() string {
 
 func (facts Facts) reason() string {
 	lines := []string{"Hyprland stopped before it finished starting."}
+	if facts.CameUp {
+		lines = []string{"Hyprland stopped in its first minute, after the desktop had come up. The way back in is the login screen, with your password."}
+	}
 	if facts.Ending.Crashed {
 		lines = append(lines, crashed(facts.Ending))
 	}
@@ -98,6 +101,9 @@ func (facts Facts) previousKernel() Choice {
 }
 
 func (facts Facts) items() []item {
+	if facts.CameUp {
+		return []item{{"Log out, back to the login screen", Choice{Then: LogOut}}, {"Restart", Choice{Then: Restart}}}
+	}
 	items := []item{{"Try again", Choice{Then: Again}}}
 	if facts.Newer.Previous != "" {
 		items = append(items, item{"Start the previous kernel, " + facts.Newer.Previous + ", once", facts.previousKernel()})
@@ -116,7 +122,11 @@ func (facts Facts) items() []item {
 
 func (facts Facts) screen(items []item) string {
 	var text strings.Builder
-	text.WriteString("\nSolanumOS: the desktop didn't start\n\n" + facts.reason())
+	title := "the desktop didn't start"
+	if facts.CameUp {
+		title = "the desktop stopped"
+	}
+	text.WriteString("\nSolanumOS: " + title + "\n\n" + facts.reason())
 	if len(facts.Tail) > 0 {
 		text.WriteString("\nHyprland's last lines, in ~/" + OwnLog + ":\n  " + strings.Join(facts.Tail, "\n  ") + "\n")
 	}

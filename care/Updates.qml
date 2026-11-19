@@ -7,6 +7,8 @@ FocusScope {
   id: page
 
   readonly property var waiting: Store.waiting
+  readonly property var unread: waiting ? waiting.unread || [] : []
+  readonly property string unreadNote: "Couldn't read what's waiting"
   readonly property bool working: Store.job === "update" && (Store.running || Store.task.code !== -1)
   readonly property var names: ({
       system: "Debian",
@@ -23,23 +25,23 @@ FocusScope {
     {
       label: "Debian",
       list: waiting.debian,
-      empty: (waiting.unread || []).includes("debian") ? "Couldn't read what's waiting" : "Up to date"
+      empty: unread.includes("debian") ? unreadNote : "Up to date"
     },
     {
       label: "Apps",
       list: waiting.apps,
-      empty: waiting.tools.length ? "Checked when the update runs: " + waiting.tools.join(", ") : "None to update"
+      empty: unread.includes("apps") ? unreadNote : waiting.tools.length ? "Checked when the update runs: " + waiting.tools.join(", ") : "None to update"
     },
     {
       label: "SolanumOS",
       list: waiting.solanum,
-      empty: "Up to date"
+      empty: unread.includes("solanum") ? unreadNote : "Up to date"
     }
-  ].concat(waiting.firmware.length ? [
+  ].concat(waiting.firmware.length || unread.includes("firmware") ? [
       {
         label: "Firmware",
         list: waiting.firmware,
-        empty: ""
+        empty: unreadNote
       }
     ] : []) : []
   readonly property var entries: groups.reduce((all, group) => all.concat([
@@ -192,7 +194,7 @@ FocusScope {
     Label {
       Layout.fillWidth: true
       visible: !!page.waiting
-      text: page.waiting && page.waiting.busy ? "Another Solanum run is going. Updating waits until it ends." : (page.waiting && page.waiting.last ? "Last updated " + Qt.formatDateTime(new Date(page.waiting.last), "d MMMM yyyy 'at' HH:mm") : "No update recorded yet") + ". A snapshot is taken first, so you can go back."
+      text: page.waiting && page.waiting.busy ? "Another Solanum run is going. Updating waits until it ends." : (page.unread.length ? (page.unread.length === 4 ? "The list" : "Part of the list") + " couldn't be read, so more may be waiting. Look again to try once more" : page.waiting && page.waiting.last ? "Last updated " + Qt.formatDateTime(new Date(page.waiting.last), "d MMMM yyyy 'at' HH:mm") : "No update recorded yet") + ". A snapshot is taken first, so you can go back."
       color: Theme.subtext
       wrapMode: Text.Wrap
     }
@@ -257,7 +259,7 @@ FocusScope {
       Button {
         id: again
 
-        visible: !!page.waiting && page.waiting.busy
+        visible: !!page.waiting && (page.waiting.busy || page.unread.length > 0)
         label: "Look again"
         onClicked: Store.load()
       }

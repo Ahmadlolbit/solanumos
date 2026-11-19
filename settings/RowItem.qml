@@ -14,6 +14,9 @@ Rectangle {
   readonly property var choice: (row.choices || []).find(entry => entry.value === row.value)
   readonly property string shownValue: row.multiple ? (row.value || "none").split(" ").filter(word => word).join(", ") : choice ? choice.label : row.value
   readonly property bool busy: Store.busy === row.name
+  readonly property real low: Number(row.min) || 0
+  readonly property real high: Number(row.max) || 0
+  readonly property real stride: Number(row.step) || 1
   readonly property var marks: [computer && !grouped ? "\uf023 For everyone on this computer" : "", row.after === "restart" ? "\uf021 Applies after a restart" : row.after === "login" ? "\uf021 Applies when you log in again" : "", searching ? "\uf0c9 " + ((Store.pages.find(page => page.id === row.page) || {}).label || "") : ""].filter(mark => mark)
 
   signal chosen
@@ -35,7 +38,7 @@ Rectangle {
 
   function step(direction) {
     if (row.kind === "slider") {
-      const next = Math.max(row.min, Math.min(row.max, Number(row.value) + direction * row.step));
+      const next = Math.max(low, Math.min(high, Number(row.value) + direction * stride));
       Store.set(row, Math.round(next * 100) / 100);
       return true;
     }
@@ -144,15 +147,15 @@ Rectangle {
 
       Slider {
         Layout.preferredWidth: Theme.size(180)
-        value: item.row.max > item.row.min ? (Number(item.row.value) - item.row.min) / (item.row.max - item.row.min) : 0
-        step: item.row.max > item.row.min ? item.row.step / (item.row.max - item.row.min) : 0.05
-        onMoved: level => settle.later(item.row.min + Math.round(level * (item.row.max - item.row.min) / item.row.step) * item.row.step)
+        value: item.high > item.low ? (Number(item.row.value) - item.low) / (item.high - item.low) : 0
+        step: item.high > item.low ? item.stride / (item.high - item.low) : 0.05
+        onMoved: level => settle.later(item.low + Math.round(level * (item.high - item.low) / item.stride) * item.stride)
       }
 
       Label {
         id: reading
 
-        Layout.preferredWidth: Math.ceil(Math.max(digits.advanceWidth(item.amount(item.row.min)), digits.advanceWidth(item.amount(item.row.max))))
+        Layout.preferredWidth: Math.ceil(Math.max(digits.advanceWidth(item.amount(item.low)), digits.advanceWidth(item.amount(item.high))))
         text: item.amount(item.row.value)
         horizontalAlignment: Text.AlignRight
         font.features: ({

@@ -38,6 +38,7 @@ type Facts struct {
 	Newer    Newer
 	Restore  string
 	Writable bool
+	CameUp   bool
 }
 
 type change struct {
@@ -137,7 +138,7 @@ func tail(home string, uid int) []string {
 
 func Gather(person account.Account, limit time.Duration) Facts {
 	uid, _ := strconv.Atoi(person.UID)
-	facts := Facts{Ending: Last(person, limit), Tail: tail(person.Home, uid), Newer: NewerKernel(person.Home, limit)}
+	facts := Facts{Ending: Last(person, limit), Tail: tail(person.Home, uid), Newer: NewerKernel(person.Home, limit), CameUp: fsutil.Exists(MarkerPath())}
 	facts.Changed = changedSince(person.Home)
 	if _, err := exec.LookPath("snapper"); err == nil {
 		facts.Restore = FindWayOut(limit).Restore.Number

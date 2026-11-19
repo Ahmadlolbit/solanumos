@@ -24,6 +24,9 @@ if [[ ! -f $record ]]; then
 elif ! grep -qx "tag v$version" "$record"; then
   echo "$built was built from $(sed -n 's/^commit //p' "$record"), which has no tag v$version signed with the release key. Nothing was signed or uploaded." >&2
   exit 1
+elif grep -qx dirty "$record"; then
+  echo "$built was built from a tree with changes that weren't committed, so it may not be what v$version holds: commit them or drop them, then build again. Nothing was signed or uploaded." >&2
+  exit 1
 fi
 out="$(dirname "$built")/$version"
 name="solanumos-chert-$version-amd64.iso"

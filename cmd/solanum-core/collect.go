@@ -21,6 +21,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/modules"
+	"github.com/Ahmadlolbit/solanumos/internal/presets"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 	"github.com/Ahmadlolbit/solanumos/internal/session"
@@ -201,6 +202,10 @@ func hideDetails(text string) string {
 }
 
 func privatize(folder string) error {
+	return rewrite(folder, hideDetails)
+}
+
+func rewrite(folder string, hide func(string) string) error {
 	return filepath.WalkDir(folder, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil || !entry.Type().IsRegular() {
 			return err
@@ -209,7 +214,7 @@ func privatize(folder string) error {
 		if err != nil {
 			return err
 		}
-		if hidden := hideDetails(string(data)); hidden != string(data) {
+		if hidden := hide(string(data)); hidden != string(data) {
 			return atomic.Write(path, []byte(hidden), privateMode)
 		}
 		return nil
@@ -379,10 +384,11 @@ func copyAsRoot(person account.Account, folder string) []string {
 			failed = append(failed, tree[0])
 		}
 	}
-	for _, file := range []string{config.Path(), modules.StatusFile()} {
-		if fsutil.IsFile(file) && run.Within(run.Slow, "cp", file, folder+"/") != 0 {
-			failed = append(failed, file)
-		}
+	if file := modules.StatusFile(); fsutil.IsFile(file) && run.Within(run.Slow, "cp", file, folder+"/") != 0 {
+		failed = append(failed, file)
+	}
+	if file := config.Path(); fsutil.IsFile(file) && atomic.Write(filepath.Join(folder, filepath.Base(file)), []byte(presets.Export(config.Read(file))), privateMode) != nil {
+		failed = append(failed, file)
 	}
 	return failed
 }
@@ -452,7 +458,8 @@ func pack(person account.Account, work, stamp, target string, verbose bool) (str
 		fmt.Fprintln(os.Stderr, err)
 		return folder, false
 	}
-	if err := privatize(folder); err != nil {
+	hide := unnamed(person)
+	if err := rewrite(folder, func(text string) string { return hide(hideDetails(text)) }); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return folder, false
 	}
@@ -468,7 +475,7 @@ func pack(person account.Account, work, stamp, target string, verbose bool) (str
 	if !saveFor(person, archive, "tar", "-czf", "-", "-C", work, name) {
 		return archive, false
 	}
-	return "Saved " + archive + "\n" + saved, true
+	return "Saved " + archive + "\n" + saved + "Read it before you post it: the logs can still hold Wi-Fi names, addresses and other accounts' names.\n", true
 }
 
 func gather(person account.Account, folder, prefix string, verbose bool) (string, error) {

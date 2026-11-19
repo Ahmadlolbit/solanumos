@@ -11,6 +11,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/cleanup"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/inhibit"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/move"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -262,6 +263,7 @@ func rollBack(number string, taken *runs) int {
 	if !streamed {
 		return run.Status(command[0], command[1:]...)
 	}
+	defer inhibit.While("Going back to snapshot " + number)()
 	return run.Typed(confirmWord, command[0], command[1:]...)
 }
 

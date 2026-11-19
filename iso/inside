@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+rm -rf /out/setup-log
 sed -i 's|http://deb.debian.org|https://deb.debian.org|' /etc/apt/sources.list.d/debian.sources
 apt-get -o Acquire::https::CAInfo=/run/host-ca.pem update
 apt-get -o Acquire::https::CAInfo=/run/host-ca.pem install -y --no-install-recommends live-build git ca-certificates openssh-client
@@ -23,7 +24,11 @@ ln -s /cache "$work/cache"
 cd "$work"
 lb config
 lb bootstrap
-lb chroot
+if ! lb chroot; then
+  cp -r chroot/var/log/solanum-live /out/setup-log 2>/dev/null || true
+  echo "No image was built: the build stopped inside the image. The setup's log, if it got that far, is in setup-log beside where the image would be." >&2
+  exit 1
+fi
 lb installer
 rm -rf "$kept"
 mv "chroot/$downloads" "$kept"

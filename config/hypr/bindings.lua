@@ -73,9 +73,9 @@ bind("SUPER + SHIFT + TAB", "Previous workspace", hl.dsp.focus({ workspace = "e-
 bind("SUPER + mouse_down", "Next workspace", hl.dsp.focus({ workspace = "e+1" }))
 bind("SUPER + mouse_up", "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
 bind("ALT + TAB", "Next window", hl.dsp.window.cycle_next())
-bind("ALT + TAB", "Raise window", hl.dsp.window.bring_to_top())
+bind("ALT + TAB", nil, hl.dsp.window.bring_to_top())
 bind("ALT + SHIFT + TAB", "Previous window", hl.dsp.window.cycle_next({ next = false }))
-bind("ALT + SHIFT + TAB", "Raise window", hl.dsp.window.bring_to_top())
+bind("ALT + SHIFT + TAB", nil, hl.dsp.window.bring_to_top())
 bind("SUPER + mouse:272", "Move window", hl.dsp.window.drag(), { mouse = true })
 bind("SUPER + mouse:273", "Resize window", hl.dsp.window.resize(), { mouse = true })
 

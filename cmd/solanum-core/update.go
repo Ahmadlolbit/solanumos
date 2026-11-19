@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"cmp"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -19,6 +22,7 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/config"
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
+	"github.com/Ahmadlolbit/solanumos/internal/inhibit"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
 	"github.com/Ahmadlolbit/solanumos/internal/oldname"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
@@ -63,7 +67,7 @@ func rootsOnly(path string) bool {
 }
 
 func gitCommand(args ...string) []string {
-	command := append([]string{"git", "-C", root()}, args...)
+	command := append(append([]string{"git", "-C", root()}, readable(root())...), args...)
 	if rootsOnly(root()) {
 		return command
 	}
@@ -74,6 +78,17 @@ func git(args ...string) string {
 	command := gitCommand(args...)
 	output, _ := run.Capture(run.Slow, command[0], command[1:]...)
 	return output
+}
+
+func readable(path string) []string {
+	info, err := os.Stat(path)
+	if err != nil || os.Geteuid() == 0 {
+		return nil
+	}
+	if stat, ok := info.Sys().(*syscall.Stat_t); !ok || stat.Uid != 0 {
+		return nil
+	}
+	return []string{"-c", "safe.directory=" + path}
 }
 
 func gitQuiet(limit time.Duration, args ...string) int {
@@ -90,10 +105,105 @@ func gitLog(args ...string) string {
 	return git(append([]string{"log", "--no-show-signature"}, args...)...)
 }
 
+const (
+	holdBusy   = 75
+	holdFailed = 74
+	holdGrace  = 10 * time.Second
+)
+
+var errRunGoing = errors.New("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
+
 var (
 	snapshotTaken bool
 	debianFailed  bool
+	updateHeld    struct {
+		held  *lock.Held
+		child *run.Child
+	}
 )
+
+func holdForUpdate() error {
+	if os.Geteuid() == 0 {
+		held, err := lock.Take()
+		updateHeld.held = held
+		return heldOrWhy(err)
+	}
+	command := admin(script(), "update", "--hold")
+	child, err := run.SpawnWith(run.Spawning{Shown: true}, command[0], command[1:]...)
+	if err != nil {
+		return fmt.Errorf("%v, so nothing was updated", err)
+	}
+	updateHeld.child = child
+	if answer, _ := bufio.NewReader(child.Output).ReadString('\n'); answer == "held\n" {
+		return nil
+	}
+	switch releaseUpdateHold() {
+	case holdBusy:
+		return errRunGoing
+	case holdFailed:
+		return errors.New("the run lock couldn't be taken, so nothing was updated")
+	}
+	return errors.New("sudo didn't run solanum, so nothing was updated")
+}
+
+func heldOrWhy(err error) error {
+	switch {
+	case errors.Is(err, lock.ErrBusy):
+		return errRunGoing
+	case err != nil:
+		return fmt.Errorf("%v, so nothing was updated", err)
+	}
+	return nil
+}
+
+func releaseUpdateHold() int {
+	code := 0
+	if updateHeld.held != nil {
+		updateHeld.held.Close()
+	}
+	if updateHeld.child != nil {
+		code = letGo(updateHeld.child)
+	}
+	updateHeld.held, updateHeld.child = nil, nil
+	return code
+}
+
+func letGo(child *run.Child) int {
+	child.Input.Close()
+	ended := make(chan int, 1)
+	go func() {
+		code, _ := child.Wait()
+		ended <- code
+	}()
+	select {
+	case code := <-ended:
+		return code
+	case <-time.After(holdGrace):
+	}
+	child.Stop()
+	ui.Print("Letting go of the run lock took longer than 10 seconds, so its holder was stopped.\n")
+	return <-ended
+}
+
+func updateHolding() bool {
+	return updateHeld.held != nil || updateHeld.child != nil
+}
+
+func holdUntilDone() int {
+	held, err := lock.Take()
+	switch {
+	case errors.Is(err, lock.ErrBusy):
+		return holdBusy
+	case err != nil:
+		fmt.Fprintln(os.Stderr, err)
+		return holdFailed
+	}
+	defer held.Close()
+	cleanup.NotifyInterrupt(make(chan os.Signal, 1))
+	ui.Print("held\n")
+	io.Copy(io.Discard, os.Stdin)
+	return 0
+}
 
 func snapshotsOff() bool {
 	if config.Read(config.Path()).Get("SNAPSHOTS") == "yes" {
@@ -117,7 +227,7 @@ func snapshotFirst() int {
 		return 0
 	}
 	ui.Print("Taking a snapshot first\n")
-	if snapshot := admin("snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number"); run.Status(snapshot[0], snapshot[1:]...) != 0 {
+	if snapshot := admin("snapper", "--no-dbus", "-c", "root", "create", "--description", "before solanum update", "--cleanup-algorithm", "number", "--userdata", "important=yes"); run.Status(snapshot[0], snapshot[1:]...) != 0 {
 		return fail("the snapshot failed, so nothing was updated")
 	}
 	snapshotTaken = true
@@ -158,9 +268,6 @@ func apart(stoppable bool, command []string, failure string) int {
 }
 
 func updateSystem() int {
-	if status := snapshotFirst(); status != 0 {
-		return status
-	}
 	if apt.Interrupted() {
 		ui.Print("dpkg was interrupted, finishing what it left\n")
 		if status := apart(false, admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
@@ -171,12 +278,11 @@ func updateSystem() int {
 			return stoppedCode
 		}
 	}
-	ui.Print("Updating Debian\n")
-	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 && !run.Stopped() {
-		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
+	if status := refreshed(); status != 0 {
+		return status
 	}
-	if run.Stopped() {
-		return stoppedCode
+	if status := snapshotFirst(); status != 0 {
+		return status
 	}
 	before := sessionVersions()
 	status := apart(true, fullUpgrade(), "updating Debian failed")
@@ -193,6 +299,61 @@ func updateSystem() int {
 	return status
 }
 
+func refreshed() int {
+	ui.Print("Updating Debian\n")
+	if refresh := admin("apt", "update"); run.Status(refresh[0], refresh[1:]...) != 0 && !run.Stopped() {
+		ui.Print("apt couldn't refresh every list (see above), so Debian updates from the lists it has. sudo solanum install turns off a vendor repository that apt keeps rejecting.\n")
+	}
+	if run.Stopped() {
+		return stoppedCode
+	}
+	gone, err := desktopRemoved()
+	if err != nil {
+		debianFailed = true
+		return fail("couldn't check what updating Debian would remove: %v, so Debian wasn't updated", err)
+	}
+	if len(gone) > 0 {
+		debianFailed = true
+		return fail("updating Debian would remove %s, which the desktop needs, so Debian wasn't updated: apt full-upgrade --simulate shows what would go and why", spokenList(gone))
+	}
+	return 0
+}
+
+func desktopRemoved() ([]string, error) {
+	removed, err := simulated("full-upgrade", nil)
+	var gone []string
+	for _, name := range removed {
+		if bare, _, _ := strings.Cut(name, ":"); desktopNeeds(bare) {
+			gone = append(gone, bare)
+		}
+	}
+	return gone, err
+}
+
+func desktopNeeds(name string) bool {
+	switch {
+	case slices.Contains(desktopPackages, name), strings.HasPrefix(name, "grub-efi"), strings.HasPrefix(name, "grub-pc"):
+		return true
+	}
+	return name == "cryptsetup-initramfs" && rootEncrypted()
+}
+
+func rootEncrypted() bool {
+	for _, line := range run.Lines(fsutil.Optional(env.Or("SOLANUM_CRYPTTAB", "/etc/crypttab"))) {
+		if fields := strings.Fields(line); len(fields) > 1 && !strings.HasPrefix(fields[0], "#") {
+			return true
+		}
+	}
+	return false
+}
+
+func spokenList(words []string) string {
+	if len(words) < 2 {
+		return strings.Join(words, "")
+	}
+	return strings.Join(words[:len(words)-1], ", ") + " and " + words[len(words)-1]
+}
+
 func fullUpgrade() []string {
 	if !streamed {
 		return admin("apt", "full-upgrade")
@@ -200,6 +361,12 @@ func fullUpgrade() []string {
 	return admin("env", "DEBIAN_FRONTEND=noninteractive", "NEEDRESTART_MODE=a", "APT_LISTCHANGES_FRONTEND=none",
 		"apt", "-y", "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold", "full-upgrade")
 }
+
+var updateWhy = map[string]string{"all": "Updating Debian, the apps and SolanumOS", "system": "Updating Debian", "apps": "Updating the apps", "solanum": "Updating SolanumOS"}
+
+var desktopPackages = []string{"hyprland", "quickshell", "hyprlock", "hypridle", "hyprpaper", "hyprpolkitagent", "xdg-desktop-portal-hyprland", "mako-notifier",
+	"pipewire", "wireplumber", "udiskie", "xdg-user-dirs", "sddm", "network-manager", "kitty", "polkitd", "pkexec", "sudo", "snapper", "btrfs-progs",
+	"linux-image-amd64", "initramfs-tools", "grub-efi-amd64"}
 
 var appTools = []struct {
 	name, what, action, unasked string
@@ -318,12 +485,19 @@ func update() int {
 		return fail("run it as yourself, without sudo: solanum update")
 	}
 	if lock.Busy() {
-		return fail("a Solanum run is still going, so nothing was updated: run solanum update once it ends")
+		return fail("%v", errRunGoing)
 	}
 	wanted := func(name string) bool { return part == "all" || part == name }
 	if wanted("solanum") && gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
 		return fail("%s is not a git clone, so it can't update itself", root())
 	}
+	if wanted("system") || wanted("solanum") {
+		if err := holdForUpdate(); err != nil {
+			return fail("%v", err)
+		}
+		defer releaseUpdateHold()
+	}
+	defer inhibit.While(updateWhy[part])()
 	stopsTheUpdate()
 	return updateParts(wanted)
 }

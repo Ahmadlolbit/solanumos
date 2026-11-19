@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"os"
 	"os/signal"
 	"regexp"
@@ -72,8 +73,8 @@ func lockedWhenFree(stop <-chan os.Signal) (*lock.Held, int) {
 	}
 }
 
-func alsoRemoved(action string, names []string) []string {
-	output, _ := run.CaptureQuiet(run.Minute, "env", append([]string{"LC_ALL=C.UTF-8", "apt-get", "-s", action}, names...)...)
+func simulated(action string, names []string) ([]string, error) {
+	output, said, err := run.CaptureFed(run.Minute, "", "env", append([]string{"LC_ALL=C.UTF-8", "apt-get", "-s", action}, names...)...)
 	var others []string
 	for _, line := range run.Lines(output) {
 		fields := strings.Fields(line)
@@ -81,6 +82,21 @@ func alsoRemoved(action string, names []string) []string {
 			others = append(others, fields[1])
 		}
 	}
+	switch {
+	case run.TimedOut(err):
+		return others, errors.New("apt-get took longer than a minute")
+	case err != nil:
+		lines := run.Lines(strings.TrimSpace(said))
+		if len(lines) == 0 {
+			return others, err
+		}
+		return others, errors.New(lines[len(lines)-1])
+	}
+	return others, nil
+}
+
+func alsoRemoved(action string, names []string) []string {
+	others, _ := simulated(action, names)
 	return others
 }
 

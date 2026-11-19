@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"errors"
 	"slices"
 	"strings"
 
@@ -12,7 +13,10 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 )
 
-const updateUsage = "usage: solanum update [system | apps | solanum | --list --json]"
+const (
+	updateUsage = "usage: solanum update [system | apps | solanum | --list --json]"
+	nothingToDo = 2
+)
 
 type pending struct {
 	Name string `json:"name"`
@@ -49,7 +53,7 @@ func debianWaiting() ([]pending, bool) {
 	return list, true
 }
 
-func appsWaiting() ([]pending, []string) {
+func appsWaiting() ([]pending, []string, bool) {
 	apps, tools := []pending{}, []string{}
 	for _, tool := range appTools {
 		if installed(tool.name) {
@@ -57,43 +61,55 @@ func appsWaiting() ([]pending, []string) {
 		}
 	}
 	if !installed("flatpak") {
-		return apps, tools
+		return apps, tools, true
 	}
-	output, _ := run.CaptureQuiet(run.Minute, "flatpak", "remote-ls", "--updates", "--cached", "--columns=name,application,version")
+	output, err := run.CaptureQuiet(run.Minute, "flatpak", "remote-ls", "--updates", "--cached", "--columns=name,application,version")
+	if err != nil {
+		output, err = run.CaptureQuiet(run.Minute, "flatpak", "remote-ls", "--updates", "--columns=name,application,version")
+	}
+	if err != nil {
+		return apps, tools, false
+	}
 	for _, line := range run.Lines(output) {
 		fields := strings.Split(line+"\t\t", "\t")
 		if name := cmp.Or(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1])); name != "" {
 			apps = append(apps, pending{Name: name, To: strings.TrimSpace(fields[2])})
 		}
 	}
-	return apps, tools
+	return apps, tools, true
 }
 
-func solanumWaiting() []pending {
-	if root() == "" || gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
-		return []pending{}
+func solanumWaiting() ([]pending, bool) {
+	if root() == "" {
+		return []pending{}, true
+	}
+	if gitQuiet(run.Quick, "rev-parse", "--git-dir") != 0 {
+		return []pending{}, false
 	}
 	signers, done, err := trustedSigners()
 	defer done()
 	if err != nil {
-		return []pending{}
+		return []pending{}, errors.Is(err, errNoReleaseKey)
 	}
 	if tag, _ := newestSigned(signers); tag != "" && !related(tag, "HEAD") {
-		return []pending{{"SolanumOS", env.Version, strings.TrimPrefix(tag, "v")}}
+		return []pending{{"SolanumOS", env.Version, strings.TrimPrefix(tag, "v")}}, true
 	}
-	return []pending{}
+	return []pending{}, true
 }
 
-func firmwareWaiting() []pending {
+func firmwareWaiting() ([]pending, bool) {
 	list := []pending{}
 	if !installed("fwupdmgr") {
-		return list
+		return list, true
 	}
-	output, _ := run.CaptureQuiet(run.Minute, "fwupdmgr", "get-updates", "--json")
+	output, err := run.CaptureQuiet(run.Minute, "fwupdmgr", "get-updates", "--json")
+	if err != nil && run.Code(err) != nothingToDo {
+		return list, false
+	}
 	for _, update := range care.Updates([]byte(output)) {
 		list = append(list, pending{Name: update})
 	}
-	return list
+	return list, true
 }
 
 func lastUpgrade() string {
@@ -127,28 +143,39 @@ func listUpdates() int {
 	if env.Arg(3) != "--json" || env.Arg(4) != "" {
 		return fail(updateUsage)
 	}
-	apps, tools := appsWaiting()
-	debian, read := debianWaiting()
-	unread := []string{}
-	if !read {
-		unread = append(unread, "debian")
-	}
+	apps, tools, appsRead := appsWaiting()
+	debian, debianRead := debianWaiting()
+	solanum, solanumRead := solanumWaiting()
+	firmware, firmwareRead := firmwareWaiting()
 	return printed(waiting{
 		Debian:   debian,
 		Apps:     apps,
 		Tools:    tools,
-		Solanum:  solanumWaiting(),
-		Firmware: firmwareWaiting(),
+		Solanum:  solanum,
+		Firmware: firmware,
 		Last:     lastUpgrade(),
 		Restart:  restartPending(),
 		Busy:     lock.Busy(),
-		Unread:   unread,
+		Unread:   unreadParts(map[string]bool{"debian": debianRead, "apps": appsRead, "solanum": solanumRead, "firmware": firmwareRead}),
 	})
+}
+
+func unreadParts(read map[string]bool) []string {
+	unread := []string{}
+	for _, part := range []string{"debian", "apps", "solanum", "firmware"} {
+		if !read[part] {
+			unread = append(unread, part)
+		}
+	}
+	return unread
 }
 
 func updateCommand() int {
 	if env.Arg(2) == "--list" {
 		return listUpdates()
+	}
+	if env.Arg(2) == "--hold" && env.Arg(3) == "" {
+		return holdUntilDone()
 	}
 	return update()
 }
