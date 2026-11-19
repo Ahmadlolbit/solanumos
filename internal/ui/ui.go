@@ -149,6 +149,10 @@ func ModuleResult(id, title, result string) {
 	Print(fmt.Sprintf("  %s  %-*s %s\n", id, titleWidth, title, paint(colour, result)))
 }
 
+func HandOver(key string) bool {
+	return send(events.Key, key)
+}
+
 func Page(text string) {
 	if text == "" || send(events.Page, text) {
 		return

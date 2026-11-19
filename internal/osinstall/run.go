@@ -4,13 +4,19 @@ import (
 	"slices"
 
 	"github.com/Ahmadlolbit/solanumos/internal/disks"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/step"
 )
 
-func Steps(runner *step.Runner, answers Answers, plan disks.Plan) {
+func Steps(runner *step.Runner, answers Answers, plan disks.Plan) (string, string) {
 	work := &install{answers, plan}
+	made := handed{}
 	runner.Step("Start from a clean slate", work.clean)
 	for _, group := range Grouped(slices.Concat(plan.Partition(), disks.Layout(), plan.Boot())) {
+		if luks.MakesKey(group[0].Args) {
+			made = work.keyStep(runner, group[0].Title)
+			continue
+		}
 		runner.Step(group[0].Title, work.commands(group))
 	}
 	runner.Step("Copy the system", work.copySystem)
@@ -36,4 +42,8 @@ func Steps(runner *step.Runner, answers Answers, plan disks.Plan) {
 	case runner.Ended():
 		putBootOrderBack(runner.Log, order)
 	}
+	if runner.Ended() {
+		return "", ""
+	}
+	return made.key, made.why
 }

@@ -139,6 +139,7 @@ var table = []Option{
 	{"SSH_POLICY", "SSH", Choice, "client", "client leave", "security", "Client: the SSH server doesn't start at boot. Leave: keep it as it is", nil},
 	{"NM_HANDOVER", "NetworkManager for everything", YesNo, "yes", "", "security", "Wi-Fi and wired connections move to NetworkManager, so the bar manages them", nil},
 	{"FINGERPRINT", "Fingerprint", YesNo, "no", "", "security", "Unlock the lock screen and approve sudo with a finger; the login screen keeps your password. Add a finger with solanum fingerprint add", nil},
+	{"RECOVERY_KEY_REMINDER", "Recovery key reminder", YesNo, "yes", "", "security", "A warning from solanum doctor when the encrypted disk has no recovery key; skipping the key in the installer turns it off", nil},
 }
 
 func ticked(facts Facts, key, item string) bool {

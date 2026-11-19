@@ -25,6 +25,7 @@ const (
 	Choose   = "choose"
 	Input    = "input"
 	Password = "password"
+	Key      = "key"
 
 	SummaryTitle = "Summary"
 
@@ -33,7 +34,7 @@ const (
 	stopped = "stop"
 )
 
-var kinds = []string{Text, Rule, OK, Fail, Skip, Warn, Busy, Done, Note, Result, Page, Log, Choose, Input, Password}
+var kinds = []string{Text, Rule, OK, Fail, Skip, Warn, Busy, Done, Note, Result, Page, Log, Choose, Input, Password, Key}
 
 type Event struct {
 	Kind  string

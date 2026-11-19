@@ -78,6 +78,10 @@ USAGE
                                    Unlock the disk at boot with the TPM and a short PIN, the disk password kept
                                      (run it with sudo, in a terminal); moves the boot image to dracut, and tidy
                                      takes away the boot entry kept from before
+  solanum recovery-key [status|new|remove]
+                                   Say whether the disk has a recovery key, make a new one that replaces the
+                                     old, or take it away (run it with sudo, in a terminal); new asks for the
+                                     disk password and shows the key once
   solanum webcam [relay]           List the IPU6 webcam's cameras, or relay one to /dev/video42 for apps
                                      that take only a normal webcam, until Ctrl+C (run it without sudo)
   solanum care [PAGE]              Open Care, at updates, check or changes: what's waiting to update,
@@ -130,6 +134,7 @@ var commands = map[string]func() int{
 	"software":      softwareCommand,
 	"fingerprint":   fingerprintCommand,
 	"tpm":           tpmCommand,
+	"recovery-key":  recoveryKeyCommand,
 	"install-os":    installOSCommand,
 	"first-start":   firstStartCommand,
 	"webcam":        webcamCommand,

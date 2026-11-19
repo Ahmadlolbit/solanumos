@@ -232,7 +232,7 @@ func (flow *wizard) interrupt() tea.Cmd {
 		return leave()
 	}
 	flow.asking = confirmation(title, leave)
-	if title == stopTitle {
+	if title == stopTitle || title == keptTitle {
 		flow.asking.cursor = 1
 	}
 	return flow.open(flow.asking)

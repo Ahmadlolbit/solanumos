@@ -16,6 +16,8 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/runlog"
 )
 
+const reminderKey = "RECOVERY_KEY_REMINDER"
+
 const firstBootUnit = `[Unit]
 Description=Finish setting up Solanum
 Wants=network-online.target
@@ -206,13 +208,32 @@ func (work *install) firstBoot(log *runlog.Log) error {
 	if err != nil {
 		return err
 	}
+	settings := []byte(withReminder(string(config), work.answers.Key))
 	unit := fmt.Sprintf(firstBootUnit, work.answers.User, filepath.Join(home, "solanum"))
-	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": config, "etc/solanum/first-boot": nil, "etc/systemd/system/solanum-first-boot.service": []byte(unit)} {
+	for path, data := range map[string][]byte{"etc/solanum/solanum.conf": settings, "etc/solanum/first-boot": nil, "etc/systemd/system/solanum-first-boot.service": []byte(unit)} {
 		if err := atomic.Install(inTarget(path), data, 0o644); err != nil {
 			return err
 		}
 	}
 	return chroot(log, "systemctl", "enable", "solanum-first-boot.service")
+}
+
+func withReminder(config string, key bool) string {
+	line := reminderKey + `="no"`
+	if key {
+		line = reminderKey + `="yes"`
+	}
+	lines := strings.SplitAfter(config, "\n")
+	for at, text := range lines {
+		if strings.HasPrefix(text, reminderKey+"=") {
+			lines[at] = line + "\n"
+			return strings.Join(lines, "")
+		}
+	}
+	if config != "" && !strings.HasSuffix(config, "\n") {
+		config += "\n"
+	}
+	return config + line + "\n"
 }
 
 func (work *install) close(log *runlog.Log) error {

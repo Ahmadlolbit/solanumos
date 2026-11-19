@@ -17,6 +17,7 @@ var (
 		"DISPLAY_SCALE": "Scale and shape", "NATURAL_SCROLL": "Touchpad", "TAP_TO_CLICK": "Touchpad", "ANIMATIONS": "Animations",
 		"TIPS_TERMINAL": "Tips", "TIPS_WELCOME": "Tips", "TIPS_NOTIFY": "Tips and warnings", "CARE_NOTIFY": "Tips and warnings", "CRASH_NOTIFY": "Tips and warnings",
 		"FIREWALL": "Firewall", "SSH_POLICY": "SSH", "NM_HANDOVER": "Connections", "FINGERPRINT": "Fingerprint",
+		"RECOVERY_KEY_REMINDER": "Recovery key",
 	}
 	sectionOrder = map[string][]string{
 		"themes":        {"Colours and fonts", "Windows", "Apps", "Light and dark", "Theme"},

@@ -31,6 +31,7 @@ type Answers struct {
 	Locale   string `json:"locale"`
 	DiskID   string `json:"disk_id"`
 	Config   string `json:"config"`
+	Key      bool   `json:"recovery_key"`
 }
 
 const (
@@ -53,7 +54,7 @@ func Read(path string) (Answers, error) {
 	if err != nil {
 		return Answers{}, err
 	}
-	var answers Answers
+	answers := Answers{Key: true}
 	if err := json.Unmarshal(data, &answers); err != nil {
 		return Answers{}, err
 	}
@@ -163,13 +164,17 @@ func PlanFor(answers Answers) (disks.Plan, error) {
 	}
 	ids := [3]string{disks.NewID(), disks.NewID(), disks.NewID()}
 	if !answers.Beside {
-		return disks.Whole(all[0], ids), nil
+		plan := disks.Whole(all[0], ids)
+		plan.Key = answers.Key
+		return plan, nil
 	}
 	table, err := partitions(answers.Disk)
 	if err != nil {
 		return disks.Plan{}, err
 	}
-	return disks.Beside(all[0], table, ids)
+	plan, err := disks.Beside(all[0], table, ids)
+	plan.Key = answers.Key
+	return plan, err
 }
 
 func partitions(disk string) (disks.Table, error) {

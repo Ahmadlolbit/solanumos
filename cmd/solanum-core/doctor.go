@@ -19,9 +19,11 @@ import (
 	"github.com/Ahmadlolbit/solanumos/internal/env"
 	"github.com/Ahmadlolbit/solanumos/internal/fsutil"
 	"github.com/Ahmadlolbit/solanumos/internal/lock"
+	"github.com/Ahmadlolbit/solanumos/internal/luks"
 	"github.com/Ahmadlolbit/solanumos/internal/run"
 	"github.com/Ahmadlolbit/solanumos/internal/session"
 	"github.com/Ahmadlolbit/solanumos/internal/ui"
+	"github.com/Ahmadlolbit/solanumos/internal/words"
 )
 
 const (
@@ -438,6 +440,33 @@ func (visit *checkup) disk() {
 	}
 }
 
+func (visit *checkup) recoveryKey(reminder string) {
+	root, err := luksRootFor(keyRoot())
+	switch {
+	case errors.As(err, new(plainRoot)):
+		return
+	case reminder == "no":
+		ui.Skip(words.T("The recovery key reminder is off"))
+		return
+	case errors.As(err, new(unreadRoot)):
+		ui.Warn(fmt.Sprintf(words.T("Couldn't check the recovery key: %s"), err.Error()))
+		return
+	case err != nil:
+		ui.Skip(sentenceOf(err.Error()))
+		return
+	}
+	dump, err := run.CaptureQuiet(visit.limit, "cryptsetup", "luksDump", root.device)
+	if unchecked("the recovery key", "Reading the disk's key slots", "cryptsetup", err) {
+		return
+	}
+	if luks.HasKey(dump) {
+		ui.OK(words.T("The disk has a recovery key"))
+		return
+	}
+	ui.Warn(words.T("This disk has no recovery key"))
+	ui.Note(words.T("Fix: sudo solanum recovery-key new"))
+}
+
 func batteryValue(battery, energy, charge string) string {
 	if text, err := fsutil.Text(filepath.Join(battery, energy)); err == nil {
 		return text
@@ -611,7 +640,7 @@ func examine() int {
 	if !ok {
 		return fail("cannot tell whose desktop this is; run it with sudo from your own account")
 	}
-	setting := config.Read(config.Path()).Get("SNAPSHOTS")
+	settings := config.Read(config.Path())
 	visit := checkup{person: person, limit: run.Minute}
 	failed := ui.Failures()
 	ui.Header("solanum doctor", "Checks the system and offers the safe fixes")
@@ -620,8 +649,9 @@ func examine() int {
 	visit.services()
 	visit.crashes()
 	ui.Rule("Storage")
-	visit.snapshots(setting)
+	visit.snapshots(settings.Get("SNAPSHOTS"))
 	visit.disk()
+	visit.recoveryKey(settings.Get("RECOVERY_KEY_REMINDER"))
 	ui.Rule("Hardware and packages")
 	checkBatteries()
 	visit.firmware()
