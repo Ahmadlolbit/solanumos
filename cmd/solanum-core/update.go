@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -133,15 +134,41 @@ func ran(command []string, failure string) int {
 	return fail("%s", failure)
 }
 
+func apart(stoppable bool, command []string, failure string) int {
+	if _, helped := onBehalf(); !streamed || !helped {
+		return ran(command, failure)
+	}
+	var stop chan os.Signal
+	if stoppable {
+		stop = make(chan os.Signal, 1)
+		cleanup.NotifyInterrupt(stop)
+		defer signal.Stop(stop)
+	}
+	code, halted := run.Shielded(stop, command[0], command[1:]...)
+	switch {
+	case halted:
+		run.Stop()
+		return stoppedCode
+	case code == 0:
+		return 0
+	case run.Stopped():
+		return stoppedCode
+	}
+	return fail("%s", failure)
+}
+
 func updateSystem() int {
 	if status := snapshotFirst(); status != 0 {
 		return status
 	}
 	if apt.Interrupted() {
 		ui.Print("dpkg was interrupted, finishing what it left\n")
-		if status := ran(admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
+		if status := apart(false, admin("dpkg", "--force-confdef", "--force-confold", "--configure", "-a"), "finishing what dpkg left failed, so Debian wasn't updated"); status != 0 {
 			debianFailed = true
 			return status
+		}
+		if run.Stopped() {
+			return stoppedCode
 		}
 	}
 	ui.Print("Updating Debian\n")
@@ -152,7 +179,7 @@ func updateSystem() int {
 		return stoppedCode
 	}
 	before := sessionVersions()
-	status := ran(fullUpgrade(), "updating Debian failed")
+	status := apart(true, fullUpgrade(), "updating Debian failed")
 	if run.Stopped() {
 		return stoppedCode
 	}

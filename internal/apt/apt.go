@@ -124,7 +124,7 @@ func repair(out io.Writer) error {
 		return nil
 	}
 	fmt.Fprintln(out, "dpkg was interrupted, finishing what it left")
-	return run.LoggedWithin(repairLimit, out, "dpkg", "--force-confdef", "--force-confold", "--configure", "-a")
+	return run.Apart(repairLimit, out, false, "dpkg", "--force-confdef", "--force-confold", "--configure", "-a")
 }
 
 func get(out io.Writer, args ...string) error {
@@ -143,7 +143,7 @@ func get(out io.Writer, args ...string) error {
 		waitForApt(out)
 	}
 	command = append(command, "-o", "Dpkg::Use-Pty=0", "-o", lockWait, "-o", "Dpkg::Options::=--force-confdef", "-o", "Dpkg::Options::=--force-confold")
-	return run.LoggedInEnglish(aptLimit, out, "apt-get", append(command, args...)...)
+	return run.Apart(aptLimit, out, true, "apt-get", append(command, args...)...)
 }
 
 func fresh() bool {
